@@ -44,7 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
             return ApiResponse::customErrorResponse($exception->getMessage(), [], $exception);
         });
 
-        $exceptions->render(function (QueryException $exception) {
+        $exceptions->render(function (HttpException $exception) {
             return ApiResponse::customErrorResponse($exception->getMessage(), [], $exception);
         });
     })->create();
