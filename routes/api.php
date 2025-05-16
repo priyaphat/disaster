@@ -3,6 +3,8 @@
 use App\Http\Controllers\API\LoginController;
 use App\Http\Controllers\API\NewsController;
 use App\Http\Controllers\API\RegisterController;
+use App\Http\Controllers\API\PermissionController;
+use App\Http\Controllers\API\ImageController;
 use App\Http\Responses\ApiSuccessResponse;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
@@ -28,4 +30,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/news', [NewsController::class, 'store']);
     Route::post('/news/{news}', [NewsController::class, 'update']);
     Route::delete('/news/{news}', [NewsController::class, 'destroy']);
+
+    Route::group(['middleware' => ['permission:team.view']], function () {
+        Route::post('/role/create', [PermissionController::class, 'createRole']);
+        Route::get('/roles', [PermissionController::class, 'showRoles']);
+        Route::get('/permissions', [PermissionController::class, 'showPermissions']);
+    });
 });
