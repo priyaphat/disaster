@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PermissionService
 {
