@@ -2,27 +2,51 @@
 
 namespace App\Services;
 
-use App\Repository\UserRepository;
+use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    protected $userRepository;
-
-    /**
-     * Create a new class instance.
-     */
-    public function __construct(UserRepository $userRepository)
+    public function getList(): Collection
     {
-        $this->userRepository = $userRepository;
+        return User::latest()->all();
     }
 
-    public function registerUser(array $data)
+    public function paginate(int $perPage = 10): LengthAwarePaginator
     {
-        // Validate user data and send welcome email.
+        return User::latest()->paginate($perPage);
+    }
+
+    public function getById(int $id): User
+    {
+        return User::findOrFail($id);
+    }
+
+    public function create(array $data): User
+    {
         $data['password'] = Hash::make($data['password']);
-        $user = $this->userRepository->create($data);
-        // event(new UserRegistered($user));
+        $user = User::create($data);
+
+        // You might want to assign a default role, send a welcome email, etc.
+        // event(new UserCreated($user));
         return $user;
+    }
+
+    public function update(User $user, array $data): User
+    {
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $user->update($data);
+
+        return $user;
+    }
+
+    public function delete(User $user): void
+    {
+        $user->delete();
     }
 }

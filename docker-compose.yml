@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      args:
+        user: sammy
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: disaster
+    ports:
+         - "8000:8000"
+    container_name: disaster-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - disaster
+
+  db:
+    image: mysql:latest
+    container_name: disaster-db
+    restart: unless-stopped
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: laravel
+        MYSQL_USER: laravel
+        MYSQL_PASSWORD: password
+    networks:
+      - disaster
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: disaster-phpmyadmin
+    restart: unless-stopped
+    ports:
+        - "8080:80"
+    environment:
+      PMA_HOST: db
+    networks:
+      - disaster
+
+networks:
+  disaster:
+    driver: bridge

@@ -20,11 +20,7 @@ class LoginController extends Controller
     public function login(LoginRequest $request)
     {
         $user = User::where('username', $request->username)->first();
-
-        // if ($user && !$user->status) {
-        //     return ApiResponse::responseUnauthorized('User was blocked');
-        // }
-
+    
         if ($user && Hash::check($request->password, $user->password)) {
             $token = $user->createToken('API Token')->accessToken;
             // Custom response for API
