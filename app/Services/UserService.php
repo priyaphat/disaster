@@ -28,6 +28,7 @@ class UserService
     {
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
+        $user->syncRoles('Admin');
 
         // You might want to assign a default role, send a welcome email, etc.
         // event(new UserCreated($user));
