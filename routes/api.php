@@ -6,6 +6,7 @@ use App\Http\Controllers\API\NewsController;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\ImageController;
+use App\Http\Controllers\API\ShelterController;
 use App\Http\Responses\ApiSuccessResponse;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
@@ -41,4 +42,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/roles', [PermissionController::class, 'showRoles']);
         Route::get('/permissions', [PermissionController::class, 'showPermissions']);
     });
+    
+    Route::post('/shelter', [ShelterController::class, 'store']);
+    Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
 });
