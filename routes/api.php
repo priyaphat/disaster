@@ -45,4 +45,5 @@ Route::middleware('auth:api')->group(function () {
     
     Route::post('/shelter', [ShelterController::class, 'store']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
+    
 });
