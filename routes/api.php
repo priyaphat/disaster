@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\LoginController;
 use App\Http\Controllers\API\NewsController;
 use App\Http\Controllers\API\RegisterController;
@@ -25,6 +26,10 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
 
+    Route::get('/provinces', [AddressController::class, 'getProvinces']);
+    Route::get('/districts/{provinceId}', [AddressController::class, 'getDistricts']);
+    Route::get('/sub-districts/{districtId}', [AddressController::class, 'getSubDistricts']);
+    
     Route::get('/news', [NewsController::class, 'index']);
     Route::get('/news/{news}', [NewsController::class, 'show']);
     Route::post('/news', [NewsController::class, 'store']);
