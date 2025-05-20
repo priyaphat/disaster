@@ -9,6 +9,7 @@ use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\ImageController;
 use App\Http\Controllers\API\PrefixController;
 use App\Http\Controllers\API\ShelterController;
+use App\Http\Controllers\API\EmergencyRequestController;
 use App\Http\Responses\ApiSuccessResponse;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
@@ -49,6 +50,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/news/{news}', [NewsController::class, 'update']);
     Route::delete('/news/{news}', [NewsController::class, 'destroy']);
 
+        
     Route::group(['middleware' => ['permission:team.view']], function () {
         Route::post('/role/create', [PermissionController::class, 'createRole']);
         Route::get('/roles', [PermissionController::class, 'showRoles']);
@@ -57,4 +59,11 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/shelter', [ShelterController::class, 'store']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
+
+
+    Route::get('/emc-request', [EmergencyRequestController::class, 'index']);
+    Route::get('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'show']);
+    Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
+    Route::post('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'update']);
+    Route::delete('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'destroy']);
 });
