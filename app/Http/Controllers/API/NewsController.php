@@ -37,7 +37,7 @@ class NewsController extends Controller
     public function show(News $news)
     {
         $news->image = $this->imageService->getByTableAndId(News::class, $news->id);
-        return ApiResponse::createdResponse(__('success.created'), new NewsResource($news));
+        return ApiResponse::successResponse(__('success.data'), new NewsResource($news));
     }
 
     public function update(NewsRequest $request, News $news)

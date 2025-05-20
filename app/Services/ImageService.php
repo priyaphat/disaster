@@ -83,7 +83,7 @@ class ImageService
         $image = $this->getByTableAndId($table, $id);
 
         if (!$image) {
-            throw new ModelNotFoundException('Image record not found.');
+            return false;
         }
 
         if ($image->image_name !== 'default.png') {
@@ -111,8 +111,8 @@ class ImageService
             $location = Storage::disk('public')->path($folderPath . $filename);
 
             // Ensure the folder exists
-            if (!Storage::exists($folder)) {
-                Storage::makeDirectory($folder);
+            if (!Storage::disk('public')->exists($folderPath)) {
+                Storage::disk('public')->makeDirectory($folderPath);
             }
 
             // Save the file (either base64 or uploaded)
@@ -200,17 +200,4 @@ class ImageService
         }
     }
 
-    /**
-     * Get the table name based on the folder.
-     *
-     * @param string $folder
-     * @return string
-     */
-    private static function getTableName($folder)
-    {
-        return match ($folder) {
-            News::IMAGE_FOLDER => 'news',
-            default => 'users',
-        };
-    }
 }

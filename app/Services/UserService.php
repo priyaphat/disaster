@@ -24,12 +24,19 @@ class UserService
         return User::findOrFail($id);
     }
 
+    public function register(array $data): User
+    {
+        $data['password'] = Hash::make($data['password']);
+        $user = User::create($data);
+        // You might want to assign a default role, send a welcome email, etc.
+        // event(new UserCreated($user));
+        return $user;
+    }
+
     public function create(array $data): User
     {
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
-        $user->syncRoles('Admin');
-
         // You might want to assign a default role, send a welcome email, etc.
         // event(new UserCreated($user));
         return $user;
