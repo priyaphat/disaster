@@ -15,19 +15,19 @@ class AddressController extends Controller
     //
     public function getProvinces()
     {
-        $provinces = DB::table('provinces')->get();
+        $provinces = DB::table('thai_provinces')->get();
         return ApiResponse::successResponse(__('success.data'), $provinces);
     }
 
-    public function getDistricts($provinceId)
+    public function getAmphures($provinceId)
     {
-        $districts = DB::table('districts')->where('province_id', $provinceId)->get();
+        $districts = DB::table('thai_amphures')->where('province_id', $provinceId)->get();
         return ApiResponse::successResponse(__('success.data'), $districts);
     }
 
-    public function getSubDistricts($districtId)
+    public function getTambons($amphureId)
     {
-        $sub = DB::table('sub_districts')->where('district_id', $districtId)->get();
+        $sub = DB::table('thai_tambons')->where('amphure_id', $amphureId)->get();
         return ApiResponse::successResponse(__('success.data'), $sub);
     }
 }
