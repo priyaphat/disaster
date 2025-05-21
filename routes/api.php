@@ -60,6 +60,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/shelter', [ShelterController::class, 'store']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
 
+    Route::post('/address', [AddressController::class, 'getAddress']);
+    Route::post('/district', [AddressController::class, 'getDistricts']);
+    Route::post('/sub-district', [AddressController::class, 'getSubDistricts']);
+    Route::post('/province', [AddressController::class, 'getProvinces']);
+
 
     Route::get('/emc-request', [EmergencyRequestController::class, 'index']);
     Route::get('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'show']);

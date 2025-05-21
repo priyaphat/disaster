@@ -5,10 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PermissionRequest;
 use App\Http\Responses\ApiResponse;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use App\Services\PermissionService;
-
 
 class PermissionController extends Controller
 {
