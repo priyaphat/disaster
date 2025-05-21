@@ -3,27 +3,43 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Geography\AddressRequest;
+use App\Http\Requests\Geography\DistrictRequest;
+use App\Http\Requests\Geography\SubDistrictRequest;
 use App\Http\Responses\ApiResponse;
-use Illuminate\Support\Facades\DB;
+use App\Services\AddressService;
+use Illuminate\Http\Request;
 
 class AddressController extends Controller
 {
-    //
+    protected $addressService;
+
+    public function __construct(AddressService $addressService)
+    {
+        $this->addressService = $addressService;
+    }
+
+    public function getAddress(AddressRequest $request)
+    {
+        $address = $this->addressService->getAddress($request->all());
+        return ApiResponse::successResponse(__('success.data'), $address);
+    }
+
     public function getProvinces()
     {
-        $provinces = DB::table('thai_provinces')->get();
+        $provinces = $this->addressService->getProvinces();
         return ApiResponse::successResponse(__('success.data'), $provinces);
     }
 
-    public function getAmphures($provinceId)
+    public function getDistricts(DistrictRequest $request)
     {
-        $districts = DB::table('thai_amphures')->where('province_id', $provinceId)->get();
+        $districts = $this->addressService->getDistricts($request->all());
         return ApiResponse::successResponse(__('success.data'), $districts);
     }
 
-    public function getTambons($amphureId)
+    public function getSubDistricts(SubDistrictRequest $request)
     {
-        $sub = DB::table('thai_tambons')->where('amphure_id', $amphureId)->get();
+        $sub = $this->addressService->getSubDistricts($request->all());
         return ApiResponse::successResponse(__('success.data'), $sub);
     }
 }
