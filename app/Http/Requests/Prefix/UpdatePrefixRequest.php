@@ -23,8 +23,7 @@ class UpdatePrefixRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'max:255', Rule::unique('prefixes', 'name')->ignore($this->route('prefix')->id, 'id'),],
-            'description' => 'nullable|max:255',
+            'name' => ['required', 'max:255', Rule::unique('prefixes', 'name')->ignore($this->route('prefix')->id, 'id'),]
         ];
     }
 }

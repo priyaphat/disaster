@@ -20,6 +20,7 @@ class RegisterController extends Controller
     public function register(RegisterRequest $request)
     {
         $user = $this->userService->create($request->all());
+        $this->userService->delete($user);
         return ApiResponse::createdResponse('Success', $user);
     }
 }

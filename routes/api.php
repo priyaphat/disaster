@@ -6,15 +6,12 @@ use App\Http\Controllers\API\LoginController;
 use App\Http\Controllers\API\NewsController;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\PermissionController;
-use App\Http\Controllers\API\ImageController;
 use App\Http\Controllers\API\PrefixController;
 use App\Http\Controllers\API\ShelterController;
 use App\Http\Controllers\API\EmergencyRequestController;
-use App\Http\Responses\ApiSuccessResponse;
-use App\Models\User;
-use Illuminate\Auth\Events\Login;
+use App\Http\Controllers\API\PositionController;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
@@ -32,6 +29,12 @@ Route::get('/tambons/{amphureId}', [AddressController::class, 'getTambons']);
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
 
+    Route::get('/positions', [PositionController::class, 'index']);
+    Route::get('/position/{position}', [PositionController::class, 'show']);
+    Route::post('/position', [PositionController::class, 'store']);
+    Route::post('/position/{position}', [PositionController::class, 'update']);
+    Route::delete('/position/{position}', [PositionController::class, 'destroy']);
+
     Route::get('/departments', [DepartmentController::class, 'index']);
     Route::get('/department/{department}', [DepartmentController::class, 'show']);
     Route::post('/department', [DepartmentController::class, 'store']);
@@ -44,15 +47,21 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/prefix/{prefix}', [PrefixController::class, 'update']);
     Route::delete('/prefix/{prefix}', [PrefixController::class, 'destroy']);
 
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/user/{user}', [UserController::class, 'show']);
+    Route::post('/user', [UserController::class, 'store']);
+    Route::post('/user/{user}', [UserController::class, 'update']);
+    Route::delete('/user/{user}', [UserController::class, 'destroy']);
+
     Route::get('/news', [NewsController::class, 'index']);
     Route::get('/news/{news}', [NewsController::class, 'show']);
     Route::post('/news', [NewsController::class, 'store']);
     Route::post('/news/{news}', [NewsController::class, 'update']);
     Route::delete('/news/{news}', [NewsController::class, 'destroy']);
 
-        
+    Route::post('/role', [PermissionController::class, 'createRole']);
+
     Route::group(['middleware' => ['permission:team.view']], function () {
-        Route::post('/role/create', [PermissionController::class, 'createRole']);
         Route::get('/roles', [PermissionController::class, 'showRoles']);
         Route::get('/permissions', [PermissionController::class, 'showPermissions']);
     });
@@ -64,6 +73,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/emc-request', [EmergencyRequestController::class, 'index']);
     Route::get('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
-    Route::post('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'update']);
-    Route::delete('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'destroy']);
+    Route::post('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'update']);
+    Route::delete('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'destroy']);
 });

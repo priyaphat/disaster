@@ -22,8 +22,7 @@ class StorePrefixRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|unique:prefixes,name|max:255',
-            'description' => 'nullable|max:255',
+            'name' => 'required|unique:prefixes,name|max:255'
         ];
     }
 }

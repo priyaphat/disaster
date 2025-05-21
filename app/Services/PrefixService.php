@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 class PrefixService
 {
     /**
-     * Get all news with filter and limit number.
+     * Get all prefixes with filter and limit number.
      */
     public function getList(array $filters = [], ?int $limit = null): Collection
     {
@@ -30,7 +30,7 @@ class PrefixService
     }
 
     /**
-     * Get paginated news.
+     * Get paginated prefix.
      */
     public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
@@ -42,7 +42,7 @@ class PrefixService
     }
 
     /**
-     * Get a news by its id.
+     * Get a prefix by its id.
      */
     public function getById(int $id): Prefix
     {
@@ -50,7 +50,7 @@ class PrefixService
     }
 
     /**
-     * Create a news.
+     * Create a prefix.
      */
     public function create(array $data): Prefix
     {
@@ -58,7 +58,7 @@ class PrefixService
     }
 
     /**
-     * Update a news.
+     * Update a prefix.
      */
     public function update(Prefix $prefix, array $data): Prefix
     {
@@ -67,7 +67,7 @@ class PrefixService
     }
 
     /**
-     * Delete a news.
+     * Delete a prefix.
      */
     public function delete(Prefix $prefix): bool
     {

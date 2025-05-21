@@ -27,8 +27,9 @@ return new class extends Migration
             $table->integer('type')->default(1);
             $table->integer('location_id')->nullable();
             $table->unsignedBigInteger('department_id')->nullable();
+            $table->unsignedBigInteger('position_id')->nullable();
             $table->unsignedBigInteger('role_id')->nullable();
-            $table->integer('created_by_admin')->default(false);
+            $table->integer('registration_type')->default();
             $table->rememberToken();
             $table->timestamps();
         });

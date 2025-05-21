@@ -31,7 +31,7 @@ class NewsController extends Controller
     {
         $data = $this->newsService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, News::IMAGE_FOLDER, News::class, $data->id);
-        return ApiResponse::successResponse(__('success.created'), new NewsResource($data));
+        return ApiResponse::createdResponse(__('success.created'), new NewsResource($data));
     }
 
     public function show(News $news)

@@ -34,7 +34,7 @@ class PrefixController extends Controller
     {
         //
         $data = $this->prefixService->create($request->all());
-        return ApiResponse::successResponse(__('success.created'), $data);
+        return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
     /**

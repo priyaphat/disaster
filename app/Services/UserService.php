@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Events\UserRegistered;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -28,18 +30,17 @@ class UserService
     {
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
-        // You might want to assign a default role, send a welcome email, etc.
-        // event(new UserCreated($user));
         return $user;
     }
 
     public function create(array $data): User
     {
-        $data['password'] = Hash::make($data['password']);
+        $password = self::generatePassword();
+        $data['password'] = Hash::make($password);
+        $data['created_by_admin'] = true;
         $user = User::create($data);
-        $user->syncRoles('user');
-        // You might want to assign a default role, send a welcome email, etc.
-        // event(new UserCreated($user));
+        // send a password via emai
+        UserRegistered::dispatch($user, $password);
         return $user;
     }
 
@@ -50,12 +51,16 @@ class UserService
         }
 
         $user->update($data);
-
         return $user;
     }
 
     public function delete(User $user): void
     {
         $user->delete();
+    }
+
+    public static function generatePassword(): string
+    {
+        return Str::password(12);
     }
 }

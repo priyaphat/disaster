@@ -4,10 +4,6 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
-use App\Models\District;
-use App\Models\Province;
-use App\Models\SubDistrict;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AddressController extends Controller
