@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\User\RegisterRequest;
 use App\Http\Responses\ApiResponse;
 use App\Services\UserService;
 
 class RegisterController extends Controller
 {
     //
-    protected $userService;
+    protected $userService, $approvalService;
 
     public function __construct(UserService $userService)
     {
@@ -19,8 +19,7 @@ class RegisterController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        $user = $this->userService->create($request->all());
-        $this->userService->delete($user);
-        return ApiResponse::createdResponse('Success', $user);
+        $user = $this->userService->register($request->all());
+        return ApiResponse::createdResponse(__('success.created'), $user);
     }
 }

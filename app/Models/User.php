@@ -3,17 +3,21 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserType;
+use App\Filters\UserFilter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -28,9 +32,10 @@ class User extends Authenticatable
         'username',
         'password',
         'type',
-        'location_id',
+        'district_id',
         'department_id',
-        'position_id'
+        'position_id',
+        'registration_type'
     ];
 
     /**
@@ -53,6 +58,42 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'type' => UserType::class,
         ];
+    }
+
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    public function approval(): HasOne
+    {
+        return $this->hasOne(UserApproval::class);
+    }
+
+    public function prefix(): HasOne
+    {
+        return $this->hasOne(Prefix::class, 'id', 'prefix_id');
+    }
+
+    public function department(): HasOne
+    {
+        return $this->hasOne(Department::class, 'id', 'department_id');
+    }
+
+    public function position(): HasOne
+    {
+        return $this->hasOne(Department::class, 'id', 'position_id');
+    }
+
+     public function area(): HasOne
+    {
+        return $this->hasOne(Geography::class, 'district_code', 'district_id');
+    }
+
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return (new UserFilter($filters))->apply($query);
     }
 }

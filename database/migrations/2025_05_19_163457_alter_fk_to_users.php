@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Foreign key constraints
             $table->foreign('prefix_id')->references('id')->on('prefixes');
-            // $table->foreign('location_id')->references('id')->on('thai_amphures');
             $table->foreign('department_id')->references('id')->on('departments');
             $table->foreign('position_id')->references('id')->on('positions');
             $table->foreign('role_id')->references('id')->on('roles');

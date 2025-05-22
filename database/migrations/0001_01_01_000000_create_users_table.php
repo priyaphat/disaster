@@ -21,28 +21,26 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->integer('status')->default(true);
-            $table->boolean('email_verified')->default(false);
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('line_token')->nullable();
             $table->integer('type')->default(1);
-            $table->integer('location_id')->nullable();
+            $table->integer('district_id')->nullable();
             $table->unsignedBigInteger('department_id')->nullable();
             $table->unsignedBigInteger('position_id')->nullable();
             $table->unsignedBigInteger('role_id')->nullable();
-            $table->integer('registration_type')->default();
+            $table->enum('registration_type', ['self', 'admin'])->default('self');
             $table->rememberToken();
             $table->timestamps();
+
+;
         });
 
         Schema::create('user_approvals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->boolean('is_approved')->default(false);
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->integer('is_approved')->default(true);
+            $table->text('approved_reason')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();
-            $table->timestamp('rejected_at')->nullable();
-            $table->text('rejected_reason')->nullable();
             $table->timestamps();
             // Foreign key constraints
             $table->foreign('user_id')->references('id')->on('users');

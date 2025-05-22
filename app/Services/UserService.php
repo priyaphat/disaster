@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\ApprovalStatus;
+use App\Enums\RegistrationType;
+use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -13,12 +16,12 @@ class UserService
 {
     public function getList(): Collection
     {
-        return User::latest()->all();
+        return User::latest()->get();
     }
 
-    public function paginate(int $perPage = 10): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        return User::latest()->paginate($perPage);
+        return User::filter($filters)->with(['prefix', 'department', 'position', 'area'])->latest()->paginate($perPage);
     }
 
     public function getById(int $id): User
@@ -29,7 +32,11 @@ class UserService
     public function register(array $data): User
     {
         $data['password'] = Hash::make($data['password']);
+        $data['registration_type'] = RegistrationType::SELF;
         $user = User::create($data);
+
+        // Send a password via email
+        userRegistered::dispatch($user);
         return $user;
     }
 
@@ -37,10 +44,11 @@ class UserService
     {
         $password = self::generatePassword();
         $data['password'] = Hash::make($password);
-        $data['created_by_admin'] = true;
+        $data['registration_type'] = RegistrationType::ADMIN;
         $user = User::create($data);
-        // send a password via emai
-        UserRegistered::dispatch($user, $password);
+
+        // Send a password via email
+        AdminRegistered::dispatch($user, $password);
         return $user;
     }
 
