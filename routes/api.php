@@ -9,6 +9,7 @@ use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\PrefixController;
 use App\Http\Controllers\API\ShelterController;
 use App\Http\Controllers\API\EmergencyRequestController;
+use App\Http\Controllers\API\PopulationController;
 use App\Http\Controllers\API\PositionController;
 use App\Http\Controllers\API\UserApprovalController;
 use App\Http\Controllers\API\UserController;
@@ -115,6 +116,14 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/sub-district', [AddressController::class, 'getSubDistricts']);
     Route::post('/province', [AddressController::class, 'getProvinces']);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display populations
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/population', [PopulationController::class, 'store']);
+    Route::get('/population/{population}', [PopulationController::class, 'getPopulation']);
+    
     /*
     |--------------------------------------------------------------------------
     | Routes for display emergency requests
