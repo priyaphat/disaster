@@ -24,8 +24,8 @@ class Shelter extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->useLogName('shelters')
-        ->logOnly(['*'])
-        ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
+            ->useLogName('shelters')
+            ->logOnly(['*'])
+            ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
     }
 }
