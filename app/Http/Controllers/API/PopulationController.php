@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Population\PopulationCreateRequest;
+use App\Http\Requests\Population\CreatePopulationRequest;
+use App\Http\Requests\Population\UpdatePopulationRequest;
 use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
 use App\Models\Population;
@@ -18,15 +19,27 @@ class PopulationController extends Controller
         $this->populationService = $populationService;
     }
 
-    public function store(PopulationCreateRequest $request)
+    public function index(Request $request)
     {
-        $population = $this->populationService->create($request->all());
-        return ApiResponse::createdResponse('Success', $population);
+        $data = $this->populationService->getList($request->all());
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    public function getPopulation(Population $population)
+    public function store(CreatePopulationRequest $request)
     {
-        $population = $this->populationService->getPopulation($population->id);
-        return ApiResponse::successResponse('Success', $population);
+        $data = $this->populationService->create($request->all());
+        return ApiResponse::createdResponse(__('success.data'), $data);
+    }
+
+    public function show(Population $population)
+    {
+        return ApiResponse::successResponse(__('success.data'), $population);
+    }
+
+    public function update(UpdatePopulationRequest $request, Population $population)
+    {
+        //
+        $data = $this->populationService->update($population, $request->all());
+        return ApiResponse::successResponse(__('success.updated'), $data);
     }
 }

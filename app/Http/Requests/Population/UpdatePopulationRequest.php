@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Shelter;
+namespace App\Http\Requests\Population;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ShelterCreateRequest extends FormRequest
+class UpdatePopulationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,12 +22,7 @@ class ShelterCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|max:255|unique:shelters,name',
-            'phone' => 'required|max:10',
-            'created_date' => 'required',
-            'leader_id' => 'required|exists:users,id',
-            'address' => 'required',
-            'max_capacity' => 'required',
+            'created_date' => 'required|date',
         ];
     }
 }

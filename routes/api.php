@@ -121,8 +121,10 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display populations
     |--------------------------------------------------------------------------
     */
+    Route::get('/population', [PopulationController::class, 'index']);
+    Route::get('/population/{population}', [PopulationController::class, 'show']);
     Route::post('/population', [PopulationController::class, 'store']);
-    Route::get('/population/{population}', [PopulationController::class, 'getPopulation']);
+    Route::post('/population/{population}', [PopulationController::class, 'update']);
     
     /*
     |--------------------------------------------------------------------------

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Shelter;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ShelterUpdateRequest extends FormRequest
+class CreateShelterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,12 @@ class ShelterUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 
+            'name' => 'required|max:255|unique:shelters,name',
+            'phone' => 'required|max:10',
+            'created_date' => 'required',
+            'leader_id' => 'required|exists:users,id',
+            'address' => 'required',
+            'max_capacity' => 'required',
         ];
     }
 }
