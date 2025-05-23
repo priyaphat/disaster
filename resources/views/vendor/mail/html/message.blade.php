@@ -9,14 +9,19 @@
 {{-- Body --}}
 {!! $slot !!}
 
+{{-- Salutation --}}
+<p>
+ขอแสดงความนับถือ,<br>
+สำนักพยาบาลศาสตร์ มหาวิทยาลัยแม่ฟ้าหลวง
+</p>
+
 {{-- Subcopy --}}
-@isset($subcopy)
 <x-slot:subcopy>
 <x-mail::subcopy>
-{!! $subcopy !!}
+หากคุณต้องการความช่วยเหลืออื่นๆ สามารถติดต่อได้ที่ <br>
+สำนักงาน เวลาทำการ 9.00 - 16.00 น.
 </x-mail::subcopy>
 </x-slot:subcopy>
-@endisset
 
 {{-- Footer --}}
 <x-slot:footer>

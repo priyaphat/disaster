@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\ApprovalStatus;
 use App\Enums\RegistrationType;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;

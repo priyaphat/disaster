@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\UserType;
 use App\Filters\UserFilter;
+use App\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -84,10 +85,10 @@ class User extends Authenticatable
 
     public function position(): HasOne
     {
-        return $this->hasOne(Department::class, 'id', 'position_id');
+        return $this->hasOne(Position::class, 'id', 'position_id');
     }
 
-     public function area(): HasOne
+    public function area(): HasOne
     {
         return $this->hasOne(Geography::class, 'district_code', 'district_id');
     }
@@ -96,4 +97,10 @@ class User extends Authenticatable
     {
         return (new UserFilter($filters))->apply($query);
     }
+
+    // send forgot password
+    // public function sendPasswordResetNotification($token)
+    // {
+    //     $this->notify(new ResetPassword($token, $this->email));
+    // }
 }

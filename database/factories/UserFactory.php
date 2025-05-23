@@ -2,6 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserType;
+use App\Models\Department;
+use App\Models\Geography;
+use App\Models\Position;
+use App\Models\Prefix;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -24,10 +29,17 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'username' => fake()->userName(),
             'password' => static::$password ??= Hash::make('password'),
+            'prefix_id' => Prefix::inRandomOrder()->first()?->id,
+            'firstname' => fake()->firstName(),
+            'lastname' => fake()->lastName(),
+            'phone' => fake()->lastName(),
+            'type' => fake()->randomElement(UserType::cases())->value,
+            'district_id' => Geography::inRandomOrder()->first()?->district_code,
+            'department_id' => Department::inRandomOrder()->first()?->id,
+            'position_id' => Position::inRandomOrder()->first()?->id,
             'remember_token' => Str::random(10),
         ];
     }

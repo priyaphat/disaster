@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Filters\UserFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;

@@ -9,7 +9,9 @@ use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\PrefixController;
 use App\Http\Controllers\API\ShelterController;
 use App\Http\Controllers\API\EmergencyRequestController;
+use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\PositionController;
+use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\UserApprovalController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
@@ -21,6 +23,10 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
+
+Route::post('/forgot-password',[ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);

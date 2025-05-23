@@ -19,6 +19,18 @@ class UserFilter extends QueryFilter
     //         $query->where('id', $id);
     //     });
     // }
+    public function type($value)
+    {
+        $value = intval($value);
+        return $this->builder->where('type', $value);
+    }
+
+    public function province($id)
+    {
+        return $this->builder->whereHas('area', function ($query) use ($id) {
+            $query->where('province_code', $id);
+        });
+    }
 
     public function district($id)
     {

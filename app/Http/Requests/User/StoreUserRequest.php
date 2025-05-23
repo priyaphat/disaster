@@ -31,7 +31,7 @@ class StoreUserRequest extends FormRequest
             'lastname' => 'required|max:255',
             'phone' => 'required|max:10',
             'type' => ['required', Rule::enum(UserType::class)],
-            'district_id' => 'required',
+            'district_id' => 'required|exists:geography,district_code',
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'required|exists:positions,id'
         ];

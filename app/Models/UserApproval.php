@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
-use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserApproval extends Model
 {
-    use CreatedUpdatedBy;
-
     protected $fillable = [
         'user_id',
         'is_approved',
