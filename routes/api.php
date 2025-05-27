@@ -13,6 +13,7 @@ use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\PopulationController;
 use App\Http\Controllers\API\PositionController;
 use App\Http\Controllers\API\ResetPasswordController;
+use App\Http\Controllers\API\TeamController;
 use App\Http\Controllers\API\UserApprovalController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
@@ -140,4 +141,16 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
     Route::post('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'update']);
     Route::delete('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display teams
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/teams', [TeamController::class, 'index']);
+    // Route::get('/users', [UserController::class, 'list']);
+    Route::get('/team/{team}', [TeamController::class, 'show']);
+    Route::post('/team', [TeamController::class, 'store']);
+    Route::post('/team/{team}', [TeamController::class, 'update']);
+    Route::delete('/team/{team}', [TeamController::class, 'destroy']);
 });
