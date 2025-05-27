@@ -8,6 +8,8 @@ return new class extends Migration
 {
     /**
      * php artisan migrate --path=/database/migrations/2024_05_19_000000_create_emergency_request_table.php
+     * php artisan tinker
+     * Schema::dropIfExists('emergency_requests');
      */
     public function up(): void
     {
@@ -22,13 +24,22 @@ return new class extends Migration
             $table->unsignedInteger('disaster_id');
             $table->text('description')->nullable();
             $table->unsignedInteger('tambon_id');
+            $table->integer('amphure_id')->nullable();
             $table->string('address')->nullable();
-            $table->tinyInteger('status')->default(1)->comment('0 - inactive , 1 - waiting , 2 - success');
+            $table->tinyInteger('status')->default(1)
+            ->comment('0 - inactive , 1 - waiting , 2 - approve , 3 - disapprove , 4 - helping , 5 - complete , 6 - incomplete');
             $table->unsignedInteger('emergency_team_id')->nullable()->comment('null=ยังไม่มีทีม');
-            $table->unsignedInteger('created_by');
-            $table->timestamp('created_at')->useCurrent();
-            $table->unsignedInteger('updated_by')->nullable();
-            $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
+            // $table->unsignedInteger('reason_id')->nullable()->comment('เหตุผล constants');
+            // $table->string('reason')->nullable()->comment('เหตุผลอื่นๆ');
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+            $table->timestamps();
         });
     }
 

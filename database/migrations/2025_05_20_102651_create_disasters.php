@@ -12,6 +12,7 @@ return new class extends Migration
         Schema::create('disasters', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique()->comment('น้ำท่วม,ไฟไหม้');
+            // $table->integer('status')->default(1)->comment('1=เปิดใช้งาน,0=ปิดใช้งาน');
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
