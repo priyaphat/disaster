@@ -4,9 +4,32 @@ namespace App\Services;
 
 use App\Models\Population;
 use Illuminate\Container\Attributes\Auth;
+use Illuminate\Database\Eloquent\Collection;
 
 class PopulationService
 {
+    public function getList(array $filters = [], ?int $limit = null): Collection
+    {
+        $query = Population::query();
+        if (!empty($filters['gender'])) {
+            $query->whereAny(['gender'], 'LIKE', '%' . $filters['gender'] . '%');
+        }
+
+        if (!empty($filters['status'])) {
+            $query->whereAny(['status'], 'LIKE', '%' . $filters['status'] . '%');
+        }
+
+        // Orders by 'created_at' DESC if ASC use oldest
+        $query->latest();
+
+        // limit the number of results
+        if ($limit) {
+            $query->take($limit);
+        }
+
+        return $query->get();
+    }
+
     public function create(array $data): Population
     {
         $population = Population::create([
@@ -28,11 +51,6 @@ class PopulationService
         ]);
 
         return $population;
-    }
-
-    public function getPopulation(int $id): Population
-    {
-        return Population::findorFail($id);
     }
 
     public function update(Population $population, array $data): Population
