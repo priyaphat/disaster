@@ -17,6 +17,7 @@ use App\Http\Controllers\API\TeamController;
 use App\Http\Controllers\API\UserApprovalController;
 use App\Http\Controllers\API\DisasterController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\UnitController;
 use App\Models\Disaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -134,6 +135,16 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/population/{population}', [PopulationController::class, 'show']);
     Route::post('/population', [PopulationController::class, 'store']);
     Route::post('/population/{population}', [PopulationController::class, 'update']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display units
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/unit',[UnitController::class,'index']);
+    Route::post('/unit',[UnitController::class,'store']);
+    Route::post('/unit/{unit}',[UnitController::class,'update']);
+    Route::delete('/unit/{unit}',[UnitController::class,'destroy']);
     
     /*
     |--------------------------------------------------------------------------
