@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         Passport::tokensExpireIn(CarbonInterval::days(15));
         Passport::refreshTokensExpireIn(CarbonInterval::days(30));
         Passport::personalAccessTokensExpireIn(CarbonInterval::months(6));
+        date_default_timezone_set('UTC');
 
         // Event for a user registers to the system
         Event::subscribe(UserEventSubscriber::class);

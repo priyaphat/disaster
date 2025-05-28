@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use App\Models\EmergencyRequest;
+use App\Enums\CancellationReason;
+use App\Models\EmergencyRequestLog;
+use App\Models\Prefix;
+use App\Http\Utility\PaginateUtility;
 
 class EmergencyRequestService
 {
-
-    public function __construct() {}
-
     public function index()
     {
         $data = EmergencyRequest::all();
@@ -21,16 +22,90 @@ class EmergencyRequestService
         return $data;
     }
 
-    public function show($emc)
+    public function emcRequestBy($search)
     {
-        return EmergencyRequest::where('phone', $emc)->first();
+        $prefix = Prefix::all()->keyBy('id');
+
+        $items = EmergencyRequest::where('phone', $search)
+            ->orWhere('id', $search)
+            ->with('prefix', 'disaster', 'reason')
+            ->get()
+            ->map(function ($item) use ($prefix) {
+                $item->range_age = json_decode($item->range_age);
+                $victimName = json_decode($item->victim_name, true);
+                if (is_array($victimName)) {
+                    foreach ($victimName as $key => $victim) {
+                        if (isset($victim['prefix'])) {
+                            $victimName[$key]['prefix_name'] = $prefix[$victim['prefix']]['name'] ?? null;
+                        }
+                    }
+                }
+                $item->victim_name = $victimName;
+                return $item;
+            });
+        return PaginateUtility::Paginate($items);
+    }
+
+    public function show($emc, $type = null)
+    {
+        /* type
+        null : approve=2
+        waiting : waiting=1 , helping=4
+        history : complete=5 , disapprove=3 , incomplete=6
+        */
+
+        $prefix = Prefix::all()->keyBy('id');
+        $items = EmergencyRequest::with('prefix', 'disaster', 'reason');
+        if (($emc->search)) {
+            $search = $emc->search;
+            $items = $items->where(function ($query) use ($search) {
+                $query->whereHas('disaster', function ($q) use ($search) { // รอเปลี่ยนเป็น team.name
+                    $q->where('name', 'like', '%' . $search . '%');
+                })
+                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $search . '%']);
+            });
+        }
+
+
+        if ($emc->amphure_id) $items = $items->where('amphure_id', $emc->amphure_id);
+        if ($emc->start_date && $emc->end_date) $items = $items->whereBetween('created_at', [$emc->start_date, $emc->end_date]);
+        if ($emc->sort) $items = $items->sortBy('created_at', $emc->sort === 'asc' ? SORT_ASC : SORT_DESC); //asc or desc
+        if ($emc->status) {
+            $items = $items->where('status', $emc->status);
+        } else {
+            if ($type == 'waiting') {
+                $items = $items->whereIn('status', [1, 4]);
+            } elseif ($type == 'history') {
+                $items = $items->whereIn('status', [5, 3, 6]);
+            } else {
+                $items = $items->where('status', 2);
+            }
+        }
+
+        $items = $items->get()
+            ->map(function ($item) use ($prefix) {
+                $item->range_age = json_decode($item->range_age);
+                $victimName = json_decode($item->victim_name, true);
+                if (is_array($victimName)) {
+                    foreach ($victimName as $key => $victim) {
+                        if (isset($victim['prefix'])) {
+                            $victimName[$key]['prefix_name'] = $prefix[$victim['prefix']]['name'] ?? null;
+                        }
+                    }
+                }
+                $item->victim_name = $victimName;
+                return $item;
+            });
+        return PaginateUtility::Paginate($items);
     }
 
     public function create(array $data): EmergencyRequest
     {
         $data['range_age'] = json_encode($data['range_age']);
         $data['victim_name'] = json_encode($data['victim_name']);
-        return EmergencyRequest::create($data);
+        $emc = EmergencyRequest::create($data);
+        if (isset($data['reason_id'])) self::created_reason($emc->id, $data);
+        return $emc;
     }
 
     public function update(EmergencyRequest $emergencyRequest, array $data): EmergencyRequest
@@ -38,6 +113,24 @@ class EmergencyRequestService
         $data['range_age'] = json_encode($data['range_age']);
         $data['victim_name'] = json_encode($data['victim_name']);
         $emergencyRequest->update($data);
+        if (isset($data['reason_id'])) self::created_reason($emergencyRequest->id, $data);
         return $emergencyRequest;
+    }
+
+    public function reason()
+    {
+        return array_map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label(),
+        ], CancellationReason::cases());
+    }
+
+    public function created_reason($id, $data)
+    {
+        EmergencyRequestLog::create([
+            'emergency_request_id' => $id,
+            'reason_id' => $data['reason_id'],
+            'reason' => $data['reason'] ?? null,
+        ]);
     }
 }

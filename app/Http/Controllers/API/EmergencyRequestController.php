@@ -8,6 +8,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\EmergencyRequest;
 use App\Services\EmergencyRequestService;
 use App\Http\Requests\EmergencyRequestRequest;
+use App\Enums\CancellationReason;
 
 class EmergencyRequestController extends Controller
 {
@@ -24,9 +25,30 @@ class EmergencyRequestController extends Controller
         return ApiResponse::successResponse(__('success.data'), $emergencyRequest);
     }
 
-    public function show($emergencyRequest)
+    public function show(Request $emergencyRequest)
     {
-        $data = $this->emergencyRequestService->show($emergencyRequest);
+        // approve
+        $data = $this->emergencyRequestService->show($emergencyRequest, null);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function show_wait(Request $emergencyRequest)
+    {
+        // waiting , helping
+        $data = $this->emergencyRequestService->show($emergencyRequest, 'waiting');
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function show_history(Request $emergencyRequest)
+    {
+        // complete , disapprove , incomplete
+        $data = $this->emergencyRequestService->show($emergencyRequest, 'history');
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function emcRequestBy(Request $request)
+    {
+        $data = $this->emergencyRequestService->emcRequestBy($request->search); //phone & id
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -41,11 +63,16 @@ class EmergencyRequestController extends Controller
         $data = $this->emergencyRequestService->update($emergencyRequest, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
-    
+
     public function destroy(EmergencyRequest $emergencyRequest)
     {
         $emergencyRequest->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }
 
+    public function reason()
+    {
+        $data = $this->emergencyRequestService->reason();
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
 }

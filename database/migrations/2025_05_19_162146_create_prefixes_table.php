@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * php artisan migrate:rollback --path=/database/migrations/2025_05_19_162146_create_prefixes_table.php
      */
     public function up(): void
     {

@@ -15,7 +15,9 @@ use App\Http\Controllers\API\PositionController;
 use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\TeamController;
 use App\Http\Controllers\API\UserApprovalController;
+use App\Http\Controllers\API\DisasterController;
 use App\Http\Controllers\API\UserController;
+use App\Models\Disaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -138,8 +140,22 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
-    Route::get('/emc-request', [EmergencyRequestController::class, 'index']);
-    Route::get('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'show']);
+    Route::get('/disaster',[DisasterController::class,'index']);
+    Route::get('/disaster/{disaster}',[DisasterController::class,'show']);
+    Route::post('/disaster',[DisasterController::class,'store']);
+    Route::post('/disaster/{disaster}',[DisasterController::class,'update']);
+    Route::delete('/disaster/{disaster}',[DisasterController::class,'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display emergency requests
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/emc-requests', [EmergencyRequestController::class, 'show']);
+    Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
+    Route::post('/emc-requests-history', [EmergencyRequestController::class, 'show_history']);
+    Route::post('/emc-request-phone', [EmergencyRequestController::class, 'emcRequestBy']);
+    Route::post('/emc-request-id', [EmergencyRequestController::class, 'emcRequestBy']);
     Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
     Route::post('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'update']);
     Route::delete('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'destroy']);
@@ -155,4 +171,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
+    Route::post('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'update']);
+    Route::delete('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display reason of emergency request
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/reason', [EmergencyRequestController::class, 'reason']);
 });
