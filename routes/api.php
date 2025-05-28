@@ -16,8 +16,9 @@ use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\TeamController;
 use App\Http\Controllers\API\UserApprovalController;
 use App\Http\Controllers\API\DisasterController;
+use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\UnitController;
 use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\UnitController;
 use App\Models\Disaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -145,6 +146,14 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/unit',[UnitController::class,'store']);
     Route::post('/unit/{unit}',[UnitController::class,'update']);
     Route::delete('/unit/{unit}',[UnitController::class,'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display products
+    |--------------------------------------------------------------------------
+    */
+    // Route::get('/product',[ProductController::class,'index']);
+    // Route::post('/product',[ProductController::class,'store']);
     
     /*
     |--------------------------------------------------------------------------
