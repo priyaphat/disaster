@@ -28,7 +28,7 @@ class EmergencyRequestService
 
         $items = EmergencyRequest::where('phone', $search)
             ->orWhere('id', $search)
-            ->with('prefix', 'disaster', 'reason')
+            ->with('prefix', 'disaster', 'reason', 'geography')
             ->get()
             ->map(function ($item) use ($prefix) {
                 $item->range_age = json_decode($item->range_age);
@@ -55,7 +55,7 @@ class EmergencyRequestService
         */
 
         $prefix = Prefix::all()->keyBy('id');
-        $items = EmergencyRequest::with('prefix', 'disaster', 'reason');
+        $items = EmergencyRequest::with('prefix', 'disaster', 'reason', 'geography');
         if (($emc->search)) {
             $search = $emc->search;
             $items = $items->where(function ($query) use ($search) {
@@ -74,11 +74,14 @@ class EmergencyRequestService
             $items = $items->where('status', $emc->status);
         } else {
             if ($type == 'waiting') {
-                $items = $items->whereIn('status', [1, 4]);
+                $items = $items->whereIn('status', [
+                    EmergencyRequest::waiting,
+                    4
+                ]);
             } elseif ($type == 'history') {
-                $items = $items->whereIn('status', [5, 3, 6]);
+                $items = $items->whereIn('status', [EmergencyRequest::complete, EmergencyRequest::disapprove, EmergencyRequest::incomplete]);
             } else {
-                $items = $items->where('status', 2);
+                $items = $items->where('status', EmergencyRequest::approve);
             }
         }
 

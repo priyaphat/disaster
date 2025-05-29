@@ -19,7 +19,9 @@ use App\Http\Controllers\API\DisasterController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\UnitController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\PostController;
 use App\Models\Disaster;
+use App\Models\EmergencyPostLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -165,6 +167,24 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/disaster',[DisasterController::class,'store']);
     Route::post('/disaster/{disaster}',[DisasterController::class,'update']);
     Route::delete('/disaster/{disaster}',[DisasterController::class,'destroy']);
+
+     /*
+    |--------------------------------------------------------------------------
+    | Routes for display emergency post
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/post/{post}', [PostController::class, 'index']);
+    Route::post('/posts', [PostController::class, 'show']);
+    Route::post('/post', [PostController::class, 'store']);
+    Route::post('/post/{post}', [PostController::class, 'update']);
+    Route::delete('/post/{post}', [PostController::class, 'destroy']);
+
+     /*
+    |--------------------------------------------------------------------------
+    | Routes for display emergency post log
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/post-logs', [PostController::class, 'logs']);
 
     /*
     |--------------------------------------------------------------------------
