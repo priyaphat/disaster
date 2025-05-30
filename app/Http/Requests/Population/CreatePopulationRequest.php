@@ -35,6 +35,7 @@ class CreatePopulationRequest extends FormRequest
             'same_address' => 'required',
             'status' => 'required|in:0,1,2',
             'shelter_id' => 'nullable|exists:shelters,id',
+            // 'tracking' => 'required|in:0,1',
             'line_token' => 'nullable|string',
             'created_date' => 'required|date',
         ];

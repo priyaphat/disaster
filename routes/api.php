@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AddressController;
+use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\LoginController;
 use App\Http\Controllers\API\NewsController;
@@ -151,11 +152,22 @@ Route::middleware('auth:api')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Routes for display categories
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/category',[CategoryController::class,'index']);
+    Route::post('/category',[CategoryController::class,'store']);
+    Route::post('/category/{category}',[CategoryController::class,'update']);
+    Route::delete('/category/{category}',[CategoryController::class,'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
     | Routes for display products
     |--------------------------------------------------------------------------
     */
-    // Route::get('/product',[ProductController::class,'index']);
-    // Route::post('/product',[ProductController::class,'store']);
+    Route::get('/product',[ProductController::class,'index']);
+    Route::get('/product/{product}',[ProductController::class,'show']);
+    Route::post('/product',[ProductController::class,'store']);
     
     /*
     |--------------------------------------------------------------------------

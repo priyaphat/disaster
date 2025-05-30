@@ -28,6 +28,7 @@ class Population extends Model
         'same_address',
         'status',
         'shelter_id',
+        'tracking',
         'line_token',
         'created_date',
         'created_by',
@@ -47,7 +48,7 @@ class Population extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('poppulations')
+            ->useLogName('populations')
             ->logOnly(['*'])
             ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
     }

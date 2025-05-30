@@ -11,6 +11,10 @@ class PopulationService
     public function getList(array $filters = [], ?int $limit = null): Collection
     {
         $query = Population::query();
+        if (!empty($filters['search'])) {
+            $query->whereAny(['first_name', 'last_name'], 'LIKE', '%' . $filters['search'] . '%');
+        }
+
         if (!empty($filters['gender'])) {
             $query->whereAny(['gender'], 'LIKE', '%' . $filters['gender'] . '%');
         }
@@ -45,6 +49,7 @@ class PopulationService
             'c_geography_id' => $data['c_geography_id'],
             'same_address' => $data['same_address'],
             'status' => $data['status'],
+            // 'tracking' => $data['tracking'],
             'shelter_id' => $data['shelter_id'],
             'line_token' => $data['line_token'],
             'created_date' => $data['created_date'],
