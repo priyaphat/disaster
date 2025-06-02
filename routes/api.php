@@ -21,8 +21,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\UnitController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\PostController;
-use App\Models\Disaster;
-use App\Models\EmergencyPostLog;
+use App\Http\Controllers\API\ConfigController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +32,7 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 
-Route::post('/forgot-password',[ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
@@ -145,10 +144,10 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display units
     |--------------------------------------------------------------------------
     */
-    Route::get('/unit',[UnitController::class,'index']);
-    Route::post('/unit',[UnitController::class,'store']);
-    Route::post('/unit/{unit}',[UnitController::class,'update']);
-    Route::delete('/unit/{unit}',[UnitController::class,'destroy']);
+    Route::get('/unit', [UnitController::class, 'index']);
+    Route::post('/unit', [UnitController::class, 'store']);
+    Route::post('/unit/{unit}', [UnitController::class, 'update']);
+    Route::delete('/unit/{unit}', [UnitController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
@@ -172,15 +171,15 @@ Route::middleware('auth:api')->group(function () {
     /*
     |--------------------------------------------------------------------------
     | Routes for display emergency requests
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------- ------------------
     */
-    Route::get('/disaster',[DisasterController::class,'index']);
-    Route::get('/disaster/{disaster}',[DisasterController::class,'show']);
-    Route::post('/disaster',[DisasterController::class,'store']);
-    Route::post('/disaster/{disaster}',[DisasterController::class,'update']);
-    Route::delete('/disaster/{disaster}',[DisasterController::class,'destroy']);
+    Route::get('/disaster', [DisasterController::class, 'index']);
+    Route::get('/disaster/{disaster}', [DisasterController::class, 'show']);
+    Route::post('/disaster', [DisasterController::class, 'store']);
+    Route::post('/disaster/{disaster}', [DisasterController::class, 'update']);
+    Route::delete('/disaster/{disaster}', [DisasterController::class, 'destroy']);
 
-     /*
+    /*
     |--------------------------------------------------------------------------
     | Routes for display emergency post
     |--------------------------------------------------------------------------
@@ -191,7 +190,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/post/{post}', [PostController::class, 'update']);
     Route::delete('/post/{post}', [PostController::class, 'destroy']);
 
-     /*
+    /*
     |--------------------------------------------------------------------------
     | Routes for display emergency post log
     |--------------------------------------------------------------------------
@@ -214,6 +213,17 @@ Route::middleware('auth:api')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Routes for display emergency requests
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/configs', [ConfigController::class, 'index']);
+    Route::post('/config', [ConfigController::class, 'store']);
+    Route::post('/config/{config}', [ConfigController::class, 'update']);
+    Route::post('/config-reset', [ConfigController::class, 'reset']);
+    Route::delete('/config/{config}', [ConfigController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
     | Routes for display teams
     |--------------------------------------------------------------------------
     */
@@ -223,8 +233,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
-    Route::post('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'update']);
-    Route::delete('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
