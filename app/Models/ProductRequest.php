@@ -10,11 +10,17 @@ class ProductRequest extends Model
 {
     use LogsActivity;
 
+    public const rejected = 0;
+    public const pending = 1;
+    public const approve = 2;
+
     protected $fillable = [
         'product_id',
         'quantity',
         'shelter_id',
         'status',
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [

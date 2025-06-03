@@ -21,6 +21,10 @@ class Shelter extends Model
         'max_capacity',
     ];
 
+    protected $casts = [
+        'status' => 'integer',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

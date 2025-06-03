@@ -22,6 +22,9 @@ use App\Http\Controllers\API\UnitController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\ConfigController;
+use App\Http\Controllers\API\ProductRequestController;
+use App\Models\Disaster;
+use App\Models\EmergencyPostLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -116,6 +119,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display shelters
     |--------------------------------------------------------------------------
     */
+    Route::get('/shelter', [ShelterController::class, 'index']);
     Route::post('/shelter', [ShelterController::class, 'store']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
 
@@ -138,6 +142,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/population/{population}', [PopulationController::class, 'show']);
     Route::post('/population', [PopulationController::class, 'store']);
     Route::post('/population/{population}', [PopulationController::class, 'update']);
+    Route::post('/population/change-shelter/{population}', [PopulationController::class, 'transfer']);
+    Route::post('/population/exit/{population}', [PopulationController::class, 'exit']);
 
     /*
     |--------------------------------------------------------------------------
@@ -167,6 +173,14 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/product',[ProductController::class,'index']);
     Route::get('/product/{product}',[ProductController::class,'show']);
     Route::post('/product',[ProductController::class,'store']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display product requests
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/product-request',[ProductRequestController::class,'index']);
+    Route::post('/product-request',[ProductRequestController::class,'store']);
     
     /*
     |--------------------------------------------------------------------------

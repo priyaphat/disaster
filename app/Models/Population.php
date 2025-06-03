@@ -13,6 +13,16 @@ class Population extends Model
 {
     use CreatedUpdatedBy, LogsActivity;
 
+    public const not_tracking = 0;
+    public const tracking = 1;
+
+    public const exit = null;
+
+    //log
+    public const dead = 0;
+    public const injure = 1;
+    public const healthy = 2;
+
     protected $fillable = [
         // 'user_id',
         'prefix_id',

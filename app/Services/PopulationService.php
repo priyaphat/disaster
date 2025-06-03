@@ -15,12 +15,15 @@ class PopulationService
             $query->whereAny(['first_name', 'last_name'], 'LIKE', '%' . $filters['search'] . '%');
         }
 
-        if (!empty($filters['gender'])) {
-            $query->whereAny(['gender'], 'LIKE', '%' . $filters['gender'] . '%');
+        $gender = $filters['gender'] ?? null;
+        $status = $filters['status'] ?? null;
+
+        if ($gender != null) {
+            $query->where('gender', $gender);
         }
 
-        if (!empty($filters['status'])) {
-            $query->whereAny(['status'], 'LIKE', '%' . $filters['status'] . '%');
+        if ($status != null) {
+            $query->where('status', $status);
         }
 
         // Orders by 'created_at' DESC if ASC use oldest
@@ -61,6 +64,21 @@ class PopulationService
     public function update(Population $population, array $data): Population
     {
         $population->update($data);
+        return $population;
+    }
+
+    public function transfer(Population $population, array $data, $maxcap): Population
+    {
+        $populations = Population::where('shelter_id', $data['shelter_id'])->count();
+        if ($populations >= $maxcap) {
+            // throw new \Exception(__('error.shelter_full'));
+            throw new \Exception(__('ศูนย์พักพิงเต็ม'));
+        } else {
+            $population->update([
+                'shelter_id' => $data['shelter_id'],
+            ]);
+        }
+
         return $population;
     }
 }
