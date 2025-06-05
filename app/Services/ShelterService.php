@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ShelterUtilities;
 use App\Models\Shelter;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -20,10 +21,8 @@ class ShelterService
             $query->where('status', $status);
         }
 
-        // Orders by 'created_at' DESC if ASC use oldest
         $query->latest();
 
-        // limit the number of results
         if ($limit) {
             $query->take($limit);
         }
@@ -40,6 +39,8 @@ class ShelterService
             'leader_id' => $data['leader_id'],
             'address' => $data['address'],
             'max_capacity' => $data['max_capacity'],
+            // 'utilities' => $data['utilities'], //uncomment this line when use in production
+            'utilities' => json_decode($data['utilities'], true), //decode use for dev only, comment or removed this line when use in production
         ]);
 
         return $shelter;
@@ -57,5 +58,13 @@ class ShelterService
     public function getShelter($id)
     {
         return Shelter::findOrFail($id);
+    }
+
+    public function utility()
+    {
+        return array_map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label(),
+        ], ShelterUtilities::cases());
     }
 }

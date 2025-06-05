@@ -122,6 +122,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter', [ShelterController::class, 'index']);
     Route::post('/shelter', [ShelterController::class, 'store']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
+    Route::get('/shelter-utility', [ShelterController::class, 'utility']);
 
     /*
     |--------------------------------------------------------------------------

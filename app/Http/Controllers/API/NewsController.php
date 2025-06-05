@@ -10,7 +10,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\News;
 use App\Services\ImageService;
 use App\Services\NewsService;
-use Illuminate\http\Request;
+use Illuminate\Http\Request;
 
 class NewsController extends Controller
 {
@@ -29,7 +29,7 @@ class NewsController extends Controller
     }
 
     public function get_all(Request $request)
-    {  
+    {
         $news = $this->newsService->get_all($request);
         return ApiResponse::successResponse(__('success.data'), new NewsCollection($news));
     }
