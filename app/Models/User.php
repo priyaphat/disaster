@@ -8,6 +8,7 @@ use App\Filters\UserFilter;
 use App\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -68,6 +69,11 @@ class User extends Authenticatable
         return $query->where('status', $status);
     }
 
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'parentable');
+    }
+
     public function approval(): HasOne
     {
         return $this->hasOne(UserApproval::class);
@@ -91,6 +97,11 @@ class User extends Authenticatable
     public function area(): HasOne
     {
         return $this->hasOne(Geography::class, 'district_code', 'district_id');
+    }
+
+    public function member(): BelongsTo
+    {
+        return $this->belongsTo(TeamMember::class, 'id', 'user_id');
     }
 
     public function scopeFilter(Builder $query, array $filters): Builder

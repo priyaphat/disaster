@@ -24,7 +24,9 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+       
         $data = $this->userService->paginate($request->all());
+        return new UserCollection($data);
         return ApiResponse::successResponse(__('success.data'), new UserCollection($data));
     }
 

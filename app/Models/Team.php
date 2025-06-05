@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Team extends Model
 {
@@ -12,13 +13,69 @@ class Team extends Model
 
     protected $fillable = [
         'name',
-        'leader_id'
+        'sequence'
+        // 'leader_id'
     ];
 
-    public function members(): HasMany
+    // public function leader(): HasOne
+    // {
+    //     return $this->hasOne(User::class, 'id', 'leader_id');
+    // }
+
+    public function leader()
     {
-        return $this->hasMany(TeamMember::class, 'team_id', 'id');
+        return $this->hasOneThrough(
+            User::class,   // Final model
+            TeamMember::class,   // Intermediate model
+            'team_id',  // Foreign key on users table
+            'id',     // Foreign key on posts table
+            'id',          // Local key on team table
+            'user_id'           // Local key on users table
+        )->where('team_members.team_position', 1);
     }
+
+    
+    public function members()
+    {
+        return $this->hasManyThrough(
+            User::class,   // Final model
+            TeamMember::class,   // Intermediate model
+            'team_id',  // Foreign key on users table
+            'id',     // Foreign key on posts table
+            'id',          // Local key on team table
+            'user_id'           // Local key on users table
+        )->where('team_members.team_position', 2);
+    }
+    
+     public function allUsers()
+    {
+        return $this->hasManyThrough(
+            User::class,   // Final model
+            TeamMember::class,   // Intermediate model
+            'team_id',  // Foreign key on users table
+            'id',     // Foreign key on posts table
+            'id',          // Local key on team table
+            'user_id'           // Local key on users table
+        )->orderBy('team_members.team_position')
+        ->select('users.*','team_members.team_position');
+    }
+
+    public function totalMembers()
+    {
+        return $this->hasManyThrough(
+            User::class,   // Final model
+            TeamMember::class,   // Intermediate model
+            'team_id',  // Foreign key on users table
+            'id',     // Foreign key on posts table
+            'id',          // Local key on team table
+            'user_id'           // Local key on users table
+        )->orderBy('team_members.team_position')
+        ->count();
+    }
+    // public function members(): HasMany
+    // {
+    //     return $this->hasMany(TeamMember::class, 'team_id', 'id');
+    // }
 
     public function syncMembers(array $members)
     {
@@ -55,32 +112,33 @@ class Team extends Model
         // }
 
         // Get user_id and position from database and new request
-        $existingMembers = $this->members()->get()->pluck('user_id', 'position');
+        $existingMembers = $this->members()->get()->pluck('user_id', 'sequence');
         $newMembers = collect($members);
 
         // Get Keys from two collections
         $newKeys = $newMembers->keys()->values();
         $existingKeys = $existingMembers->keys()->values();
 
+
         // Check members was changed
         if ($existingMembers != $newMembers) {
-            
+
             // Find key that doesn't exist from new request
             $deleteKeyArray = $existingKeys->diffAssoc($newKeys);
-
+            // dd($newMembers);
             // Remove any positions that are missing from the current input
             if ($deleteKeyArray->isNotEmpty()) {
-                return $this->members()->whereIn('position', $deleteKeyArray)->delete();
+                return $this->members()->whereIn('sequence', $deleteKeyArray)->delete();
             }
 
             // Loop over input to preserve order and create or update
-            foreach ($newMembers as $position => $userId) {
+            foreach ($newMembers as $member) {
                 // Check if the position exists. If it does, update the user_id; otherwise, create a new team member with the given user_id and position
-                $checkExist = $this->members()->where(['position' => $position])->exists();
+                $checkExist = $this->members()->where(['sequence' => $member['sequence']])->exists();
                 if ($checkExist) {
-                    $this->members()->where(['position' => $position])->update(['user_id' => $userId]);
+                    $this->members()->where(['sequence' => $member['sequence']])->update(['user_id' => $member['user']]);
                 } else {
-                    $this->members()->create(['user_id' => $userId, 'position' => $position]);
+                    $this->members()->create(['user_id' => $member['user_id'], 'sequence' => $member['sequence'], 'position' => $member['position']]);
                 }
             }
         }

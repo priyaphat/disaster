@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Http\Resources\TeamCollection;
+use App\Http\Resources\TeamResource;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
@@ -34,13 +36,15 @@ class TeamService
     /**
      * Get paginated Team.
      */
-    public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 10)
     {
         $query = Team::query();
         if (!empty($filters['search'])) {
             $query->whereAny(['name'], 'LIKE', '%' . $filters['search'] . '%');
         }
-        return $query->latest()->paginate($perPage);
+        $data = $query->with('leader')->latest()->paginate(10);
+        $paginate = $data->setCollection(TeamResource::collection($data->items())->collection);
+        return  $paginate;
     }
 
     /**
@@ -48,7 +52,7 @@ class TeamService
      */
     public function getById(int $id): Team
     {
-        return Team::findOrFail($id);
+        return Team::with('members')->findOrFail($id);
     }
 
     /**
@@ -57,13 +61,19 @@ class TeamService
     public function create(array $data): Team
     {
         $team = Team::create($data);
-        $memberArray = collect($data['members'])->map(function ($value, $index) {
-            return [
-                'user_id' => $value, 
-                'position' => $index];
-        });
-        $team->members()->createMany($memberArray);
+        // dd($data['members']);
+        $team->members()->createMany($data['members']);
         return $team;
+    }
+
+    /**
+     * Show a Team.
+     */
+    public function show(Team $team)
+    {
+        // Eager load members relationship
+        $team->load(['leader', 'allUsers']);
+        return new TeamResource($team);
     }
 
     /**

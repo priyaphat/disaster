@@ -5,9 +5,13 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Team\StoreTeamRequest;
 use App\Http\Requests\Team\UpdateTeamRequest;
+use App\Http\Resources\TeamCollection;
+use App\Http\Resources\TeamResource;
+use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Team;
 use App\Models\TeamMember;
+use App\Models\User;
 use App\Services\TeamService;
 
 class TeamController extends Controller
@@ -23,8 +27,7 @@ class TeamController extends Controller
      */
     public function index()
     {
-        //
-        $data = $this->teamService->getList([]);
+        return $data = $this->teamService->paginate();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -34,7 +37,7 @@ class TeamController extends Controller
     public function store(StoreTeamRequest $request)
     {
         //
-        $data = $this->teamService->create($request->all());
+        $data = $this->teamService->create($request->normalized());
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
@@ -43,7 +46,8 @@ class TeamController extends Controller
      */
     public function show(Team $team)
     {
-        return ApiResponse::successResponse(__('success.data'), $team);
+        $data = $this->teamService->show($team);
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
@@ -51,7 +55,7 @@ class TeamController extends Controller
      */
     public function update(UpdateTeamRequest $request, Team $team)
     {
-        $data = $this->teamService->update($team, $request->all());
+        $data = $this->teamService->update($team, $request->normalized());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 

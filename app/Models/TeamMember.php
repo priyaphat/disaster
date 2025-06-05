@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class TeamMember extends Model
 {
@@ -14,11 +15,16 @@ class TeamMember extends Model
     protected $fillable = [
         'user_id',
         'team_id',
-        'position',
+        'team_position',
     ];
 
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class, 'team_id', 'id');
+    }
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 }

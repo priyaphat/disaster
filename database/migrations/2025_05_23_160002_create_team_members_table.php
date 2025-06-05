@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('team_id');
             $table->unsignedBigInteger('user_id');
-            $table->unsignedInteger('position')->default(0);
+            $table->unsignedInteger('team_position')->default(1);
+            $table->unsignedInteger('sequence')->default(0);
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
             $table->timestamps();
