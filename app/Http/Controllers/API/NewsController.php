@@ -10,6 +10,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\News;
 use App\Services\ImageService;
 use App\Services\NewsService;
+use Illuminate\http\Request;
 
 class NewsController extends Controller
 {
@@ -24,6 +25,12 @@ class NewsController extends Controller
     public function index()
     {
         $news = $this->newsService->getList([], 4);
+        return ApiResponse::successResponse(__('success.data'), new NewsCollection($news));
+    }
+
+    public function get_all(Request $request)
+    {  
+        $news = $this->newsService->get_all($request);
         return ApiResponse::successResponse(__('success.data'), new NewsCollection($news));
     }
 

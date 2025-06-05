@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
+use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\LoginController;
 use App\Http\Controllers\API\NewsController;
@@ -17,8 +18,12 @@ use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\TeamController;
 use App\Http\Controllers\API\UserApprovalController;
 use App\Http\Controllers\API\DisasterController;
+use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\UnitController;
 use App\Http\Controllers\API\UserController;
-use App\Models\Disaster;
+use App\Http\Controllers\API\PostController;
+use App\Http\Controllers\API\ConfigController;
+use App\Http\Controllers\API\ProductRequestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +34,7 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 
-Route::post('/forgot-password',[ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
@@ -96,10 +101,11 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/news', [NewsController::class, 'index']);
-    Route::get('/news/{news}', [NewsController::class, 'show']);
-    Route::post('/news', [NewsController::class, 'store']);
-    Route::post('/news/{news}', [NewsController::class, 'update']);
-    Route::delete('/news/{news}', [NewsController::class, 'destroy']);
+    Route::post('/news', [NewsController::class, 'get_all']);
+    Route::get('/new/{news}', [NewsController::class, 'show']);
+    Route::post('/new', [NewsController::class, 'store']);
+    Route::post('/new/{news}', [NewsController::class, 'update']);
+    Route::delete('/new/{news}', [NewsController::class, 'destroy']);
 
     Route::post('/role', [PermissionController::class, 'createRole']);
 
@@ -113,6 +119,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display shelters
     |--------------------------------------------------------------------------
     */
+    Route::get('/shelter', [ShelterController::class, 'index']);
     Route::post('/shelter', [ShelterController::class, 'store']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
 
@@ -135,17 +142,74 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/population/{population}', [PopulationController::class, 'show']);
     Route::post('/population', [PopulationController::class, 'store']);
     Route::post('/population/{population}', [PopulationController::class, 'update']);
+    Route::post('/population/change-shelter/{population}', [PopulationController::class, 'transfer']);
+    Route::post('/population/exit/{population}', [PopulationController::class, 'exit']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display units
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/unit', [UnitController::class, 'index']);
+    Route::post('/unit', [UnitController::class, 'store']);
+    Route::post('/unit/{unit}', [UnitController::class, 'update']);
+    Route::delete('/unit/{unit}', [UnitController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display categories
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/category',[CategoryController::class,'index']);
+    Route::post('/category',[CategoryController::class,'store']);
+    Route::post('/category/{category}',[CategoryController::class,'update']);
+    Route::delete('/category/{category}',[CategoryController::class,'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display products
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/product',[ProductController::class,'index']);
+    Route::get('/product/{product}',[ProductController::class,'show']);
+    Route::post('/product',[ProductController::class,'store']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display product requests
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/product-request',[ProductRequestController::class,'index']);
+    Route::post('/product-request',[ProductRequestController::class,'store']);
     
     /*
     |--------------------------------------------------------------------------
     | Routes for display emergency requests
+    |-------------------------------------------------------- ------------------
+    */
+    Route::get('/disaster', [DisasterController::class, 'index']);
+    Route::get('/disaster/{disaster}', [DisasterController::class, 'show']);
+    Route::post('/disaster', [DisasterController::class, 'store']);
+    Route::post('/disaster/{disaster}', [DisasterController::class, 'update']);
+    Route::delete('/disaster/{disaster}', [DisasterController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display emergency post
     |--------------------------------------------------------------------------
     */
-    Route::get('/disaster',[DisasterController::class,'index']);
-    Route::get('/disaster/{disaster}',[DisasterController::class,'show']);
-    Route::post('/disaster',[DisasterController::class,'store']);
-    Route::post('/disaster/{disaster}',[DisasterController::class,'update']);
-    Route::delete('/disaster/{disaster}',[DisasterController::class,'destroy']);
+    Route::get('/post/{post}', [PostController::class, 'index']);
+    Route::post('/posts', [PostController::class, 'show']);
+    Route::post('/post', [PostController::class, 'store']);
+    Route::post('/post/{post}', [PostController::class, 'update']);
+    Route::delete('/post/{post}', [PostController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display emergency post log
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/post-logs', [PostController::class, 'logs']);
 
     /*
     |--------------------------------------------------------------------------
@@ -163,6 +227,17 @@ Route::middleware('auth:api')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Routes for display emergency requests
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/configs', [ConfigController::class, 'index']);
+    Route::post('/config', [ConfigController::class, 'store']);
+    Route::post('/config/{config}', [ConfigController::class, 'update']);
+    Route::post('/config-reset', [ConfigController::class, 'reset']);
+    Route::delete('/config/{config}', [ConfigController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
     | Routes for display teams
     |--------------------------------------------------------------------------
     */
@@ -172,8 +247,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
-    Route::post('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'update']);
-    Route::delete('/emc-request/{emergencyRequest}',[EmergencyRequestController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------

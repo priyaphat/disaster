@@ -42,4 +42,5 @@ class AddressController extends Controller
         $sub = $this->addressService->getSubDistricts($request->all());
         return ApiResponse::successResponse(__('success.data'), $sub);
     }
+
 }

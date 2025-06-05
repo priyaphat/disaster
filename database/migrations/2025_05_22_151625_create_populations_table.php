@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('same_address')->default(0);
             $table->unsignedTinyInteger('status')->default(2)->comment('0 - เสียชีวิต , 1 - บาดเจ็บ , 2 - ปกติ');
             $table->unsignedBigInteger('shelter_id')->nullable()->comment('หากออกจากศูนย์พักพิงแล้วจะเป็น null');
+            $table->unsignedTinyInteger('tracking')->default(1)->comment('0 - ไม่ติดตาม , 1 - ติดตาม');
             $table->text('line_token')->nullable();
             $table->dateTime('created_date');
             $table->unsignedBigInteger('created_by');

@@ -13,6 +13,16 @@ class Population extends Model
 {
     use CreatedUpdatedBy, LogsActivity;
 
+    public const not_tracking = 0;
+    public const tracking = 1;
+
+    public const exit = null;
+
+    //log
+    public const dead = 0;
+    public const injure = 1;
+    public const healthy = 2;
+
     protected $fillable = [
         // 'user_id',
         'prefix_id',
@@ -28,6 +38,7 @@ class Population extends Model
         'same_address',
         'status',
         'shelter_id',
+        'tracking',
         'line_token',
         'created_date',
         'created_by',
@@ -47,7 +58,7 @@ class Population extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('poppulations')
+            ->useLogName('populations')
             ->logOnly(['*'])
             ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
     }
