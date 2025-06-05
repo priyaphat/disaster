@@ -35,7 +35,6 @@ class StoreTeamRequest extends FormRequest
 
     public function normalized(): array
     {
-        Request
         $leader = $this->input('leader_id');
         $members = $this->input('members');
         $mergedMember = collect([$leader])->merge($members);
