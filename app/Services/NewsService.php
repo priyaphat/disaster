@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\News;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class NewsService
 {
@@ -27,6 +29,20 @@ class NewsService
         }
 
         return $query->with('image')->get();
+    }
+
+    public function get_all($req)
+    {
+        $data = News::select('*');
+        if ($req->search) $data = $data->where('title', $req->search);
+        if ($req->dateStart && $req->dateEnd) {
+            $start = Carbon::parse($req->dateStart)->startOfDay();
+            $end = Carbon::parse($req->dateEnd)->endOfDay();
+            $data = $data->whereBetween('created_at', [$start, $end]);
+        }
+        if ($req->sort) $data = $data->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        if ($req->self) $data = $data->where('created_by', Auth::user()->id);
+        return $data->with('image')->get();
     }
 
     /**

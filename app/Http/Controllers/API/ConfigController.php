@@ -51,14 +51,14 @@ class ConfigController extends Controller
     public function update(Request $request, Config $config)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:configs,name,' . $config->id,
+            'name' => 'nullable|string|max:255|unique:configs,name,' . $config->id,
             'type' => 'nullable|integer|in:1,2',
             'description' => 'nullable|array',
             'status' => 'nullable|integer|in:0,1',
         ]);
 
         $config->update($request->all());
-        return ApiResponse::successResponse(__('success.data'), $config);
+        return ApiResponse::successResponse(__('success.config.update'), $config);
     }
 
     public function reset()
@@ -67,7 +67,7 @@ class ConfigController extends Controller
             'description->population' => 0,
             'description->user' => 0,
         ]);
-        return ApiResponse::successResponse(__('success.data'));
+        return ApiResponse::successResponse(__('success.config.reset'));
     }
 
     public function destroy(Config $config)

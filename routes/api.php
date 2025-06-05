@@ -102,10 +102,11 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/news', [NewsController::class, 'index']);
-    Route::get('/news/{news}', [NewsController::class, 'show']);
-    Route::post('/news', [NewsController::class, 'store']);
-    Route::post('/news/{news}', [NewsController::class, 'update']);
-    Route::delete('/news/{news}', [NewsController::class, 'destroy']);
+    Route::post('/news', [NewsController::class, 'get_all']);
+    Route::get('/new/{news}', [NewsController::class, 'show']);
+    Route::post('/new', [NewsController::class, 'store']);
+    Route::post('/new/{news}', [NewsController::class, 'update']);
+    Route::delete('/new/{news}', [NewsController::class, 'destroy']);
 
     Route::post('/role', [PermissionController::class, 'createRole']);
 
