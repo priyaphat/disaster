@@ -19,6 +19,23 @@ class UserFilter extends QueryFilter
     //         $query->where('id', $id);
     //     });
     // }
+    public function pending($value)
+    {
+        return $this->builder->whereHas('approval', function ($query) use ($value) {
+            $query->where('is_approved', $value);
+        });
+    }
+
+    public function approve($array)
+    {
+        return $this->builder->where(function ($query) use ($array) {
+            $query->where('registration_type', $array['type'])
+            ->orWhereHas('approval', function ($query) use ($array) {
+            $query->where('is_approved', $array['status']);
+        });
+        });
+    }
+
     public function type($value)
     {
         $value = intval($value);

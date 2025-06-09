@@ -23,10 +23,9 @@ class ApprovalRequest extends FormRequest
      */
     public function rules(): array
     {
-        $is_approved = $this->input('is_approved');
         return [
+            'user_id' => ['required', 'exists:users,id'],
             'is_approved' => ['required', Rule::enum(ApprovalStatus::class)],
-            'approved_reason' => [Rule::requiredIf($is_approved ==  ApprovalStatus::REJECTED->value)],
         ];
     }
 }

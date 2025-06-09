@@ -22,6 +22,11 @@ class Team extends Model
     //     return $this->hasOne(User::class, 'id', 'leader_id');
     // }
 
+    public function log()
+    {
+        return $this->morphOne(AppointmentLog::class, 'parent');
+    }
+
     public function leader()
     {
         return $this->hasOneThrough(

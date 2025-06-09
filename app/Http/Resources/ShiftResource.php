@@ -15,13 +15,11 @@ class ShiftResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'team_id' =>  $this->when($this->relationLoaded('appointment'), $this->appointment?->team?->id),
-            'team_name' => $this->when($this->relationLoaded('appointment'), $this->appointment?->team?->name),
-            'shelter_id' => $this->when($this->relationLoaded('appointment'), $this->appointment?->shelter?->id),
-            'shelter_name' => $this->when($this->relationLoaded('appointment'), $this->appointment?->shelter?->name),
-            'shift_start_time' => $this->shift_start_time,
-            'shift_end_time' => $this->shift_end_time
+            'id' => $this['id'],
+            'team_name' => $this['team_name'],
+            'shelter_name' => $this['shelter_name'],
+            'shift_start_time' => $this['shift_start_time'],
+            'shift_end_time' => $this['shift_end_time']
         ];
     }
 }

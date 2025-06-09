@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Team\FilterTeamRequest;
 use App\Http\Requests\Team\StoreTeamRequest;
 use App\Http\Requests\Team\UpdateTeamRequest;
 use App\Http\Resources\TeamCollection;
@@ -13,6 +14,8 @@ use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
 use App\Services\TeamService;
+use Illuminate\Http\Request;
+use Dedoc\Scramble\Attributes\BodyParameter;
 
 class TeamController extends Controller
 {
@@ -22,17 +25,18 @@ class TeamController extends Controller
     {
         $this->teamService = $teamService;
     }
+    
     /**
-     * Display a listing of the resource.
+     * Display a listing of the team | แสดงรายชื่อทีมแพทย์ (paginate)
      */
-    public function index()
+    public function index(FilterTeamRequest $request)
     {
-        return $data = $this->teamService->paginate();
+        $data = $this->teamService->paginate();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create a team | สร้างทีมและสมาชิกในทีม
      */
     public function store(StoreTeamRequest $request)
     {
@@ -42,16 +46,16 @@ class TeamController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show a team | รายละเอียดแต่ละทีม
      */
-    public function show(Team $team)
+    public function show(Request $request, Team $team)
     {
-        $data = $this->teamService->show($team);
+        $data = $this->teamService->show($team, $request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a team | แก้ไขทีม และสมาชิก
      */
     public function update(UpdateTeamRequest $request, Team $team)
     {
@@ -59,8 +63,8 @@ class TeamController extends Controller
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
-    /**
-     * Remove the specified resource from storage.
+/**
+     * Delete a team | ลบทีม และสมาชิก
      */
     public function destroy(Team $team)
     {

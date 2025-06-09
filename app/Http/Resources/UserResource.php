@@ -34,6 +34,9 @@ class UserResource extends JsonResource
             'department_name' => $this->when($this->relationLoaded('department'), $this->department?->name),
             'position_id' => $this->position_id,
             'position_name' => $this->when($this->relationLoaded('position'), $this->position?->name),
+            'registration_type' => $this->registration_type->label(),
+            'team_name' => $this->when($this->relationLoaded('member'), $this->member?->team?->name),
+            'image' =>  $this->when($this->relationLoaded('image'), $this->image?->image_url),
         ];
     }
 }

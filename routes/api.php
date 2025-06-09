@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
+use App\Http\Controllers\API\AppointmentLogController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\LoginController;
@@ -79,21 +80,13 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display users
     |--------------------------------------------------------------------------
     */
-    Route::post('/users', [UserController::class, 'index']);
+    Route::post('/users', [UserController::class, 'index']); // All users
     // Route::get('/users', [UserController::class, 'list']);
     Route::get('/user/{user}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
     Route::post('/user/{user}', [UserController::class, 'update']);
     Route::delete('/user/{user}', [UserController::class, 'destroy']);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Routes for display user approvals
-    |--------------------------------------------------------------------------
-    */
-    Route::post('/user-approvals', [UserApprovalController::class, 'index']);
-    Route::get('/user-approval/{approval}', [UserApprovalController::class, 'show']);
-    Route::post('/user-approval/{approval}', [UserApprovalController::class, 'update']);
+    Route::post('/user-approval', [UserController::class, 'approve']);
 
     /*
     |--------------------------------------------------------------------------
@@ -242,12 +235,11 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::post('/teams', [TeamController::class, 'index']);
-    // Route::get('/users', [UserController::class, 'list']);
+    Route::get('/teams', [UserController::class, 'list']);
     Route::get('/team/{team}', [TeamController::class, 'show']);
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
-
     /*
     |--------------------------------------------------------------------------
     | Routes for display teams
@@ -258,6 +250,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'store']);
     Route::post('/appointment/{appointment}', [AppointmentController::class, 'update']);
     Route::delete('/appointment/{appointment}', [AppointmentController::class, 'destroy']);
+    Route::post('/appointment-log', [AppointmentLogController::class, 'store']);
 
     /*
     |--------------------------------------------------------------------------

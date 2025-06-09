@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Resources\TeamCollection;
 use App\Http\Resources\TeamResource;
+use App\Http\Utility\AppointmentLogUtillity as Log;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
@@ -69,9 +70,17 @@ class TeamService
     /**
      * Show a Team.
      */
-    public function show(Team $team)
+    public function show(Team $team, array $search)
     {
-        // Eager load members relationship
+        $teamLog = null;
+        if(isset($search['date'])){
+            $teamLog = Log::getData($team->id, $search['date'], 'team');
+        }
+        
+        if($teamLog){
+            return $teamLog;
+        }
+        
         $team->load(['leader', 'allUsers']);
         return new TeamResource($team);
     }

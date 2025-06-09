@@ -19,7 +19,7 @@ class AppointmentController extends Controller
         $this->appointmentService = $appointmentService;
     }
     /**
-     * Display a listing of the resource.
+     * Display a listing of the an appointment | แสดงรายการนัดหมาย
      */
     public function index(Request $request)
     {
@@ -29,7 +29,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create an appointment | สร้างนัดหมาย
      */
     public function store(StoreAppointmentRequest $request)
     {
@@ -38,7 +38,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show an appointment | แสดงนัดหมาย
      */
     public function show(Appointment $appointment)
     {
@@ -46,7 +46,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Show an appointment | แก้ไขนัดหมาย
      */
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
@@ -55,7 +55,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete an appointment | ลบนัดหมาย
      */
     public function destroy(Appointment $appointment)
     {

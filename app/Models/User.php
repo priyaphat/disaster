@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\RegistrationType;
 use App\Enums\UserType;
 use App\Filters\UserFilter;
 use App\Notifications\ResetPassword;
@@ -18,6 +20,8 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
+    public const IMAGE_FOLDER = 'users';
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
     /**
@@ -61,6 +65,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'type' => UserType::class,
+            'registration_type' => RegistrationType::class,
         ];
     }
 

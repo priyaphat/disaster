@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\ApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\UserApproval\ApprovalRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Responses\ApiResponse;
 use App\Models\User;
@@ -19,15 +21,14 @@ class UserController extends Controller
     {
         $this->userService = $userService;
     }
+
     /**
-     * Display a listing of the resource.
+     * Display a listing of the users | รายการผู้ใช้งาน.
      */
-    public function index(Request $request)
+    public function index(Request $request, ?string $action = null)
     {
-       
-        $data = $this->userService->paginate($request->all());
-        return new UserCollection($data);
-        return ApiResponse::successResponse(__('success.data'), new UserCollection($data));
+        $data = $this->userService->paginate($request->all(), $action);
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
@@ -45,7 +46,8 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return ApiResponse::successResponse(__('success.data'), $user);
+        $data = $this->userService->show($user);
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
@@ -66,5 +68,15 @@ class UserController extends Controller
         //
         $this->userService->delete($user);
         return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+    /**
+     * Update the approval in database.
+     */
+    public function approve(ApprovalRequest $request)
+    {
+        //
+        $data = $this->userService->approve($request->all());
+        return ApiResponse::successResponse(__('success.updated'), $data);
     }
 }

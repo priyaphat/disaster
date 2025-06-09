@@ -2,17 +2,17 @@
 
 namespace App\Services;
 
+use App\Http\Resources\AppointmentCollection;
+use App\Http\Resources\AppointmentResource;
 use App\Http\Resources\ShiftCollection;
+use App\Http\Resources\ShiftDateResource;
 use App\Http\Resources\ShiftResource;
 use App\Models\Appointment;
 use App\Models\AppointmentShift;
 use App\Utility\GvarFunc;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Illuminate\Support\Str;
 
 class AppointmentService
 {
@@ -22,15 +22,14 @@ class AppointmentService
     public function index(array $filters = [], ?int $limit = null)
     {
         $data = [];
-
         $todayAppointment = $this->getDailySchedule($filters);
 
         $startDate = Carbon::now()->startOfMonth();
         $endDate = Carbon::now()->endOfMonth();
         if ($filters['type'] == 1) {
-            $monthAppointment = $this->getCalendar($startDate, $endDate);
+            $monthAppointment = $this->getCalendar($startDate, $endDate, $filters);
         } else {
-            $monthAppointment = $this->getTimeTables($startDate, $endDate);
+            $monthAppointment = $this->getTimeTables($startDate, $endDate, $filters);
         }
 
         $data['today_schedules'] = $todayAppointment;
@@ -44,28 +43,31 @@ class AppointmentService
     public function getDailySchedule(array $filters = [])
     {
         $selectedDate = Carbon::now()->format('Y-m-d');
-        if(isset($filters['selected_date'])){
+        if (isset($filters['selected_date'])) {
             $selectedDate = Carbon::parse($filters['selected_date'])->format('Y-m-d');
         }
 
         $appointmentQuery = AppointmentShift::query();
         // Orders by 'start_time' ASC
-        $appointmentQuery->filter($filters);
-        $data = $appointmentQuery->with(['appointment.team', 'appointment.shelter'])->oldest('shift_start_time')
+        $appointmentQuery->filter($filters)->get();
+        $data = $appointmentQuery->oldest('shift_start_time')
             ->where(function ($query) use ($selectedDate) {
                 $query->whereDate('shift_date', $selectedDate);
             })->get();
 
-        $data = $data->groupBy('shift')->map(function ($recordsByShift, $shift) {
-            return [
+        $data = $data->groupBy('shift')->map(function ($recordsByShift, $shift) use ($filters) {
+            $tranformedData = [
                 'shift' => $shift,
                 'shift_name' => $shift == 1 ? __('data.morning') : __('data.evening'),
                 'total_team' => $recordsByShift->groupBy('appointment.team_id')->count(),
                 'total_shelter' => $recordsByShift->groupBy('appointment.shelter_id')->count(),
                 'appointments' => $recordsByShift->map(function ($record) {
-                    return new ShiftResource($record);
+                    return new AppointmentResource($record);
                 })->values(),
             ];
+
+            $tranformedData = $this->resetData($tranformedData, $filters);
+            return $tranformedData;
         })->values();
 
         return $data;
@@ -74,7 +76,7 @@ class AppointmentService
     /**
      * Get calendar detail.
      */
-    public function getCalendar($startDate, $endDate)
+    public function getCalendar($startDate, $endDate, $filters)
     {
         $monthQuery = Appointment::query();
         $monthAppointment = $monthQuery->where(function ($query) use ($startDate, $endDate) {
@@ -83,12 +85,15 @@ class AppointmentService
             ->groupBy(function ($item) {
                 return Carbon::parse($item->start_time)->format('d-m-Y'); // returns 'YYYY-MM-DD'
             })
-            ->map(function ($recordsByDate, $date) {
-                return [
+            ->map(function ($recordsByDate, $date) use ($filters) {
+                $tranformedData = [
                     'date' => $date,
                     'total_team' => $recordsByDate->groupBy('team_id')->count(),
-                    'total_shelter' => $recordsByDate->groupBy('shelter_id')->count(),
-                ];
+                    'total_shelter' => $recordsByDate->groupBy('shelter_id')->count()
+            ];
+
+            $tranformedData = $this->resetData($tranformedData, $filters);
+            return $tranformedData;
             })->values();
 
         return $monthAppointment;
@@ -97,15 +102,32 @@ class AppointmentService
     /**
      * Get time tables.
      */
-    public function getTimeTables($startDate, $endDate, $search = null)
+    public function getTimeTables($startDate, $endDate, $filters)
     {
-        $monthQuery = AppointmentShift::query();
+        $monthQuery = AppointmentShift::with(
+            'appointment.team',
+            'appointment.shelter',
+            'appointment.team.allUsers',
+            'appointment.teamLog',
+            'appointment.shelterLog',
+            'appointment.userLog'
+        );
         $monthAppointment = $monthQuery->where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('shift_date', [$startDate, $endDate]);
-        })->get()
-            ->groupBy('shift_date')
-            ->map(function ($recordsByDate, $date) {
-                return [
+        })->get();
+
+        $tranformedData = ShiftDateResource::collection($monthAppointment)->toArray(request());
+
+        $search = isset($filters['search']) ? $filters['search'] : null;
+        if ($search) {
+            $tranformedData = collect($tranformedData)->filter(function ($item) use ($search) {
+                return Str::contains($item['team_name'], $search);
+            });
+        }
+
+        $tranformedData = collect($tranformedData)->groupBy('shift_date')
+            ->map(function ($recordsByDate, $date) use ($filters) {
+                $tranformedData = [
                     'date' => Carbon::parse($date)->format('d/m/Y'),
                     'data' => $recordsByDate->groupBy('shift')->map(function ($recordsByShift, $shift) {
                         return [
@@ -113,14 +135,18 @@ class AppointmentService
                             'shift_name' => $shift == 1 ? 'ช่วงเช้า' : 'ช่วงบ่าย',
                             'total_team' => $recordsByShift->groupBy('team_id')->count(),
                             'total_shelter' => $recordsByShift->groupBy('shelter_id')->count(),
-                            'appointments' => $recordsByShift
+                            'appointments' => ShiftResource::collection($recordsByShift)
                         ];
                     })->values(),
                 ];
+            $tranformedData = $this->resetData($tranformedData, $filters);
+            return $tranformedData;
             })->values();
-        $monthAppointment = GvarFunc::paginate($monthAppointment, 10);
 
-        return $monthAppointment;
+
+        $tranformedData = GvarFunc::paginate($tranformedData, 10);
+
+        return $tranformedData;
     }
     /**
      * Get a Appointment by its id.
@@ -256,5 +282,18 @@ class AppointmentService
         }
 
         return collect($shiftArr);
+    }
+
+    public function resetData($data, $filters)
+    {
+        if (isset($filters['shelter']) && $filters['shelter']) {
+            unset($data['total_shelter']);
+        }
+
+        if (isset($filters['team']) && $filters['team']) {
+            unset($data['total_team']);
+        }
+
+        return $data;
     }
 }
