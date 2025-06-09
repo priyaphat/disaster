@@ -45,11 +45,11 @@ class AppServiceProvider extends ServiceProvider
         Event::subscribe(UserEventSubscriber::class);
         JsonResource::withoutWrapping();
 
-        // Scramble::configure()
-        //     ->expose(
-        //         ui: '/docs/v1/api',
-        //         document: '/docs/v1/openapi.json',
-        //     );
+        Scramble::configure()
+            ->expose(
+                ui: '/api/docs',
+                document: '/docs/v1/openapi.json',
+            );
 
         Scramble::configure()
             ->withDocumentTransformers(function (OpenApi $openApi) {
