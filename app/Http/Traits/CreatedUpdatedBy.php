@@ -22,7 +22,8 @@ trait CreatedUpdatedBy
         // Optionally, you can also listen to the 'updating' event
         static::updating(function ($model) {
             // Automatically set updated_by when updating
-            if (Auth::check() && !empty($model->updated_by)) {
+            // if (Auth::check() && !empty($model->updated_by)) {
+            if (Auth::check()) {
                 $model->updated_by = Auth::id();
             }
         });

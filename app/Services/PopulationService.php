@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Population;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Collection;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PopulationService
 {
@@ -80,5 +81,10 @@ class PopulationService
         }
 
         return $population;
+    }
+
+    public function isShelterClear($id): bool
+    {
+        return Population::where('shelter_id', $id)->count() === 0;
     }
 }

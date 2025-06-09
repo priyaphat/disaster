@@ -13,7 +13,7 @@ class ApiResponse implements Responsable
         private bool $success = true,
         private mixed $message = null,
         private mixed $data,
-        private array $customResponse= [],
+        private array $customResponse = [],
         private ?Throwable $exception = null,
         private int $httpCode = Response::HTTP_CREATED,
     ) {}
@@ -68,5 +68,10 @@ class ApiResponse implements Responsable
     public static function errorResponse($message = "Error", $httpCode = Response::HTTP_BAD_REQUEST)
     {
         return new static(false, $message, $data = null, $customResponse = [], $exception = null, $httpCode);
+    }
+
+    public static function notFoundResponse($message = "Not Found", $data = null, array $customResponse = [])
+    {
+        return new static(false, $message, $data, $customResponse, $exception = null, Response::HTTP_NOT_FOUND);
     }
 }

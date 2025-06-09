@@ -4,10 +4,21 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Services\DisasterService;
-use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
 use App\Models\Disaster;
 use App\Http\Requests\DisasterRequest;
+use App\Models\DisasterFlood;
+use App\Enums\FloodStatus;
+use App\Enums\SmogStatus;
+use App\Models\DisasterEarthquake;
+use App\Models\DisasterLandslide;
+use App\Models\DisasterSmog;
+use App\Models\DisasterWildfire;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use PDO;
 
 class DisasterController extends Controller
 {
@@ -27,7 +38,7 @@ class DisasterController extends Controller
     public function show(Disaster $disaster)
     {
         $data = $this->disasterService->show($disaster);
-        return ApiResponse::successResponse(__('success.data'), $data); 
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     public function store(DisasterRequest $request)
@@ -41,11 +52,112 @@ class DisasterController extends Controller
         $data = $this->disasterService->update($disaster, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
-    
+
     public function destroy(Disaster $disaster)
     {
         $disaster->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }
 
+
+    /*####################### Disaster menu #######################*/
+
+    //earthquake - eq
+    public function dst_eq_show(Request $request)
+    {
+        $data = $this->disasterService->eq_show($request);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function dst_eq_update(DisasterRequest $request, DisasterEarthquake $earthquake)
+    {
+        // $request['updated_by'] = Auth::id();
+        // return $request->all();
+        $earthquake->update($request->all());
+        return ApiResponse::successResponse(__('success.sys_updated'), $earthquake);
+    }
+
+    //flood - fl
+    public function dst_fl_show(Request $request)
+    {
+        $data = $this->disasterService->fl_show($request);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function dst_fl_status()
+    {
+        $data = array_map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label(),
+        ], FloodStatus::cases());
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function dst_fl_update(DisasterRequest $request, DisasterFlood $flood)
+    {
+        $flood->update($request->all());
+        return ApiResponse::successResponse(__('success.sys_updated'), $flood);
+    }
+
+    //landslide
+    public function dst_ls_show(Request $request)
+    {
+        $data = $this->disasterService->ls_show($request);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function dst_ls_create(DisasterRequest $request)
+    {
+        $data = $this->disasterService->ls_create($request);
+        return ApiResponse::successResponse(__('success.sys_created'), $data);
+    }
+
+    public function dst_ls_download($file)
+    {
+        return $this->disasterService->download($file);
+    }
+
+    public function dst_ls_delete(DisasterLandslide $id)
+    {
+        $file = DisasterLandslide::FILE . '/' . $id->file_id;
+        if (Storage::exists($file)) Storage::delete($file);
+        $id->delete();
+        return ApiResponse::successResponse(__('success.disaster.dst_ls_delete'));
+    }
+
+    //wildfire
+    public function dst_wf_show()
+    {
+        $data = $this->disasterService->dst_wf_show();
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function dst_wf_create(DisasterRequest $request)
+    {
+        $data = $this->disasterService->dst_wf_create($request);
+        return ApiResponse::successResponse(__('success.sys_updated'), $data);
+    }
+
+    //smog
+    public function dst_sm_show(Request $request)
+    {
+        $data = $this->disasterService->dst_sm_show($request);
+        // if($data->isEmpty()) return  ApiResponse::notFoundResponse(__('error.model_not_found'));
+        return  ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function dst_sm_status()
+    {
+        $data = array_map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label(),
+        ], SmogStatus::cases());
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function dst_sm_update(DisasterRequest $request, DisasterSmog $smog)
+    {
+        $smog->update($request->all());
+        return  ApiResponse::successResponse(__('success.data'), $smog);
+    }
 }
