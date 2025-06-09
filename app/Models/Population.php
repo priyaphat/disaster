@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Filters\PopulationFilter;
 use App\Http\Traits\CreatedUpdatedBy;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -96,5 +98,15 @@ class Population extends Model
         $geo = DB::table('geography')->where('id', $this->c_geography_id)->firstOrFail();
 
         return "{$value} ตำบล {$geo->subdistrict_name_th} อำเภอ {$geo->district_name_th} จังหวัด {$geo->province_name_th} {$geo->postal_code}";
+    }
+
+    public function logs()
+    {
+        return $this->morphMany(TransferHistory::class, 'parentable');
+    }
+
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return (new PopulationFilter($filters))->apply($query);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Population;
+use App\Models\Shelter;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -73,7 +74,6 @@ class PopulationService
         $populations = Population::where('shelter_id', $data['shelter_id'])->count();
         if ($populations >= $maxcap) {
             // throw new \Exception(__('error.shelter_full'));
-            throw new \Exception(__('ศูนย์พักพิงเต็ม'));
         } else {
             $population->update([
                 'shelter_id' => $data['shelter_id'],
@@ -86,5 +86,12 @@ class PopulationService
     public function isShelterClear($id): bool
     {
         return Population::where('shelter_id', $id)->count() === 0;
+    }
+
+    public function isShelterMax($id): bool
+    {
+        $shelter = Shelter::find($id);
+        $populationCount = Population::where('shelter_id', $id)->count();
+        return $populationCount >= $shelter->max_capacity;
     }
 }

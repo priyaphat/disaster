@@ -64,7 +64,7 @@ class ShelterService
     {
         return array_map(fn($case) => [
             'id' => $case->value,
-            'name' => $case->label(),
+            'name' => $case->utility(),
         ], ShelterUtilities::cases());
     }
 }

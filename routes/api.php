@@ -26,6 +26,7 @@ use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
+use App\Http\Controllers\API\TransferHistoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -288,4 +289,12 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/reason', [EmergencyRequestController::class, 'reason']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display transfer history
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/transfer-history/{model}/{id}', [TransferHistoryController::class, 'getlog']);
+    Route::get('/action-type', [TransferHistoryController::class, 'actiontype']);
 });
