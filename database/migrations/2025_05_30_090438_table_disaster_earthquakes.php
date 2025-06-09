@@ -15,7 +15,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 6);
             $table->decimal('longitude', 10, 6);
             $table->float('depth')->comment('ความลึกของแผ่นดินไหว (กิโลเมตร)');
-            $table->string('magnitude')->comment('ขนาดแผ่นดินไหว');
+            $table->float('magnitude')->comment('ขนาดแผ่นดินไหว');
             $table->datetime('occurrence_time')->comment('เวลาที่เกิดแผ่นดินไหว');
             $table->tinyInteger('line_oa')->default(0)->comment('0 - inactive, 1 - active');
             $table->foreignId('created_by')->nullable()->constrained('users');

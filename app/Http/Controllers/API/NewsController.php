@@ -38,20 +38,20 @@ class NewsController extends Controller
     {
         $data = $this->newsService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, News::IMAGE_FOLDER, News::class, $data->id);
-        return ApiResponse::createdResponse(__('success.created'), new NewsResource($data));
+        return ApiResponse::createdResponse(__('success.new.created'), new NewsResource($data));
     }
 
     public function show(News $news)
     {
         $news->image = $this->imageService->getByTableAndId(News::class, $news->id);
-        return ApiResponse::successResponse(__('success.data'), new NewsResource($news));
+        return ApiResponse::successResponse(__('success.new.data'), new NewsResource($news));
     }
 
     public function update(NewsRequest $request, News $news)
     {
         $data = $this->newsService->update($news, $request->all());
         $data->image = $this->imageService->updateImage($request->image, News::IMAGE_FOLDER, News::class, $data->id);
-        return ApiResponse::successResponse(__('success.updated'), new NewsResource($data));
+        return ApiResponse::successResponse(__('success.new.updated'), new NewsResource($data));
     }
 
     public function destroy(News $news)

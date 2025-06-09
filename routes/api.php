@@ -24,6 +24,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\ProductRequestController;
+use App\Http\Controllers\API\LineController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,10 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
+
+
+Route::post('/line', [LineController::class, 'handle']);
+
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
@@ -161,31 +166,31 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display categories
     |--------------------------------------------------------------------------
     */
-    Route::get('/category',[CategoryController::class,'index']);
-    Route::post('/category',[CategoryController::class,'store']);
-    Route::post('/category/{category}',[CategoryController::class,'update']);
-    Route::delete('/category/{category}',[CategoryController::class,'destroy']);
+    Route::get('/category', [CategoryController::class, 'index']);
+    Route::post('/category', [CategoryController::class, 'store']);
+    Route::post('/category/{category}', [CategoryController::class, 'update']);
+    Route::delete('/category/{category}', [CategoryController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
     | Routes for display products
     |--------------------------------------------------------------------------
     */
-    Route::get('/product',[ProductController::class,'index']);
-    Route::get('/product/{product}',[ProductController::class,'show']);
-    Route::post('/product',[ProductController::class,'store']);
+    Route::get('/product', [ProductController::class, 'index']);
+    Route::get('/product/{product}', [ProductController::class, 'show']);
+    Route::post('/product', [ProductController::class, 'store']);
 
     /*
     |--------------------------------------------------------------------------
     | Routes for display product requests
     |--------------------------------------------------------------------------
     */
-    Route::get('/product-request',[ProductRequestController::class,'index']);
-    Route::post('/product-request',[ProductRequestController::class,'store']);
-    
+    Route::get('/product-request', [ProductRequestController::class, 'index']);
+    Route::post('/product-request', [ProductRequestController::class, 'store']);
+
     /*
     |--------------------------------------------------------------------------
-    | Routes for display emergency requests
+    | Routes for display disaster
     |-------------------------------------------------------- ------------------
     */
     Route::get('/disaster', [DisasterController::class, 'index']);
@@ -193,6 +198,30 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/disaster', [DisasterController::class, 'store']);
     Route::post('/disaster/{disaster}', [DisasterController::class, 'update']);
     Route::delete('/disaster/{disaster}', [DisasterController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display disaster menu
+    |-------------------------------------------------------- ------------------
+    */
+    Route::post('/dst-earthquakes', [DisasterController::class, 'dst_eq_show']);
+    Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
+
+    Route::post('/dst-floods', [DisasterController::class, 'dst_fl_show']);
+    Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
+    Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
+
+    Route::post('/dst-landslides', [DisasterController::class, 'dst_ls_show']);
+    Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
+    Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
+    Route::delete('/dst-landslide/{id}', [DisasterController::class, 'dst_ls_delete']);
+
+    Route::get('dst-wildfires', [DisasterController::class, 'dst_wf_show']);
+    Route::post('dst-wildfire', [DisasterController::class, 'dst_wf_create']);
+
+    Route::get('dst-smog-status', [DisasterController::class, 'dst_sm_status']);
+    Route::post('dst-smogs', [DisasterController::class, 'dst_sm_show']);
+    Route::post('dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
 
     /*
     |--------------------------------------------------------------------------
