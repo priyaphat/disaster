@@ -9,6 +9,9 @@ Route::get('/', function () {
     return view('welcome');
 })->name('login');
 
+Route::get('/line-login', function () {
+    return view('line-login');
+});
 
 // Route::get('/mailable', function () {
 //     return new WelcomeMail();

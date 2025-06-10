@@ -43,6 +43,7 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
 
 Route::post('/line', [LineController::class, 'handle']);
+Route::post('/line-login',[LoginController::class,'line']);
 
 
 Route::middleware('auth:api')->group(function () {

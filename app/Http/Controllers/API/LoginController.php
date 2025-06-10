@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Laravel\Passport\Token as PassportToken;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,7 +21,7 @@ class LoginController extends Controller
     public function login(LoginRequest $request)
     {
         $user = User::where('username', $request->username)->first();
-    
+
         if ($user && Hash::check($request->password, $user->password)) {
             $token = $user->createToken('API Token')->accessToken;
             // Custom response for API
@@ -30,6 +31,18 @@ class LoginController extends Controller
             return ApiResponse::customSuccessResponse('Login Successful', $response);
         }
 
+        return ApiResponse::errorResponse(__('auth.failed'), Response::HTTP_BAD_REQUEST);
+    }
+
+    public function line(LoginRequest $request)
+    {
+        error_log($request);
+        $user = User::where('username', $request->username)->first();
+        if ($user && Hash::check($request->password, $user->password)) {
+            $user->line_token = $request->userId;
+            $user->update();
+            return ApiResponse::customSuccessResponse('Login Successful');
+        }
         return ApiResponse::errorResponse(__('auth.failed'), Response::HTTP_BAD_REQUEST);
     }
 
