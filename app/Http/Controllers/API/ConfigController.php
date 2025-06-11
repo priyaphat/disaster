@@ -6,23 +6,24 @@ use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\Config;
 use Illuminate\Http\Request;
+use Spatie\FlareClient\Api;
 
 class ConfigController extends Controller
 {
 
-    public function index(Request $request)
+    public function index(Request $request, $id = null)
     {
         $user = $request->user;
         $population = $request->population;
         $data = Config::select('*');
-        if ($request->id) $data = $data->where('id', $request->id);
+        if ($id) $data = $data->where('id', $id);
         if ($request->type) $data = $data->whrer('type', $request->type);
         if ($request->status) $data = $data->where('status', $request->status);
         if (!is_null($user)) $data = $data->where('description->user', $user);
         if (!is_null($population)) $data = $data->where('description->population', $population);
 
         $data = $data->get();
-
+        $config = [];
         foreach ($data as $item) {
             if ($item->type == 2) {
                 $name = [
@@ -33,7 +34,10 @@ class ConfigController extends Controller
                 $config[] = $item;
             }
         }
-        return ApiResponse::successResponse(__('success.data'), ['name' => $name, 'config' => $config]);
+        if (isset($name)) $res['name'] = $name;
+        $res['config'] = $config;
+        if ($id) return ApiResponse::successResponse(__('success.data'), $config);
+        return ApiResponse::successResponse(__('success.data'), $res);
     }
 
     public function store(Request $request)

@@ -63,9 +63,9 @@ class DisasterController extends Controller
     /*####################### Disaster menu #######################*/
 
     //earthquake - eq
-    public function dst_eq_show(Request $request)
+    public function dst_eq_show(Request $request, $earthquake = null)
     {
-        $data = $this->disasterService->eq_show($request);
+        $data = $this->disasterService->eq_show($request, $earthquake);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -78,9 +78,9 @@ class DisasterController extends Controller
     }
 
     //flood - fl
-    public function dst_fl_show(Request $request)
+    public function dst_fl_show(Request $request, $flood = null)
     {
-        $data = $this->disasterService->fl_show($request);
+        $data = $this->disasterService->fl_show($request, $flood);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -100,9 +100,9 @@ class DisasterController extends Controller
     }
 
     //landslide
-    public function dst_ls_show(Request $request)
+    public function dst_ls_show(Request $request, $landslide = null)
     {
-        $data = $this->disasterService->ls_show($request);
+        $data = $this->disasterService->ls_show($request, $landslide);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -139,9 +139,9 @@ class DisasterController extends Controller
     }
 
     //smog
-    public function dst_sm_show(Request $request)
+    public function dst_sm_show(Request $request, $smog = null)
     {
-        $data = $this->disasterService->dst_sm_show($request);
+        $data = $this->disasterService->dst_sm_show($request, $smog);
         // if($data->isEmpty()) return  ApiResponse::notFoundResponse(__('error.model_not_found'));
         return  ApiResponse::successResponse(__('success.data'), $data);
     }

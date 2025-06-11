@@ -38,7 +38,7 @@ class DisasterService
 
     /* Disaster menu */
 
-    public function eq_show($req)
+    public function eq_show($req, $id = null)
     {
         $query = DisasterEarthquake::query()
             ->when($req->dateStart && $req->dateEnd, fn($q) =>
@@ -48,19 +48,19 @@ class DisasterService
             ]))
             ->when($req->district, fn($q) =>
             $q->where('address', 'like', "%$req->district%"))
-            ->when($req->id, fn($q) =>
-            $q->where('id', $req->id))
+            ->when($id, fn($q) =>
+            $q->where('id', $id))
             ->when(
                 $req->subdistrict,
                 fn($q) =>
                 $q->where('address', 'like', "%$req->subdistrict%")
             );
         $data = $query->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
-        if ($req->id) return $data;
+        if ($id) return $data[0];
         return PaginateUtility::Paginate($data);
     }
 
-    public function fl_show($req)
+    public function fl_show($req, $id = null)
     {
         $q = DisasterFlood::query()
             ->when(
@@ -79,9 +79,9 @@ class DisasterService
                 $q->where('status', $req->status)
             )
             ->when(
-                $req->id,
+                $id,
                 fn($q) =>
-                $q->where('id', $req->id)
+                $q->where('id', $id)
             )
             ->when(
                 $req->search,
@@ -89,11 +89,11 @@ class DisasterService
                 $q->whereAny(['name', 'water_source_type'], $req->search)
             );
         $data = $q->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
-        if ($req->id) return $data;
+        if ($id) return $data[0];
         return PaginateUtility::Paginate($data);
     }
 
-    public function ls_show($req)
+    public function ls_show($req, $id = null)
     {
         $q = DisasterLandslide::query()
             ->when(
@@ -102,12 +102,12 @@ class DisasterService
                 $q->where('name', 'like', "%$req->search%")
             )
             ->when(
-                $req->id,
+                $id,
                 fn($q) =>
-                $q->where('id', $req->id)
+                $q->where('id', $id)
             );
         $q = $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
-        if ($req->id) return $q;
+        if ($id) return $q[0];
         return PaginateUtility::Paginate($q);
     }
 
@@ -168,7 +168,7 @@ class DisasterService
         return $model;
     }
 
-    public function dst_sm_show($req)
+    public function dst_sm_show($req, $id = null)
     {
         $q = DisasterSmog::query()
             ->when(
@@ -187,9 +187,9 @@ class DisasterService
                 $q->where('status', $req->status)
             )
             ->when(
-                $req->id,
+                $id,
                 fn($q) =>
-                $q->where('id', $req->id)
+                $q->where('id', $id)
             )
             ->when(
                 $req->search,
@@ -197,7 +197,7 @@ class DisasterService
                 $q->where('source', 'like', "%$req->search%")
             );
         $data = $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
-        if ($req->id) return $data;
+        if ($id) return $data[0];
         return PaginateUtility::Paginate($data);
     }
 }

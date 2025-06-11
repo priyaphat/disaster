@@ -208,14 +208,14 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display disaster menu
     |-------------------------------------------------------- ------------------
     */
-    Route::post('/dst-earthquakes', [DisasterController::class, 'dst_eq_show']);
+    Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
     Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
 
-    Route::post('/dst-floods', [DisasterController::class, 'dst_fl_show']);
+    Route::get('/dst-floods/{flood?}', [DisasterController::class, 'dst_fl_show']);
     Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
     Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
 
-    Route::post('/dst-landslides', [DisasterController::class, 'dst_ls_show']);
+    Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_show']);
     Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
     Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
     Route::delete('/dst-landslide/{id}', [DisasterController::class, 'dst_ls_delete']);
@@ -224,7 +224,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('dst-wildfire', [DisasterController::class, 'dst_wf_create']);
 
     Route::get('dst-smog-status', [DisasterController::class, 'dst_sm_status']);
-    Route::post('dst-smogs', [DisasterController::class, 'dst_sm_show']);
+    Route::get('dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
     Route::post('dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
 
     /*
@@ -243,18 +243,17 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency post log
     |--------------------------------------------------------------------------
     */
-    Route::post('/post-logs', [PostController::class, 'logs']);
+    Route::get('/post-logs', [PostController::class, 'logs']);
 
     /*
     |--------------------------------------------------------------------------
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
+    Route::get('/emc-requests/{emc?}', [EmergencyRequestController::class, 'emcRequestBy']);
     Route::post('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
     Route::post('/emc-requests-history', [EmergencyRequestController::class, 'show_history']);
-    Route::post('/emc-request-phone', [EmergencyRequestController::class, 'emcRequestBy']);
-    Route::post('/emc-request-id', [EmergencyRequestController::class, 'emcRequestBy']);
     Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
     Route::post('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'update']);
     Route::delete('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'destroy']);
@@ -264,7 +263,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
-    Route::post('/configs', [ConfigController::class, 'index']);
+    Route::get('/configs/{id?}', [ConfigController::class, 'index']);
     Route::post('/config', [ConfigController::class, 'store']);
     Route::post('/config/{config}', [ConfigController::class, 'update']);
     Route::post('/config-reset', [ConfigController::class, 'reset']);

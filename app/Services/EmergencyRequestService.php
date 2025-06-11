@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\EmergencyRequest;
 use App\Enums\CancellationReason;
+use App\Http\Responses\ApiResponse;
 use App\Models\EmergencyRequestLog;
 use App\Models\Prefix;
 use App\Http\Utility\PaginateUtility;
@@ -22,12 +23,15 @@ class EmergencyRequestService
         return $data;
     }
 
-    public function emcRequestBy($search)
+    public function emcRequestBy($request, $search = null)
     {
         $prefix = Prefix::all()->keyBy('id');
 
-        $items = EmergencyRequest::where('phone', $search)
-            ->orWhere('id', $search)
+        $items = EmergencyRequest::query()->when(
+                $search,
+                fn($q) =>
+                $q->whereAny(['phone', 'id'], $search)
+            )
             ->with('prefix', 'disaster', 'reason', 'geography')
             ->get()
             ->map(function ($item) use ($prefix) {
@@ -43,7 +47,8 @@ class EmergencyRequestService
                 $item->victim_name = $victimName;
                 return $item;
             });
-        return PaginateUtility::Paginate($items);
+        if ($request->paginate) return PaginateUtility::Paginate($items);
+        return $items[0];
     }
 
     public function show($emc, $type = null)
