@@ -86,18 +86,38 @@ class Population extends Model
     // }
 
 
-    public function getPAddressAttribute($value)
-    {
-        $geo = DB::table('geography')->where('id', $this->p_geography_id)->firstOrFail();
+    // public function getPAddressAttribute($value)
+    // {
+    //     $geo = DB::table('geography')->where('id', $this->p_geography_id)->firstOrFail();
 
-        return "{$value} ตำบล {$geo->subdistrict_name_th} อำเภอ {$geo->district_name_th} จังหวัด {$geo->province_name_th} {$geo->postal_code}";
+    //     return "{$value} ตำบล {$geo->subdistrict_name_th} อำเภอ {$geo->district_name_th} จังหวัด {$geo->province_name_th} {$geo->postal_code}";
+    // }
+
+    // public function getCAddressAttribute($value)
+    // {
+    //     $geo = DB::table('geography')->where('id', $this->c_geography_id)->firstOrFail();
+
+    //     return "{$value} ตำบล {$geo->subdistrict_name_th} อำเภอ {$geo->district_name_th} จังหวัด {$geo->province_name_th} {$geo->postal_code}";
+    // }
+
+    public function fullpaddress()
+    {
+        return $this->belongsTo(Geography::class, 'p_geography_id')->select('id', 'province_code', 'province_name_th', 'province_name_en', 'district_code', 'district_name_th', 'district_name_en', 'subdistrict_code', 'subdistrict_name_th', 'subdistrict_name_en', 'postal_code');
     }
 
-    public function getCAddressAttribute($value)
+    public function fullcaddress()
     {
-        $geo = DB::table('geography')->where('id', $this->c_geography_id)->firstOrFail();
+        return $this->belongsTo(Geography::class, 'c_geography_id')->select('id', 'province_code', 'province_name_th', 'province_name_en', 'district_code', 'district_name_th', 'district_name_en', 'subdistrict_code', 'subdistrict_name_th', 'subdistrict_name_en', 'postal_code');
+    }
 
-        return "{$value} ตำบล {$geo->subdistrict_name_th} อำเภอ {$geo->district_name_th} จังหวัด {$geo->province_name_th} {$geo->postal_code}";
+    public function shelter()
+    {
+        return $this->belongsTo(Shelter::class, 'shelter_id')->select('id', 'name');
+    }
+
+    public function prefix()
+    {
+        return $this->belongsTo(Prefix::class, 'prefix_id');
     }
 
     public function logs()

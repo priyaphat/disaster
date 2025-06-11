@@ -53,7 +53,8 @@ class PopulationController extends Controller
      */
     public function show(Population $population)
     {
-        return ApiResponse::successResponse(__('success.data'), $population);
+        $data = $this->populationService->show($population);
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**

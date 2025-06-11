@@ -26,6 +26,11 @@ class CreateShelterRequest extends FormRequest
             'phone' => 'required|max:10',
             'created_date' => 'required',
             'leader_id' => 'required|exists:users,id',
+            'geography_id' => 'required|exists:geography,id',
+            'province_code' => 'required|exists:geography,province_code',
+            'district_code' => 'required|exists:geography,district_code',
+            'subdistrict_code' => 'required|exists:geography,subdistrict_code',
+            'utilities' => 'required',
             'address' => 'required',
             'max_capacity' => 'required',
         ];

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Http\Resources\PopulationResource;
+use App\Http\Resources\PopulationShowResource;
 use App\Models\Population;
 use App\Models\Shelter;
 use Illuminate\Container\Attributes\Auth;
@@ -10,7 +12,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PopulationService
 {
-    public function getList(array $filters = [], ?int $limit = null): Collection
+    public function getList(array $filters = [])
     {
         $query = Population::query();
         if (!empty($filters['search'])) {
@@ -19,24 +21,20 @@ class PopulationService
 
         $gender = $filters['gender'] ?? null;
         $status = $filters['status'] ?? null;
+        $sort = $filters['sort'] ?? 'desc';
 
         if ($gender != null) {
             $query->where('gender', $gender);
         }
-
         if ($status != null) {
             $query->where('status', $status);
         }
-
-        // Orders by 'created_at' DESC if ASC use oldest
-        $query->latest();
-
-        // limit the number of results
-        if ($limit) {
-            $query->take($limit);
+        if ($sort != null) {
+            $query->orderBy('created_at', $sort);
         }
 
-        return $query->get();
+        $data = $query->with('fullpaddress', 'fullcaddress', 'prefix')->paginate(10);
+        return $data->setCollection(PopulationResource::collection($data->items())->collection);
     }
 
     public function create(array $data): Population
@@ -67,6 +65,12 @@ class PopulationService
     {
         $population->update($data);
         return $population;
+    }
+
+    public function show(Population $population)
+    {
+        $data = Population::with('fullpaddress', 'fullcaddress', 'prefix', 'shelter')->findOrFail($population->id);
+        return new PopulationShowResource($data);
     }
 
     public function transfer(Population $population, array $data, $maxcap): Population

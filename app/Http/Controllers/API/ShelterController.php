@@ -50,6 +50,12 @@ class ShelterController extends Controller
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
+    public function show(Shelter $shelter)
+    {
+        $data = $this->shelterService->show($shelter);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
     public function utility()
     {
         $data = $this->shelterService->utility();

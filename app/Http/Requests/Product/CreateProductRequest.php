@@ -32,8 +32,9 @@ class CreateProductRequest extends FormRequest
                         ->where('category_id', $this->category_id);
                 }),
             ],
-            'unit_id' => 'required|exists:units,id',
-            'category_id' => 'required|exists:categories,id',
+            'unit_id' => 'exists:units,id',
+            'no_unit' => 'nullable',
+            'category_id' => 'exists:categories,id',
             'quantity' => 'required|integer',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
         ];

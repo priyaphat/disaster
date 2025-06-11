@@ -22,6 +22,10 @@ class Shelter extends Model
         'status',
         'leader_id',
         'utilities',
+        'geography_id',
+        'province_code',
+        'district_code',
+        'subdistrict_code',
         'address',
         'max_capacity',
     ];
@@ -42,5 +46,26 @@ class Shelter extends Model
     public function image()
     {
         return $this->morphOne(Image::class, 'parentable');
+    }
+
+    public function fulladdress() {
+        return $this->belongsTo(Geography::class, 'geography_id')->select('id', 'province_name_th', 'district_name_th', 'subdistrict_name_th');
+    }
+
+    public function geography()
+    {
+        return $this->belongsTo(Geography::class, 'geography_id')->select('id', 'province_code', 'province_name_th', 'province_name_en', 'district_code', 'district_name_th', 'district_name_en', 'subdistrict_code', 'subdistrict_name_th', 'subdistrict_name_en', 'postal_code');
+    }
+
+    public function countpopulation() {
+        return $this->hasMany(Population::class, 'shelter_id');
+    }
+
+    public function leader() {
+        return $this->belongsTo(User::class, 'leader_id')->select('id', 'firstname', 'lastname');
+    }
+
+    public function countstaff() {
+        return $this->hasMany(User::class, 'id');
     }
 }

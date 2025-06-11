@@ -26,6 +26,7 @@ use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
+use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TransferHistoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -121,8 +122,17 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/shelter', [ShelterController::class, 'index']);
     Route::post('/shelter', [ShelterController::class, 'store']);
+    Route::get('/shelter/{shelter}', [ShelterController::class, 'show']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display shelters
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/staff', [ShelterStaffController::class, 'index']);
+    Route::post('/staff', [ShelterStaffController::class, 'store']);
 
     /*
     |--------------------------------------------------------------------------
