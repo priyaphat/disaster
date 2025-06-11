@@ -75,4 +75,9 @@ class UserFilter extends QueryFilter
             return $this->builder->where('department_id', $id);
         }
     }
+
+    public function staffs()
+    {
+        return $this->builder->doesntHave('shelterstaff');
+    }
 }

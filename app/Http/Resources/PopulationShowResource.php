@@ -26,7 +26,7 @@ class PopulationShowResource extends JsonResource
             'age' => (int) $this->birth_date->diffInYears(now()),
             'phone' => $this->phone,
             'full_p_address_th' => 'ต.' . $this->fullpaddress->subdistrict_name_th . ' อ.' . $this->fullpaddress->district_name_th . ' จ.' . $this->fullpaddress->province_name_th,
-            'full_p_address_en' => 'Tambon' . $this->fullpaddress->subdistrict_name_en . ' Amphoe' . $this->fullpaddress->district_name_en . ' ' . $this->fullpaddress->province_name_en,
+            'full_p_address_en' => 'Tambon ' . $this->fullpaddress->subdistrict_name_en . ' Amphoe' . $this->fullpaddress->district_name_en . ' ' . $this->fullpaddress->province_name_en,
             'p_address' => $this->p_address,
             'p_geography_id' => $this->fullcaddress->id,
             'p_province_code' => $this->fullpaddress->province_code,
@@ -54,6 +54,7 @@ class PopulationShowResource extends JsonResource
             'gender' => $this->gender,
             'status' => $this->status,
             'tracking' => $this->tracking,
+            'image' => $this->image,
         ];
     }
 }

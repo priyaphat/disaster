@@ -11,19 +11,21 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Population;
 use App\Models\Shelter;
 use App\Models\TransferHistory;
+use App\Services\ImageService;
 use App\Services\PopulationService;
 use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
 
 class PopulationController extends Controller
 {
-    protected $populationService, $shelterService, $transferLogService;
+    protected $populationService, $shelterService, $transferLogService, $imageService;
 
-    public function __construct(PopulationService $populationService, ShelterService $shelterService, TransferHistoryService $transferLogService)
+    public function __construct(PopulationService $populationService, ShelterService $shelterService, TransferHistoryService $transferLogService, ImageService $imageService)
     {
         $this->populationService = $populationService;
         $this->shelterService = $shelterService;
         $this->transferLogService = $transferLogService;
+        $this->imageService = $imageService;
     }
 
     /**
@@ -44,6 +46,7 @@ class PopulationController extends Controller
             return ApiResponse::errorResponse(__('ศูนย์พักพิงเต็ม'));
         }
         $data = $this->populationService->create($request->all());
+        $data->image = $this->imageService->uploadImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
         $this->transferLogService->createLog(TransferHistory::ENTER, Population::class, $data->id, Shelter::class, $data->shelter_id);
         return ApiResponse::createdResponse(__('success.data'), $data);
     }
@@ -63,6 +66,7 @@ class PopulationController extends Controller
     public function update(UpdatePopulationRequest $request, Population $population)
     {
         $data = $this->populationService->update($population, $request->all());
+        $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 

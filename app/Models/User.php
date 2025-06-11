@@ -109,6 +109,11 @@ class User extends Authenticatable
         return $this->belongsTo(TeamMember::class, 'id', 'user_id');
     }
 
+    public function shelterstaff(): BelongsTo
+    {
+        return $this->belongsTo(ShelterStaff::class, 'id', 'user_id');
+    }
+
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return (new UserFilter($filters))->apply($query);

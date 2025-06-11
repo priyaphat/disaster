@@ -13,6 +13,8 @@ class ShelterStaff extends Model
 
     protected $table = 'shelter_staffs';
 
+    public const exit = null;
+
     protected $fillable = [
         'user_id',
         'shelter_id',

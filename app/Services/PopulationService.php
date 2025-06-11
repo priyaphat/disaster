@@ -69,7 +69,7 @@ class PopulationService
 
     public function show(Population $population)
     {
-        $data = Population::with('fullpaddress', 'fullcaddress', 'prefix', 'shelter')->findOrFail($population->id);
+        $data = Population::with('fullpaddress', 'fullcaddress', 'prefix', 'shelter', 'image')->findOrFail($population->id);
         return new PopulationShowResource($data);
     }
 

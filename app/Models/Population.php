@@ -15,6 +15,7 @@ class Population extends Model
 {
     use CreatedUpdatedBy, LogsActivity;
 
+    public const IMAGE_FOLDER = 'population';
     public const not_tracking = 0;
     public const tracking = 1;
 
@@ -99,6 +100,11 @@ class Population extends Model
 
     //     return "{$value} ตำบล {$geo->subdistrict_name_th} อำเภอ {$geo->district_name_th} จังหวัด {$geo->province_name_th} {$geo->postal_code}";
     // }
+
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'parentable');
+    }
 
     public function fullpaddress()
     {

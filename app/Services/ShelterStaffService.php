@@ -23,11 +23,11 @@ class ShelterStaffService
                 $q->where('position_id', $position);
             });
         }
-        // if ($shelter_position != null) {
-        //     $query->whereHas('user', function ($q) use ($position) {
-        //         $q->where('position_id', $position);
-        //     });
-        // }
+        if ($shelter_position != null) {
+            $query->whereHas('user', function ($q) use ($shelter_position) {
+                $q->where('position_id', $shelter_position);
+            });
+        }
         if ($sort != null) {
             $query->orderBy('created_at', $sort);
         }
@@ -35,8 +35,15 @@ class ShelterStaffService
         return $data->setCollection(ShelterStaffResource::collection($data->items())->collection);
     }
 
-    public function create(array $data): ShelterStaff
+    public function create(array $data)
     {
-        return ShelterStaff::create($data);
+        $staffs = [];
+        foreach ($data['user_id'] as $user_id) {
+            $staffs[] = ShelterStaff::create([
+                'user_id' => $user_id,
+                'shelter_id' => $data['shelter_id'],
+            ]);
+        }
+        return $staffs;
     }
 }

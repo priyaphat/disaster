@@ -36,4 +36,8 @@ class DateUtillity
         return Carbon::createFromFormat('d/m/Y', $value)->setTimezone('Asia/Bangkok')->subYear(543);
     }
 
+    public static function toADTime($value)
+    {
+        return Carbon::parse($value)->setTimezone('Asia/Bangkok')->format('Y-m-d H:i:s');
+    }
 }

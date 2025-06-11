@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ThaiDateTimeFormat;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -17,6 +18,11 @@ class Product extends Model
         'unit_id',
         'category_id',
         'quantity',
+    ];
+
+    protected $casts = [
+        'created_at' => ThaiDateTimeFormat::class,
+        'updated_at' => ThaiDateTimeFormat::class,
     ];
 
     public function shelterProducts()
