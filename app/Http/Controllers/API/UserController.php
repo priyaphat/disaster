@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\ApprovalStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\SearchUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\UserApproval\ApprovalRequest;
@@ -25,14 +26,14 @@ class UserController extends Controller
     /**
      * Display a listing of the users | รายการผู้ใช้งาน.
      */
-    public function index(Request $request, ?string $action = null)
+    public function index(SearchUserRequest $request)
     {
-        $data = $this->userService->paginate($request->all(), $action);
+        $data = $this->userService->paginate($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create a user | เพิ่มผู้ใช้งาน
      */
     public function store(StoreUserRequest $request)
     {
@@ -42,7 +43,7 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show a user | เแสดงผู้ใช้งาน
      */
     public function show(User $user)
     {
@@ -51,7 +52,7 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a user | แก้ไขผู้ใช้งาน
      */
     public function update(UpdateUserRequest $request, User $user)
     {
@@ -61,7 +62,7 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a user | ลบผู้ใช้งาน
      */
     public function destroy(User $user)
     {
@@ -71,7 +72,7 @@ class UserController extends Controller
     }
 
     /**
-     * Update the approval in database.
+     * Approve or Reject | อนุมัติหรือปฏิเสธผู้ใช้งาน
      */
     public function approve(ApprovalRequest $request)
     {

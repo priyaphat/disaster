@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
+use App\Enums\ShiftType;
 use App\Http\Resources\AppointmentCollection;
 use App\Http\Resources\AppointmentResource;
 use App\Http\Resources\ShiftCollection;
 use App\Http\Resources\ShiftDateResource;
 use App\Http\Resources\ShiftResource;
+use App\Http\Utility\ConvertUtility;
+use App\Http\Utility\DateUtillity;
 use App\Models\Appointment;
-use App\Models\AppointmentShift;
 use App\Utility\GvarFunc;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -22,15 +24,10 @@ class AppointmentService
     public function index(array $filters = [], ?int $limit = null)
     {
         $data = [];
+        $filters['selected_month'] = Carbon::now()->format('Y-m-d');
+        $filters['type'] = 1;
         $todayAppointment = $this->getDailySchedule($filters);
-
-        $startDate = Carbon::now()->startOfMonth();
-        $endDate = Carbon::now()->endOfMonth();
-        if ($filters['type'] == 1) {
-            $monthAppointment = $this->getCalendar($startDate, $endDate, $filters);
-        } else {
-            $monthAppointment = $this->getTimeTables($startDate, $endDate, $filters);
-        }
+        $monthAppointment = $this->getMonthSchedule($filters);
 
         $data['today_schedules'] = $todayAppointment;
         $data['month_schedules'] = $monthAppointment;
@@ -42,25 +39,17 @@ class AppointmentService
      */
     public function getDailySchedule(array $filters = [])
     {
-        $selectedDate = Carbon::now()->format('Y-m-d');
-        if (isset($filters['selected_date'])) {
-            $selectedDate = Carbon::parse($filters['selected_date'])->format('Y-m-d');
-        }
+        $date = isset($filters['selected_date']) ? DateUtillity::thaiToAD($filters['selected_date']) : Carbon::now()->format('Y-m-d');
+        $shiftData = Appointment::filter($filters)->where(function ($query) use ($date) {
+            $query->whereDate('appointment_date', $date);
+        })->with('team', 'shelter')->oldest('start_time')->get();
 
-        $appointmentQuery = AppointmentShift::query();
-        // Orders by 'start_time' ASC
-        $appointmentQuery->filter($filters)->get();
-        $data = $appointmentQuery->oldest('shift_start_time')
-            ->where(function ($query) use ($selectedDate) {
-                $query->whereDate('shift_date', $selectedDate);
-            })->get();
-
-        $data = $data->groupBy('shift')->map(function ($recordsByShift, $shift) use ($filters) {
+        $data = $shiftData->groupBy('shift')->map(function ($recordsByShift, $shift) use ($filters) {
             $tranformedData = [
                 'shift' => $shift,
-                'shift_name' => $shift == 1 ? __('data.morning') : __('data.evening'),
-                'total_team' => $recordsByShift->groupBy('appointment.team_id')->count(),
-                'total_shelter' => $recordsByShift->groupBy('appointment.shelter_id')->count(),
+                'shift_name' => ShiftType::tryFrom($shift)->label(),
+                'total_team' => $recordsByShift->groupBy('team_id')->count(),
+                'total_shelter' => $recordsByShift->groupBy('shelter_id')->count(),
                 'appointments' => $recordsByShift->map(function ($record) {
                     return new AppointmentResource($record);
                 })->values(),
@@ -74,49 +63,61 @@ class AppointmentService
     }
 
     /**
+     * Get month schedule.
+     */
+    public function getMonthSchedule(array $filters = [])
+    {
+        $type = isset($filters['type']) ? ConvertUtility::toInt($filters['type']) : 1;
+        if ($type == 1) {
+            $monthAppointment = $this->getCalendar($filters);
+        } else {
+            $monthAppointment = $this->getTimeTables($filters);
+        }
+        return $monthAppointment;
+    }
+    
+    /**
      * Get calendar detail.
      */
-    public function getCalendar($startDate, $endDate, $filters)
+    public function getCalendar($filters)
     {
-        $monthQuery = Appointment::query();
-        $monthAppointment = $monthQuery->where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('start_time', [$startDate, $endDate]);
-        })->get()
-            ->groupBy(function ($item) {
-                return Carbon::parse($item->start_time)->format('d-m-Y'); // returns 'YYYY-MM-DD'
-            })
+        $shiftData = Appointment::filter($filters)->get();
+        $data = $shiftData->groupBy('appointment_date')
             ->map(function ($recordsByDate, $date) use ($filters) {
                 $tranformedData = [
                     'date' => $date,
                     'total_team' => $recordsByDate->groupBy('team_id')->count(),
                     'total_shelter' => $recordsByDate->groupBy('shelter_id')->count()
-            ];
-
-            $tranformedData = $this->resetData($tranformedData, $filters);
-            return $tranformedData;
+                ];
+                $tranformedData = $this->resetData($tranformedData, $filters);
+                return $tranformedData;
             })->values();
 
-        return $monthAppointment;
+        return $data;
     }
 
     /**
      * Get time tables.
      */
-    public function getTimeTables($startDate, $endDate, $filters)
+    public function getTimeTables($filters)
     {
-        $monthQuery = AppointmentShift::with(
-            'appointment.team',
-            'appointment.shelter',
-            'appointment.team.allUsers',
-            'appointment.teamLog',
-            'appointment.shelterLog',
-            'appointment.userLog'
+        $startDate = isset($filters['selected_month']) ? Carbon::parse($filters['selected_month'])->startOfMonth() : Carbon::now()->startOfMonth();
+        $endDate = isset($filters['selected_month']) ? Carbon::parse($filters['selected_month'])->endOfMonth() : Carbon::now()->endOfMonth();
+
+        $monthQuery = Appointment::with(
+            'team',
+            'shelter',
+            'team.allUsers',
+            'teamLog',
+            'shelterLog',
+            'userLog'
         );
+
         $monthAppointment = $monthQuery->where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('shift_date', [$startDate, $endDate]);
+            $query->whereBetween('appointment_date', [$startDate, $endDate]);
         })->get();
 
-        $tranformedData = ShiftDateResource::collection($monthAppointment)->toArray(request());
+        $tranformedData = AppointmentResource::collection($monthAppointment)->toArray(request());
 
         $search = isset($filters['search']) ? $filters['search'] : null;
         if ($search) {
@@ -125,22 +126,22 @@ class AppointmentService
             });
         }
 
-        $tranformedData = collect($tranformedData)->groupBy('shift_date')
+        $tranformedData = collect($tranformedData)->groupBy('appointment_date')
             ->map(function ($recordsByDate, $date) use ($filters) {
-                $tranformedData = [
+                return [
                     'date' => Carbon::parse($date)->format('d/m/Y'),
-                    'data' => $recordsByDate->groupBy('shift')->map(function ($recordsByShift, $shift) {
-                        return [
+                    'data' => $recordsByDate->groupBy('shift')->map(function ($recordsByShift, $shift) use ($filters) {
+                        $tranformedData = [
                             'shift' => $shift,
-                            'shift_name' => $shift == 1 ? 'ช่วงเช้า' : 'ช่วงบ่าย',
+                            'shift_name' => ShiftType::tryFrom($shift)->label(),
                             'total_team' => $recordsByShift->groupBy('team_id')->count(),
                             'total_shelter' => $recordsByShift->groupBy('shelter_id')->count(),
-                            'appointments' => ShiftResource::collection($recordsByShift)
+                            'appointments' => $recordsByShift
                         ];
+                        $tranformedData = $this->resetData($tranformedData, $filters);
+                        return $tranformedData;
                     })->values(),
                 ];
-            $tranformedData = $this->resetData($tranformedData, $filters);
-            return $tranformedData;
             })->values();
 
 
@@ -157,68 +158,58 @@ class AppointmentService
     }
 
     /**
-     * Create a Appointment.
+     * Create a 
      */
-    public function create(array $data): Appointment
+    public function create(array $data)
     {
-        $isExisting = $this->isAppointmentExisting($data['start_time'], $data['end_time'], $data['team_id']);
+        // Check if appointment is existing, return error message
+        $appointment = [];
+        $isExisting = $this->isAppointmentExisting($data);
         if ($isExisting) {
             throw new BadRequestHttpException(__('error.appointment.exists'));
         }
 
-        $appointment = Appointment::create($data);
-        $shiftArr = $this->splitShiftTime($appointment, $data['appointment_date']);
-        $appointment->shifts()->createMany($shiftArr);
-
+        // Create an appointment and shift details
+        $shiftArr = $this->splitShiftTime($data, $data['appointment_date']);
+        foreach ($shiftArr as $shift) {
+            $appointment[] = Appointment::create($shift);
+        }
         return $appointment;
     }
 
     /**
-     * Update a Appointment.
+     * Update an appointment
      */
     public function update(Appointment $appointment, array $data): Appointment
     {
-        $isExisting = $this->isAppointmentExisting($data['start_time'], $data['end_time'], $data['team_id'], $appointment->id);
+        // Check if appointment is existing, return error message
+        $isExisting = $this->isAppointmentExisting($data, $appointment->id);
         if ($isExisting) {
             throw new BadRequestHttpException(__('error.appointment.exists'));
         }
 
-        // Update the appointment itself
-        $appointment->update($data);
-
-        // Get new shifts from data
-        $newShifts = $this->splitShiftTime($appointment, $data)->toArray();
-
-        // Get existing shifts from DB
-        $existingShifts = $appointment->shifts()->get()->toArray();
-
-        // Index by shift type for easy comparison
-        $newShiftsByType = collect($newShifts)->keyBy('shift');
-        $existingShiftsByType = collect($existingShifts)->keyBy('shift');
-
-        // Update or add shifts
-        foreach ($newShiftsByType as $shiftType => $newShift) {
-            if ($existingShiftsByType->has($shiftType)) {
-                // Update existing shift
-                $shiftModel = $appointment->shifts()->where('shift', $shiftType)->first();
-                $shiftModel->update($newShift);
+        $newShifts = $this->splitShiftTime($data);
+        foreach ($newShifts as $shift) {
+            if ($shift['shift'] === $appointment->shift) {
+                $appointment = $this->getById($shift['id']);
+                $appointment->update($shift);
             } else {
-                // Add new shift
-                $appointment->shifts()->create($newShift);
+                Appointment::create([
+                    'appointment_date' => $data['appointment_date'],
+                    'start_time' => $shift['start_time'],
+                    'end_time' => $shift['end_time'],
+                    'shift' => $shift['shift'],
+                    'shelter_id' => $data['shelter_id'],
+                    'team_id' => $data['team_id']
+                ]);
             }
         }
 
-        // Delete shifts that are not in new shifts
-        foreach ($existingShiftsByType as $shiftType => $existingShift) {
-            if (!$newShiftsByType->has($shiftType)) {
-                $appointment->shifts()->where('shift', $shiftType)->delete();
-            }
-        }
         return $appointment;
     }
 
     /**
-     * Delete a Appointment.
+     * Delete an appointment
      */
     public function delete(Appointment $appointment): bool
     {
@@ -228,10 +219,10 @@ class AppointmentService
     /**
      * Check if the team has any overlapping appointments at the requested date and time.
      */
-    public function isAppointmentExisting($startAt, $endAt, $teamId, $appointmentId = null): bool
+    public function isAppointmentExisting(array $data, $appointmentId = null): bool
     {
         // Find all appointment by team_id
-        $appointmentQuery = Appointment::where('team_id', $teamId);
+        $appointmentQuery = Appointment::where('team_id', $data['team_id']);
 
         // If the appointmentId exists, it means this is an update function; if not, it’s a create function.
         if ($appointmentId) {
@@ -239,17 +230,18 @@ class AppointmentService
         }
 
         // Condition for time overlap.
-        return $appointmentQuery->where(function ($query) use ($startAt, $endAt) {
-            $query->whereBetween('start_time', [$startAt, $endAt])
-                ->orWhereBetween('end_time', [$startAt, $endAt]);
-        })->exists();
+        return $appointmentQuery->where('appointment_date', $data['appointment_date'])
+            ->where(function ($query) use ($data) {
+                $query->whereBetween('start_time', [$data['start_time'], $data['end_time']])
+                    ->orWhereBetween('end_time', [$data['start_time'], $data['end_time']]);
+            })->exists();
     }
 
 
     /**
      * Split the shift ("morning" or "afternoon") based on datetime.
      */
-    public function splitShiftTime($appointment, $date)
+    public function splitShiftTime($appointment)
     {
         $shiftArr = [];
         $start = Carbon::parse($appointment['start_time']);
@@ -260,37 +252,40 @@ class AppointmentService
         $eveningStart = $end->copy()->setTime(12, 0);
         $eveningEnd   = $end->copy()->setTime(23, 59, 59);
 
-        // return [$morningStart, $morningEnd, $eveningStart, $eveningEnd,  max($start, $morningStart), min($end, $morningEnd), max($start, $eveningStart), min($end, $eveningEnd)];
         // Check for morning shift overlap
         if (max($start, $morningStart) < min($end, $morningEnd)) {
             $shiftArr[] = [
-                'shift_date' => $date,
-                'shift_start_time' => max($start, $morningStart)->format('H:i'),
-                'shift_end_time' => min($end, $morningEnd)->format('H:i'),
+                'appointment_date' => $appointment['appointment_date'],
+                'start_time' => max($start, $morningStart)->format('H:i'),
+                'end_time' => min($end, $morningEnd)->format('H:i'),
                 'shift' => 1,
+                'shelter_id' => $appointment['shelter_id'],
+                'team_id' => $appointment['team_id']
             ];
         }
 
         // Check for evening shift overlap
         if (max($start, $eveningStart) < min($end, $eveningEnd)) {
             $shiftArr[] = [
-                'shift_date' => $date,
-                'shift_start_time' => max($start, $eveningStart)->format('H:i'),
-                'shift_end_time' => min($end, $eveningEnd)->format('H:i'),
+                'appointment_date' => $appointment['appointment_date'],
+                'start_time' => max($start, $eveningStart)->format('H:i'),
+                'end_time' => min($end, $eveningEnd)->format('H:i'),
                 'shift' => 2,
+                'shelter_id' => $appointment['shelter_id'],
+                'team_id' => $appointment['team_id']
             ];
         }
 
-        return collect($shiftArr);
+        return $shiftArr;
     }
 
     public function resetData($data, $filters)
     {
-        if (isset($filters['shelter']) && $filters['shelter']) {
+        if (isset($filters['shelter_id']) && $filters['shelter_id']) {
             unset($data['total_shelter']);
         }
 
-        if (isset($filters['team']) && $filters['team']) {
+        if (isset($filters['team_id']) && $filters['team_id']) {
             unset($data['total_team']);
         }
 

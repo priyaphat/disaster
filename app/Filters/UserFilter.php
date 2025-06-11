@@ -2,6 +2,10 @@
 
 namespace App\Filters;
 
+use App\Enums\ApprovalStatus;
+use App\Enums\RegistrationType;
+use App\Http\Utility\ConvertUtility;
+
 class UserFilter extends QueryFilter
 {
     public function search($keyword)
@@ -13,54 +17,62 @@ class UserFilter extends QueryFilter
         });
     }
 
-    // public function team($id)
-    // {
-    //     return $this->builder->whereHas('team', function ($query) use ($id) {
-    //         $query->where('id', $id);
-    //     });
-    // }
-    public function pending($value)
+    public function approve($value)
     {
-        return $this->builder->whereHas('approval', function ($query) use ($value) {
-            $query->where('is_approved', $value);
-        });
-    }
-
-    public function approve($array)
-    {
-        return $this->builder->where(function ($query) use ($array) {
-            $query->where('registration_type', $array['type'])
-            ->orWhereHas('approval', function ($query) use ($array) {
-            $query->where('is_approved', $array['status']);
-        });
-        });
+        $value =  ConvertUtility::toInt($value);
+        if ($value == ApprovalStatus::APPROVED->value) {
+            return $this->builder->where(function ($query) {
+                $query->where('registration_type', RegistrationType::ADMIN->value)
+                    ->orWhereHas('approval', function ($query) {
+                        $query->where('is_approved', ApprovalStatus::APPROVED->value);
+                    });
+            });
+        } else {
+            return $this->builder->whereHas('approval', function ($query) {
+                $query->where('is_approved', ApprovalStatus::PENDING->value);
+            });
+        }
     }
 
     public function type($value)
     {
-        $value = intval($value);
-        return $this->builder->where('type', $value);
+        $value = ConvertUtility::toInt($value);
+        if ($value) {
+            return $this->builder->where('type', $value);
+        }
     }
 
-    public function province($id)
+    public function province_id($id)
     {
+        $id = ConvertUtility::toInt($id);
         return $this->builder->whereHas('area', function ($query) use ($id) {
-            $query->where('province_code', $id);
+            if ($id) {
+                $query->where('province_code', $id);
+            }
         });
     }
 
-    public function district($id)
+    public function district_id($id)
     {
-        return $this->builder->where('district_id', $id);
+        $id = ConvertUtility::toInt($id);
+        if ($id) {
+            return $this->builder->where('district_id', $id);
+        }
     }
 
-    public function position($id)
+    public function position_id($id)
     {
-        return $this->builder->where('position_id', $id);
+        $id = ConvertUtility::toInt($id);
+        if ($id) {
+            return $this->builder->where('position_id', $id);
+        }
     }
 
-    public function department($id)
+    public function department_id($id)
     {
-        return $this->builder->where('department_id', $id);
+        $id = ConvertUtility::toInt($id);
+        if ($id) {
+            return $this->builder->where('department_id', $id);
+        }
     }
 }

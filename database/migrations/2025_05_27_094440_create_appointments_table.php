@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ShiftType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,8 +14,10 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('start_time');
-            $table->dateTime('end_time');
+            $table->date('appointment_date');
+            $table->string('start_time');
+            $table->string('end_time');
+            $table->tinyInteger('shift')->default(ShiftType::MORNING->value);
             $table->unsignedBigInteger('shelter_id');
             $table->unsignedBigInteger('team_id');
             $table->unsignedBigInteger('created_by');

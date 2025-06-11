@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('log_date')->index();            // วันที่เก็บข้อมูล (แยกตามวัน)
             $table->timestamps();
             // Index ช่วยค้นหาเร็ว
-            $table->index(['parent_id', 'parent_type']);
+            $table->index(['parentable_id', 'parentable_type']);
         });
     }
 

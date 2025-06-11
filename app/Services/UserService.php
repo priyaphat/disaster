@@ -34,18 +34,8 @@ class UserService
     /**
      * Get all users with approve or pending status.
      */
-    public function paginate(array $filters = [], ?string $action = null, int $perPage = 10): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        if (isset($filters['status'])) {
-            if ($filters['status']) {
-                $filters['register']['status'] = ApprovalStatus::APPROVED->value;
-                $filters['register']['type'] = RegistrationType::ADMIN;
-            } else if ($action === 'pending') {
-                $filters['pending'] = ApprovalStatus::PENDING->value;
-            } else {
-                throw new BadRequestHttpException('path ไม่ถูกต้อง');
-            }
-        }
         $data = $this->baseQuery($filters)->latest()->paginate($perPage);
         $paginate = $data->setCollection(UserResource::collection($data->items())->collection);
         return $paginate;

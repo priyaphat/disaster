@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Http\Resources\TeamCollection;
 use App\Http\Resources\TeamResource;
-use App\Http\Utility\AppointmentLogUtillity as Log;
+use App\Http\Utility\LogUtillity;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
@@ -43,7 +43,7 @@ class TeamService
         if (!empty($filters['search'])) {
             $query->whereAny(['name'], 'LIKE', '%' . $filters['search'] . '%');
         }
-        $data = $query->with('leader')->latest()->paginate(10);
+        $data = $query->with('leader', 'members', 'allUsers')->latest()->paginate($perPage);
         $paginate = $data->setCollection(TeamResource::collection($data->items())->collection);
         return  $paginate;
     }
@@ -62,7 +62,6 @@ class TeamService
     public function create(array $data): Team
     {
         $team = Team::create($data);
-        // dd($data['members']);
         $team->members()->createMany($data['members']);
         return $team;
     }
@@ -73,13 +72,13 @@ class TeamService
     public function show(Team $team, array $search)
     {
         $teamLog = null;
-        if(isset($search['date'])){
-            $teamLog = Log::getData($team->id, $search['date'], 'team');
-        }
+        // if(isset($search['date'])){
+        //     $teamLog = LogUtillity::getData($team->id, $search['date'], 'team');
+        // }
         
-        if($teamLog){
-            return $teamLog;
-        }
+        // if($teamLog){
+        //     return $teamLog;
+        // }
         
         $team->load(['leader', 'allUsers']);
         return new TeamResource($team);

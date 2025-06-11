@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Appointment;
 
+use App\Http\Utility\DateUtillity;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +24,7 @@ class StoreAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'appointment_date' => 'required|date|date_format:d-m-Y',
+            'appointment_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time'   => 'required|date_format:H:i|after:start_time',
             'shelter_id' => 'required|exists:shelters,id',
@@ -31,21 +32,10 @@ class StoreAppointmentRequest extends FormRequest
         ];
     }
 
-    public function normalized(): array
+    protected function prepareForValidation(): void
     {
-        $date = $this->input('appointment_date');
-        $start = $this->input('start_time');
-        $end = $this->input('end_time');
-
-        $startTime = Carbon::createFromFormat('d-m-Y H:i', "$date $start");
-        $endTime = Carbon::createFromFormat('d-m-Y H:i', "$date $end");
-
-        return [
-            'appointment_date' => $date,
-            'start_time' => $startTime,
-            'end_time'   => $endTime,
-            'shelter_id' =>  $this->input('shelter_id'),
-            'team_id' => $this->input('team_id')
-        ];
+        $this->merge([
+            'appointment_date' => DateUtillity::thaiToAD($this->request->get('appointment_date')) 
+        ]);
     }
 }

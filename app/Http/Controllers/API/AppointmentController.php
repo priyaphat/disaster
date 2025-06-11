@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Appointment\SearchAppointmentRequest;
+use App\Http\Requests\Appointment\SearchCalendarRequest;
 use App\Http\Requests\Appointment\StoreAppointmentRequest;
 use App\Http\Requests\Appointment\UpdateAppointmentRequest;
 use App\Http\Responses\ApiResponse;
@@ -18,12 +20,12 @@ class AppointmentController extends Controller
     {
         $this->appointmentService = $appointmentService;
     }
+
     /**
      * Display a listing of the an appointment | แสดงรายการนัดหมาย
      */
     public function index(Request $request)
     {
-        //
         $data = $this->appointmentService->index($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -33,7 +35,7 @@ class AppointmentController extends Controller
      */
     public function store(StoreAppointmentRequest $request)
     {
-        $data = $this->appointmentService->create($request->normalized());
+        $data = $this->appointmentService->create($request->all());
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
@@ -62,5 +64,24 @@ class AppointmentController extends Controller
         //
         $this->appointmentService->delete($appointment);
         return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+    /**
+     * Display by date | แสดงรายการนัดหมายโดยวันที่
+     */
+    public function getDailySchedule(SearchCalendarRequest $request)
+    {
+        //
+        $data = $this->appointmentService->getDailySchedule($request->all());
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    /**
+     * Display with calendar | แสดงรายการนัดหมายแบบปฏิทิน
+     */
+    public function getMonthSchedule(SearchAppointmentRequest $request)
+    {
+        $data = $this->appointmentService->getMonthSchedule($request->all());
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

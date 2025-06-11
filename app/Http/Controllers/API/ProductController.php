@@ -20,6 +20,9 @@ class ProductController extends Controller
         $this->imageService = $imageService;
     }
 
+    /**
+     * Display a listing of the product | แสดงรายการทรัพยากร
+     */
     public function index(Request $request)
     {
         $products = $this->productService->getList($request->all());

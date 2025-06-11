@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class AppointmentLog extends Model
 {
     //
-    protected $fillable = ['parent_id', 'parent_type', 'description', 'log_date'];
+    protected $fillable = ['parentable_id', 'parentable_type', 'description', 'log_date'];
     protected $casts = [
         'description' => "array"
     ];
     
     public function parent()
     {
-        return $this->morphTo('parent');  // เชื่อมกับ parent_id, parent_type
+        return $this->morphTo('parentable');  // เชื่อมกับ parentable_id, parentable_type
     }
 }

@@ -125,7 +125,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter/{shelter}', [ShelterController::class, 'show']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
-
     /*
     |--------------------------------------------------------------------------
     | Routes for display shelters
@@ -282,17 +281,20 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
+    
     /*
     |--------------------------------------------------------------------------
-    | Routes for display teams
+    | Routes for display appointment
     |--------------------------------------------------------------------------
     */
-    Route::post('/appointments', [AppointmentController::class, 'index']);
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::get('/appointment-daily', [AppointmentController::class, 'getDailySchedule']);
+    Route::get('/appointment-month', [AppointmentController::class, 'getMonthSchedule']);
     Route::get('/appointment/{appointment}', [AppointmentController::class, 'show']);
     Route::post('/appointment', [AppointmentController::class, 'store']);
     Route::post('/appointment/{appointment}', [AppointmentController::class, 'update']);
     Route::delete('/appointment/{appointment}', [AppointmentController::class, 'destroy']);
-    Route::post('/appointment-log', [AppointmentLogController::class, 'store']);
+    Route::post('/appointment/log', [AppointmentLogController::class, 'store']);
 
     /*
     |--------------------------------------------------------------------------
