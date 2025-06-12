@@ -33,10 +33,10 @@ return new class extends Migration
             $table->timestamps();
             $table->unsignedBigInteger('updated_by')->nullable();
 
-            $table->foreign('geography_id')->references('id')->on('geography');
-            $table->foreign('province_code')->references('province_code')->on('geography');
-            $table->foreign('district_code')->references('district_code')->on('geography');
-            $table->foreign('subdistrict_code')->references('subdistrict_code')->on('geography');
+            // $table->foreign('geography_id')->references('id')->on('geography');
+            // $table->foreign('province_code')->references('province_code')->on('geography');
+            // $table->foreign('district_code')->references('district_code')->on('geography');
+            // $table->foreign('subdistrict_code')->references('subdistrict_code')->on('geography');
         });
     }
 
