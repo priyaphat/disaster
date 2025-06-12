@@ -25,7 +25,7 @@ class NewsRequest extends FormRequest
             'title' => 'required|max:255',
             'description' => 'required',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024',
-            'shelter_id' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
+            'shelter_id' => 'nullable|exists:shelters,id'
         ];
     }
 }

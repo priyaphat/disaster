@@ -23,15 +23,13 @@ return new class extends Migration
             $table->integer('status')->default(true);
             $table->string('line_token')->nullable();
             $table->integer('type')->default(1);
-            $table->integer('district_id')->nullable();
+            $table->unsignedBigInteger('district_id')->nullable();
             $table->unsignedBigInteger('department_id')->nullable();
             $table->unsignedBigInteger('position_id')->nullable();
             $table->unsignedBigInteger('role_id')->nullable();
             $table->enum('registration_type', ['self', 'admin'])->default('self');
             $table->rememberToken();
             $table->timestamps();
-
-;
         });
 
         Schema::create('user_approvals', function (Blueprint $table) {

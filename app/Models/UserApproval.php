@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ThaiDateTimeFormat;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,6 +15,20 @@ class UserApproval extends Model
         'is_approved',
         'approved_at',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'approved_at' => ThaiDateTimeFormat::class,
+            'created_at' => ThaiDateTimeFormat::class,
+            'updated_at' => ThaiDateTimeFormat::class,
+        ];
+    }
 
     public function user(): BelongsTo
     {

@@ -26,6 +26,11 @@ class DateUtillity
         return Carbon::parse($value)->setTimezone('Asia/Bangkok')->format('Y-m-d H:i:s');
     }
 
+    public static function thaiSlashToADTime($value)
+    {
+        return Carbon::parse($value)->setTimezone('Asia/Bangkok')->subYear(543)->format('Y-m-d H:i:s');
+    }
+
     public static function thaiToAD($value)
     {
         return Carbon::createFromFormat('d/m/Y', $value)->setTimezone('Asia/Bangkok')->subYear(543)->format('Y-m-d');

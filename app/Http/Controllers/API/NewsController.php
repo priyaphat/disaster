@@ -27,7 +27,8 @@ class NewsController extends Controller
     {
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
-        $data = $this->newsService->getList($request->all(), $paginate, $perPage);
+        $shelter = $request->has('shelter_id');
+        $data = $this->newsService->getList($request->all(), $shelter, $paginate, $perPage);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 

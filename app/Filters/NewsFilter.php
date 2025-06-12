@@ -31,17 +31,29 @@ class NewsFilter extends QueryFilter
         }
     }
 
-    public function sort($value)
+    public function shelter_id($id)
     {
-        if ($value) {
-            return $this->builder->orderBy('updated_at', $value);
-        }
+        $id = ConvertUtility::toInt($id);
+        return $this->builder->where('shelter_id', $id);
+    }
+
+    // ข่าวจากศูนย์กลาง
+    public function center()
+    {
+        return $this->builder->whereNull('shelter_id');
     }
 
     public function type($value)
     {
         if ($value === 'self') {
             return $this->builder->where('created_by', Auth::user()->id);
+        }
+    }
+
+    public function sort($value)
+    {
+        if ($value) {
+            return $this->builder->orderBy('updated_at', $value);
         }
     }
 }

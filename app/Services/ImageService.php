@@ -57,8 +57,12 @@ class ImageService
         // Get an image instance
         $image = $this->getByTableAndId($table, $id);
 
-        if (!$image || !$file) {
+        if (!$image) {
             return null;
+        }
+
+        if (!$file) {
+            return $image;
         }
 
         // Remove old file ftom storage
@@ -199,5 +203,4 @@ class ImageService
             $file->move(dirname($location), basename($location));
         }
     }
-
 }

@@ -20,6 +20,7 @@ class UserResource extends JsonResource
             'prefix_name' => $this->when($this->relationLoaded('prefix'), $this->prefix?->name),
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
+            'fullname' => $this->when($this->relationLoaded('prefix'), $this->prefix?->name.' '.$this->firstname.' '.$this->lastname),
             'type' => $this->type->value,
             'type_name' => $this->type->label(),
             'area' => $this->when($this->relationLoaded('area'), function (){
@@ -35,6 +36,7 @@ class UserResource extends JsonResource
             'position_id' => $this->position_id,
             'position_name' => $this->when($this->relationLoaded('position'), $this->position?->name),
             'registration_type' => $this->registration_type->label(),
+            'team_id' => $this->when($this->relationLoaded('member'), $this->member?->team?->id),
             'team_name' => $this->when($this->relationLoaded('member'), $this->member?->team?->name),
             'image' =>  $this->when($this->relationLoaded('image'), $this->image?->image_url),
         ];

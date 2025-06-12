@@ -5,15 +5,17 @@ namespace App\Services;
 use App\Http\Resources\NewsCollection;
 use App\Http\Resources\NewsResource;
 use App\Models\News;
-use Illuminate\Database\Eloquent\Collection;
 
 class NewsService
 {
-
-    public function getList(array $filters = [], bool $paginate = true, int $perPage = 20)
+    public function getList(array $filters = [], bool $shelter = false, bool $paginate = true, int $perPage = 20)
     {
+        if(!$shelter){
+            $filters['center'] = true;
+        }
+
         if (!$paginate) {
-            $data = News::with(['creator', 'editor', 'image'])->filter($filters)->latest()->get();
+            $data = News::with(['creator', 'editor', 'image'])->filter($filters)->get();
             return new NewsCollection($data);
         } else {
             $data = News::with(['creator', 'editor', 'image'])->filter($filters)->paginate($perPage);
