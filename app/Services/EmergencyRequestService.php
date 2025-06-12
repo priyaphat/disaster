@@ -8,6 +8,9 @@ use App\Http\Responses\ApiResponse;
 use App\Models\EmergencyRequestLog;
 use App\Models\Prefix;
 use App\Http\Utility\PaginateUtility;
+use App\Models\Team;
+use App\Models\TeamMember;
+use App\Models\User;
 
 class EmergencyRequestService
 {
@@ -28,10 +31,10 @@ class EmergencyRequestService
         $prefix = Prefix::all()->keyBy('id');
 
         $items = EmergencyRequest::query()->when(
-                $search,
-                fn($q) =>
-                $q->whereAny(['phone', 'id'], $search)
-            )
+            $search,
+            fn($q) =>
+            $q->whereAny(['phone', 'id'], $search)
+        )
             ->with('prefix', 'disaster', 'reason', 'geography')
             ->get()
             ->map(function ($item) use ($prefix) {
@@ -80,13 +83,13 @@ class EmergencyRequestService
         } else {
             if ($type == 'waiting') {
                 $items = $items->whereIn('status', [
-                    EmergencyRequest::waiting,
-                    4
+                    EmergencyRequest::approve,
+                    EmergencyRequest::helping
                 ]);
             } elseif ($type == 'history') {
                 $items = $items->whereIn('status', [EmergencyRequest::complete, EmergencyRequest::disapprove, EmergencyRequest::incomplete]);
             } else {
-                $items = $items->where('status', EmergencyRequest::approve);
+                $items = $items->where('status', EmergencyRequest::waiting);
             }
         }
 
@@ -140,5 +143,27 @@ class EmergencyRequestService
             'reason_id' => $data['reason_id'],
             'reason' => $data['reason'] ?? null,
         ]);
+    }
+
+    public function noti()
+    {
+        $pms = Auth()->user();
+        if ($pms->department_id == 1) {
+            return EmergencyRequest::whereIn('status', [
+                EmergencyRequest::waiting,
+            ])->count();
+        } else if ($pms->department_id == 2) {
+            $team_id = TeamMember::where('user_id', $pms->id)
+                ->leftJoin('teams', 'teams.id', '=', 'team_id')
+                ->value('teams.id');
+
+            if ($team_id) {
+                return EmergencyRequest::whereIn('status', [
+                    EmergencyRequest::approve,
+                    EmergencyRequest::helping,
+                ])->where('emergency_team_id', $team_id)->count();
+            }
+        }
+        return 0;
     }
 }

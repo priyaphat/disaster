@@ -12,7 +12,6 @@ use Carbon\Carbon;
 
 class EmergencyPostService
 {
-
     public function index($post): EmergencyPost
     {
         return $this->baseQuery()

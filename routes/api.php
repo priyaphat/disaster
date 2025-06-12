@@ -44,7 +44,7 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
 
 Route::post('/line', [LineController::class, 'handle']);
-Route::post('/line-login',[LoginController::class,'line']);
+Route::post('/line-login', [LoginController::class, 'line']);
 
 
 Route::middleware('auth:api')->group(function () {
@@ -251,6 +251,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/emc-requests/{emc?}', [EmergencyRequestController::class, 'emcRequestBy']);
+    Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
     Route::post('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
     Route::post('/emc-requests-history', [EmergencyRequestController::class, 'show_history']);
@@ -280,7 +281,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
-    
+
     /*
     |--------------------------------------------------------------------------
     | Routes for display appointment

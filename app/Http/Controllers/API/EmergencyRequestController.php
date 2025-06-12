@@ -46,7 +46,7 @@ class EmergencyRequestController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    public function emcRequestBy(Request $request, $emc=null)
+    public function emcRequestBy(Request $request, $emc = null)
     {
         $data = $this->emergencyRequestService->emcRequestBy($request, $emc); //phone & id
         return ApiResponse::successResponse(__('success.data'), $data);
@@ -73,6 +73,11 @@ class EmergencyRequestController extends Controller
     public function reason()
     {
         $data = $this->emergencyRequestService->reason();
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function noti() {
+        $data = $this->emergencyRequestService->noti();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

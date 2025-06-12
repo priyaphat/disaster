@@ -12,7 +12,7 @@ class EmergencyRequest extends Model
     use CreatedUpdatedBy,LogsActivity;
 
     public const waiting = 1;
-    public const approve = 2;
+    public const approve = 2; //รอความช่วยเหลือ
     public const disapprove = 3;
     public const helping = 4;
     public const complete = 5;
