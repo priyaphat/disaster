@@ -8,6 +8,7 @@ use App\Casts\DateSlashFormat;
 use App\Casts\DateTimeFormat;
 use App\Casts\ThaiDateFormat;
 use App\Casts\ThaiDateTimeDisplayFormat;
+use App\Casts\ThaiDateTimeFormat;
 use App\Casts\ThaiSlashDateFormat;
 use App\Enums\ShiftType;
 use App\Filters\AppointmentFilter;
@@ -41,8 +42,8 @@ class Appointment extends Model
     {
         return [
             'appointment_date' => AppointmentDateFormat::class,
-            'created_at' => ThaiDateTimeDisplayFormat::class,
-            'updated_at' => ThaiDateTimeDisplayFormat::class,
+            'created_at' => ThaiDateTimeFormat::class,
+            'updated_at' => ThaiDateTimeFormat::class,
         ];
     }
 

@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Casts\ThaiDateTimeFormat;
+use App\Filters\TeamFilter;
 use App\Http\Traits\CreatedUpdatedBy;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -17,14 +20,27 @@ class Team extends Model
         // 'leader_id'
     ];
 
-    // public function leader(): HasOne
-    // {
-    //     return $this->hasOne(User::class, 'id', 'leader_id');
-    // }
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'created_at' => ThaiDateTimeFormat::class,
+            'updated_at' => ThaiDateTimeFormat::class,
+        ];
+    }
 
     public function log()
     {
-        return $this->morphOne(AppointmentLog::class, 'parent');
+        return $this->morphOne(AppointmentLog::class, 'parentable');
+    }
+
+    public function team_members()
+    {
+       return $this->hasMany(TeamMember::class, 'team_id', 'id');
     }
 
     public function leader()
@@ -147,5 +163,10 @@ class Team extends Model
                 }
             }
         }
+    }
+
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return (new TeamFilter($filters))->apply($query);
     }
 }

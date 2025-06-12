@@ -26,8 +26,8 @@ class AppointmentFilter extends QueryFilter
 
     public function selected_month($month)
     {
-        $startDate = $month ? DateUtillity::createAD($month)->startOfMonth() : Carbon::now()->startOfMonth();
-        $endDate = $month ? DateUtillity::createAD($month)->endOfMonth() : Carbon::now()->endOfMonth();
+        $startDate = $month ? DateUtillity::createMYtoAD($month)->startOfMonth() : Carbon::now()->startOfMonth();
+        $endDate = $month ? DateUtillity::createMYtoAD($month)->endOfMonth() : Carbon::now()->endOfMonth();
         return $this->builder->where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('appointment_date', [$startDate, $endDate]);
         });

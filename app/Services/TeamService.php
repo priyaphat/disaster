@@ -2,50 +2,24 @@
 
 namespace App\Services;
 
-use App\Http\Resources\TeamCollection;
 use App\Http\Resources\TeamResource;
-use App\Http\Utility\LogUtillity;
 use App\Models\Team;
 use App\Models\TeamMember;
-use App\Models\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 
 class TeamService
 {
     /**
      * Get all Teames with filter and limit number.
      */
-    public function getList(array $filters = [], ?int $limit = null): Collection
+    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
-        $query = Team::query();
-        if (!empty($filters['search'])) {
-            $query->whereAny(['name'], 'LIKE', '%' . $filters['search'] . '%');
+        if (!$paginate) {
+            return Team::filter($filters)->latest()->get();
+        } else {
+            $data = Team::filter($filters)->with('leader', 'members', 'allUsers')->latest()->paginate($perPage);
+            $paginate = $data->setCollection(TeamResource::collection($data->items())->collection);
+            return  $paginate;
         }
-
-        // Orders by 'created_at' DESC if ASC use oldest
-        $query->latest();
-
-        // limit the number of results
-        if ($limit) {
-            $query->take($limit);
-        }
-
-        return $query->get();
-    }
-
-    /**
-     * Get paginated Team.
-     */
-    public function paginate(array $filters = [], int $perPage = 10)
-    {
-        $query = Team::query();
-        if (!empty($filters['search'])) {
-            $query->whereAny(['name'], 'LIKE', '%' . $filters['search'] . '%');
-        }
-        $data = $query->with('leader', 'members', 'allUsers')->latest()->paginate($perPage);
-        $paginate = $data->setCollection(TeamResource::collection($data->items())->collection);
-        return  $paginate;
     }
 
     /**
@@ -62,7 +36,7 @@ class TeamService
     public function create(array $data): Team
     {
         $team = Team::create($data);
-        $team->members()->createMany($data['members']);
+        $team->team_members()->createMany($data['members']);
         return $team;
     }
 
@@ -75,11 +49,11 @@ class TeamService
         // if(isset($search['date'])){
         //     $teamLog = LogUtillity::getData($team->id, $search['date'], 'team');
         // }
-        
+
         // if($teamLog){
         //     return $teamLog;
         // }
-        
+
         $team->load(['leader', 'allUsers']);
         return new TeamResource($team);
     }

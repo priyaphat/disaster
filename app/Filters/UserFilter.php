@@ -20,7 +20,7 @@ class UserFilter extends QueryFilter
     public function approve($value)
     {
         $value =  ConvertUtility::toInt($value);
-        if ($value == ApprovalStatus::APPROVED->value) {
+        if ($value !== 'pending') {
             return $this->builder->where(function ($query) {
                 $query->where('registration_type', RegistrationType::ADMIN->value)
                     ->orWhereHas('approval', function ($query) {

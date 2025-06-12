@@ -43,7 +43,7 @@ class StoreTeamRequest extends FormRequest
         $memberArray = $mergedMember->map(function ($item, $index) {
             return [
                 'user_id' => $item,
-                'position' => $index == 0 ? TeamPosition::LEADER : TeamPosition::MEMBER,
+                'position' => $index == 0 ? TeamPosition::LEADER->value : TeamPosition::MEMBER->value,
                 'sequence' => $index,
             ];
         })->toArray();

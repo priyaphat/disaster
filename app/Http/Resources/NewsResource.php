@@ -22,6 +22,9 @@ class NewsResource extends JsonResource
             'image_url' => $this->when($this->image, $this->image?->image_url),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'thai_created_at' =>$this->when($this->created_at, $this->thai_created_at),
+            'created_name' => $this->when($this->relationLoaded('creator'),fn() => $this->creator->firstname.' '.$this->creator->lastname ),
+            'updated_name' => $this->when($this->relationLoaded('editor'),fn() => $this->editor->firstname.' '.$this->editor->lastname),
         ];
     }
 }

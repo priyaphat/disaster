@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ThaiDateTimeFormat;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,12 +12,26 @@ class TeamMember extends Model
 {
     //
     use CreatedUpdatedBy;
-     
+
     protected $fillable = [
         'user_id',
         'team_id',
         'team_position',
+        'sequence',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'created_at' => ThaiDateTimeFormat::class,
+            'updated_at' => ThaiDateTimeFormat::class,
+        ];
+    }
 
     public function team(): BelongsTo
     {

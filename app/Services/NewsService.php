@@ -2,59 +2,24 @@
 
 namespace App\Services;
 
+use App\Http\Resources\NewsCollection;
+use App\Http\Resources\NewsResource;
 use App\Models\News;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 
 class NewsService
 {
-    /**
-     * Get all news with filter and limit number.
-     */
-    public function getList(array $filters = [], ?int $limit = null): Collection
+
+    public function getList(array $filters = [], bool $paginate = true, int $perPage = 20)
     {
-        $query = News::query();
-        if (!empty($filters['search'])) {
-            $query->whereAny(['title', 'description'], 'LIKE', '%' . $filters['search'] . '%');
+        if (!$paginate) {
+            $data = News::with(['creator', 'editor', 'image'])->filter($filters)->latest()->get();
+            return new NewsCollection($data);
+        } else {
+            $data = News::with(['creator', 'editor', 'image'])->filter($filters)->paginate($perPage);
+            $paginate = $data->setCollection(NewsResource::collection($data->items())->collection);
+            return  $paginate;
         }
-
-        // Orders by 'created_at' DESC if ASC use oldest
-        $query->latest();
-
-        // limit the number of results
-        if ($limit) {
-            $query->take($limit);
-        }
-
-        return $query->with('image')->get();
-    }
-
-    public function get_all($req)
-    {
-        $data = News::select('*');
-        if ($req->search) $data = $data->where('title', $req->search);
-        if ($req->dateStart && $req->dateEnd) {
-            $start = Carbon::parse($req->dateStart)->startOfDay();
-            $end = Carbon::parse($req->dateEnd)->endOfDay();
-            $data = $data->whereBetween('created_at', [$start, $end]);
-        }
-        if ($req->sort) $data = $data->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc');
-        if ($req->self) $data = $data->where('created_by', Auth::user()->id);
-        return $data->with('image')->get();
-    }
-
-    /**
-     * Get paginated news.
-     */
-    public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
-    {
-        $query = News::query();
-        if (!empty($filters['search'])) {
-            $query->whereAny(['title', 'description'], 'LIKE', '%' . $filters['search'] . '%');
-        }
-        return $query->latest()->paginate($perPage);
     }
 
     /**

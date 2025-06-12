@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\ApprovalStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\SearchUserRequest;
+use App\Http\Requests\User\FilterUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\UserApproval\ApprovalRequest;
@@ -26,9 +26,11 @@ class UserController extends Controller
     /**
      * Display a listing of the users | รายการผู้ใช้งาน.
      */
-    public function index(SearchUserRequest $request)
+    public function index(FilterUserRequest $request)
     {
-        $data = $this->userService->paginate($request->all());
+        $paginate = $request->has('paginate');
+        $perPage = $request->input('paginate') ?? 10;
+        $data = $this->userService->getList($request->all(), $paginate, $perPage);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 

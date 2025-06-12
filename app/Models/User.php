@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Casts\ThaiDateTimeFormat;
 use App\Enums\RegistrationType;
 use App\Enums\UserType;
 use App\Filters\UserFilter;
@@ -66,6 +67,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'type' => UserType::class,
             'registration_type' => RegistrationType::class,
+            'created_at' => ThaiDateTimeFormat::class,
+            'updated_at' => ThaiDateTimeFormat::class,
         ];
     }
 

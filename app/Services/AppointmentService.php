@@ -21,10 +21,9 @@ class AppointmentService
     /**
      * Get all Appointmentes with filter and limit number.
      */
-    public function index(array $filters = [], ?int $limit = null)
+    public function index(array $filters = [])
     {
         $data = [];
-        $filters['selected_month'] = Carbon::now()->format('Y-m-d');
         $filters['type'] = 1;
         $todayAppointment = $this->getDailySchedule($filters);
         $monthAppointment = $this->getMonthSchedule($filters);
@@ -81,6 +80,9 @@ class AppointmentService
      */
     public function getCalendar($filters)
     {
+        $startDate = isset($filters['selected_month']) ? DateUtillity::createMYtoAD($filters['selected_month'])->startOfMonth() : Carbon::now()->startOfMonth();
+        $endDate = isset($filters['selected_month']) ? DateUtillity::createMYtoAD($filters['selected_month'])->endOfMonth() : Carbon::now()->endOfMonth();
+
         $shiftData = Appointment::filter($filters)->get();
         $data = $shiftData->groupBy('appointment_date')
             ->map(function ($recordsByDate, $date) use ($filters) {
@@ -101,21 +103,17 @@ class AppointmentService
      */
     public function getTimeTables($filters)
     {
-        $startDate = isset($filters['selected_month']) ? Carbon::parse($filters['selected_month'])->startOfMonth() : Carbon::now()->startOfMonth();
-        $endDate = isset($filters['selected_month']) ? Carbon::parse($filters['selected_month'])->endOfMonth() : Carbon::now()->endOfMonth();
+        $startDate = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->format('d/Y');
+        $endDate = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->endOfMonth();
 
-        $monthQuery = Appointment::with(
+        $monthAppointment = Appointment::with(
             'team',
             'shelter',
             'team.allUsers',
             'teamLog',
             'shelterLog',
             'userLog'
-        );
-
-        $monthAppointment = $monthQuery->where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('appointment_date', [$startDate, $endDate]);
-        })->get();
+        )->filter($filters)->get();
 
         $tranformedData = AppointmentResource::collection($monthAppointment)->toArray(request());
 

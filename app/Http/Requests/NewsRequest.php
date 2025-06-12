@@ -24,7 +24,8 @@ class NewsRequest extends FormRequest
         return [
             'title' => 'required|max:255',
             'description' => 'required',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024',
+            'shelter_id' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
         ];
     }
 }

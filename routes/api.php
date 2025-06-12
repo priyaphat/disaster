@@ -88,7 +88,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display users
     |--------------------------------------------------------------------------
     */
-    Route::post('/users', [UserController::class, 'index']); // All users
+    Route::get('/users', [UserController::class, 'index']); // All users
     // Route::get('/users', [UserController::class, 'list']);
     Route::get('/user/{user}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
@@ -275,8 +275,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display teams
     |--------------------------------------------------------------------------
     */
-    Route::post('/teams', [TeamController::class, 'index']);
-    Route::get('/teams', [UserController::class, 'list']);
+    Route::get('/teams', [UserController::class, 'index']);
     Route::get('/team/{team}', [TeamController::class, 'show']);
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);

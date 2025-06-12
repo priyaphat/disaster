@@ -26,19 +26,16 @@ class UserService
         return User::filter($filters)->with($this->relations);
     }
 
-    public function getList(array $filters = []): Collection
-    {
-        return $this->baseQuery($filters)->latest();
-    }
 
-    /**
-     * Get all users with approve or pending status.
-     */
-    public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
+    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
-        $data = $this->baseQuery($filters)->latest()->paginate($perPage);
-        $paginate = $data->setCollection(UserResource::collection($data->items())->collection);
-        return $paginate;
+        if (!$paginate) {
+            return $this->baseQuery($filters)->latest()->get();
+        } else {
+            $data = $this->baseQuery($filters)->latest()->paginate($perPage);
+            $paginate = $data->setCollection(UserResource::collection($data->items())->collection);
+            return $paginate;
+        }
     }
 
     public function getById(int $id): User

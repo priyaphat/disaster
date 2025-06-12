@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\NewsRequest;
+use App\Http\Requests\FilterNewsRequest;
 use App\Http\Resources\NewsCollection;
 use App\Http\Resources\NewsResource;
 use App\Http\Responses\ApiResponse;
@@ -22,16 +23,12 @@ class NewsController extends Controller
         $this->imageService = $imageService;
     }
 
-    public function index()
+    public function index(FilterNewsRequest $request)
     {
-        $news = $this->newsService->getList([], 4);
-        return ApiResponse::successResponse(__('success.data'), new NewsCollection($news));
-    }
-
-    public function get_all(Request $request)
-    {
-        $news = $this->newsService->get_all($request);
-        return ApiResponse::successResponse(__('success.data'), new NewsCollection($news));
+        $paginate = $request->has('paginate');
+        $perPage = $request->input('paginate') ?? 10;
+        $data = $this->newsService->getList($request->all(), $paginate, $perPage);
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     public function store(NewsRequest $request)
@@ -43,8 +40,8 @@ class NewsController extends Controller
 
     public function show(News $news)
     {
-        $news->image = $this->imageService->getByTableAndId(News::class, $news->id);
-        return ApiResponse::successResponse(__('success.new.data'), new NewsResource($news));
+        $news->load(['creator', 'editor', 'image']);
+        return ApiResponse::successResponse(__('success.data'), new NewsResource($news));
     }
 
     public function update(NewsRequest $request, News $news)

@@ -31,7 +31,9 @@ class TeamController extends Controller
      */
     public function index(FilterTeamRequest $request)
     {
-        $data = $this->teamService->paginate();
+        $paginate = $request->has('paginate');
+        $perPage = $request->input('paginate') ?? 10;
+        $data = $this->teamService->getList($request->all(), $paginate, $perPage);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
