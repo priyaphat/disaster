@@ -20,8 +20,7 @@ class ShelterStaffResource extends JsonResource
             'position_id' => $this->user->position_id,
             'position_name' => $this->user->position->name ?? null,
             'shelter_position_id' => $this->shelter_position_id ?? null,
-            'shelter_position_name' => $this->shelter_position ? $this->shelter_position->name : null,
-            // 'department_name' => $this->department ? $this->department->name : null,
+            'shelter_position_name' => $this->shelterposition ? $this->shelterposition->name : null,
         ];
     }
 }

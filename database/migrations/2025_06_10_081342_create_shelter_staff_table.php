@@ -23,6 +23,7 @@ return new class extends Migration
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('shelter_id')->references('id')->on('shelters');
+            $table->foreign('shelter_position_id')->references('id')->on('shelter_positions');
             $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('updated_by')->references('id')->on('users');
         });
