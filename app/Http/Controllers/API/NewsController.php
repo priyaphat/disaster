@@ -23,6 +23,9 @@ class NewsController extends Controller
         $this->imageService = $imageService;
     }
 
+    /**
+     * News | get news .
+     */
     public function index(FilterNewsRequest $request)
     {
         $paginate = $request->has('paginate');
@@ -32,6 +35,9 @@ class NewsController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * News | create news .
+     */
     public function store(NewsRequest $request)
     {
         $data = $this->newsService->create($request->all());
@@ -39,12 +45,18 @@ class NewsController extends Controller
         return ApiResponse::createdResponse(__('success.new.created'), new NewsResource($data));
     }
 
+    /**
+     * News | get news .
+     */
     public function show(News $news)
     {
         $news->load(['creator', 'editor', 'image']);
         return ApiResponse::successResponse(__('success.data'), new NewsResource($news));
     }
 
+    /**
+     * News | update news .
+     */
     public function update(NewsRequest $request, News $news)
     {
         $data = $this->newsService->update($news, $request->all());
@@ -52,6 +64,9 @@ class NewsController extends Controller
         return ApiResponse::successResponse(__('success.new.updated'), new NewsResource($data));
     }
 
+    /**
+     * News | delete news .
+     */
     public function destroy(News $news)
     {
         $this->newsService->delete($news);

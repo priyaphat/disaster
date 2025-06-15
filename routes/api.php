@@ -43,8 +43,15 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
-
+/*
+|--------------------------------------------------------------------------
+| Routes for line
+|--------------------------------------------------------------------------
+*/
 Route::post('/line', [LineController::class, 'handle']);
+Route::get('/line-login', function () {
+    return view('line-login');
+});
 Route::post('/line-login', [LoginController::class, 'line']);
 
 

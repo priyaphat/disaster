@@ -11,6 +11,9 @@ use Spatie\FlareClient\Api;
 class ConfigController extends Controller
 {
 
+    /**
+     * Config | ดึง config ตัวแปร / ปุ้ย
+     */
     public function index(Request $request, $id = null)
     {
         $user = $request->user;
@@ -40,6 +43,9 @@ class ConfigController extends Controller
         return ApiResponse::successResponse(__('success.data'), $res);
     }
 
+    /**
+     * Config | สร้าง config ตัวแปร / ปุ้ย
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -52,6 +58,9 @@ class ConfigController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Config | อัพเดต config ตัวแปร / ปุ้ย
+     */
     public function update(Request $request, Config $config)
     {
         $data = $request->validate([
@@ -65,6 +74,9 @@ class ConfigController extends Controller
         return ApiResponse::successResponse(__('success.config.update'), $config);
     }
 
+    /**
+     * Config | reset config ครับ จะรี แบบไหน เปิด หรือ ปิด 
+     */
     public function reset()
     {
         Config::where('type', 1)->update([
@@ -74,6 +86,9 @@ class ConfigController extends Controller
         return ApiResponse::successResponse(__('success.config.reset'));
     }
 
+    /**
+     * Config | ลบ config
+     */
     public function destroy(Config $config)
     {
         $config->delete();
