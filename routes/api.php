@@ -17,16 +17,17 @@ use App\Http\Controllers\API\PopulationController;
 use App\Http\Controllers\API\PositionController;
 use App\Http\Controllers\API\ResetPasswordController;
 use App\Http\Controllers\API\TeamController;
-use App\Http\Controllers\API\UserApprovalController;
 use App\Http\Controllers\API\DisasterController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\UnitController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\ConfigController;
+use App\Http\Controllers\API\FileController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\ShelterStaffController;
+use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +47,12 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 Route::post('/line', [LineController::class, 'handle']);
 Route::post('/line-login', [LoginController::class, 'line']);
 
+Route::get('/storage/1.png', function (Request $request) {
+    return "image path";
+});
+
+Route::get('/storage/{fileName}', [FileController::class, 'fileStorageServe'])
+    ->where(['fileName' => '.*']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
@@ -275,11 +282,14 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display teams
     |--------------------------------------------------------------------------
     */
-    Route::get('/teams', [UserController::class, 'index']);
+    Route::get('/teams', [TeamController::class, 'index']);
     Route::get('/team/{team}', [TeamController::class, 'show']);
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
+    Route::post('/member/join', [TeamMemberController::class, 'store']);
+    Route::post('/member/transfer', [TeamMemberController::class, 'update']);
+    Route::post('/member/leave', [TeamMemberController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
