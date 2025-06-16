@@ -20,6 +20,8 @@ class NewsResource extends JsonResource
             'description' => $this->description,
             'image_name' => $this->when($this->image, $this->image?->image_name),
             'image_url' => $this->when($this->image, $this->image?->image_url),
+            'image' => $this->when($this->image, $this->image?->image_path),
+            'line_oa' => $this->line_oa,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'thai_created_at' =>$this->when($this->created_at, $this->thai_created_at),

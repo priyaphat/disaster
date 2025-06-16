@@ -4,7 +4,9 @@ namespace App\Filters;
 
 use App\Enums\ApprovalStatus;
 use App\Enums\RegistrationType;
+use App\Enums\UserStatus;
 use App\Http\Utility\ConvertUtility;
+use Illuminate\Support\Str;
 
 class UserFilter extends QueryFilter
 {
@@ -73,6 +75,12 @@ class UserFilter extends QueryFilter
         if ($id) {
             return $this->builder->where('department_id', $id);
         }
+    }
+
+    public function status($value)
+    {
+        $status = UserStatus::{Str::upper($value)}->value;
+        return $this->builder->where('status', $status);
     }
 
     public function staffs()

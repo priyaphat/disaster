@@ -3,8 +3,13 @@
 namespace App\Services;
 
 use App\Http\Resources\TeamResource;
+use App\Http\Utility\DateUtillity;
+use App\Models\Appointment;
+use App\Models\AppointmentLog;
 use App\Models\Team;
 use App\Models\TeamMember;
+use Carbon\Carbon;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TeamService
 {
@@ -46,13 +51,15 @@ class TeamService
     public function show(Team $team, array $search)
     {
         $teamLog = null;
-        // if(isset($search['date'])){
-        //     $teamLog = LogUtillity::getData($team->id, $search['date'], 'team');
-        // }
+        if(isset($search['date'])){
+            $logDate = DateUtillity::thaiToAD($search['date']);
+            $teamLog = AppointmentLog::where('parentable_id', $team->id)
+            ->where('parentable_type', Team::class)->where('log_date', $logDate)->first();
+        }
 
-        // if($teamLog){
-        //     return $teamLog;
-        // }
+        if($teamLog){
+            return $teamLog;
+        }
 
         $team->load(['leader', 'allUsers']);
         return new TeamResource($team);
@@ -73,6 +80,13 @@ class TeamService
      */
     public function delete(Team $team): bool
     {
+        $logDate = Carbon::now()->format('Y-m-d');
+        $checkAppointment = Appointment::whereDate('appointment_date', '>=', $logDate)->get();
+        if($checkAppointment->isNotEmpty()){
+            throw new BadRequestHttpException(__('error.team.deleted'));
+        }
+
+        $team->team_members->each->delete();
         return $team->delete();
     }
 

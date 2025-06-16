@@ -29,6 +29,7 @@ class UserService
 
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
+        $filters['approve'] = isset($filters['approve']) ? 'success' : 'approve';
         if (!$paginate) {
             return $this->baseQuery($filters)->latest()->get();
         } else {

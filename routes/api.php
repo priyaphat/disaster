@@ -55,13 +55,6 @@ Route::get('/line-login', function () {
 });
 Route::post('/line-login', [LoginController::class, 'line']);
 
-Route::get('/storage/1.png', function (Request $request) {
-    return "image path";
-});
-
-Route::get('/storage/{fileName}', [FileController::class, 'fileStorageServe'])
-    ->where(['fileName' => '.*']);
-
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
 

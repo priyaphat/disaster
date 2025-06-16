@@ -21,6 +21,7 @@ class News extends Model
     protected $fillable = [
         'title',
         'description',
+        'line_oa',
         'shelter_id'
     ];
 
@@ -32,6 +33,7 @@ class News extends Model
     protected function casts(): array
     {
         return [
+            'line_oa' => 'integer',
             'created_at' => ThaiDateTimeFormat::class,
             'updated_at' => ThaiDateTimeFormat::class,
         ];

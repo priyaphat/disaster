@@ -8,6 +8,8 @@ use App\Listeners\CreateUserApproval;
 use App\Listeners\SendPasswordEmail;
 use App\Listeners\SendWelcomeEmail;
 use App\Listeners\UserEventSubscriber;
+use App\Models\TeamMember;
+use App\Observers\TeamMemberObserver;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -44,6 +46,9 @@ class AppServiceProvider extends ServiceProvider
         Event::subscribe(UserEventSubscriber::class);
         JsonResource::withoutWrapping();
 
+        TeamMember::observe(TeamMemberObserver::class);
+
+        // API Document
         Scramble::configure()
             ->expose(
                 ui: '/api/docs',

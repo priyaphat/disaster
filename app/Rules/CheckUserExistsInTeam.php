@@ -25,18 +25,16 @@ class CheckUserExistsInTeam implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         //
-        // if ($this->id) {
-        //     // This is an update (id present)
-        //     $existsInTeam = Team::where('leader_id', '!=', $value)->exists();
-        //     $existsInMember = TeamMember::where('user_id', '!=', $value)->exists();
-        // } else {
-        //     // This is a create
-        //     $existsInTeam = Team::where('leader_id', $value)->exists();
-        //     $existsInMember = TeamMember::where('user_id', $value)->exists();
-        // }
+        if ($this->id) {
+            // This is an update (id present)
+            $existsInTeam = TeamMember::where('user_id', $value)->where('team_id', '!=', $this->id)->exists();
+        } else {
+            // This is a create
+            $existsInTeam = TeamMember::where('user_id', $value)->exists();
+        }
 
-        // if ($$existsInTeam || $existsInMember) {
-        //     $fail("{$attribute} มีทีมอยู่แล้ว");
-        // }
+        if ($existsInTeam) {
+            $fail("{$attribute} มีทีมอยู่แล้ว");
+        }
     }
 }

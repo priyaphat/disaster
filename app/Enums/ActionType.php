@@ -18,8 +18,8 @@ enum ActionType : int
             self::TRANSFER => 'ย้ายไปยังศูนย์',
             self::ENTER => 'เข้าสู่ศูนย์',
             self::ASSIGN => 'รับหน้าที่',
-            self::JOIN_TEAM => 'ย้ายออกจากทีม',
-            self::CHANGE_TEAM => 'ย้ายเข้าทีม'
+            self::JOIN_TEAM => 'ย้ายเข้าทีม',
+            self::CHANGE_TEAM => 'ย้ายออกจากทีม'
         };
     }
 }

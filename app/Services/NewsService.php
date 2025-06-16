@@ -10,15 +10,21 @@ class NewsService
 {
     public function getList(array $filters = [], bool $shelter = false, bool $paginate = true, int $perPage = 20)
     {
-        if(!$shelter){
+        if (!$shelter) {
             $filters['center'] = true;
         }
 
+        $query = News::with(['creator', 'editor', 'image'])->filter($filters);
+
+        if (!isset($filters['sort'])) {
+            $query->latest();
+        }
+
         if (!$paginate) {
-            $data = News::with(['creator', 'editor', 'image'])->filter($filters)->get();
+            $data = $query->get();
             return new NewsCollection($data);
         } else {
-            $data = News::with(['creator', 'editor', 'image'])->filter($filters)->paginate($perPage);
+            $data = $query->paginate($perPage);
             $paginate = $data->setCollection(NewsResource::collection($data->items())->collection);
             return  $paginate;
         }

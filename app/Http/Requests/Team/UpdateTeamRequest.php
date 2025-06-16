@@ -43,9 +43,10 @@ class UpdateTeamRequest extends FormRequest
 
         // Define index = 0 is leader
         $memberArray = $mergedMember->map(function ($item, $index) {
+            error_log($index);
             return [
                 'user_id' => $item,
-                'position' => $index == 0 ? TeamPosition::LEADER : TeamPosition::MEMBER,
+                'team_position' => $index == 0 ? TeamPosition::LEADER : TeamPosition::MEMBER,
                 'sequence' => $index,
             ];
         })->toArray();

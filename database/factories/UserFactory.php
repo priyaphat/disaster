@@ -35,7 +35,7 @@ class UserFactory extends Factory
             'prefix_id' => Prefix::inRandomOrder()->first()?->id,
             'firstname' => fake()->firstName(),
             'lastname' => fake()->lastName(),
-            'phone' => fake()->lastName(),
+            'phone' => fake()->phoneNumber(),
             'type' => fake()->randomElement(UserType::cases())->value,
             'district_id' => Geography::inRandomOrder()->first()?->district_code,
             'department_id' => Department::inRandomOrder()->first()?->id,
