@@ -26,6 +26,7 @@ use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\FileController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
+use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
@@ -43,8 +44,15 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
-
+/*
+|--------------------------------------------------------------------------
+| Routes for line
+|--------------------------------------------------------------------------
+*/
 Route::post('/line', [LineController::class, 'handle']);
+Route::get('/line-login', function () {
+    return view('line-login');
+});
 Route::post('/line-login', [LoginController::class, 'line']);
 
 Route::get('/storage/1.png', function (Request $request) {
@@ -134,11 +142,25 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
     /*
     |--------------------------------------------------------------------------
-    | Routes for display shelters
+    | Routes for display shelter staff
     |--------------------------------------------------------------------------
     */
     Route::get('/staff', [ShelterStaffController::class, 'index']);
     Route::post('/staff', [ShelterStaffController::class, 'store']);
+    Route::post('/staff/transfer/{shelterstaff}', [ShelterStaffController::class, 'transfer']);
+    Route::post('/staff/exit/{shelterstaff}', [ShelterStaffController::class, 'exit']);
+    Route::post('/staff/exit-all', [ShelterStaffController::class, 'exitall']);
+    Route::post('/staff/assign/{shelterstaff}', [ShelterStaffController::class, 'assignposition']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display shelter staff positions
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/shelter-position', [ShelterPositionController::class, 'index']);
+    Route::post('/shelter-position', [ShelterPositionController::class, 'store']);
+    Route::post('/shelter-position/{shelterposition}', [ShelterPositionController::class, 'update']);
+    Route::delete('/shelter-position/{shelterposition}', [ShelterPositionController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
@@ -159,8 +181,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/population/{population}', [PopulationController::class, 'show']);
     Route::post('/population', [PopulationController::class, 'store']);
     Route::post('/population/{population}', [PopulationController::class, 'update']);
-    Route::post('/population/change-shelter/{population}', [PopulationController::class, 'transfer']);
+    Route::post('/population/transfer/{population}', [PopulationController::class, 'transfer']);
     Route::post('/population/exit/{population}', [PopulationController::class, 'exit']);
+    Route::post('/population/exit-all', [PopulationController::class, 'exitall']);
 
     /*
     |--------------------------------------------------------------------------

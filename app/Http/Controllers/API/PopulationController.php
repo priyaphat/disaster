@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Population\CreatePopulationRequest;
+use App\Http\Requests\Population\ExitAllPopulationRequest;
 use App\Http\Requests\Population\TransferPopulationRequest;
 use App\Http\Requests\Population\UpdatePopulationRequest;
 use Illuminate\Http\Request;
@@ -105,5 +106,20 @@ class PopulationController extends Controller
         $data = $this->populationService->update($population, $request);
         $this->transferLogService->createLog(TransferHistory::EXIT, Population::class, $population_id, Shelter::class, $oldShelter_id);
         return ApiResponse::successResponse(__('success.updated'), $data);
+    }
+
+    /**
+     * Exit population | นำประชากรออกจากศูนย์พักพิงทั้งหมด
+     */
+    public function exitall(ExitAllPopulationRequest $request)
+    {
+        $shelter_id = $request->shelter_id;
+        $populations = Population::where('shelter_id', $shelter_id)->get();
+        Population::where('shelter_id', $shelter_id)->update(['shelter_id' => null]);
+        foreach ($populations as $population) {
+            $this->transferLogService->createLog(TransferHistory::EXIT, Population::class, $population->id, Shelter::class, $shelter_id);
+        }
+
+        return ApiResponse::successResponse(__('success.updated'));
     }
 }

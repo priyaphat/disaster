@@ -29,30 +29,45 @@ class DisasterController extends Controller
         $this->disasterService = $disasterService;
     }
 
+    /**
+     * Disaster | ดึง Disaster
+     */
     public function index()
     {
         $data = $this->disasterService->index();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | ดึง Disaster by id 
+     */
     public function show(Disaster $disaster)
     {
         $data = $this->disasterService->show($disaster);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | สร้าง Disaster ตัวแปร / ปุ้ย
+     */
     public function store(DisasterRequest $request)
     {
         $data = $this->disasterService->create($request->all());
         return ApiResponse::createdResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | อับเดต Disaster ตัวแปร / ปุ้ย
+     */
     public function update(DisasterRequest $request, Disaster $disaster)
     {
         $data = $this->disasterService->update($disaster, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
+    /**
+     * Disaster | ลบ Disaster
+     */
     public function destroy(Disaster $disaster)
     {
         $disaster->delete();
@@ -63,12 +78,19 @@ class DisasterController extends Controller
     /*####################### Disaster menu #######################*/
 
     //earthquake - eq
+
+    /**
+     * Disaster | ดึง earthquake
+     */
     public function dst_eq_show(Request $request, $earthquake = null)
     {
         $data = $this->disasterService->eq_show($request, $earthquake);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | อัพเดต earthquake
+     */
     public function dst_eq_update(DisasterRequest $request, DisasterEarthquake $earthquake)
     {
         // $request['updated_by'] = Auth::id();
@@ -78,12 +100,19 @@ class DisasterController extends Controller
     }
 
     //flood - fl
+
+    /**
+     * Disaster | ดึง flood
+     */
     public function dst_fl_show(Request $request, $flood = null)
     {
         $data = $this->disasterService->fl_show($request, $flood);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | ดึง flood status
+     */
     public function dst_fl_status()
     {
         $data = array_map(fn($case) => [
@@ -93,6 +122,9 @@ class DisasterController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | อัพเดต flood
+     */
     public function dst_fl_update(DisasterRequest $request, DisasterFlood $flood)
     {
         $flood->update($request->all());
@@ -100,23 +132,36 @@ class DisasterController extends Controller
     }
 
     //landslide
+
+    /**
+     * Disaster | ดึง landslide
+     */
     public function dst_ls_show(Request $request, $landslide = null)
     {
         $data = $this->disasterService->ls_show($request, $landslide);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | สร้าง landslide
+     */
     public function dst_ls_create(DisasterRequest $request)
     {
         $data = $this->disasterService->ls_create($request);
         return ApiResponse::successResponse(__('success.sys_created'), $data);
     }
 
+    /**
+     * Disaster | โหลด ไฟล์ landslide
+     */
     public function dst_ls_download($file)
     {
         return $this->disasterService->download($file);
     }
 
+    /**
+     * Disaster | ลบ landslide
+     */
     public function dst_ls_delete(DisasterLandslide $id)
     {
         $file = DisasterLandslide::FILE . '/' . $id->file_id;
@@ -126,12 +171,19 @@ class DisasterController extends Controller
     }
 
     //wildfire
+
+    /**
+     * Disaster | ดึง wildfire
+     */
     public function dst_wf_show()
     {
         $data = $this->disasterService->dst_wf_show();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | สร้าง wildfire ตัวแปร / ปุ้ย
+     */
     public function dst_wf_create(DisasterRequest $request)
     {
         $data = $this->disasterService->dst_wf_create($request);
@@ -139,6 +191,10 @@ class DisasterController extends Controller
     }
 
     //smog
+
+    /**
+     * Disaster | สร้าง smog ตัวแปร / ปุ้ย
+     */
     public function dst_sm_show(Request $request, $smog = null)
     {
         $data = $this->disasterService->dst_sm_show($request, $smog);
@@ -146,6 +202,9 @@ class DisasterController extends Controller
         return  ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | ดึง smog status
+     */
     public function dst_sm_status()
     {
         $data = array_map(fn($case) => [
@@ -155,6 +214,9 @@ class DisasterController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Disaster | อัพเดต smog
+     */
     public function dst_sm_update(DisasterRequest $request, DisasterSmog $smog)
     {
         $smog->update($request->all());

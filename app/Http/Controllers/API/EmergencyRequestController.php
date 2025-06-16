@@ -19,12 +19,18 @@ class EmergencyRequestController extends Controller
         $this->emergencyRequestService = $emergencyRequestService;
     }
 
+    /**
+     * Emergency request | ดึงข้อมูลทุกตัว / ปุ้ย .
+     */
     public function index()
     {
         $emergencyRequest = $this->emergencyRequestService->index();
         return ApiResponse::successResponse(__('success.data'), $emergencyRequest);
     }
 
+    /**
+     * Emergency request | ดึงข้อมูล อนุมัติ / ปุ้ย .
+     */
     public function show(Request $emergencyRequest)
     {
         // approve
@@ -32,6 +38,9 @@ class EmergencyRequestController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Emergency request | ดึงข้อมูล รอ , ช่วยเหลือ ตัวแปร / ปุ้ย .
+     */
     public function show_wait(Request $emergencyRequest)
     {
         // waiting , helping
@@ -39,6 +48,9 @@ class EmergencyRequestController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Emergency request | ดึงข้อมูล เสร็จ , ไม่เสร็จ , ไม่อนุมัติ  ตัวแปร / ปุ้ย .
+     */
     public function show_history(Request $emergencyRequest)
     {
         // complete , disapprove , incomplete
@@ -46,37 +58,56 @@ class EmergencyRequestController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Emergency request | ดึงข้อมูล id , phone  .
+     */
     public function emcRequestBy(Request $request, $emc = null)
     {
         $data = $this->emergencyRequestService->emcRequestBy($request, $emc); //phone & id
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Emergency request | สร้าง  ตัวแปร / ปุ้ย .
+     */
     public function store(EmergencyRequestRequest $request)
     {
         $data = $this->emergencyRequestService->create($request->all());
         return ApiResponse::createdResponse(__('success.data'), $data);
     }
 
+    /**
+     * Emergency request | อัพเดต  ตัวแปร / ปุ้ย .
+     */
     public function update(EmergencyRequestRequest $request, EmergencyRequest $emergencyRequest)
     {
         $data = $this->emergencyRequestService->update($emergencyRequest, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
+    /**
+     * Emergency request | ลบ  ตัวแปร / ปุ้ย .
+     */
     public function destroy(EmergencyRequest $emergencyRequest)
     {
         $emergencyRequest->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }
 
+    /**
+     * Emergency request | ดึง เหตุผล.
+     */
     public function reason()
     {
         $data = $this->emergencyRequestService->reason();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    public function noti() {
+    /**
+     * Emergency request | ดึง Noti. mock
+     */
+    public function noti()
+    {
         $data = $this->emergencyRequestService->noti();
         return ApiResponse::successResponse(__('success.data'), $data);
     }

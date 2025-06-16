@@ -107,6 +107,15 @@
         width: 45;
         height: auto;
     }
+
+    .alert {
+        text-align: center;
+        background-color: #e74c3c;
+        color: white;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
 </style>
 
 <body>
@@ -120,6 +129,7 @@
                 </div>
             </div>
             {{-- <small class="small" id="error_tag" style="color: red">error message here</small> --}}
+            <div class="alert" id="alertBox">ขออภัย โปรดกรอกข้อมูลให้ครบ</div>
             <div class="relative">
                 <div class="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100"
@@ -132,7 +142,7 @@
                             fill="#B7B2B5" />
                     </svg>
                 </div>
-                <input class="input" id="username" required placeholder="ชื่อผู้ใช้งาน" autocomplete="on" />
+                <input class="input" id="username" placeholder="ชื่อผู้ใช้งาน" autocomplete="on" />
             </div>
             <div class="relative">
                 <div class="icon password-icon">
@@ -143,8 +153,7 @@
                             fill="#B7B2B5" />
                     </svg>
                 </div>
-                <input class="input" id="password" type="password" required placeholder="รหัสผ่าน"
-                    autocomplete="on" />
+                <input class="input" id="password" type="password" placeholder="รหัสผ่าน" autocomplete="on" />
                 <div class="icon-right icon-eye-toggle" id="icon_eye">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 20 18"
                         fill="none">
@@ -186,9 +195,12 @@
 </html>
 <script>
     let userId = null;
+    const alertBox = document.getElementById("alertBox");
+    alertBox.style.display = "none";
 
     liff.init({
-            liffId: "2007547242-Rmgq4X9x",
+            // liffId: "2007547242-Rmgq4X9x",
+            liffId: "2007553661-G93edr6l",
         })
         .then(() => {
             if (!liff.isLoggedIn()) {
@@ -226,6 +238,14 @@
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
 
+        if (!username || !password) {
+            if (alertBox) {
+                alertBox.innerText = "ขออภัย โปรดกรอกข้อมูลให้ครบ";
+                alertBox.style.display = "block";
+            }
+            return;
+        }
+
         fetch("/api/line-login", {
                 method: "POST",
                 headers: {
@@ -242,14 +262,15 @@
                 if (data.success) {
                     liff.closeWindow();
                 } else {
-                    // document.getElementById("error_tag").innerText =
-                    //     "Error loading user ID";
-                    alert(data.message || "เข้าสู่ระบบไม่สำเร็จ");
+                    // alert(data.message || "เข้าสู่ระบบไม่สำเร็จ");
+                    alertBox.innerText = "ขออภัย ชื่อผู้ใช้งาน หรือรหัสผ่าน ไม่ถูกต้อง โปรดตรวจสอบอีกครั้ง";
+                    alertBox.style.display = "block";
                 }
             })
             .catch((error) => {
-                // console.error("Login error:", error);
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+                alertBox.innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
+                alertBox.style.display = "block";
+                // alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
             });
     });
 </script>

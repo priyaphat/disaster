@@ -53,4 +53,9 @@ class ShelterStaff extends Model
     {
         return $this->belongsTo(User::class, 'user_id')->select('id', 'prefix_id', 'firstname', 'lastname', 'position_id', 'department_id');
     }
+
+    public function shelterposition()
+    {
+        return $this->belongsTo(ShelterPosition::class, 'shelter_position_id')->select('id', 'name');
+    }
 }
