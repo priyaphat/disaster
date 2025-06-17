@@ -79,7 +79,7 @@ class UserFilter extends QueryFilter
 
     public function status($value)
     {
-        $status = UserStatus::{Str::upper($value)}->value;
+        $status = UserStatus::fromName($value)->value;
         return $this->builder->where('status', $status);
     }
 
