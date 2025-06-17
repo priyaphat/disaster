@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ShelterUtilities;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,10 +19,30 @@ class ShelterResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'phone' => $this->phone,
+            'status' => $this->status,
+            'created_date' => Carbon::parse($this->created_date)->format('Y-m-d'),
+            'leader_id' => $this->leader_id,
+            'leader_name' => $this->leader->firstname . ' ' . $this->leader->lastname,
+            'address' => $this->address,
+            'geography_id' => $this->geography->id,
+            'province_code' => $this->geography->province_code,
+            'province_name' => $this->geography->province_name_th,
+            'district_code' => $this->geography->district_code,
+            'district_name' => $this->geography->district_name_th,
+            'subdistrict_code' => $this->geography->subdistrict_code,
+            'subdistrict_name' => $this->geography->subdistrict_name_th,
+            'postal_code' => $this->geography->postal_code,
+            'staff_count' => $this->countstaff->count(),
             'current_capacity' => $this->countpopulation->count(),
             'max_capacity' => $this->max_capacity,
-            'address' => $this->address . ' ต.' . $this->fulladdress->subdistrict_name_th . ' อ.' . $this->fulladdress->district_name_th . ' จ.' . $this->fulladdress->province_name_th,
-            'status' => $this->status,
+            'utilities' => is_array($this->utilities)
+                ? collect($this->utilities)->map(fn($u) => [
+                    'id' => $u,
+                    'name' => ShelterUtilities::from($u)->utility(),
+                ])->toArray()
+                : [],
+            'image' =>  $this->when($this->image, $this->image?->image_path),
         ];
     }
 }

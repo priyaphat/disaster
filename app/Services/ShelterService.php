@@ -48,8 +48,8 @@ class ShelterService
             'district_code' => $data['district_code'],
             'subdistrict_code' => $data['subdistrict_code'],
             'max_capacity' => $data['max_capacity'],
-            // 'utilities' => $data['utilities'], //uncomment this line when use in production
-            'utilities' => json_decode($data['utilities'], true), //decode use for dev only, comment or removed this line when use in production
+            'utilities' => $data['utilities'], //uncomment this line when use in production
+            // 'utilities' => json_decode($data['utilities'], true), //decode use for dev only, comment or removed this line when use in production
         ]);
 
         return $shelter;

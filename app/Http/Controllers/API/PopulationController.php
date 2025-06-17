@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Population\CheckPopulationRequest;
 use App\Http\Requests\Population\CreatePopulationRequest;
 use App\Http\Requests\Population\ExitAllPopulationRequest;
 use App\Http\Requests\Population\TransferPopulationRequest;
@@ -121,5 +122,18 @@ class PopulationController extends Controller
         }
 
         return ApiResponse::successResponse(__('success.updated'));
+    }
+
+    public function checkpopulation(CheckPopulationRequest $request)
+    {
+        $data = $this->populationService->checkpupulation($request->all());
+        if ($data) {
+            // if ($data->shelter_id) {
+            //     $data->have_shelter = 1;
+            // }
+            return ApiResponse::successResponse(__('success.data'), $data);
+        } else {
+            return ApiResponse::errorResponse(__('ไม่พบประชากร'));
+        }
     }
 }

@@ -87,6 +87,16 @@ class PopulationService
         return $population;
     }
 
+    public function checkpupulation(array $data)
+    {
+        $user = Population::where('first_name', $data['first_name'])
+            ->where('last_name', $data['last_name'])
+            ->where('prefix_id', $data['prefix_id'])
+            ->with('fullpaddress', 'fullcaddress', 'prefix', 'shelter')
+            ->first();
+        return $user ? new PopulationShowResource($user) : false;
+    }
+
     public function isShelterClear($id): bool
     {
         return Population::where('shelter_id', $id)->count() === 0;

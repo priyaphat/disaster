@@ -54,7 +54,7 @@ class PopulationShowResource extends JsonResource
             'gender' => $this->gender,
             'status' => $this->status,
             'tracking' => $this->tracking,
-            'image' => $this->image,
+            'image' =>  $this->when($this->image, $this->image?->image_path),
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Enums\ApprovalStatus;
 use App\Enums\RegistrationType;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
+use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -31,7 +32,7 @@ class UserService
     {
         $filters['approve'] = isset($filters['approve']) ? 'success' : 'approve';
         if (!$paginate) {
-            return $this->baseQuery($filters)->latest()->get();
+            return new UserCollection($this->baseQuery($filters)->latest()->get());
         } else {
             $data = $this->baseQuery($filters)->latest()->paginate($perPage);
             $paginate = $data->setCollection(UserResource::collection($data->items())->collection);
