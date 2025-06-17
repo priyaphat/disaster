@@ -52,7 +52,7 @@ class AppointmentController extends Controller
      */
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
-        $data = $this->appointmentService->update($appointment, $request->normalized());
+        $data = $this->appointmentService->update($appointment, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 

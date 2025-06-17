@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,6 +17,7 @@ class AppointmentResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'appointment_date' => Carbon::parse($this->appointment_date)->format('Y-m-d'),
             'shift' => $this->shift,
             'shelter_id' => $this->when($this->relationLoaded('shelter'), $this->shelter?->id),
             'shelter_name' => $this->when($this->relationLoaded('shelter'), $this->shelter?->name),

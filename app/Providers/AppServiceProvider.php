@@ -21,6 +21,7 @@ use Dedoc\Scramble\Scramble;
 use Illuminate\Routing\Route;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Support\Facades\Mail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -61,5 +62,9 @@ class AppServiceProvider extends ServiceProvider
                     SecurityScheme::http('bearer')
                 );
             });
+
+        if (app()->environment('local')) {
+            Mail::alwaysTo('maikung1720@gmail.com');
+        }
     }
 }

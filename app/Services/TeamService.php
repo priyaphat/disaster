@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Http\Resources\TeamResource;
-use App\Http\Utility\DateUtillity;
 use App\Models\Appointment;
 use App\Models\AppointmentLog;
 use App\Models\Team;
@@ -52,7 +51,7 @@ class TeamService
     {
         $teamLog = null;
         if(isset($search['date'])){
-            $logDate = DateUtillity::thaiToAD($search['date']);
+            $logDate = Carbon::parse($search['date'])->format('Y-m-d');
             $teamLog = AppointmentLog::where('parentable_id', $team->id)
             ->where('parentable_type', Team::class)->where('log_date', $logDate)->first();
         }

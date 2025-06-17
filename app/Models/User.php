@@ -63,12 +63,15 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'prefix_id' => 'integer',
+            'department_id' => 'integer',
+            'position_id' => 'integer',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'type' => UserType::class,
             'registration_type' => RegistrationType::class,
-            'created_at' => ThaiDateTimeFormat::class,
-            'updated_at' => ThaiDateTimeFormat::class,
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

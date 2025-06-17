@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Casts\ThaiDateTimeDisplayFormat;
-use App\Casts\ThaiDateTimeFormat;
 use App\Filters\NewsFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Carbon\Carbon;
@@ -34,8 +32,8 @@ class News extends Model
     {
         return [
             'line_oa' => 'integer',
-            'created_at' => ThaiDateTimeFormat::class,
-            'updated_at' => ThaiDateTimeFormat::class,
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

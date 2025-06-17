@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Enums\ApprovalStatus;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
-use App\Http\Utility\DateUtillity;
 use App\Mail\UserPasswordEmail;
 use App\Models\UserApproval as Approval;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +20,7 @@ class UserEventSubscriber
             'user_id' => $event->user->id,
             'is_approved' => ApprovalStatus::APPROVED->value,
             'approved_by' => Auth::id() ?? null,
-            'approved_at' => DateUtillity::thaiSlashToADTime($event->user->created_at),
+            'approved_at' => $event->user->created_at,
         ];
         $this->createApproval($data);
         // Send email to user

@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests\Appointment;
 
-use App\Http\Utility\DateUtillity;
-use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAppointmentRequest extends FormRequest
@@ -24,18 +22,11 @@ class UpdateAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'appointment_date' => 'required',
-            'start_time' => 'required',
-            'end_time' => 'required',
+            'appointment_date' => 'required|date_format:Y-m-d',
+            'start_time' => 'required|date_format:H:i',
+            'end_time'   => 'required|date_format:H:i|after:start_time',
             'shelter_id' => 'required|exists:shelters,id',
             'team_id' => 'required|exists:teams,id'
         ];
-    }
-
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'appointment_date' => DateUtillity::thaiToAD($this->request->get('appointment_date')) 
-        ]);
     }
 }

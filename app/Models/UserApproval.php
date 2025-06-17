@@ -24,9 +24,9 @@ class UserApproval extends Model
     protected function casts(): array
     {
         return [
-            'approved_at' => ThaiDateTimeFormat::class,
-            'created_at' => ThaiDateTimeFormat::class,
-            'updated_at' => ThaiDateTimeFormat::class,
+            'approved_at' => 'datetime',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

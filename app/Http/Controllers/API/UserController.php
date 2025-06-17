@@ -2,25 +2,28 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Enums\ApprovalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\FilterUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\UserApproval\ApprovalRequest;
-use App\Http\Resources\UserCollection;
+use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
+use App\Models\Image;
 use App\Models\User;
+use App\Services\ImageService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    protected $userService;
+    protected $userService, $imageService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, ImageService $imageService)
     {
         $this->userService = $userService;
+        $this->imageService = $imageService;
     }
 
     /**
@@ -41,7 +44,8 @@ class UserController extends Controller
     {
         //
         $data = $this->userService->create($request->all());
-        return ApiResponse::createdResponse(__('success.created'), $data);
+        $data->image = $this->imageService->uploadImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
+        return ApiResponse::createdResponse(__('success.created'), new UserResource($data));
     }
 
     /**
@@ -49,8 +53,8 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $data = $this->userService->show($user);
-        return ApiResponse::successResponse(__('success.data'), $data);
+        $data = $user->load(['prefix', 'department', 'position', 'area', 'approval', 'member', 'image']);
+        return ApiResponse::successResponse(__('success.data'), new UserResource($data));
     }
 
     /**
@@ -60,7 +64,25 @@ class UserController extends Controller
     {
         //
         $data = $this->userService->update($user, $request->all());
-        return ApiResponse::successResponse(__('success.updated'), $data);
+        $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
+        return ApiResponse::successResponse(__('success.updated'), new UserResource($data));
+    }
+
+    public function profile()
+    {
+        //
+        $user = Auth::user();
+        $data = $user->load(['prefix', 'department', 'position', 'area', 'approval', 'member', 'image']);
+        return ApiResponse::successResponse(__('success.data'), new UserResource($data));
+    }
+
+    public function updateProfile(UpdateUserRequest $request)
+    {
+        //
+        $user = Auth::user();
+        $data = $this->userService->update($user, $request->all());
+        $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
+        return ApiResponse::successResponse(__('success.updated'), new UserResource($data));
     }
 
     /**
@@ -70,6 +92,7 @@ class UserController extends Controller
     {
         //
         $this->userService->delete($user);
+        $this->imageService->deleteImage(User::class, $user->id, Image::PRIVATE);
         return ApiResponse::successResponse(__('success.deleted'));
     }
 

@@ -30,15 +30,16 @@ class ImageService
      * @param int $id (attribute id from model)
      * @return Image
      */
-    public function uploadImage($file, $folder, $table, $id): Image
+    public function uploadImage($file, $folder, $table, $id, $diskName = Image::PUBLIC): Image
     {
         $tableData = [
+            'image_type' => $diskName,
             'parentable_type' => $table,
             'parentable_id' => $id
         ];
 
         // Upload the file to storage
-        $imageData = self::uploadFile($file, $folder);
+        $imageData = self::uploadFile($file, $folder, $diskName);
         // Create an image to database
         $data = $tableData + $imageData;
         $image = Image::create($data);
@@ -66,10 +67,10 @@ class ImageService
         }
 
         // Remove old file ftom storage
-        self::removeFile($image->image_url);
+        self::removeFile($image->image_url, $image->image_type);
 
         // Upload the file to storage
-        $imageData = self::uploadFile($file, $folder);
+        $imageData = self::uploadFile($file, $folder, $image->image_type);
         // Update an image data
         $image->update($imageData);
         return $image;
@@ -91,7 +92,7 @@ class ImageService
         }
 
         if ($image->image_name !== 'default.png') {
-            self::removeFile($image->image_url);
+            self::removeFile($image->image_url, $image->image_type);
         }
 
         return $image->delete();
@@ -104,7 +105,7 @@ class ImageService
      * @param string $folder
      * @return array $data (Image detail : image_name and image_url)
      */
-    public static function uploadFile($file, $folder): array
+    public static function uploadFile($file, $folder, $diskName = Image::PUBLIC): array
     {
         $data = [];
         $folderPath = 'image/' . $folder . '/';
@@ -112,11 +113,11 @@ class ImageService
         if ($file) {
             // Generate a unique filename
             $filename = self::generateFilename($file);
-            $location = Storage::disk('public')->path($folderPath . $filename);
+            $location = Storage::disk($diskName)->path($folderPath . $filename);
 
             // Ensure the folder exists
-            if (!Storage::disk('public')->exists($folderPath)) {
-                Storage::disk('public')->makeDirectory($folderPath);
+            if (!Storage::disk($diskName)->exists($folderPath)) {
+                Storage::disk($diskName)->makeDirectory($folderPath);
             }
 
             // Save the file (either base64 or uploaded)
@@ -140,10 +141,10 @@ class ImageService
      *
      * @param string $imageUrl
      */
-    public static function removeFile($imageUrl): void
+    public static function removeFile($imageUrl, $diskName = Image::PUBLIC): void
     {
-        if (Storage::disk('public')->exists($imageUrl)) {
-            Storage::disk('public')->delete($imageUrl);
+        if (Storage::disk($diskName)->exists($imageUrl)) {
+            Storage::disk($diskName)->delete($imageUrl);
         }
     }
 

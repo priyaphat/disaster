@@ -2,21 +2,10 @@
 
 namespace App\Models;
 
-use App\Casts\AppointmentDateFormat;
-use App\Casts\DateFormat;
-use App\Casts\DateSlashFormat;
-use App\Casts\DateTimeFormat;
-use App\Casts\ThaiDateFormat;
-use App\Casts\ThaiDateTimeDisplayFormat;
-use App\Casts\ThaiDateTimeFormat;
-use App\Casts\ThaiSlashDateFormat;
-use App\Enums\ShiftType;
 use App\Filters\AppointmentFilter;
 use App\Http\Traits\CreatedUpdatedBy;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Appointment extends Model
@@ -41,9 +30,9 @@ class Appointment extends Model
     protected function casts(): array
     {
         return [
-            'appointment_date' => AppointmentDateFormat::class,
-            'created_at' => ThaiDateTimeFormat::class,
-            'updated_at' => ThaiDateTimeFormat::class,
+            'appointment_date' => 'date:Y-m-d',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

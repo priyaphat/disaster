@@ -23,18 +23,9 @@ class SearchCalendarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'selected_date' => 'nullable',
+            'selected_date' => 'nullable|date_format:Y-m-d',
             'shelter_id' => 'nullable|exists:shelters,id',
             'team_id' => 'nullable|exists:teams,id',
         ];
-    }
-
-    protected function prepareForValidation(): void
-    {
-        if ($this->request->get('selected_date')) {
-            $this->merge([
-                'selected_date' => DateUtillity::thaiToAD($this->request->get('selected_date'))
-            ]);
-        }
     }
 }

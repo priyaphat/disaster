@@ -3,7 +3,7 @@
 namespace App\Filters;
 
 use App\Http\Utility\ConvertUtility;
-use App\Http\Utility\DateUtillity;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class NewsFilter extends QueryFilter
@@ -15,19 +15,25 @@ class NewsFilter extends QueryFilter
 
     public function limit($value)
     {
-        $value = ConvertUtility::toInt($value);
         if ($value) {
+            $value = ConvertUtility::toInt($value);
             return $this->builder->take($value);
         }
     }
 
-    public function range($value)
+    public function start_date($value)
     {
         if ($value) {
-            $rangeDate = explode('-', $value);
-            $startDate = DateUtillity::createDMYtoAD($rangeDate[0])->startOfMonth();
-            $endDate = DateUtillity::createDMYtoAD($rangeDate[1])->endOfMonth();
-            return $this->builder->whereBetween('created_at', [$startDate, $endDate]);
+            $startDate = Carbon::parse($value)->format('Y-m-d');
+            return $this->builder->whereDate('created_at', '>=', $startDate);
+        }
+    }
+
+    public function end_date($value)
+    {
+        if ($value) {
+            $endDate = Carbon::parse($value)->format('Y-m-d');
+            return $this->builder->whereDate('created_at', '<=', $endDate);
         }
     }
 

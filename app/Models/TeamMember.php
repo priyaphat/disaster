@@ -28,8 +28,8 @@ class TeamMember extends Model
     protected function casts(): array
     {
         return [
-            'created_at' => ThaiDateTimeFormat::class,
-            'updated_at' => ThaiDateTimeFormat::class,
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

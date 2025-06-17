@@ -3,13 +3,8 @@
 namespace App\Services;
 
 use App\Enums\ShiftType;
-use App\Http\Resources\AppointmentCollection;
 use App\Http\Resources\AppointmentResource;
-use App\Http\Resources\ShiftCollection;
-use App\Http\Resources\ShiftDateResource;
-use App\Http\Resources\ShiftResource;
 use App\Http\Utility\ConvertUtility;
-use App\Http\Utility\DateUtillity;
 use App\Models\Appointment;
 use App\Utility\GvarFunc;
 use Illuminate\Support\Carbon;
@@ -38,7 +33,8 @@ class AppointmentService
      */
     public function getDailySchedule(array $filters = [])
     {
-        $date = isset($filters['selected_date']) ? DateUtillity::thaiToAD($filters['selected_date']) : Carbon::now()->format('Y-m-d');
+        $date = isset($filters['selected_date']) ? Carbon::parse($filters['selected_date'])->format('Y-m-d') : Carbon::now()->format('Y-m-d');
+
         $shiftData = Appointment::filter($filters)->where(function ($query) use ($date) {
             $query->whereDate('appointment_date', $date);
         })->with('team', 'shelter')->oldest('start_time')->get();
@@ -80,8 +76,7 @@ class AppointmentService
      */
     public function getCalendar($filters)
     {
-        $startDate = isset($filters['selected_month']) ? DateUtillity::createMYtoAD($filters['selected_month'])->startOfMonth() : Carbon::now()->startOfMonth();
-        $endDate = isset($filters['selected_month']) ? DateUtillity::createMYtoAD($filters['selected_month'])->endOfMonth() : Carbon::now()->endOfMonth();
+        $filters['selected_month'] = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->format('Y-m');
 
         $shiftData = Appointment::filter($filters)->get();
         $data = $shiftData->groupBy('appointment_date')
@@ -103,8 +98,7 @@ class AppointmentService
      */
     public function getTimeTables($filters)
     {
-        $startDate = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->format('d/Y');
-        $endDate = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->endOfMonth();
+        $filters['selected_month'] = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->format('Y-m');
 
         $monthAppointment = Appointment::with(
             'team',
@@ -114,6 +108,7 @@ class AppointmentService
             'shelterLog',
             'userLog'
         )->filter($filters)->get();
+
 
         $tranformedData = AppointmentResource::collection($monthAppointment)->toArray(request());
 
@@ -127,7 +122,7 @@ class AppointmentService
         $tranformedData = collect($tranformedData)->groupBy('appointment_date')
             ->map(function ($recordsByDate, $date) use ($filters) {
                 return [
-                    'date' => Carbon::parse($date)->format('d/m/Y'),
+                    'date' => Carbon::parse($date)->format('Y-m-d'),
                     'data' => $recordsByDate->groupBy('shift')->map(function ($recordsByShift, $shift) use ($filters) {
                         $tranformedData = [
                             'shift' => $shift,
@@ -189,7 +184,7 @@ class AppointmentService
         $newShifts = $this->splitShiftTime($data);
         foreach ($newShifts as $shift) {
             if ($shift['shift'] === $appointment->shift) {
-                $appointment = $this->getById($shift['id']);
+                $appointment = $this->getById($appointment['id']);
                 $appointment->update($shift);
             } else {
                 Appointment::create([

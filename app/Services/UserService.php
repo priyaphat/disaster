@@ -67,12 +67,6 @@ class UserService
         return $user;
     }
 
-    public function show(User $user)
-    {
-        $user->load($this->relations);
-        return new UserResource($user);
-    }
-
     public function update(User $user, array $data): User
     {
         if (isset($data['password'])) {
@@ -85,6 +79,7 @@ class UserService
 
     public function delete(User $user): void
     {
+        $user->approval->delete();
         $user->delete();
     }
 
@@ -111,8 +106,8 @@ class UserService
 
         // If reject : Delete user
         if ($data['is_approved'] == ApprovalStatus::REJECT->value) {
+            $user->image->delete();
             $this->delete($user);
-            $this->deleteApprovalData($approval);
         } else {
             $approval->update($data);
         }

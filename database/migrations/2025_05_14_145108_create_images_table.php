@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('image_name');
             $table->string('image_url');
+            $table->string('image_type')->default('public')->comment('public, local');
             $table->morphs('parentable');
             $table->timestamps();
         });

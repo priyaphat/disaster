@@ -9,7 +9,7 @@ class AppointmentLog extends Model
     //
     protected $fillable = ['parentable_id', 'parentable_type', 'description', 'log_date'];
     protected $casts = [
-        'description' => "array"
+        'description' => 'array'
     ];
     
     public function parent()

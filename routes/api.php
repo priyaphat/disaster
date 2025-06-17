@@ -55,6 +55,8 @@ Route::get('/line-login', function () {
 });
 Route::post('/line-login', [LoginController::class, 'line']);
 
+Route::get('/private/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
+
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
 
@@ -104,6 +106,8 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/user/{user}', [UserController::class, 'destroy']);
     Route::post('/user-approval', [UserController::class, 'approve']);
 
+    Route::get('/profile', [UserController::class, 'profile']);
+    Route::post('/profile', [UserController::class, 'updateProfile']);
     /*
     |--------------------------------------------------------------------------
     | Routes for display news

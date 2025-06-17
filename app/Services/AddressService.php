@@ -26,7 +26,7 @@ class AddressService
         $districts = DB::table('geography')->where('province_code', $data['province_code'])
             ->select('district_name_th', 'district_code')
             ->distinct()
-            ->get(['district_code']);
+            ->get();
         return $districts;
     }
 
@@ -35,7 +35,9 @@ class AddressService
         $sub_district = DB::table('geography')->where('district_code', $data['district_code'])
             ->select([
                 'id as geography_id',
+                'subdistrict_code',
                 'subdistrict_name_th',
+                'postal_code',
             ])
             ->distinct()
             ->get();
