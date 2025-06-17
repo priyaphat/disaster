@@ -17,8 +17,12 @@ class ShelterStaffResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->user->prefix->name . ' ' . $this->user->firstname . ' ' . $this->user->lastname,
+            'phone' => $this->user->phone,
+            'email' => $this->user->email,
             'position_id' => $this->user->position_id,
             'position_name' => $this->user->position->name ?? null,
+            'department_id' => $this->user->department_id,
+            'department_name' => $this->user->department->name ?? null,
             'shelter_position_id' => $this->shelter_position_id ?? null,
             'shelter_position_name' => $this->shelterposition ? $this->shelterposition->name : null,
         ];
