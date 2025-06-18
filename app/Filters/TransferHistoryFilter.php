@@ -2,7 +2,9 @@
 
 namespace App\Filters;
 
-class PopulationFilter extends QueryFilter
+use Carbon\Carbon;
+
+class TransferHistoryFilter extends QueryFilter
 {
     public function action_type($value)
     {
@@ -17,5 +19,13 @@ class PopulationFilter extends QueryFilter
     public function sort($value)
     {
         return $this->builder->orderBy('created_at', $value === 'asc' ? 'asc' : 'desc');
+    }
+
+    public function date($value)
+    {
+        $value = explode(',', $value);
+        $start = Carbon::parse($value[0])->format('Y-m-d') ?? null;
+        $end = Carbon::parse($value[1])->format('Y-m-d') ?? null;
+        return $this->builder->whereBetween('created_at', [$start, $end]);
     }
 }

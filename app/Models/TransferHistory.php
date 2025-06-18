@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Filters\PopulationFilter;
+use App\Filters\TransferHistoryFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +19,8 @@ class TransferHistory extends Model
     public const ASSIGN = 4 ;
     public const JOIN_TEAM = 5;
     public const CHANGE_TEAM = 6;
+    public const OPEN = 7;
+    public const CLOSE = 8;
 
     protected $fillable = [
         'action_type',
@@ -58,6 +60,6 @@ class TransferHistory extends Model
 
     public function scopeFilter(Builder $query, array $filters): Builder
     {
-        return (new PopulationFilter($filters))->apply($query);
+        return (new TransferHistoryFilter($filters))->apply($query);
     }
 }

@@ -156,6 +156,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter/{shelter}', [ShelterController::class, 'show']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
+    Route::get('/shelter-dashboard', [ShelterController::class, 'dashboard']);
     /*
     |--------------------------------------------------------------------------
     | Routes for display shelter staff

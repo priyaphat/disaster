@@ -10,6 +10,8 @@ enum ActionType : int
     case ASSIGN = 4 ;
     case JOIN_TEAM = 5;
     case CHANGE_TEAM = 6;
+    case OPEN = 7;
+    case CLOSE = 8;
 
     public function action_type(): string
     {
@@ -19,7 +21,9 @@ enum ActionType : int
             self::ENTER => 'เข้าสู่ศูนย์',
             self::ASSIGN => 'รับหน้าที่',
             self::JOIN_TEAM => 'ย้ายเข้าทีม',
-            self::CHANGE_TEAM => 'ย้ายออกจากทีม'
+            self::CHANGE_TEAM => 'ย้ายออกจากทีม',
+            self::OPEN => 'เปิดทำการ',
+            self::CLOSE => 'ปิดทำการ'
         };
     }
 }
