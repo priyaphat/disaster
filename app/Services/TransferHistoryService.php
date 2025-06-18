@@ -34,7 +34,7 @@ class TransferHistoryService
         if ($table === Team::class) {
             $data->with('team');
         }
-        return $data = $data->paginate(10);
+        $data = $data->paginate(10);
         
         return $data = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
     }
