@@ -41,10 +41,10 @@ class DisasterService
     public function eq_show($req, $id = null)
     {
         $query = DisasterEarthquake::query()
-            ->when($req->dateStart && $req->dateEnd, fn($q) =>
+            ->when($req->start_date && $req->end_date, fn($q) =>
             $q->whereBetween('created_at', [
-                Carbon::parse($req->dateStart)->startOfDay(),
-                Carbon::parse($req->dateEnd)->endOfDay()
+                Carbon::parse($req->start_date)->startOfDay(),
+                Carbon::parse($req->end_date)->endOfDay()
             ]))
             ->when($req->district, fn($q) =>
             $q->where('address', 'like', "%$req->district%"))

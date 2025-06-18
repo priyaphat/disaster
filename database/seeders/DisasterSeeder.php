@@ -60,7 +60,7 @@ class DisasterSeeder extends Seeder
         foreach ($disasters as $disaster) {
             Disaster::create([
                 'name' => $disaster,
-                'created_by' => 1, 
+                'created_by' => 8,
             ]);
         }
     }

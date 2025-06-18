@@ -13,7 +13,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique()->comment('น้ำท่วม,ไฟไหม้');
             // $table->integer('status')->default(1)->comment('1=เปิดใช้งาน,0=ปิดใช้งาน');
-            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
 

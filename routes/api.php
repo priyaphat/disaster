@@ -54,6 +54,25 @@ Route::get('/line-login', function () {
     return view('line-login');
 });
 Route::post('/line-login', [LoginController::class, 'line']);
+Route::get('/line-test', [LineController::class, 'LineNotification']);
+Route::get('/line-text', function () {
+    $type = 'ดินถล่ม';
+    $level = 3;
+    $areas = [
+        'เมืองเชียงราย',
+        'อำเภอแม่จัน',
+        'อำเภอแม่ฟ้าหลวง',
+        'อำเภอแม่สาย',
+    ];
+
+    $message = __('line.disaster_post', [
+        'type' => $type,
+        'level' => $level,
+        'type_areas' => implode("\n", $areas),
+    ]);
+
+    return $message;
+});
 
 Route::get('/private/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 
