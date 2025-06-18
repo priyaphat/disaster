@@ -55,6 +55,7 @@ class PopulationShowResource extends JsonResource
             'status' => $this->status,
             'tracking' => $this->tracking,
             'image' =>  $this->when($this->image, $this->image?->image_path),
+            'has_shelter' => $this->shelter ? 1 : 0,
         ];
     }
 }

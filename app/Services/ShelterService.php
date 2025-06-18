@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Enums\ShelterUtilities;
 use App\Http\Resources\ShelterResource;
 use App\Http\Resources\ShelterShowResource;
+use App\Models\Population;
 use App\Models\Shelter;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 class ShelterService
@@ -14,7 +16,7 @@ class ShelterService
     {
         $query = Shelter::query();
         if (!empty($filters['search'])) {
-            $query->whereAny(['first_name', 'last_name'], 'LIKE', '%' . $filters['search'] . '%');
+            $query->whereAny(['name'], 'LIKE', '%' . $filters['search'] . '%');
         }
 
         $status = $filters['status'] ?? null;
@@ -27,8 +29,11 @@ class ShelterService
         if ($district != null) {
             $query->where('district_code', $district);
         }
-        if ($sort != null) {
+        if ($sort != null && in_array($sort, ['asc', 'desc'])) {
             $query->orderBy('created_at', $sort);
+        }
+        if ($sort != null && $sort == 'name') {
+            $query->orderBy('name', 'desc');
         }
         $data = $query->with('fulladdress', 'countpopulation')->paginate(10);
 
@@ -58,9 +63,6 @@ class ShelterService
     public function update(Shelter $shelter, array $data): Shelter
     {
         $shelter->update($data);
-        if ($shelter->wasChanged('status')) {
-            //Collcet log shelter status change
-        }
         return $shelter;
     }
 
@@ -68,6 +70,34 @@ class ShelterService
     {
         $data = Shelter::with('countpopulation', 'leader', 'countstaff', 'geography')->findOrFail($shelter->id);
         return new ShelterShowResource($data);
+    }
+
+    public function dashboard(array $filters = [])
+    {
+        $total_shelter = Shelter::where('status', Shelter::OPEN)->count();
+        $total_population = Population::whereNotNull('shelter_id')->count();
+        $updated_at = Carbon::now()->format('Y-m-d H:i:s');
+
+        $shelter_id = $filters['shelter_id'] ?? null;
+
+        $query = Population::query();
+
+        if ($shelter_id != null){
+            $query = $query->where('shelter_id', $shelter_id);
+        }
+
+        $total_injured = (clone $query)->where('status', Population::injure)->count();
+        $total_healthy = (clone $query)->where('status', Population::healthy)->count();
+        $total_dead = (clone $query)->where('status', Population::dead)->count();
+
+        return $dashboard = [
+            'total_shelter' => $total_shelter,
+            'total_population' => $total_population,
+            'updated_at' => $updated_at,
+            'total_injured' => $total_injured,
+            'total_healthy' => $total_healthy,
+            'total_dead' => $total_dead,
+        ];
     }
 
     public function getShelter($id)

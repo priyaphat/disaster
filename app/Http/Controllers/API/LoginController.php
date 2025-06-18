@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
 {
+
     /**
      * Login function
      */
@@ -49,6 +50,7 @@ class LoginController extends Controller
         if ($user && Hash::check($request->password, $user->password)) {
             $user->line_token = $request->userId;
             $user->update();
+            (new LineController)->user_login($request->userId, __('line.welcome'));
             return ApiResponse::customSuccessResponse('Login Successful');
         }
         return ApiResponse::errorResponse(__('auth.failed'), Response::HTTP_BAD_REQUEST);

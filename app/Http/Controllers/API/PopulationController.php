@@ -128,9 +128,6 @@ class PopulationController extends Controller
     {
         $data = $this->populationService->checkpupulation($request->all());
         if ($data) {
-            // if ($data->shelter_id) {
-            //     $data->have_shelter = 1;
-            // }
             return ApiResponse::successResponse(__('success.data'), $data);
         } else {
             return ApiResponse::errorResponse(__('ไม่พบประชากร'));

@@ -57,6 +57,25 @@ Route::get('/line-login', function () {
     return view('line-login');
 });
 Route::post('/line-login', [LoginController::class, 'line']);
+Route::get('/line-test', [LineController::class, 'LineNotification']);
+Route::get('/line-text', function () {
+    $type = 'ดินถล่ม';
+    $level = 3;
+    $areas = [
+        'เมืองเชียงราย',
+        'อำเภอแม่จัน',
+        'อำเภอแม่ฟ้าหลวง',
+        'อำเภอแม่สาย',
+    ];
+
+    $message = __('line.disaster_post', [
+        'type' => $type,
+        'level' => $level,
+        'type_areas' => implode("\n", $areas),
+    ]);
+
+    return $message;
+});
 
 Route::get('/private/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);
@@ -139,6 +158,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter/{shelter}', [ShelterController::class, 'show']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
+    Route::get('/shelter-dashboard', [ShelterController::class, 'dashboard']);
     /*
     |--------------------------------------------------------------------------
     | Routes for display shelter staff
