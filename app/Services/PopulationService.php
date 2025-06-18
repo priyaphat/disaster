@@ -14,26 +14,8 @@ class PopulationService
 {
     public function getList(array $filters = [])
     {
-        $query = Population::query();
-        if (!empty($filters['search'])) {
-            $query->whereAny(['first_name', 'last_name'], 'LIKE', '%' . $filters['search'] . '%');
-        }
-
-        $gender = $filters['gender'] ?? null;
-        $status = $filters['status'] ?? null;
-        $sort = $filters['sort'] ?? 'desc';
-
-        if ($gender != null) {
-            $query->where('gender', $gender);
-        }
-        if ($status != null) {
-            $query->where('status', $status);
-        }
-        if ($sort != null) {
-            $query->orderBy('created_at', $sort);
-        }
-
-        $data = $query->with('fullpaddress', 'fullcaddress', 'prefix')->paginate(10);
+        $query = Population::filter($filters);
+        $data = $query->with('fullpaddress', 'fullcaddress', 'prefix')->latest()->paginate(10);
         return $data->setCollection(PopulationResource::collection($data->items())->collection);
     }
 
