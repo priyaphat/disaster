@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\ApprovalStatus;
+use App\Enums\RegistrationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Responses\ApiResponse;
@@ -20,9 +22,16 @@ class LoginController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        $user = User::where('username', $request->username)->first();
+        $user = User::with('approval')->where('username', $request->username)->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
+
+            if ($user->registration_type->value === RegistrationType::SELF->value) {
+                if ($user->approval?->is_approved != ApprovalStatus::APPROVED->value) {
+                    return ApiResponse::errorResponse(__('auth.waiting'), Response::HTTP_BAD_REQUEST);
+                }
+            }
+
             $token = $user->createToken('API Token')->accessToken;
             // Custom response for API
             $response = [

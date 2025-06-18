@@ -25,11 +25,8 @@ class CheckUserExistsInDB implements ValidationRule
             return;
         }
 
-        // if (!$user->status) {
-        //     $fail(__('validation.exists'));
-        // }
-        if ($user->registration_type == RegistrationType::SELF->value) {
-            if ($user->approval->status != ApprovalStatus::APPROVED->value) {
+        if ($user->registration_type?->value == RegistrationType::SELF->value) {
+            if ($user->approval?->is_approved != ApprovalStatus::APPROVED->value) {
                 $fail(__('validation.exists'));
                 return;
             }

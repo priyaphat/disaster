@@ -1,5 +1,7 @@
 <?php
 
+use App\Events\Notification;
+use App\Events\Notify;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\AppointmentLogController;
@@ -33,8 +35,9 @@ use App\Http\Controllers\API\TransferHistoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
+Route::get('/notify', function (Request $request) {
+
+    event(new Notification(2, 'test'));
 })->middleware('auth:api');
 
 Route::post('/login', [LoginController::class, 'login']);
@@ -56,7 +59,9 @@ Route::get('/line-login', function () {
 Route::post('/line-login', [LoginController::class, 'line']);
 
 Route::get('/private/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
-
+Route::get('/departments', [DepartmentController::class, 'index']);
+Route::get('/positions', [PositionController::class, 'index']);
+Route::get('/prefixes', [PrefixController::class, 'index']);
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
 
@@ -65,7 +70,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display positions
     |--------------------------------------------------------------------------
     */
-    Route::get('/positions', [PositionController::class, 'index']);
     Route::get('/position/{position}', [PositionController::class, 'show']);
     Route::post('/position', [PositionController::class, 'store']);
     Route::post('/position/{position}', [PositionController::class, 'update']);
@@ -76,7 +80,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display departments
     |--------------------------------------------------------------------------
     */
-    Route::get('/departments', [DepartmentController::class, 'index']);
     Route::get('/department/{department}', [DepartmentController::class, 'show']);
     Route::post('/department', [DepartmentController::class, 'store']);
     Route::post('/department/{department}', [DepartmentController::class, 'update']);
@@ -87,7 +90,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display prefixes
     |--------------------------------------------------------------------------
     */
-    Route::get('/prefixes', [PrefixController::class, 'index']);
     Route::get('/prefix/{prefix}', [PrefixController::class, 'show']);
     Route::post('/prefix', [PrefixController::class, 'store']);
     Route::post('/prefix/{prefix}', [PrefixController::class, 'update']);

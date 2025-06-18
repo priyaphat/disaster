@@ -33,7 +33,7 @@ return new class extends Migration
             $table->timestamps();
             $table->unsignedBigInteger('updated_by')->nullable();
 
-            $table->foreign('geography_id')->references('id')->on('geography');
+            // $table->foreign('geography_id')->references('id')->on('geography');
         });
     }
 
