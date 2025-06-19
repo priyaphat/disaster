@@ -22,6 +22,11 @@ class TransferHistoryController extends Controller
         return $this->transferLogService->getlog($request->all(), LogUtility::getClassName($model), $id);
     }
 
+    public function shelterlog(Request $request)
+    {
+        return $this->transferLogService->getshelterlog($request->all());
+    }
+
     public function actiontype()
     {
         $data = $this->transferLogService->getactiontype();

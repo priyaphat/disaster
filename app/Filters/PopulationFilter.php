@@ -31,6 +31,11 @@ class PopulationFilter extends QueryFilter
         return $this->builder->whereNotNull('shelter_id');
     }
 
+    public function shelter_id($value)
+    {
+        return $this->builder->where('shelter_id', $value);
+    }
+
     public function tracking()
     {
         return $this->builder->where('tracking', Population::tracking);

@@ -344,5 +344,6 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/transfer-history/{model}/{id}', [TransferHistoryController::class, 'getlog']);
+    Route::get('/shelter-history', [TransferHistoryController::class, 'shelterlog']);
     Route::get('/action-type', [TransferHistoryController::class, 'actiontype']);
 });

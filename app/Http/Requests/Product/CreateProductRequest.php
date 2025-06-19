@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Product;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -32,11 +33,23 @@ class CreateProductRequest extends FormRequest
                         ->where('category_id', $this->category_id);
                 }),
             ],
-            'unit_id' => 'exists:units,id',
+            'unit_id' => 'nullable|exists:units,id',
             'no_unit' => 'nullable',
             'category_id' => 'exists:categories,id',
-            'quantity' => 'required|integer',
+            'detail' => 'nullable|string',
+            'quantity' => 'nullable|integer',
+            'no_quantity' => 'nullable|integer',
+            'status' => 'integer',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if (is_null($this->quantity)) {
+            $this->merge([
+                'no_quantity' => Product::NO_QUANTITY,
+            ]);
+        }
     }
 }
