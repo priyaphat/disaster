@@ -23,7 +23,8 @@ class DeleteMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', new CheckUserExistsInDB()]
+            'user_id' => ['required', 'integer', new CheckUserExistsInDB()],
+            'discontinued' => 'nullable'
         ];
     }
 }

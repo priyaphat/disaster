@@ -23,8 +23,9 @@ class MemberRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', new CheckUserExistsInDB()],
-            'team_id' => 'required|exists:teams,id'
+            'user_id' => ['required', 'integer', new CheckUserExistsInDB()],
+            'team_id' => 'required|exists:teams,id',
+            'discontinued' => 'nullable'
         ];
     }
 }

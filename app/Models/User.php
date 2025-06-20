@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Casts\LowerCase;
 use App\Casts\ThaiDateTimeFormat;
 use App\Enums\RegistrationType;
 use App\Enums\UserType;
@@ -63,6 +64,8 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'email' => LowerCase::class,
+            'username' => LowerCase::class,
             'prefix_id' => 'integer',
             'department_id' => 'integer',
             'position_id' => 'integer',

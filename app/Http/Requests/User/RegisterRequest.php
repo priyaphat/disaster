@@ -3,9 +3,11 @@
 namespace App\Http\Requests\User;
 
 use App\Enums\UserType;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Str;
 
 class RegisterRequest extends FormRequest
 {
@@ -25,11 +27,21 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|unique:users,email|email|max:255',
-            'username' => 'required|unique:users,username|max:255',
+            'email' => [
+                'required',
+                'max:255',
+                'email',
+                'regex:/^[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                Rule::unique('users')->where(fn(Builder $query) => $query->where('email', Str::lower($this->email)))
+            ],
+            'username' => [
+                'required',
+                'max:255',
+                'regex:/^[a-zA-Z0-9._-]*[a-zA-Z0-9]$/',
+                Rule::unique('users')->where(fn(Builder $query) => $query->where('username', Str::lower($this->username)))
+            ],
             'password' => [
                 'required',
-                'required_with:password_confirmation',
                 'confirmed',
                 Password::min(8)
                     ->letters()
@@ -37,7 +49,7 @@ class RegisterRequest extends FormRequest
                     ->numbers()
                     ->symbols()
             ],
-            'password_confirmation' => ['required', 'required_with:password'],
+            'password_confirmation' => 'required',
             'prefix_id' => 'required|exists:prefixes,id',
             'firstname' => 'required|max:255',
             'lastname' => 'required|max:255',
@@ -46,6 +58,14 @@ class RegisterRequest extends FormRequest
             'district_id' => 'required|exists:geography,district_code',
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'required|exists:positions,id'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'email.regex' => __('validation.custom.email.regex'),
+            'username.regex' => __('validation.custom.username.regex'),
         ];
     }
 }

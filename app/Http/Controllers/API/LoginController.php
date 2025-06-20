@@ -11,9 +11,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Laravel\Passport\Token as PassportToken;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Str;
+
 
 class LoginController extends Controller
 {
@@ -23,7 +23,7 @@ class LoginController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        $user = User::with('approval')->where('username', $request->username)->first();
+        $user = User::with('approval')->where('username', Str::lower($request->username))->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
 
@@ -46,7 +46,7 @@ class LoginController extends Controller
 
     public function line(LoginRequest $request)
     {
-        $user = User::where('username', $request->username)->first();
+        $user = User::where('username', Str::lower($request->username))->first();
         if ($user && Hash::check($request->password, $user->password)) {
             $user->line_token = $request->userId;
             $user->update();

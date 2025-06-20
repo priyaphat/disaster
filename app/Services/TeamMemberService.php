@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\TeamPosition;
+use App\Exceptions\MemberException;
 use App\Http\Utility\ConvertUtility;
 use App\Models\Position;
 use App\Models\TeamMember;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class TeamMemberService
 {
     /**
-     * Create a Team.
+     * Create a member.
      */
     public function create(array $data): TeamMember
     {
@@ -32,7 +33,7 @@ class TeamMemberService
     /**
      * Update a member.
      */
-    public function update(array $data): TeamMember
+    public function update(array $data, $discontinue = false): TeamMember
     {
         $member = $this->getMember($data['user_id']);
 
@@ -40,15 +41,18 @@ class TeamMemberService
             throw new BadRequestHttpException(__('error.member.no_team'));
         }
 
-        if ($member->team_position == TeamPosition::LEADER->value) {
-            throw new BadRequestHttpException(__('error.member.leader'));
+        // Check if the user is a leader. If the user is a leader, they must delete the team before the update.
+        if ($member->team_position == TeamPosition::LEADER->value && !$discontinue) {
+            throw new MemberException(__('error.member.leader'));
         }
 
-        $count = $this->countOnlyMember($data['user_id'], $data['team_id']);
-        if ($count <= 0) {
-            throw new BadRequestHttpException(__('error.member.team_min_members'));
+        // Check if the team has one member, they must delete the team before the update.
+        $count = $this->countOnlyMember($member['user_id'], $member['team_id']);
+        if ($count <= 0 && !$discontinue) {
+            throw new MemberException(__('error.member.team_min_members'));
         }
 
+        // Update member to another team
         $oldTeam = $member->team_id;
         $newTeam = $data['team_id'];
 
@@ -56,19 +60,24 @@ class TeamMemberService
         $member->update([
             'team_id' => $data['team_id'],
             'user_id' => $data['user_id'],
-            'team_position' => $data['team_position'],
+            'team_position' => TeamPosition::MEMBER->value,
             'sequence' => $latestNumber + 1
         ]);
-
         $this->reIndex($oldTeam, $member['sequence']);
+
+        // Delete or disband the team when the user is a leader or when the team has member less than 1
+        if (($member->team_position == TeamPosition::LEADER->value || $count <= 0) && $discontinue) {
+            $teamService = new TeamService();
+            $teamService->delete($member->team);
+        }
+
         return $member;
     }
-
 
     /**
      * Delete a member.
      */
-    public function delete(array $data): TeamMember
+    public function delete(array $data, $discontinue = false): TeamMember
     {
         $member = $this->getMember($data['user_id']);
         if (!$member) {
@@ -78,25 +87,34 @@ class TeamMemberService
         $teamId = $member->team_id;
         $deleteNumber = $member->sequence;
 
-        if ($member->team_position == TeamPosition::LEADER->value) {
-            throw new BadRequestHttpException(__('error.member.leader'));
+        // Check if the user is a leader. If the user is a leader, they must delete the team before the delete.
+        if ($member->team_position == TeamPosition::LEADER->value && !$discontinue) {
+            throw new MemberException(__('error.member.leader'));
         }
 
+        // Check if the team has one member, they must delete the team before the delete.
         $count = $this->countOnlyMember($data['user_id'], $teamId);
-        if ($count <= 0) {
-            throw new BadRequestHttpException(__('error.member.team_min_members'));
+        if ($count <= 0 && !$discontinue) {
+            throw new MemberException(__('error.member.team_min_members'));
         }
 
+        // Delete or disband the team when the user is a leader or when the team has member less than 1
+        if (($member->team_position == TeamPosition::LEADER->value || $count <= 0) && $discontinue) {
+            $teamService = new TeamService();
+            $teamService->delete($member->team);
+        }
 
+        // Delete a member
         $member->delete();
+        // Re index member in team
         $this->reIndex($teamId, $deleteNumber);
         return $member;
     }
 
     /**
-     * Get a team member by its id.
+     * Get total members except own self in the team
      */
-    public function countOnlyMember(int $userId, ?int $teamId = null)
+    public function countOnlyMember(int $userId, int $teamId)
     {
         $userId = ConvertUtility::toInt($userId);
         $count = TeamMember::where('user_id', '!=', $userId)->where('team_id', $teamId)->where('team_position', TeamPosition::MEMBER->value)->count();
@@ -104,7 +122,7 @@ class TeamMemberService
     }
 
     /**
-     * Get a team member by its id.
+     * Retrieve the total number of team members, excluding yourself.
      */
     public function getMember(int $userId)
     {
@@ -113,12 +131,18 @@ class TeamMemberService
         return $query->first();
     }
 
+    /**
+     * Retrieve the last number of team members.
+     */
     public function getLatestNumber($teamId)
     {
         $teamId = ConvertUtility::toInt($teamId);
         return TeamMember::where('team_id', $teamId)->max('sequence') ?? 0;
     }
 
+    /**
+     * Re index number in team member.
+     */
     public function reIndex($teamId, $deleteNumber)
     {
         $teamId = ConvertUtility::toInt($teamId);

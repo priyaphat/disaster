@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\User\FilterUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
@@ -13,7 +14,6 @@ use App\Models\Image;
 use App\Models\User;
 use App\Services\ImageService;
 use App\Services\UserService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -68,6 +68,9 @@ class UserController extends Controller
         return ApiResponse::successResponse(__('success.updated'), new UserResource($data));
     }
 
+    /**
+     * Show a profile | เแสดงข้อมูลส่วนตัวของผู้ใช้งาน
+     */
     public function profile()
     {
         //
@@ -76,6 +79,9 @@ class UserController extends Controller
         return ApiResponse::successResponse(__('success.data'), new UserResource($data));
     }
 
+    /**
+     * Update user's profile | แก้ไขข้อมูลส่วนตัว
+     */
     public function updateProfile(UpdateUserRequest $request)
     {
         //
@@ -83,6 +89,17 @@ class UserController extends Controller
         $data = $this->userService->update($user, $request->all());
         $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
         return ApiResponse::successResponse(__('success.updated'), new UserResource($data));
+    }
+
+    /**
+     * Change password | เปลี่ยนรหัสผ่าน
+     */
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        //
+        $user = Auth::user();
+        $this->userService->update($user, $request->only('password'));
+        return ApiResponse::successResponse(__('success.updated'));
     }
 
     /**

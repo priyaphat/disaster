@@ -33,7 +33,8 @@ class TeamMemberController extends Controller
     public function update(MemberRequest $request)
     {
         //
-        $this->memberService->update($request->all());
+        $discontinue = $request->has('discontinued') ? $request->input('discontinued') : false;
+        $this->memberService->update($request->all(), $discontinue);
         return ApiResponse::successResponse(__('success.data'));
     }
 
@@ -43,7 +44,8 @@ class TeamMemberController extends Controller
     public function destroy(DeleteMemberRequest $request)
     {
         //
-        $this->memberService->delete($request->all());
+        $discontinue = $request->has('discontinued') ? $request->input('discontinued') : false;
+        $this->memberService->delete($request->all(), $discontinue);
         return ApiResponse::successResponse(__('success.data'));
     }
 }

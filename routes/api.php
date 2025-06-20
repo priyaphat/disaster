@@ -35,10 +35,6 @@ use App\Http\Controllers\API\TransferHistoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/notify', function (Request $request) {
-
-    event(new Notification(2, 'test'));
-})->middleware('auth:api');
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
@@ -82,6 +78,8 @@ Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
 Route::get('/prefixes', [PrefixController::class, 'index']);
 Route::middleware('auth:api')->group(function () {
+
+    Route::post('/change-password', [UserController::class, 'changePassword']);
     Route::post('/logout', [LoginController::class, 'logout']);
 
     /*
