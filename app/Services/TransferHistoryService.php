@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ActionType;
 use App\Http\Resources\TransferHistoryResource;
 use App\Models\Population;
+use App\Models\Shelter;
 use App\Models\Team;
 use App\Models\TransferHistory;
 use Illuminate\Http\Request;
@@ -28,14 +29,20 @@ class TransferHistoryService
     {
         $data = TransferHistory::filter($filters)->where('parentable_type', $table)->where('parentable_id', $id)->with('created_by_name');
 
-        if ($table === Population::class) {
+        if ($table === Population::class || $table === Shelter::class) {
             $data->with('shelter');
         }
         if ($table === Team::class) {
             $data->with('team');
         }
-        return $data = $data->paginate(10);
+        $data = $data->paginate(10);
         
+        return $data = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
+    }
+
+    public function getshelterlog(array $filters = [])
+    {
+        $data = TransferHistory::filter($filters)->where('parentable_type', Shelter::class)->with('created_by_name', 'shelter')->paginate(10);
         return $data = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
     }
 

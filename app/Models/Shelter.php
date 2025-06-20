@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Filters\ShelterFilter;
 use App\Http\Traits\CreatedUpdatedBy;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -67,5 +69,10 @@ class Shelter extends Model
 
     public function countstaff() {
         return $this->hasMany(User::class, 'id');
+    }
+
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return (new ShelterFilter($filters))->apply($query);
     }
 }

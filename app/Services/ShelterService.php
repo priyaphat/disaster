@@ -14,29 +14,7 @@ class ShelterService
 {
     public function getList(array $filters = [])
     {
-        $query = Shelter::query();
-        if (!empty($filters['search'])) {
-            $query->whereAny(['name'], 'LIKE', '%' . $filters['search'] . '%');
-        }
-
-        $status = $filters['status'] ?? null;
-        $district = $filters['district_code'] ?? null;
-        $sort = $filters['sort'] ?? 'desc';
-
-        if ($status != null) {
-            $query->where('status', $status);
-        }
-        if ($district != null) {
-            $query->where('district_code', $district);
-        }
-        if ($sort != null && in_array($sort, ['asc', 'desc'])) {
-            $query->orderBy('created_at', $sort);
-        }
-        if ($sort != null && $sort == 'name') {
-            $query->orderBy('name', 'desc');
-        }
-        $data = $query->with('fulladdress', 'countpopulation')->paginate(10);
-
+        $data = Shelter::filter($filters)->with('fulladdress', 'countpopulation')->paginate(10);
         return $data->setCollection(ShelterResource::collection($data->items())->collection);
     }
 

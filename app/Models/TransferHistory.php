@@ -50,7 +50,7 @@ class TransferHistory extends Model
 
     public function shelter()
     {
-        return $this->belongsTo(Shelter::class, 'childable_id')->select(['id', 'name']);
+        return $this->belongsTo(Shelter::class, 'childable_id')->select(['id', 'name', 'district_code']);
     }
 
     public function team()

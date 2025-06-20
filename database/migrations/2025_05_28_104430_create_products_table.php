@@ -14,7 +14,10 @@ return new class extends Migration
             $table->string('name', 255);
             $table->unsignedBigInteger('unit_id')->nullable();
             $table->unsignedBigInteger('category_id');
-            $table->integer('quantity')->default(0);
+            $table->string('detail', 255)->nullable();
+            $table->integer('quantity')->nullable()->default(0);
+            $table->integer('no_quantity')->nullable();
+            $table->integer('status')->default(1);
             $table->timestamps();
 
             // Foreign keys (optional)
