@@ -23,8 +23,8 @@ return new class extends Migration
             $table->json('victim_name')->nullable()->comment('[[prefix:int,fname:varchar,lname:varchar]]'); // array
             $table->unsignedInteger('disaster_id');
             $table->text('description')->nullable();
-            $table->unsignedInteger('tambon_id');
-            $table->integer('amphure_id')->nullable();
+            $table->unsignedInteger('subdistrict_id');
+            $table->integer('district_id')->nullable();
             $table->string('address')->nullable();
             $table->tinyInteger('status')->default(1)
             ->comment('0 - inactive , 1 - waiting , 2 - approve , 3 - disapprove , 4 - helping , 5 - complete , 6 - incomplete');

@@ -75,7 +75,7 @@ class EmergencyRequestService
         }
 
 
-        if ($emc->amphure_id) $items = $items->where('amphure_id', $emc->amphure_id);
+        if ($emc->district_id) $items = $items->where('district_id', $emc->district_id);
         if ($emc->start_date && $emc->end_date) $items = $items->whereBetween('created_at', [$emc->start_date, $emc->end_date]);
         if ($emc->sort) $items = $items->sortBy('created_at', $emc->sort === 'asc' ? SORT_ASC : SORT_DESC); //asc or desc
         if ($emc->status) {

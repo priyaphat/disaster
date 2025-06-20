@@ -27,8 +27,8 @@ class EmergencyRequest extends Model
         'victim_name',
         'disaster_id',
         'description',
-        'amphuar_id',
-        'tambon_id',
+        'district_id',
+        'subdistrict_id',
         'address',
         'status',
         'emergency_team_id'
@@ -62,7 +62,7 @@ class EmergencyRequest extends Model
 
     public function geography()
     {
-        return $this->belongsTo(Geography::class, 'tambon_id', 'subdistrict_code');
+        return $this->belongsTo(Geography::class, 'subdistrict_id', 'subdistrict_code');
     }
 
 }
