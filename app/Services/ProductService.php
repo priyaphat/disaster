@@ -18,4 +18,10 @@ class ProductService
     {
         return Product::create($data);
     }
+
+    public function update(Product $product, array $data): Product
+    {
+        $product->update($data);
+        return $product;
+    }
 }

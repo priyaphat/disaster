@@ -6,7 +6,7 @@ use App\Models\Unit;
 
 class UnitService
 {
-    public function index()
+    public function index(array $filters = [])
     {
         return Unit::all();
     }

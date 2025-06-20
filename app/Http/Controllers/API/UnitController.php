@@ -18,9 +18,9 @@ class UnitController extends Controller
         $this->unitService = $unitService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $data = $this->unitService->index();
+        $data = $this->unitService->index($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
     

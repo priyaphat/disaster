@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\CreateProductRequest;
+use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Product;
 use App\Services\ImageService;
@@ -40,5 +41,18 @@ class ProductController extends Controller
     {
         $product->image = $this->imageService->getByTableAndId(Product::class, $product->id);
         return ApiResponse::successResponse(__('success.data'), $product);
+    }
+
+    public function update(UpdateProductRequest $request, Product $product)
+    {
+        $data = $this->productService->update($product, $request->all());
+        $data->image = $this->imageService->updateImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function destroy(Product $product)
+    {
+        $product->delete();
+        return ApiResponse::successResponse(__('success.data'));
     }
 }

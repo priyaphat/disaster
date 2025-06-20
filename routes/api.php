@@ -216,6 +216,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/product', [ProductController::class, 'index']);
     Route::get('/product/{product}', [ProductController::class, 'show']);
     Route::post('/product', [ProductController::class, 'store']);
+    Route::post('/product/{product}', [ProductController::class, 'update']);
+    Route::delete('/product/{product}', [ProductController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
