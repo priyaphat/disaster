@@ -263,7 +263,14 @@
                     liff.closeWindow();
                 } else {
                     // alert(data.message || "เข้าสู่ระบบไม่สำเร็จ");
-                    alertBox.innerText = "ขออภัย ชื่อผู้ใช้งาน หรือรหัสผ่าน ไม่ถูกต้อง โปรดตรวจสอบอีกครั้ง";
+                    if (data.message == 'ready') {
+                        alertBox.innerText =
+                            "เชื่อมต่อได้ 1 เครื่อง กรุณากด บล็อคที่เครื่องเดิมก่อน";
+                    } else {
+                        alertBox.innerText =
+                            "ขออภัย ชื่อผู้ใช้งาน หรือรหัสผ่าน ไม่ถูกต้อง โปรดตรวจสอบอีกครั้ง";
+
+                    }
                     alertBox.style.display = "block";
                 }
             })

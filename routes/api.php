@@ -54,12 +54,14 @@ Route::get('/line-login', function () {
 });
 Route::post('/line-login', [LoginController::class, 'line']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
-Route::get('/line-test', [LineController::class, 'LineNotification']); //test
+Route::get('/line-test', [LineController::class, 'test']); //test
+
 
 Route::get('/private/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
 Route::get('/prefixes', [PrefixController::class, 'index']);
+
 Route::middleware('auth:api')->group(function () {
 
     Route::post('/change-password', [UserController::class, 'changePassword']);

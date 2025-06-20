@@ -5,15 +5,17 @@ namespace App\Http\Controllers\API;
 use App\Enums\ShiftType;
 use App\Http\Controllers\Controller;
 use App\Http\Utility\DateUtility;
+use App\Models\LineUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class LineController extends Controller
 {
 
-    // private const OneId = 1;
-    private const All = 2;
-    private const SelectId = 3;
+    public const Population = 1;
+    public const User = 7;
 
     public const Disaster_post = 1;
     public const Disaster_end = 2;
@@ -37,11 +39,13 @@ class LineController extends Controller
     public const Appointment = 20;
     public const Appointment_update = 21;
     public const Appointment_canceled = 22;
+    public const Emc_unsuccess = 23;
 
     public function handle(Request $request)
     {
         if ($request->events) {
             $event = $request->events[0];
+            // Log::info($event);
             if ($event['type'] === 'message') {
                 $replyToken = $event['replyToken'];
                 $text = $event['message']['text'];
@@ -86,24 +90,65 @@ class LineController extends Controller
 
                     $this->broadcast_reply(['replyToken' => $replyToken, 'messages' => [$message]]);
                 }
+            } else  if ($event['type'] === 'follow') {
+                LineUser::create([
+                    'token_id' => $event['source']['userId']
+                ]);
+            } else  if ($event['type'] === 'unfollow') {
+                $data = LineUser::where('token_id', $event['source']['userId'])->first();
+                if ($data) $data->delete();
             }
         }
         return response()->json(['status' => 'ok']);
     }
 
-    public function LineNotification($recipient = null, $form = null, array $data = null, $broadcast  = self::All)
+    public function test()
     {
-        $text = self::form_box(self::User_register, $data);
-        // $message = self::flex_box($text);'
-        $message = self::flex_box_link($text, self::User_register);
-        // self::broadcast_multi(null, $message);
-        // return $message;
-        if ($broadcast == self::All) self::broadcast_all($message);
-        // if ($broadcast == self::SelectId) self::broadcast_push($recipient, $message);
-        return 'ok';
+        $data = [
+            'product' => 'น้ำ 600 มล.(แพ็ก)',
+            'shelter' => [
+                'ศูนย์พักพิงบ้านดอยสะเก็ด',
+                'ศูนย์พักพิงแม่ฟ้าหลวง',
+                'ศูนย์พักพิงบ้านห้วยทราย',
+                'ศูนย์พักพิงดอยหลวงเชียงราย',
+            ],
+        ];
+        // $recipint = ['Uaa3e2b17e373580b16101b64937e4a39'];
+
+        return self::LineNotification($data, self::Resoure);
     }
 
-    private function form_box($form, $data = null)
+    public function LineNotification(array $data, $form, $recipint = null)
+    {
+        if ($recipint) {
+
+            $message = self::form_box($form, $data, self::Population);
+            self::broadcast_multi($recipint, $message);
+        } else {
+            $line = LineUser::all();
+
+            $hasUser = $line
+                ->filter(fn($item) => !is_null($item->user_id))
+                ->pluck('token_id');
+
+            if ($hasUser->isNotEmpty()) {
+                $message = self::form_box($form, $data, self::User);
+                self::broadcast_multi($hasUser, $message);
+            }
+
+            $noUser = $line->filter(fn($item) =>
+            is_null($item->user_id))->pluck('token_id');
+
+            if ($noUser->isNotEmpty()) {
+                $message = self::form_box($form, $data, self::Population);
+                self::broadcast_multi($noUser, $message);
+            }
+        }
+
+        return response()->json(["success" => true, "message" => 'Send Line OK.']);
+    }
+
+    private function form_box($form, $data = null, $type = null)
     {
         if ($form == self::Disaster_post) {
             // $data = [
@@ -121,22 +166,28 @@ class LineController extends Controller
                 'level' => $data['level'],
                 'type_areas' => "• " . implode("\n• ", $data['areas']),
             ]) . __('line.close_follow');
+            $text = self::flex_box($text);
         } else if ($form == self::Disaster_end) {
             // $data = [
             //     'type'=>'ดินถล่ม'
             // ];
-            $text = __('line.disaster_end') . __('line.close_follow');
+            $text = __('line.disaster_end', [
+                'type' => $data['type'],
+            ]) . __('line.close_follow');
+            $text = self::flex_box($text);
         } else if ($form == self::Shelter_post) {
             // $data = [
             //     'shelter' => 'xxxx',
             //     'location' => 'x.xxx,x.xxx'
             // ];
             $text = __('line.shelter_post', ['shelter' => $data['shelter'], 'location' => $data['location']]) . __('line.close_follow');
+            $text = self::flex_box($text);
         } else if ($form == self::Shelter_end) {
             // $data = [
             //     'shelter' => 'xxxx',
             // ];
             $text = __('line.shelter_end', ['shelter' => $data['shelter']]) . __('line.close_follow');
+            $text = self::flex_box($text);
         } else if ($form == self::Damaged_utility_post) {
             // $data = [
             //     [
@@ -157,7 +208,6 @@ class LineController extends Controller
             //     ]
             // ];
             $text = __('line.damaged_utilities_head');
-
             foreach ($data as $item) {
                 $text = $text . __('line.damaged_utilities_detail_post', [
                     'utility' => $item['utility'],
@@ -166,6 +216,7 @@ class LineController extends Controller
                 ]);
             }
             $text = $text . __('line.close_follow');
+            $text = self::flex_box($text);
         } else if ($form == self::Damaged_utility_end) {
             // $data = [
             //     [
@@ -176,13 +227,13 @@ class LineController extends Controller
             //     ]
             // ];
             $text = __('line.damaged_utilities_head');
-
             foreach ($data as $item) {
                 $text = $text . __('line.damaged_utilities_detail_end', [
                     'utility' => $item['utility'],
                 ]);
             }
             $text = $text . "\n" . __('line.close_follow');
+            $text = self::flex_box($text);
         } else if ($form == self::Resoure) {
             // $data = [
             //     'product' => 'น้ำ 600 มล.(แพ็ก)',
@@ -197,6 +248,7 @@ class LineController extends Controller
                 'product' => $data['product'],
                 'shelter' => "• " . implode("\n• ", $data['shelter'])
             ]) . __('line.close_follow');
+            $text = self::flex_box_link($text, self::Resoure, __('line.see_more'), $type);
         } else if ($form == self::News_post) {
             // $data = [
             //     'name' => 'xxxxxxxx',
@@ -204,6 +256,7 @@ class LineController extends Controller
             $text = __('line.news_post', [
                 'name' => $data['name'],
             ]);
+            $text = self::flex_box_link($text, self::News_post, __('line.read_more'), $type);
         } else if ($form == self::News_end) {
             // $data = [
             //     'name' => 'xxxxxxxx',
@@ -211,6 +264,7 @@ class LineController extends Controller
             $text = __('line.news_end', [
                 'name' => $data['name'],
             ]);
+            $text = self::flex_box_link($text, self::News_end, __('line.read_more'), $type);
         } else if ($form == self::Emc_request_post) {
             // $data = [
             //     'name' => 'xxxx xxxx',
@@ -218,6 +272,7 @@ class LineController extends Controller
             $text = __('line.emc_request_post', [
                 'name' => $data['name'],
             ]) . __('line.quick');
+            $text = self::flex_box_link($text, self::Emc_request_post, __('line.see_request'), $type);
         } else if ($form == self::Emc_request_post_team) {
             // $data = [
             //     'name' => 'xxxx xxxx',
@@ -229,6 +284,7 @@ class LineController extends Controller
                 'team' => $data['team'],
                 'assigner' => $data['assigner'],
             ]) . __('line.quick');
+            $text = self::flex_box_link($text, self::Emc_request_post_team, __('line.see_request'), $type);
         } else if ($form == self::Emc_request_end) {
             // $data = [
             //     'name' => 'xxxx xxxx',
@@ -240,6 +296,7 @@ class LineController extends Controller
                 'team' => $data['team'],
                 'assigner' => $data['assigner'],
             ]);
+            $text = self::flex_box($text);
         } else if ($form == self::Emc_assigned) {
             // $data = [
             //     'name' => 'xxxx xxxx',
@@ -253,8 +310,8 @@ class LineController extends Controller
                 'assigner' => $data['assigner'],
                 'receiver' => $data['receiver'],
             ]) . __('line.quick');
-        } else if ($form == self::Emc_success) // and unsuccess
-        {
+            $text = self::flex_box_link($text, self::Emc_assigned, __('line.see_request'), $type);
+        } else if ($form == self::Emc_success) {
             // $data = [
             //     'name' => 'xxxx xxxx',
             //     'team' => 'xxxx2',
@@ -271,8 +328,28 @@ class LineController extends Controller
                 'status' => $data['status'],
                 'note' => $data['note'] ?? '-',
             ]);
+            $text = self::flex_box_link($text, self::Emc_success, __('line.see_request'), $type);
+        } else if ($form == self::Emc_unsuccess) {
+            // $data = [
+            //     'name' => 'xxxx xxxx',
+            //     'team' => 'xxxx2',
+            //     'assigner' => 'xxx xxx',
+            //     'receiver' => 'xxxxxx xxxxx',
+            //     'status' => 'xxx',
+            //     'note' => 'xxxxxx',
+            // ];
+            $text = __('line.emc_success', [
+                'name' => $data['name'],
+                'team' => $data['team'],
+                'assigner' => $data['assigner'],
+                'receiver' => $data['receiver'],
+                'status' => $data['status'],
+                'note' => $data['note'] ?? '-',
+            ]);
+            $text = self::flex_box_link($text, self::Emc_unsuccess, __('line.see_request'), $type);
         } else if ($form == self::User_register) {
             $text = __('line.user_register');
+            $text = self::flex_box($text);
         } else if ($form == self::User_on) {
             // $data = [
             //     'shelter' => 'xxxxxxx'
@@ -280,6 +357,7 @@ class LineController extends Controller
             $text = __('line.user_on', [
                 'shelter' => $data['shelter'],
             ]);
+            $text = self::flex_box($text);
         } else if ($form == self::User_off) {
             // $data = [
             //     'shelter' => 'xxxxxxx'
@@ -287,6 +365,7 @@ class LineController extends Controller
             $text = __('line.user_off', [
                 'shelter' => $data['shelter'],
             ]);
+            $text = self::flex_box($text);
         } else if ($form == self::User_join) {
             // $data = [
             //     'team' => 'xxxxxxx 2'
@@ -294,6 +373,7 @@ class LineController extends Controller
             $text = __('line.user_join', [
                 'team' => $data['team'],
             ]);
+            $text = self::flex_box($text);
         } else if ($form == self::User_leave) {
             // $data = [
             //     'team' => 'xxxxxxx 2'
@@ -301,6 +381,7 @@ class LineController extends Controller
             $text = __('line.user_leave', [
                 'team' => $data['team'],
             ]);
+            $text = self::flex_box($text);
         } else if ($form == self::Appointment) {
             // $data = [
             //     'shelter' => 'sh',
@@ -314,6 +395,7 @@ class LineController extends Controller
                 'time' => ShiftType::from($data['time'])->label(),
                 'team' => $data['team'],
             ]);
+            $text = self::flex_box($text);
         } else if ($form == self::Appointment_update) {
             // $data = [
             //     'shelter' => 'xxx x x1',
@@ -333,6 +415,7 @@ class LineController extends Controller
                 'new_time' => ShiftType::from($data['new_time'])->label(),
                 'new_teams' => $data['new_teams'],
             ]);
+            $text = self::flex_box($text);
         } else if ($form == self::Appointment_canceled) {
             // $data = [
             //     'shelter' => 'xxx x x1',
@@ -346,6 +429,7 @@ class LineController extends Controller
                 'time' => ShiftType::from($data['time'])->label(),
                 'teams' => $data['teams'],
             ]);
+            $text = self::flex_box($text);
         }
         return $text;
     }
@@ -371,16 +455,16 @@ class LineController extends Controller
         ]);
     }
 
-    private function broadcast_all($message) // to all 
-    {
-        Http::withToken(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'))->post('https://api.line.me/v2/bot/message/broadcast', [
-            'messages' => [$message],
-        ]);
-    }
+    // private function broadcast_all($message) // to all 
+    // {
+    //     Http::withToken(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'))->post('https://api.line.me/v2/bot/message/broadcast', [
+    //         'messages' => [$message],
+    //     ]);
+    // }
 
-    private function broadcast_multi(array $userId = null, $message) // array userId
+    private function broadcast_multi($userIds, $message) // array userId
     {
-        $userIds = ['Uaa3e2b17e373580b16101b64937e4a39'];
+        // $userIds = ['Uaa3e2b17e373580b16101b64937e4a39'];
 
         Http::withToken(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'))->post('https://api.line.me/v2/bot/message/multicast', [
             'to' => $userIds,
@@ -388,7 +472,7 @@ class LineController extends Controller
         ]);
     }
 
-    private function flex_box_link($text, $link)
+    private function flex_box_link($text, $link, $btn, $type)
     {
         return [
             'type' => 'flex',
@@ -417,8 +501,8 @@ class LineController extends Controller
                             'height' => 'sm',
                             'action' => [
                                 'type' => 'uri',
-                                'label' => 'อ่านข่าวประชาสัมพันธ์',
-                                'uri' => env('APP_URL') . '/api/line-param/' . $link,
+                                'label' => $btn,
+                                'uri' => env('APP_URL') . '/api/line-param/' . $link . '?type=' . $type,
                             ],
                             'color' => '#FFFFFF'
                         ]
@@ -458,15 +542,28 @@ class LineController extends Controller
         $this->rich_change($userId, env('RICHMENU_AUTH'));
     }
 
-
     private function rich_change($userId, $richId)
     {
         Http::withToken(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'))
             ->post('https://api.line.me/v2/bot/user/' . $userId . '/richmenu/' . $richId);
     }
 
-    public function chanel($chanel)
+    public function chanel(Request $request, $chanel)
     {
-        return view('floods');
+        // return redirect('/floods');
+        // return response()->json(['success' => true, 'message' => $request->type]);
+        $type = $request->type;
+
+        if ($chanel == self::Resoure) {
+            if ($type == self::User) return redirect('/dashboard');
+            return redirect('/home-page');
+        } else if ($chanel == self::News_post && $chanel == self::News_end) {
+            return redirect('/home-page');
+        } else if ($chanel == self::Emc_request_post) {
+            return redirect('/emergency-requests/requests');
+        } else if ($chanel == self::Emc_request_post_team) {
+        } else if ($chanel == self::Emc_assigned) {
+        } else if ($chanel == self::Emc_success) {
+        }
     }
 }

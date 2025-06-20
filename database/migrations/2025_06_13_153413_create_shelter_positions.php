@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * php artisan migrate --path=/database/migrations/2025_06_13_153413_create_shelter_positions.php
      */
     public function up(): void
     {

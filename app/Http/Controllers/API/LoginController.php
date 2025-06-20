@@ -7,6 +7,7 @@ use App\Enums\RegistrationType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Responses\ApiResponse;
+use App\Models\LineUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,8 +49,19 @@ class LoginController extends Controller
     {
         $user = User::where('username', Str::lower($request->username))->first();
         if ($user && Hash::check($request->password, $user->password)) {
-            $user->line_token = $request->userId;
-            $user->update();
+            $lineUser = LineUser::where('token_id', $request->userId)->first();
+
+            if ($lineUser) {
+                if ($lineUser->user_id) {
+                    return ApiResponse::errorResponse('ready', Response::HTTP_BAD_REQUEST);
+                }
+                $lineUser->update(['user_id' => $user->id]);
+            } else {
+                LineUser::create([
+                    'token_id' => $request->userId,
+                    'user_id' => $user->id
+                ]);
+            }
             (new LineController)->user_login($request->userId, __('line.welcome'));
             return ApiResponse::customSuccessResponse('Login Successful');
         }
