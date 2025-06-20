@@ -22,11 +22,24 @@ class CreateProductReqRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'shelter_id' => 'required|exists:shelters,id',
             'products' => 'required|array',
+            'shelter_id' => 'required|exists:shelters,id',
             'products.*.product_id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer',
-            // 'product.*.shelter_id' => 'required|exists:shelters,id',
+            'products.*.quantity' => 'nullable|integer',
+            'products.*.no_quantity' => 'nullable|integer'
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $products = $this->input('products', []);
+        foreach ($products as $key => $product) {
+            if (!isset($product['quantity']) || is_null($product['quantity'])) {
+                $products[$key]['no_quantity'] = 1;
+            }
+        }
+        $this->merge([
+            'products' => $products,
+        ]);
     }
 }

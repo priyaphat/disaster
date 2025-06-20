@@ -9,6 +9,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Product;
 use App\Services\ImageService;
 use App\Services\ProductService;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -24,6 +25,9 @@ class ProductController extends Controller
     /**
      * Display a listing of the product | แสดงรายการทรัพยากร
      */
+    #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "มาม่า")]
+    #[QueryParameter('unit_id', description: 'ค้นหาตามหน่วย ดึงหน่วยจาก api unit.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/unit.index', type: 'string', example: "1")]
+    #[QueryParameter('category_id', description: 'ค้นหาตามประเภท ดึงประเภทจาก api category.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/category.index', type: 'string', example: "2")]
     public function index(Request $request)
     {
         $products = $this->productService->getList($request->all());

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('unit_id')->nullable();
             $table->unsignedBigInteger('category_id');
             $table->string('detail', 255)->nullable();
-            $table->integer('quantity')->nullable()->default(0);
+            $table->integer('quantity')->nullable();
             $table->integer('no_quantity')->nullable();
             $table->integer('status')->default(1);
             $table->timestamps();
@@ -41,7 +41,8 @@ return new class extends Migration
         Schema::create('product_requests', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id');
-            $table->integer('quantity')->default(0);
+            $table->integer('quantity')->nullable();
+            $table->integer('no_quantity')->nullable();
             $table->unsignedBigInteger('shelter_id');
             $table->tinyInteger('status')->default(1)->comment('0 - ยุติคำขอ, 1 - รออนุมัติ, 2 - อนุมัติ');
             $table->timestamps();

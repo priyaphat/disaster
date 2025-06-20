@@ -12,6 +12,7 @@ use App\Services\ImageService;
 use App\Services\PopulationService;
 use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 
 class ShelterController extends Controller
@@ -26,6 +27,10 @@ class ShelterController extends Controller
         $this->transferLogService = $transferLogService;
     }
 
+    #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "Shelter 00")]
+    #[QueryParameter('status', description: 'ค้นหาตามสถานะการเปิด-ปิด ศูนย์พักพิง 0 = ปิด 1 = เปิด', type: 'string', example: "1")]
+    #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
+    #[QueryParameter('district_code', description: 'ค้นหาตามอำเภอ', type: 'string', example: "5701")]
     public function index(Request $request)
     {
         $data = $this->shelterService->getList($request->all());

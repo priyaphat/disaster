@@ -226,6 +226,7 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/product-request', [ProductRequestController::class, 'index']);
     Route::post('/product-request', [ProductRequestController::class, 'store']);
+    Route::post('/product-request/{product_req}', [ProductRequestController::class, 'update']);
 
     /*
     |--------------------------------------------------------------------------

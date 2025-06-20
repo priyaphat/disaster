@@ -15,6 +15,7 @@ use App\Models\TransferHistory;
 use App\Services\ShelterService;
 use App\Services\ShelterStaffService;
 use App\Services\TransferHistoryService;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 
 class ShelterStaffController extends Controller
@@ -28,6 +29,11 @@ class ShelterStaffController extends Controller
         $this->transferLogService = $transferLogService;
     }
 
+    #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "ไก่ ทอด")]
+    #[QueryParameter('position', description: 'ค้นหาตามตำแหน่ง https://disaster-backend.gentechsoft.tech/api/docs#/operations/position.index ', type: 'string', example: "1")]
+    #[QueryParameter('shelter_position', description: 'ค้นหาตามตำแหน่งในศูนย์ https://disaster-backend.gentechsoft.tech/api/docs#/operations/shelterPosition.index', type: 'string', example: "3")]
+    #[QueryParameter('shelter_id', description: 'ค้นหาตามศูนย์', type: 'string', example: "2")]
+    #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
         $data = $this->shelterstaffService->getList($request->all());

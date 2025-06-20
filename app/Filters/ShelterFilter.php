@@ -17,15 +17,15 @@ class ShelterFilter extends QueryFilter
         return $this->builder->where('status', $value);
     }
 
-    public function action_type($value)
-    {
-        return $this->builder->where('action_type', $value);
-    }
+    // public function action_type($value)
+    // {
+    //     return $this->builder->where('action_type', $value);
+    // }
 
-    public function year($value)
-    {
-        return $this->builder->whereYear('created_at', $value);
-    }
+    // public function year($value)
+    // {
+    //     return $this->builder->whereYear('created_at', $value);
+    // }
 
     public function sort($value)
     {
