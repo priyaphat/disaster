@@ -8,6 +8,8 @@ use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Mail\ApproveEmail;
+use App\Mail\RejectEmail;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use App\Models\UserApproval as Approval;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class UserService
@@ -109,8 +112,10 @@ class UserService
         if ($data['is_approved'] == ApprovalStatus::REJECT->value) {
             $user->image->delete();
             $this->delete($user);
+            Mail::to($user->email)->send(new RejectEmail($user));
         } else {
             $approval->update($data);
+            Mail::to($user->email)->send(new ApproveEmail($user));
         }
 
         return $approval;

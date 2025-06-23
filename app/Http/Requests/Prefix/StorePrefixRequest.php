@@ -22,6 +22,11 @@ class StorePrefixRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ชื่อคำนำหน้า
+             * @var string
+             * @example "นางสาว"
+             */
             'name' => 'required|unique:prefixes,name|max:255'
         ];
     }

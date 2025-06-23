@@ -26,8 +26,23 @@ class StoreTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ชื่อทีม
+             * @var string
+             * @example "ทีมงานประสบภัย"
+             */
             'name' => ['required', 'max:255'],
+            /**
+             * หัวหน้าทีม : user_id | เอามาจาก users
+             * @var integer
+             * @example 1
+             */
             'leader_id' => ['required', 'exists:users,id', new CheckUserExistsInTeam()],
+            /**
+             * สมาชิกในทีม : user_id | เอามาจาก users
+             * @var array
+             * @example [1,2,3]
+             */
             'members' => ['required', 'array'],
             'members.*' => ['required', 'exists:users,id', 'distinct', new CheckUserExistsInTeam(), new CheckDuplicateMember($this->input('leader_id'))]
         ];
@@ -38,7 +53,7 @@ class StoreTeamRequest extends FormRequest
         $leader = $this->input('leader_id');
         $members = $this->input('members');
         $mergedMember = collect([$leader])->merge($members);
-        
+
         // Define index = 0 is leader
         $memberArray = $mergedMember->map(function ($item, $index) {
             return [

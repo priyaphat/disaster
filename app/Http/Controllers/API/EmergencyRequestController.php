@@ -8,7 +8,10 @@ use App\Http\Responses\ApiResponse;
 use App\Models\EmergencyRequest;
 use App\Services\EmergencyRequestService;
 use App\Http\Requests\EmergencyRequestRequest;
-use App\Enums\CancellationReason;
+use Dedoc\Scramble\Attributes\PathParameter;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\UnauthorizedException;
 
 class EmergencyRequestController extends Controller
 {
@@ -61,6 +64,7 @@ class EmergencyRequestController extends Controller
     /**
      * Emergency request | ดึงข้อมูล id , phone  .
      */
+    #[PathParameter('emc', description: 'Phone or id | เบอร์โทรหรือ id', type: 'string', example: '0987654321')]
     public function emcRequestBy(Request $request, $emc = null)
     {
         $data = $this->emergencyRequestService->emcRequestBy($request, $emc); //phone & id
@@ -68,7 +72,7 @@ class EmergencyRequestController extends Controller
     }
 
     /**
-     * Emergency request | สร้าง  ตัวแปร / ปุ้ย .
+     * Emergency request | สร้างรายการแจ้งเหตุฉุกเฉิน  ตัวแปร / ปุ้ย .
      */
     public function store(EmergencyRequestRequest $request)
     {
@@ -77,7 +81,7 @@ class EmergencyRequestController extends Controller
     }
 
     /**
-     * Emergency request | อัพเดต  ตัวแปร / ปุ้ย .
+     * Emergency request | อัพเดตรายการแจ้งเหตุฉุกเฉิน  ตัวแปร / ปุ้ย .
      */
     public function update(EmergencyRequestRequest $request, EmergencyRequest $emergencyRequest)
     {

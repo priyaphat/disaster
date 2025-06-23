@@ -22,7 +22,18 @@ class FilterTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ค้นหา
+             * @var string
+             * @example "ทีมงาน"
+             */
             'search' => 'nullable',
+             /**
+             * ถ้าส่งตัวแปร paginate มาจะเป็น paginate ถ้าไม่ส่งจะเป็น list
+             * @var integer
+             * @example 10
+             */
+            'paginate' => 'nullable',
         ];
     }
 }

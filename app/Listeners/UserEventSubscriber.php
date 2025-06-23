@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Enums\ApprovalStatus;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
+use App\Mail\RegisterEmail;
 use App\Mail\UserPasswordEmail;
 use App\Models\UserApproval as Approval;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,8 @@ class UserEventSubscriber
             'is_approved' => ApprovalStatus::PENDING->value
         ];
         $this->createApproval($data);
+        // Send email to user
+        Mail::to($event->user->email)->send(new RegisterEmail($event->user));
     }
 
 

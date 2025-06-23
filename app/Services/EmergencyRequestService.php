@@ -11,6 +11,8 @@ use App\Http\Utility\PaginateUtility;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Support\Facades\Auth;
 
 class EmergencyRequestService
 {
@@ -28,12 +30,20 @@ class EmergencyRequestService
 
     public function emcRequestBy($request, $search = null)
     {
-        $prefix = Prefix::all()->keyBy('id');
+        if(!Auth::check() && !$search){
+            throw new AuthenticationException();
+        }
 
+        $searchArr = ['phone'];
+        if(Auth::check()){
+            $searchArr = ['phone', 'id'];
+        }
+
+        $prefix = Prefix::all()->keyBy('id');
         $items = EmergencyRequest::query()->when(
             $search,
             fn($q) =>
-            $q->whereAny(['phone', 'id'], $search)
+            $q->whereAny($searchArr, $search)
         )
             ->with('prefix', 'disaster', 'reason', 'geography')
             ->get()
@@ -50,8 +60,9 @@ class EmergencyRequestService
                 $item->victim_name = $victimName;
                 return $item;
             });
+            
         if ($request->paginate) return PaginateUtility::Paginate($items);
-        return $items[0];
+        return $items[0] ?? [];
     }
 
     public function show($emc, $type = null)

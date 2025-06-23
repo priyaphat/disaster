@@ -27,7 +27,7 @@ class PreviewMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome Mail',
+            subject: 'NONAME',
         );
     }
 
@@ -37,7 +37,7 @@ class PreviewMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.userPassword',
+            markdown: 'emails.approve',
         );
     }
 

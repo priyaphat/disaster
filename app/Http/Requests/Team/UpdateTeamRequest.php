@@ -28,8 +28,23 @@ class UpdateTeamRequest extends FormRequest
         $id = $this->route('team')->id;
 
         return [
+            /**
+             * ชื่อทีม
+             * @var string
+             * @example "ทีมงานประสบภัย แก้ไข"
+             */
             'name' => ['required', 'max:255'],
+            /**
+             * หัวหน้าทีม : user_id | เอามาจาก users
+             * @var integer
+             * @example 1
+             */
             'leader_id' => ['required', 'exists:users,id', new CheckUserExistsInTeam($id)],
+            /**
+             * สมาชิกในทีม : user_id | เอามาจาก users
+             * @var array
+             * @example [1,2,3]
+             */
             'members' => ['required', 'array'],
             'members.*' => ['required', 'exists:users,id', 'distinct', new CheckUserExistsInTeam($id), new CheckDuplicateMember($this->input('leader_id'))]
         ];

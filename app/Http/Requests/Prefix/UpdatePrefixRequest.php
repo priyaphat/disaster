@@ -23,6 +23,11 @@ class UpdatePrefixRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ชื่อคำนำหน้า
+             * @var string
+             * @example "นาง"
+             */
             'name' => ['required', 'max:255', Rule::unique('prefixes', 'name')->ignore($this->route('prefix')->id, 'id'),]
         ];
     }

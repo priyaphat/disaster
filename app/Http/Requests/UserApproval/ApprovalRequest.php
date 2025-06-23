@@ -24,7 +24,17 @@ class ApprovalRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ID ของผู้ใช้งาน
+             * @var integer
+             * @example 1
+             */
             'user_id' => ['required', 'exists:users,id'],
+            /**
+             * สถานะอนุมัติคำขอลงทะเบียน (1 อนุมัติ, 2 ปฏิเสธ)
+             * @var integer
+             * @example 1
+             */
             'is_approved' => ['required', Rule::enum(ApprovalStatus::class)],
         ];
     }

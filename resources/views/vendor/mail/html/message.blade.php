@@ -12,7 +12,7 @@
 {{-- Salutation --}}
 <p>
 ขอแสดงความนับถือ,<br>
-สำนักพยาบาลศาสตร์ มหาวิทยาลัยแม่ฟ้าหลวง
+องค์การบริหารส่วนจังหวัดเชียงราย
 </p>
 
 {{-- Subcopy --}}
@@ -26,7 +26,7 @@
 {{-- Footer --}}
 <x-slot:footer>
 <x-mail::footer>
-© {{ date('Y') }} {{ config('app.name') }}. {{ __('All rights reserved.') }}
+<!-- © {{ date('Y') }} {{ config('app.name') }}. {{ __('All rights reserved.') }} -->
 </x-mail::footer>
 </x-slot:footer>
 </x-mail::layout>

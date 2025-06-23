@@ -22,10 +22,34 @@ class SearchAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ค้นหา
+             * @var string
+             */
             'search' => 'nullable|string',
-            'type' => 'nullable',
+            /**
+             * ประเภทของการแสดงผล [1 : ปฏิทิน, 2: ตาราง]
+             * @var integer
+             * @example 1
+             */
+            'type' => 'nullable|in:1,2',
+            /**
+             * เดือนที่ต้องการค้นหา
+             * @var string
+             * @example '2025-06'
+             */
             'selected_month' => 'nullable|date_format:Y-m',
+            /**
+             * ID ของศูนย์พักพิงที่ต้องการดู
+             * @var integer
+             * @example 1
+             */
             'shelter_id' => 'nullable|exists:shelters,id',
+            /**
+             * ID ของทีมที่ต้องการดู
+             * @var integer
+             * @example 1
+             */
             'team_id' => 'nullable|exists:teams,id',
         ];
     }

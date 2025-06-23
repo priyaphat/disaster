@@ -22,10 +22,35 @@ class StoreAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * วันที่ที่ต้องการนัดหมาย
+             * @var string
+             * @example 2025-06-01
+             */
             'appointment_date' => 'required|date|date_format:Y-m-d',
+             /**
+             * เวลาเริ่มต้น
+             * @var string
+             * @example 08:30
+             */
             'start_time' => 'required|date_format:H:i',
+            /**
+             * เวลาสิ้นสุด
+             * @var string
+             * @example 11:30
+             */
             'end_time'   => 'required|date_format:H:i|after:start_time',
+            /**
+             * ID ของศูนย์พักพิงที่ต้องการนัดหมาย
+             * @var integer
+             * @example 1
+             */
             'shelter_id' => 'required|exists:shelters,id',
+            /**
+             * ID ของทีมที่ต้องการนัดหมาย
+             * @var integer
+             * @example 1
+             */
             'team_id' => 'required|exists:teams,id'
         ];
     }

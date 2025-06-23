@@ -61,6 +61,7 @@ Route::get('/private/{fileName}', [FileController::class, 'servePrivate'])->wher
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
 Route::get('/prefixes', [PrefixController::class, 'index']);
+Route::get('/emc-requests/{emc?}', [EmergencyRequestController::class, 'emcRequestBy']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -286,7 +287,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
-    Route::get('/emc-requests/{emc?}', [EmergencyRequestController::class, 'emcRequestBy']);
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
     Route::post('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);

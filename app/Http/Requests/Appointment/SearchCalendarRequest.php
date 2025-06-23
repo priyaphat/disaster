@@ -23,8 +23,23 @@ class SearchCalendarRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * วันที่ที่ต้องการค้นหา
+             * @var string
+             * @example 2025-06-01
+             */
             'selected_date' => 'nullable|date_format:Y-m-d',
+            /**
+             * ID ของศูนย์พักพิงที่ต้องการดู
+             * @var integer
+             * @example 1
+             */
             'shelter_id' => 'nullable|exists:shelters,id',
+            /**
+             * ID ของทีมที่ต้องการดู
+             * @var integer
+             * @example 1
+             */
             'team_id' => 'nullable|exists:teams,id',
         ];
     }
