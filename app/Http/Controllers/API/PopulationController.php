@@ -17,6 +17,7 @@ use App\Services\ImageService;
 use App\Services\PopulationService;
 use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
+use Illuminate\Support\Facades\Http;
 
 class PopulationController extends Controller
 {
@@ -132,5 +133,11 @@ class PopulationController extends Controller
         } else {
             return ApiResponse::errorResponse(__('ไม่พบประชากร'));
         }
+    }
+
+    public function addexternalpop()
+    {
+        $data = $this->populationService->addexternalpopulation();
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

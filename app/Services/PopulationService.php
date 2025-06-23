@@ -2,12 +2,17 @@
 
 namespace App\Services;
 
+use App\Enums\GenderId;
+use App\Enums\PrefixId;
 use App\Http\Resources\PopulationResource;
 use App\Http\Resources\PopulationShowResource;
 use App\Models\Population;
+use App\Models\Prefix;
 use App\Models\Shelter;
+use Carbon\Carbon;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Http;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PopulationService
@@ -89,5 +94,64 @@ class PopulationService
         $shelter = Shelter::find($id);
         $populationCount = Population::where('shelter_id', $id)->count();
         return $populationCount >= $shelter->max_capacity;
+    }
+
+    public function addexternalpopulation()
+    {
+        //Uncomment if timeout
+        // ini_set('max_execution_time', 600);
+        $url = 'https://shingeometics.com/webgis/healthGIS/survey/sample_point.php';
+        try {
+            $response = Http::get($url);
+
+            if ($response->successful()) {
+                $json = $response->json();
+                $datas = $json['features'];
+
+                foreach ($datas as $data) {
+                    $data = $data['properties'];
+
+                    $prefix_id = PrefixId::from($data['title'])->label();
+                    $name = explode(' ', $data['name']);
+                    $first_name = $name[0] ?? '';
+                    $last_name = $name[1] ?? '';
+                    $birth_date = Carbon::parse($data['date_of_birth'])->format('Y-m-d');
+                    $gender_id = GenderId::label($prefix_id)->value;
+                    $sequence_id = $data['id'];
+                    $phone = $data['tel'] ?? '';
+
+                    $isOnDB = Population::where('prefix_id', $prefix_id)
+                        ->where('first_name', $first_name)
+                        ->where('last_name', $last_name)
+                        ->whereDate('birth_date', $birth_date)
+                        ->first();
+
+                    if (!$isOnDB) {
+                        Population::create([
+                            'prefix_id' => $prefix_id,
+                            'first_name' => $first_name,
+                            'last_name' => $last_name,
+                            'birth_date' => $birth_date,
+                            'gender' => $gender_id,
+                            'phone' => $phone,
+                            'p_address' => null,
+                            'p_geography_id' => null,
+                            'c_address' => null,
+                            'c_geography_id' => null,
+                            'sequence_id' => $sequence_id,
+                            'shelter_id' => null,
+                            'line_token' => null,
+                            'created_date' => Carbon::now(),
+                        ]);
+                    }
+                }
+
+                return $datas;
+            } else {
+                throw new \Exception('External API error: ' . $response->status());
+            }
+        } catch (\Throwable $e) {
+            throw new \Exception('Cannot fetch external population: ' . $e->getMessage());
+        }
     }
 }
