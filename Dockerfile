@@ -4,7 +4,7 @@ FROM php:8.3-fpm
 ARG user
 ARG uid
 
-# Install system dependencies , PHP extensions and Clear cache
+# Install system dependencies, PHP extensions, Node.js, and npm
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
+    # Install Node.js 20.x and npm
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*

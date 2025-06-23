@@ -13,13 +13,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ResetPasswordController extends Controller
 {
-     /**
+    /**
      * Handle token in reset link.
      *
      * @param \Illuminate\Http\Request $request
@@ -33,22 +34,23 @@ class ResetPasswordController extends Controller
         $resetPassword = DB::table('password_reset_tokens')->where('email', '=', $email)->first();
 
         if (!$resetPassword) {
-            throw new ModelNotFoundException();
+            return Redirect::to('/link-expired');
         }
 
         if (!Hash::check($token, $resetPassword->token)) {
-            throw new BadRequestHttpException(__('passwords.token'));
+            return Redirect::to('/link-expired');
         }
 
-        // Check if the token has expired
+        // // Check if the token has expired
         $expiration = config('auth.passwords.' . config('auth.defaults.passwords') . '.expire');
-        $datetime = $resetPassword['created_at']->toDateTime();
+        $datetime = Carbon::parse($resetPassword->created_at)->toDateTime();
         $isExpired = Carbon::parse($datetime)->addMinutes($expiration)->isPast();
         if ($isExpired) {
-            throw new BadRequestHttpException(__('passwords.token_expired'));
+            return Redirect::to('/link-expired');
         }
-        
-        return ApiResponse::successResponse(__('success.data'));
+
+        $url = url()->query('/change-password/' . $token, ['email' => $email]);
+        return Redirect::to($url);
     }
 
     /**
@@ -71,7 +73,7 @@ class ResetPasswordController extends Controller
                 event(new PasswordReset($user));
             }
         );
-    
+
         return $status === Password::PasswordReset
             ? ApiResponse::successResponse(__($status))
             : ApiResponse::errorResponse(__($status), Response::HTTP_OK);
