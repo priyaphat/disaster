@@ -27,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
+    )->withBroadcasting(
+        __DIR__ . '/../routes/channels.php',
+        ['prefix' => 'api', 'middleware' => ['api', 'auth:api']]
     )
     ->withMiddleware(function (Middleware $middleware) {
         //
@@ -46,9 +49,8 @@ return Application::configure(basePath: dirname(__DIR__))
             return $request->expectsJson();
         });
 
-
         $exceptions->render(function (ValidationException $exception) {
-            return ApiResponse::customErrorResponse($exception->getMessage(), ['errors' => $exception->errors()], null, Response::HTTP_UNPROCESSABLE_ENTITY);
+            return ApiResponse::customErrorResponse(collect($exception->errors())->flatten()->first(), ['errors' => $exception->errors()], null, Response::HTTP_UNPROCESSABLE_ENTITY);
         });
 
         $exceptions->render(function (AuthorizationException $exception) {
@@ -63,8 +65,12 @@ return Application::configure(basePath: dirname(__DIR__))
             return ApiResponse::customErrorResponse(__('error.model_not_found'), [], $exception, Response::HTTP_NOT_FOUND);
         });
 
-        $exceptions->render(function (NotFoundHttpException $exception) {
-            return ApiResponse::customErrorResponse(__('error.model_not_found'), [], $exception, Response::HTTP_NOT_FOUND);
+        $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
+            $message = __('error.model_not_found');
+            if ($request->is('api/*')) {
+                $message = __('error.route_not_found');
+            }
+            return ApiResponse::customErrorResponse($message, [], $exception, Response::HTTP_NOT_FOUND);
         });
 
         $exceptions->render(function (BadRequestHttpException $exception) {
