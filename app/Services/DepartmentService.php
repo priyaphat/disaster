@@ -11,22 +11,15 @@ class DepartmentService
     /**
      * Get all news with filter and limit number.
      */
-    public function getList(array $filters = [], ?int $limit = null): Collection
+    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
-        $query = Department::query();
-        if (!empty($filters['search'])) {
-            $query->whereAny(['name'], 'LIKE', '%' . $filters['search'] . '%');
+
+        $data = Department::filter($filters)->latest();
+        if (!$paginate) {
+            return $data->get();
+        } else {
+            return $data->paginate($perPage);
         }
-
-        // Orders by 'created_at' DESC if ASC use oldest
-        $query->latest();
-
-        // limit the number of results
-        if ($limit) {
-            $query->take($limit);
-        }
-
-        return $query->get();
     }
 
     /**

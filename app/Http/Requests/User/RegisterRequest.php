@@ -56,7 +56,7 @@ class RegisterRequest extends FormRequest
             'phone' => 'required|max:10',
             'type' => ['required', Rule::enum(UserType::class)],
             'district_id' => 'required|exists:geography,district_code',
-            'department_id' => 'required|exists:departments,id',
+            'department_id' => [Rule::requiredIf($this->type == UserType), 'exists:departments,id'],
             'position_id' => 'required|exists:positions,id'
         ];
     }
