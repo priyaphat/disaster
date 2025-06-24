@@ -36,7 +36,7 @@ class UpdateUserRequest extends FormRequest
             'username' => [
                 'required',
                 'max:255',
-                'regex:/^[a-zA-Z0-9._-]*[a-zA-Z0-9]$/',
+                'regex:/^[a-zA-Z][a-zA-Z0-9._-]{3,28}[a-zA-Z0-9]$/',
                 Rule::unique('users')->where(fn(Builder $query) => $query->where('username', Str::lower($this->username)))->ignore($this->user->id)
             ],
             'prefix_id' => 'required|exists:prefixes,id',

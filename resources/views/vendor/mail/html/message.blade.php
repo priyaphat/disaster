@@ -9,12 +9,6 @@
 {{-- Body --}}
 {!! $slot !!}
 
-{{-- Salutation --}}
-<p>
-ขอแสดงความนับถือ,<br>
-องค์การบริหารส่วนจังหวัดเชียงราย
-</p>
-
 {{-- Subcopy --}}
 <x-slot:subcopy>
 <x-mail::subcopy>

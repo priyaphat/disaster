@@ -57,12 +57,12 @@ Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 Route::get('/line-test', [LineController::class, 'test']); //test
 
 
-Route::get('/private/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
+Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
 Route::get('/prefixes', [PrefixController::class, 'index']);
 Route::get('/emc-requests/{emc?}', [EmergencyRequestController::class, 'emcRequestBy']);
-
+Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
 Route::middleware('auth:api')->group(function () {
 
     Route::post('/change-password', [UserController::class, 'changePassword']);
@@ -104,6 +104,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/users', [UserController::class, 'index']); // All users
+    Route::get('/users/available', [UserController::class, 'selectable']); // All users
     // Route::get('/users', [UserController::class, 'list']);
     Route::get('/user/{user}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
@@ -291,7 +292,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
     Route::post('/emc-requests-history', [EmergencyRequestController::class, 'show_history']);
-    Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
     Route::post('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'update']);
     Route::delete('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'destroy']);
 

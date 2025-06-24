@@ -38,6 +38,15 @@ class UserController extends Controller
     }
 
     /**
+     * Display a listing of the users for team | รายการผู้ใช้งาน.
+     */
+    public function selectable(FilterUserRequest $request)
+    {
+        $data = $this->userService->selectableUsers($request->all());
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    /**
      * Create a user | เพิ่มผู้ใช้งาน
      */
     public function store(StoreUserRequest $request)
@@ -119,7 +128,7 @@ class UserController extends Controller
     public function approve(ApprovalRequest $request)
     {
         //
-        $data = $this->userService->approve($request->all());
-        return ApiResponse::successResponse(__('success.updated'), $data);
+        $message = $this->userService->approve($request->all());
+        return ApiResponse::successResponse($message);
     }
 }

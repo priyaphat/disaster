@@ -8,6 +8,7 @@ use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UserSelectResource;
 use App\Mail\ApproveEmail;
 use App\Mail\RejectEmail;
 use App\Models\User;
@@ -41,6 +42,13 @@ class UserService
             $paginate = $data->setCollection(UserResource::collection($data->items())->collection);
             return $paginate;
         }
+    }
+
+    public function selectableUsers(array $filters = [])
+    {
+        $filters['approve'] = 'success';
+        $data = $this->baseQuery($filters)->select('id','prefix_id', 'firstname', 'lastname')->whereDoesntHave('member')->latest()->get();
+        return UserSelectResource::collection($data);
     }
 
     public function getById(int $id): User
@@ -95,7 +103,7 @@ class UserService
     /**
      * Update a Approval.
      */
-    public function approve(array $data): Approval
+    public function approve(array $data)
     {
         $approval = Approval::where('user_id', $data['user_id'])->first();
         $user = $this->getById($data['user_id']);
@@ -113,12 +121,12 @@ class UserService
             $user->image->delete();
             $this->delete($user);
             Mail::to($user->email)->send(new RejectEmail($user));
+            return __('success.approval.reject');
         } else {
             $approval->update($data);
             Mail::to($user->email)->send(new ApproveEmail($user));
+            return __('success.approval.approve');
         }
-
-        return $approval;
     }
 
     /**

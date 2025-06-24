@@ -4,4 +4,8 @@
 
 <h1 class="text-center margin">รหัสผ่านของคุณ คือ {{$password ?? 'xxxxxxxxxxxx'}}</h1>
 
+<p>
+ขอแสดงความนับถือ<br>
+องค์การบริหารส่วนจังหวัดเชียงราย
+</p>
 </x-mail::message>

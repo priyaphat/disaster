@@ -29,9 +29,16 @@ class Image extends Model
 
     protected function imagePath(): Attribute
     {
-        return new Attribute(
-            get: fn() => $this->image_type === self::PUBLIC ?
-                Storage::disk('public')->url($this->image_url) : url('api/private/' . $this->image_url)
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                if ($attributes['image_name'] === 'default.png') {
+                    return Storage::disk('public')->url('default.png');
+                } elseif ($attributes['image_type'] === self::PUBLIC) {
+                    return Storage::disk('public')->url($this->image_url);
+                } else {
+                    return url('api/'.$this->image_url);
+                }
+            },
         );
     }
 }

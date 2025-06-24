@@ -22,12 +22,15 @@ class LoginController extends Controller
     /**
      * Login function
      */
-    public function login(LoginRequest $request)
+    public function login(Request $request)
     {
+        if(!$request->username || !$request->password){
+            return ApiResponse::errorResponse(__('auth.required'), Response::HTTP_BAD_REQUEST);
+        }
+
         $user = User::with('approval')->where('username', Str::lower($request->username))->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
-
             if ($user->registration_type->value === RegistrationType::SELF->value) {
                 if ($user->approval?->is_approved != ApprovalStatus::APPROVED->value) {
                     return ApiResponse::errorResponse(__('auth.waiting'), Response::HTTP_BAD_REQUEST);

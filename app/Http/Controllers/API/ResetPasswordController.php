@@ -49,7 +49,7 @@ class ResetPasswordController extends Controller
             return Redirect::to('/link-expired');
         }
 
-        $url = url()->query('/change-password/' . $token, ['email' => $email]);
+        $url = url()->query('/change-password?token=' . $token, ['email' => $email]);
         return Redirect::to($url);
     }
 
@@ -76,6 +76,6 @@ class ResetPasswordController extends Controller
 
         return $status === Password::PasswordReset
             ? ApiResponse::successResponse(__($status))
-            : ApiResponse::errorResponse(__($status), Response::HTTP_OK);
+            : ApiResponse::errorResponse(__($status), Response::HTTP_BAD_REQUEST);
     }
 }

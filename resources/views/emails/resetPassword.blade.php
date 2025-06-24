@@ -4,8 +4,12 @@
 ผ่านปุ่มด้านล่างนี้ได้เลย
 
 <h1 class="text-center margin-32">อีเมลเปลี่ยนรหัสผ่านจะหมดอายุภายใน {{$countdown ?? 30}} นาที</h1>
-<x-mail::button :url="$url">
+<x-mail::button :url="$url ?? ''">
 ลืมรหัสผ่าน
 </x-mail::button>
 
+<p>
+ขอแสดงความนับถือ<br>
+องค์การบริหารส่วนจังหวัดเชียงราย
+</p>
 </x-mail::message>
