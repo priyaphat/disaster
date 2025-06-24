@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use App\Enums\UserType;
+use App\Rules\CheckFullNameExists;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -40,12 +41,12 @@ class StoreUserRequest extends FormRequest
                 Rule::unique('users')->where(fn(Builder $query) => $query->where('username', Str::lower($this->username)))
             ],
             'prefix_id' => 'required|exists:prefixes,id',
-            'firstname' => 'required|max:255',
-            'lastname' => 'required|max:255',
+            'firstname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname)],
+            'lastname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname)],
             'phone' => 'required|max:10',
             'type' => ['required', Rule::enum(UserType::class)],
             'district_id' => 'required|exists:geography,district_code',
-            'department_id' => 'required|exists:departments,id',
+            'department_id' => [Rule::requiredIf($this->type == UserType::INSIDE_AREA->value), 'exists:departments,id'],
             'position_id' => 'required|exists:positions,id'
         ];
     }
