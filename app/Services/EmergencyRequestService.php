@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\EmergencyRequest;
 use App\Enums\CancellationReason;
+use App\Http\Controllers\API\LineController;
 use App\Http\Responses\ApiResponse;
 use App\Models\EmergencyRequestLog;
 use App\Models\Prefix;
@@ -127,6 +128,8 @@ class EmergencyRequestService
         $data['victim_name'] = json_encode($data['victim_name']);
         $emc = EmergencyRequest::create($data);
         if (isset($data['reason_id'])) self::created_reason($emc->id, $data);
+        $name = ['name' => $data['first_name'] . ' ' . $data['last_name']];
+        (new LineController)->LineNotification($name, LineController::Emc_request_post);
         return $emc;
     }
 
