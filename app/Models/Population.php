@@ -42,6 +42,7 @@ class Population extends Model
         'status',
         'shelter_id',
         'tracking',
+        'sequence_id',
         'line_token',
         'created_date',
         'created_by',
@@ -56,7 +57,7 @@ class Population extends Model
         'create_date' => 'datetime',
     ];
 
-    protected $hidden = ['p_geography_id', 'c_geography_id'];
+    protected $hidden = ['p_geography_id', 'c_geography_id', 'sequence_id'];
 
     public function getActivitylogOptions(): LogOptions
     {

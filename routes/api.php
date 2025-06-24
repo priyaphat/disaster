@@ -189,6 +189,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/population/exit/{population}', [PopulationController::class, 'exit']);
     Route::post('/population/exit-all', [PopulationController::class, 'exitall']);
     Route::post('/population-check', [PopulationController::class, 'checkpopulation']);
+    Route::post('/population-add', [PopulationController::class, 'addexternalpop']);
 
     /*
     |--------------------------------------------------------------------------
