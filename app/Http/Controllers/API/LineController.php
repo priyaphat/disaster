@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Config;
 
 class LineController extends Controller
 {
@@ -17,29 +18,29 @@ class LineController extends Controller
     public const Population = 1;
     public const User = 7;
 
-    public const Disaster_post = 1;
-    public const Disaster_end = 2;
-    public const Shelter_post = 3;
-    public const Shelter_end = 4;
-    public const Damaged_utility_post = 5;
-    public const Damaged_utility_end = 6;
-    public const Resoure = 7;
-    public const News_post = 8;
-    public const News_end = 9;
-    public const Emc_request_post = 10;
-    public const Emc_request_post_team = 11;
-    public const Emc_request_end = 12;
-    public const Emc_assigned = 13;
-    public const Emc_success = 14;
-    public const User_register = 15;
-    public const User_on = 16;
-    public const User_off = 17;
-    public const User_join = 18;
-    public const User_leave = 19;
-    public const Appointment = 20;
-    public const Appointment_update = 21;
-    public const Appointment_canceled = 22;
-    public const Emc_unsuccess = 23;
+    public const Disaster_post = 1; //แจ้งเตือน ยุติเหตุภัยพิบัติ
+    public const Disaster_end = 2; //
+    public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง
+    public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง
+    public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย
+    public const Damaged_utility_end = 6; //
+    public const Resoure = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
+    public const News_post = 8; //แจ้งเตือน ยุติเหตุภัยพิบัติ
+    public const News_end = 9; //
+    public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ req id
+    public const Emc_request_post_team = 11; //แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ) req id
+    public const Emc_request_end = 12; // แจ้งเตือน รายการรอช่วยเหลือถูกยกเลิก (ส่งให้หัวหน้าทีมที่เกี่ยวข้อง) req id
+    public const Emc_assigned = 13; // แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้สมาชิกในทีมที่เกี่ยวข้องเมื่ออนุมัติสำเร็จ) req id
+    public const User_register = 15; //แจ้งเตือน คำร้องขอลงทะเบียนใหม่ req id
+    public const User_on = 16; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ศูนย์พักพิง req id
+    public const User_off = 17; //
+    public const User_join = 18; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่ req id
+    public const User_leave = 19; //
+    public const Appointment = 20; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id
+    public const Appointment_update = 21; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
+    public const Appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
+    public const Emc_success = 14; //แจ้งเตือน รายงานผลการช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ)) req id
+    public const Emc_unsuccess = 23; //
 
     public function handle(Request $request)
     {
@@ -104,6 +105,8 @@ class LineController extends Controller
 
     public function test()
     {
+
+
         $data = [
             'product' => 'น้ำ 600 มล.(แพ็ก)',
             'shelter' => [
@@ -115,33 +118,46 @@ class LineController extends Controller
         ];
         // $recipint = ['Uaa3e2b17e373580b16101b64937e4a39'];
 
-        return self::LineNotification($data, self::Resoure);
+        return self::LineNotification($data, self::Disaster_post);
     }
 
-    public function LineNotification(array $data, $form, $recipint = null)
+    public function LineNotification(array $data = null, $form, $recipint = null)
     {
+
+        $config = Config::WhereJsonContains('description->line_type', $form)
+            ->where('type', 0)
+            ->first();
+
         if ($recipint) {
-
-            $message = self::form_box($form, $data, self::Population);
-            self::broadcast_multi($recipint, $message);
-        } else {
-            $line = LineUser::all();
-
-            $hasUser = $line
-                ->filter(fn($item) => !is_null($item->user_id))
-                ->pluck('token_id');
-
-            if ($hasUser->isNotEmpty()) {
-                $message = self::form_box($form, $data, self::User);
-                self::broadcast_multi($hasUser, $message);
+            if ($config) { // check config
+                if ($config->description['user']) {
+                    $message = self::form_box($form, $data, self::User);
+                    self::broadcast_multi($recipint, $message);
+                }
             }
+        } else {
+            $line = LineUser::all(); // ยังไม่ได้กำหนด เฉพาะกลุ่ม
 
-            $noUser = $line->filter(fn($item) =>
-            is_null($item->user_id))->pluck('token_id');
+            if ($config) { // check config
+                if ($config->description['user']) {
+                    $hasUser = $line
+                        ->filter(fn($item) => !is_null($item->user_id))
+                        ->pluck('token_id');
 
-            if ($noUser->isNotEmpty()) {
-                $message = self::form_box($form, $data, self::Population);
-                self::broadcast_multi($noUser, $message);
+                    if ($hasUser->isNotEmpty()) { // check user empty
+                        $message = self::form_box($form, $data, self::User);
+                        self::broadcast_multi($hasUser, $message);
+                    }
+                }
+                if ($config->description['population']) {
+                    $noUser = $line->filter(fn($item) =>
+                    is_null($item->user_id))->pluck('token_id');
+
+                    if ($noUser->isNotEmpty()) {
+                        $message = self::form_box($form, $data, self::Population);
+                        self::broadcast_multi($noUser, $message);
+                    }
+                }
             }
         }
 
@@ -518,7 +534,7 @@ class LineController extends Controller
     {
         return [
             'type' => 'flex',
-            'altText' => 'ข้อความแจ้งเตือนใหม่',
+            'altText' => '📢 ข่าวประชาสัมพันธ์',
             'contents' => [
                 'type' => 'bubble',
                 'body' => [
@@ -550,20 +566,20 @@ class LineController extends Controller
 
     public function chanel(Request $request, $chanel)
     {
-        // return redirect('/floods');
         // return response()->json(['success' => true, 'message' => $request->type]);
         $type = $request->type;
 
         if ($chanel == self::Resoure) {
             if ($type == self::User) return redirect('/dashboard');
             return redirect('/home-page');
-        } else if ($chanel == self::News_post && $chanel == self::News_end) {
+        } else if ($chanel == self::News_post || $chanel == self::News_end) {
             return redirect('/home-page');
         } else if ($chanel == self::Emc_request_post) {
             return redirect('/emergency-requests/requests');
-        } else if ($chanel == self::Emc_request_post_team) {
-        } else if ($chanel == self::Emc_assigned) {
+        } else if ($chanel == self::Emc_request_post_team || $chanel == self::Emc_assigned) {
+            return redirect('/emergency-requests/waiting-lists-for-help');
         } else if ($chanel == self::Emc_success) {
+        } else if ($chanel == self::Emc_unsuccess) {
         }
     }
 }

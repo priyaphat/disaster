@@ -54,6 +54,7 @@ class ConfigController extends Controller
             'description' => 'nullable|array',
             'status' => 'nullable|integer|in:0,1',
         ]);
+        $data['status'] = $data['status'] ?? 0;
         $data = Config::create($data);
         return ApiResponse::successResponse(__('success.data'), $data);
     }

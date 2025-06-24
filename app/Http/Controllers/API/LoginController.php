@@ -50,8 +50,14 @@ class LoginController extends Controller
 
     public function line(LoginRequest $request)
     {
-        $user = User::where('username', Str::lower($request->username))->first();
+        $user = User::where('username', Str::lower($request->username))
+            ->leftJoin('user_approvals', 'users.id', 'user_approvals.user_id')
+            ->first();
+
         if ($user && Hash::check($request->password, $user->password)) {
+            if (!$user->is_approved) {
+                return ApiResponse::errorResponse(__('line.login_fail'), Response::HTTP_BAD_REQUEST);
+            }
             $lineUser = LineUser::where('token_id', $request->userId)->first();
 
             if ($lineUser) {

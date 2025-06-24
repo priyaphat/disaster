@@ -10,6 +10,7 @@ use App\Mail\UserPasswordEmail;
 use App\Models\UserApproval as Approval;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\API\LineController;
 
 class UserEventSubscriber
 {
@@ -39,6 +40,7 @@ class UserEventSubscriber
         $this->createApproval($data);
         // Send email to user
         Mail::to($event->user->email)->send(new RegisterEmail($event->user));
+        (new LineController)->LineNotification(null, LineController::User_register);
     }
 
 
