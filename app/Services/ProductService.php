@@ -10,7 +10,7 @@ class ProductService
 {
     public function getList(array $filters = [])
     {
-        $data = Product::filter($filters)->with('image', 'unit', 'category')->latest()->paginate(10);
+        $data = Product::filter($filters)->with('image', 'unit', 'category')->latest()->paginate($filters['per_page'] ?? 10);
         return $data->setCollection(ProductResource::collection($data->items())->collection);
     }
     

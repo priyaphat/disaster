@@ -17,6 +17,8 @@ use App\Services\ImageService;
 use App\Services\PopulationService;
 use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
+use Dedoc\Scramble\Attributes\PathParameter;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Support\Facades\Http;
 
 class PopulationController extends Controller
@@ -34,6 +36,14 @@ class PopulationController extends Controller
     /**
      * Display a listing of the team | แสดงรายชื่อประชากร
      */
+    #[QueryParameter('per_page', description: 'ส่งจำนวนข้อมูลที่ต้องการต่อหน้า', type: 'string', example: '3')]
+    #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "Railey")]
+    #[QueryParameter('gender', description: 'Filter ตามเพศ 0 = ไม่ระบุเพศ, 1 =  ชาย, 2 = หญิง', type: 'string', example: "1")]
+    #[QueryParameter('status', description: 'ค้นหาตามสถานะ 0 - เสียชีวิต , 1 - บาดเจ็บ , 2 - ปกติ', type: 'string', example: "2")]
+    #[QueryParameter('shelter', description: 'ส่งตัวแปรนี้หากต้องการหาเฉพาะผู้ประสบภัย', type: 'string')]
+    #[QueryParameter('shelter_id', description: 'ส่ง shelter_id ของศูนย์พักพิงนั้นๆ', type: 'string', example: "1")]
+    #[QueryParameter('tracking', description: 'ค้นหาตามสถานะการติดตามหลังภัยบัติ 0/1', type: 'string', example: "asc, desc, name")]
+    #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
         $data = $this->populationService->getList($request->all());
@@ -57,6 +67,7 @@ class PopulationController extends Controller
     /**
      * Display specific population | แสดงประชากรรายบุคคล
      */
+    #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function show(Population $population)
     {
         $data = $this->populationService->show($population);
@@ -66,6 +77,7 @@ class PopulationController extends Controller
     /**
      * Update population | อัพเดตข้อมูลประชากรรายบุคคล
      */
+    #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function update(UpdatePopulationRequest $request, Population $population)
     {
         $data = $this->populationService->update($population, $request->all());
@@ -76,6 +88,7 @@ class PopulationController extends Controller
     /**
      * Transfer population | ย้ายศูนย์พักพิงประชากรรายบุคคล
      */
+    #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function transfer(TransferPopulationRequest $request, Population $population)
     {
         $oldShelter_id = $population->shelter_id;
@@ -99,6 +112,7 @@ class PopulationController extends Controller
     /**
      * Exit population | นำประชากรออกจากศูนย์พักพิงรายบุคคล
      */
+    #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function exit(Population $population)
     {
         $oldShelter_id = $population->shelter_id;
@@ -111,7 +125,7 @@ class PopulationController extends Controller
     }
 
     /**
-     * Exit population | นำประชากรออกจากศูนย์พักพิงทั้งหมด
+     * Exit all population | นำประชากรออกจากศูนย์พักพิงทั้งหมด
      */
     public function exitall(ExitAllPopulationRequest $request)
     {
@@ -125,6 +139,9 @@ class PopulationController extends Controller
         return ApiResponse::successResponse(__('success.updated'));
     }
 
+    /**
+     * Check population | เช็คประชากรที่อยู่ในระบบ
+     */
     public function checkpopulation(CheckPopulationRequest $request)
     {
         $data = $this->populationService->checkpupulation($request->all());
@@ -135,6 +152,9 @@ class PopulationController extends Controller
         }
     }
 
+    /**
+     * Import population | นำเข้าประชากรจากภายนอก
+     */
     public function addexternalpop()
     {
         $data = $this->populationService->addexternalpopulation();

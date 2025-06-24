@@ -22,10 +22,35 @@ class CreateProductReqRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * Array ของทรัพยากรที่ร้องขอ
+             * @var array
+             * @example [{"product_id": 1}, {"product_id": 7, "quantity": 250}]
+             */
             'products' => 'required|array',
-            'shelter_id' => 'required|exists:shelters,id',
-            'products.*.product_id' => 'required|exists:products,id',
+            /**
+             * ส่งตัวแปร shelter_id ของศูนย์พักพิง
+             * @var string
+             * @example 3
+             */
+            'shelter_id' => 'required|string|exists:shelters,id',
+            /**
+             * ส่งตัวแปร ID ของ ทรัพยากรที่ร้องขอ เอาได้จาก https://disaster-backend.gentechsoft.tech/api/docs#/operations/product.index
+             * @var string
+             * @example 3
+             */
+            'products.*.product_id' => 'required|string|exists:products,id',
+            /**
+             * จำนวนทรัพยากรที่ร้องขอ หากไม่ระบุจำนวนให้ส่งมา null
+             * @var string
+             * @example 250
+             */
             'products.*.quantity' => 'nullable|integer',
+            /**
+             * ไม่ต้องส่งอะไรมาหลังบ้านจะ set ให้เอง
+             * @var string
+             * @example 1
+             */
             'products.*.no_quantity' => 'nullable|integer'
         ];
     }

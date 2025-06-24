@@ -22,6 +22,11 @@ class UpdateShelterPositionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ชื่อตำแหน่งที่่ต้องการแก้ไข
+             * @var string
+             * @example พลเรือเอก
+             */
             'name' => 'required|unique:shelter_staff_positions,name|max:255',
         ];
     }

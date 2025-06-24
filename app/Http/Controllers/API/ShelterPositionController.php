@@ -8,6 +8,7 @@ use App\Http\Requests\ShelterPosition\UpdateShelterPositionRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\ShelterPosition;
 use App\Services\ShelterPositionService;
+use Dedoc\Scramble\Attributes\PathParameter;
 use Illuminate\Http\Request;
 
 class ShelterPositionController extends Controller
@@ -18,8 +19,9 @@ class ShelterPositionController extends Controller
     {
         $this->shelterpositionService = $shelterpositionService;
     }
+    
     /**
-     * Display a listing of the shelter  position.
+     * Display a listing of position in shelter| แสดงรายการตำแน่งในศูนย์พักพิง
      */
     public function index()
     {
@@ -29,7 +31,7 @@ class ShelterPositionController extends Controller
     }
 
     /**
-     * Created shelter  position
+     * Created shelter position| สร้างตำแหน่งในศูนย์พักพิง
      */
     public function store(CreateShelterPositionRequest $request)
     {
@@ -39,8 +41,9 @@ class ShelterPositionController extends Controller
     }
 
     /**
-     * Update the specified shelter  position
+     * Update the specified shelter position| แก้ไขชื่อตำแหน่ง
      */
+    #[PathParameter('shelterposition', description: 'ส่ง id ของ shelter_positions', type: 'string', example: '3')]
     public function update(UpdateShelterPositionRequest $request, ShelterPosition $shelterposition)
     {
         //
@@ -49,8 +52,9 @@ class ShelterPositionController extends Controller
     }
 
     /**
-     * Remove the specified shelter  position
+     * Remove the specified shelter  position| ลบตำแหน่งภายในศูนย์
      */
+    #[PathParameter('shelterposition', description: 'ส่ง id ของ shelter_positions', type: 'string', example: '5')]
     public function destroy(ShelterPosition $shelterposition)
     {
         //

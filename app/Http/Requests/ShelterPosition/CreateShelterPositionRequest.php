@@ -22,6 +22,11 @@ class CreateShelterPositionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ชื่อตำแหน่งที่่ต้องการสร้าง
+             * @var string
+             * @example พลอากาศเอก
+             */
             'name' => 'required|unique:shelter_staff_positions,name|max:255',
         ];
     }
