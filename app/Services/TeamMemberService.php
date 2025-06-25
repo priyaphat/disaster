@@ -11,30 +11,34 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TeamMemberService
 {
-    /**
+ /**
      * Create a member.
      */
-    public function create(array $data): TeamMember
+    public function create(array $data): string
     {
+        $returnMessage = __('success.member.selected');
         $member = $this->getMember($data['user_id']);
         if ($member) {
             throw new BadRequestHttpException(__('error.member.have_team'));
         }
 
         $latestNumber = $this->getLatestNumber($data['team_id']);
-        return TeamMember::create([
+        TeamMember::create([
             'team_id' => $data['team_id'],
             'user_id' => $data['user_id'],
             'team_position' => TeamPosition::MEMBER->value,
             'sequence' => $latestNumber + 1
         ]);
+
+        return $returnMessage;
     }
 
     /**
      * Update a member.
      */
-    public function update(array $data, $discontinue = false): TeamMember
+    public function update(array $data, $discontinue = false): string
     {
+        $returnMessage = __('success.member.selected');
         $member = $this->getMember($data['user_id']);
 
         if (!$member) {
@@ -69,16 +73,18 @@ class TeamMemberService
         if (($member->team_position == TeamPosition::LEADER->value || $count <= 0) && $discontinue) {
             $teamService = new TeamService();
             $teamService->delete($member->team);
+            $returnMessage = __('success.team.deleted');
         }
 
-        return $member;
+        return $returnMessage;
     }
 
     /**
      * Delete a member.
      */
-    public function delete(array $data, $discontinue = false): TeamMember
+    public function delete(array $data, $discontinue = false): string
     {
+        $returnMessage = __('success.member.leaved');
         $member = $this->getMember($data['user_id']);
         if (!$member) {
             throw new BadRequestHttpException(__('error.member.no_team'));
@@ -102,13 +108,14 @@ class TeamMemberService
         if (($member->team_position == TeamPosition::LEADER->value || $count <= 0) && $discontinue) {
             $teamService = new TeamService();
             $teamService->delete($member->team);
+            $returnMessage = __('success.team.deleted');
         }
 
         // Delete a member
         $member->delete();
         // Re index member in team
         $this->reIndex($teamId, $deleteNumber);
-        return $member;
+        return $returnMessage;
     }
 
     /**
@@ -128,7 +135,7 @@ class TeamMemberService
     {
         $userId = ConvertUtility::toInt($userId);
         $query = TeamMember::where('user_id', $userId);
-        return $query->first();
+        return $query->firstOrFail();
     }
 
     /**

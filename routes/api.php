@@ -1,7 +1,5 @@
 <?php
 
-use App\Events\Notification;
-use App\Events\Notify;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\AppointmentLogController;
@@ -32,8 +30,6 @@ use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
-use App\Http\Controllers\API\UserTransferController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -63,7 +59,8 @@ Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
 Route::get('/prefixes', [PrefixController::class, 'index']);
-Route::get('/emc-requests/{emc?}', [EmergencyRequestController::class, 'emcRequestBy']);
+Route::get('/emc-requests/{phone}', [EmergencyRequestController::class, 'emcRequestBy']);
+Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
 Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
 Route::middleware('auth:api')->group(function () {
 

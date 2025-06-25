@@ -27,14 +27,7 @@ class TransferHistoryService
 
     public function getlog(array $filters = [], $table, $id)
     {
-        $data = TransferHistory::filter($filters)->where('parentable_type', $table)->where('parentable_id', $id)->with('created_by_name');
-
-        if ($table === Population::class || $table === Shelter::class) {
-            $data->with('shelter');
-        }
-        if ($table === Team::class) {
-            $data->with('team');
-        }
+        $data = TransferHistory::filter($filters)->where('parentable_type', $table)->where('parentable_id', $id)->with('childable');
         $data = $data->paginate(10);
         
         return $data = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);

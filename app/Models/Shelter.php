@@ -75,4 +75,9 @@ class Shelter extends Model
     {
         return (new ShelterFilter($filters))->apply($query);
     }
+
+        public function histories()
+    {
+        return $this->morphMany(TransferHistory::class, 'childable');
+    }
 }

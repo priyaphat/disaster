@@ -141,4 +141,9 @@ class Team extends Model
     {
         return (new TeamFilter($filters))->apply($query);
     }
+
+    public function histories()
+    {
+        return $this->morphMany(TransferHistory::class, 'childable');
+    }
 }

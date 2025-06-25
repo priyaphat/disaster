@@ -18,8 +18,8 @@ class LogUtility
             'team' => Team::class,
             'team_member' => TeamMember::class,
             'shelter' => Shelter::class,
-            'staff' => ShelterStaff::class,
             'population' => Population::class,
+            'staff' => ShelterStaff::class,
             'user' => User::class,
             default => Appointment::class,
         };

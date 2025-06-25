@@ -34,7 +34,7 @@ class TeamController extends Controller
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->teamService->getList($request->all(), $paginate, $perPage);
-        return ApiResponse::successResponse(__('success.data'), $data);
+        return ApiResponse::successResponse(__('success.team.created'), $data);
     }
 
     /**

@@ -88,6 +88,11 @@ class User extends Authenticatable
         return $this->morphOne(Image::class, 'parentable');
     }
 
+    public function transfer_histories()
+    {
+        return $this->morphMany(TransferHistory::class, 'parentable');
+    }
+
     public function approval(): HasOne
     {
         return $this->hasOne(UserApproval::class);

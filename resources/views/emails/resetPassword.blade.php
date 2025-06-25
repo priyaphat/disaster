@@ -5,7 +5,7 @@
 
 <h1 class="text-center margin-32">อีเมลเปลี่ยนรหัสผ่านจะหมดอายุภายใน {{$countdown ?? 30}} นาที</h1>
 <x-mail::button :url="$url ?? ''">
-ลืมรหัสผ่าน
+เปลี่ยนรหัสผ่าน
 </x-mail::button>
 
 <p>

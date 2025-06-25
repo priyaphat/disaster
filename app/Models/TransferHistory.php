@@ -16,7 +16,7 @@ class TransferHistory extends Model
     public const EXIT = 1;
     public const TRANSFER = 2;
     public const ENTER = 3;
-    public const ASSIGN = 4 ;
+    public const ASSIGN = 4;
     public const JOIN_TEAM = 5;
     public const CHANGE_TEAM = 6;
     public const OPEN = 7;
@@ -39,6 +39,11 @@ class TransferHistory extends Model
     }
 
     public function parent()
+    {
+        return $this->morphTo();
+    }
+
+    public function childable()
     {
         return $this->morphTo();
     }

@@ -20,32 +20,32 @@ class TeamMemberController extends Controller
     /**
      * Join a team | เข้าร่วมทีมรายบุคคล
      */
-    public function store(MemberRequest $request)
+    public function join(MemberRequest $request)
     {
         //
-        $this->memberService->create($request->all());
-        return ApiResponse::successResponse(__('success.data'));
+        $message = $this->memberService->create($request->all());
+        return ApiResponse::successResponse($message);
     }
 
     /**
      * Tranfer a team | ย้ายทีมรายบุคคล
      */
-    public function update(MemberRequest $request)
+    public function transfer(MemberRequest $request)
     {
         //
         $discontinue = $request->has('discontinued') ? $request->input('discontinued') : false;
-        $this->memberService->update($request->all(), $discontinue);
-        return ApiResponse::successResponse(__('success.data'));
+        $message = $this->memberService->update($request->all(), $discontinue);
+        return ApiResponse::successResponse($message);
     }
 
     /**
      * Leave a team | ออกจากทีมรายบุคคล
      */
-    public function destroy(DeleteMemberRequest $request)
+    public function leave(DeleteMemberRequest $request)
     {
         //
         $discontinue = $request->has('discontinued') ? $request->input('discontinued') : false;
-        $this->memberService->delete($request->all(), $discontinue);
-        return ApiResponse::successResponse(__('success.data'));
+        $message = $this->memberService->delete($request->all(), $discontinue);
+        return ApiResponse::successResponse($message);
     }
 }

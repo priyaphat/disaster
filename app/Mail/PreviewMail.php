@@ -37,7 +37,7 @@ class PreviewMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.approve',
+            markdown: 'emails.userPassword',
         );
     }
 

@@ -14,7 +14,9 @@ class ShelterFilter extends QueryFilter
 
     public function status($value)
     {
-        return $this->builder->where('status', $value);
+        if($value){
+            return $this->builder->where('status', $value);
+        }
     }
 
     // public function action_type($value)
@@ -35,6 +37,8 @@ class ShelterFilter extends QueryFilter
 
     public function district_code($value)
     {
-        return $this->builder->where('district_code', $value);
+        if($value){
+            return $this->builder->where('district_code', $value);
+        }
     }
 }

@@ -65,12 +65,11 @@ class EmergencyRequestController extends Controller
      * Emergency request | ดึงข้อมูล id , phone  .
      */
     #[PathParameter('emc', description: 'Phone or id | เบอร์โทรหรือ id', type: 'string', example: '0987654321')]
-    public function emcRequestBy(Request $request, $emc = null)
+    public function emcRequestBy(Request $request, $emc = null, $id = null)
     {
-        $data = $this->emergencyRequestService->emcRequestBy($request, $emc); //phone & id
+        $data = $this->emergencyRequestService->emcRequestBy($request, $emc, $id); //phone & id
         return ApiResponse::successResponse(__('success.data'), $data);
     }
-
     /**
      * Emergency request | สร้างรายการแจ้งเหตุฉุกเฉิน  ตัวแปร / ปุ้ย .
      */
