@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserTranfer\DeleteMemberRequest;
+use App\Http\Requests\UserTranfer\DeleteStaffRequest;
 use App\Http\Requests\UserTranfer\MemberRequest;
+use App\Http\Requests\UserTranfer\StaffRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use App\Services\UserTransferService as TransferService;
@@ -53,7 +55,7 @@ class UserTransferController extends Controller
         /**
      * Join a team | เข้าร่วมทีมรายบุคคล
      */
-    public function joinShelter(MemberRequest $request)
+    public function joinShelter(StaffRequest $request)
     {
         //
         $this->tranferService->createShelterStaff($request->all());
@@ -63,7 +65,7 @@ class UserTransferController extends Controller
     /**
      * Tranfer a team | ย้ายทีมรายบุคคล
      */
-    public function transferShelter(MemberRequest $request)
+    public function transferShelter(StaffRequest $request)
     {
         //
         $this->tranferService->updateShelterStaff($request->all());
@@ -73,7 +75,7 @@ class UserTransferController extends Controller
     /**
      * Leave a team | ออกจากทีมรายบุคคล
      */
-    public function leaveShelter(DeleteMemberRequest $request)
+    public function leaveShelter(DeleteStaffRequest $request)
     {
         $this->tranferService->deleteShelterStaff($request->all());
         return ApiResponse::successResponse(__('success.staff.leaved'));

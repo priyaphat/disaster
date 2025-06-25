@@ -5,7 +5,7 @@ namespace App\Http\Requests\UserTranfer;
 use App\Rules\CheckUserExistsInDB;
 use Illuminate\Foundation\Http\FormRequest;
 
-class MemberRequest extends FormRequest
+class StaffRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
