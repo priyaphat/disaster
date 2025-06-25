@@ -32,6 +32,7 @@ use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
+use App\Http\Controllers\API\UserTransferController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -114,6 +115,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/profile', [UserController::class, 'updateProfile']);
+
     /*
     |--------------------------------------------------------------------------
     | Routes for display news
@@ -317,9 +319,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
-    Route::post('/member/join', [TeamMemberController::class, 'store']);
-    Route::post('/member/transfer', [TeamMemberController::class, 'update']);
-    Route::post('/member/leave', [TeamMemberController::class, 'destroy']);
+
+    Route::post('/member/join', [UserTransferController::class, 'joinTeam']);
+    Route::post('/member/transfer', [UserTransferController::class, 'transferTeam']);
+    Route::post('/member/leave', [UserTransferController::class, 'leaveTeam']);
+    Route::post('/staff/join', [UserTransferController::class, 'joinShelter']);
+    Route::post('/staff/transfer', [UserTransferController::class, 'tranferShelter']);
+    Route::post('/staff/leave', [UserTransferController::class, 'leaveShelter']);
 
     /*
     |--------------------------------------------------------------------------

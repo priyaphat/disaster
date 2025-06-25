@@ -10,15 +10,11 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\CssSelector\Exception\InternalErrorException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use App\Http\Traits\ApiResponserTrait;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -61,17 +57,16 @@ return Application::configure(basePath: dirname(__DIR__))
             return ApiResponse::customErrorResponse(__('auth.unauthenicated'), [], $exception = null, Response::HTTP_UNAUTHORIZED);
         });
 
-        $exceptions->render(function (ModelNotFoundException $exception) {
-            return ApiResponse::customErrorResponse(__('error.model_not_found'), [], $exception, Response::HTTP_NOT_FOUND);
+        $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
+            if ($request->is('api/*')) {
+                $previous = $exception->getPrevious();
+                if ($previous instanceof ModelNotFoundException) {
+                    return ApiResponse::customErrorResponse(__('error.model_not_found'), [], $exception, Response::HTTP_NOT_FOUND);
+                }
+            }
+            return ApiResponse::customErrorResponse(__('error.route_not_found'), [], $exception, Response::HTTP_NOT_FOUND);
         });
 
-        $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
-            $message = __('error.model_not_found');
-            if ($request->is('api/*')) {
-                $message = __('error.route_not_found');
-            }
-            return ApiResponse::customErrorResponse($message, [], $exception, Response::HTTP_NOT_FOUND);
-        });
 
         $exceptions->render(function (BadRequestHttpException $exception) {
             return ApiResponse::customErrorResponse($exception->getMessage(), [], $exception, Response::HTTP_BAD_REQUEST);
@@ -86,6 +81,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (HttpException $exception) {
+            //  dd(get_class($exception));
             return ApiResponse::customErrorResponse($exception->getMessage(), [], $exception);
         });
     })->create();

@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class UserService
 {
-    protected $relations = ['prefix', 'department', 'position', 'area', 'approval', 'member', 'image'];
+    protected $relations = ['prefix', 'department', 'position', 'area', 'approval', 'member', 'image', 'shelterstaff'];
     public function baseQuery($filters)
     {
         return User::filter($filters)->with($this->relations);

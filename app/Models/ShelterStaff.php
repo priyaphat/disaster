@@ -34,14 +34,19 @@ class ShelterStaff extends Model
         return $this->morphMany(TransferHistory::class, 'parentable');
     }
 
+    public function position()
+    {
+        return $this->belongsTo(Position::class, 'position_id')->select('id', 'name');
+    }
+
     public function prefix()
     {
         return $this->belongsTo(Prefix::class, 'prefix_id')->select('id', 'name');
     }
 
-    public function position()
+    public function shelter()
     {
-        return $this->belongsTo(Position::class, 'position_id')->select('id', 'name');
+        return $this->hasOne(Shelter::class, 'id', 'shelter_id')->select('id', 'name');
     }
 
     public function department()

@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Position;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PositionService
 {
@@ -63,6 +63,10 @@ class PositionService
      */
     public function delete(Position $position): bool
     {
+        if ($position->users) {
+            throw new BadRequestHttpException(__('error.sql.fk-constraint'));
+        }
+    
         return $position->delete();
     }
 }

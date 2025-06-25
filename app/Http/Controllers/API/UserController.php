@@ -54,7 +54,7 @@ class UserController extends Controller
         //
         $data = $this->userService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
-        return ApiResponse::createdResponse(__('success.created'), new UserResource($data));
+        return ApiResponse::createdResponse(__('success.user.created'), new UserResource($data));
     }
 
     /**
@@ -74,7 +74,7 @@ class UserController extends Controller
         //
         $data = $this->userService->update($user, $request->all());
         $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
-        return ApiResponse::successResponse(__('success.updated'), new UserResource($data));
+        return ApiResponse::successResponse(__('success.user.updated'), new UserResource($data));
     }
 
     /**
@@ -97,7 +97,7 @@ class UserController extends Controller
         $user = Auth::user();
         $data = $this->userService->update($user, $request->all());
         $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
-        return ApiResponse::successResponse(__('success.updated'), new UserResource($data));
+        return ApiResponse::successResponse(__('success.saved'), new UserResource($data));
     }
 
     /**
@@ -119,7 +119,7 @@ class UserController extends Controller
         //
         $this->userService->delete($user);
         $this->imageService->deleteImage(User::class, $user->id, Image::PRIVATE);
-        return ApiResponse::successResponse(__('success.deleted'));
+        return ApiResponse::successResponse(__('success.user.deleted'));
     }
 
     /**

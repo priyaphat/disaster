@@ -31,14 +31,12 @@ class RegisterRequest extends FormRequest
             'email' => [
                 'required',
                 'max:255',
-                'email',
-                'regex:/^[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                'regex:/^[a-zA-Z][a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                 Rule::unique('users')->where(fn(Builder $query) => $query->where('email', Str::lower($this->email)))
             ],
             'username' => [
                 'required',
-                'max:255',
-                'regex:/^[a-zA-Z][a-zA-Z0-9._-]{3,28}[a-zA-Z0-9]$/',
+                'regex:/^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/',
                 Rule::unique('users')->where(fn(Builder $query) => $query->where('username', Str::lower($this->username)))
             ],
             'password' => [
@@ -54,10 +52,10 @@ class RegisterRequest extends FormRequest
             'prefix_id' => 'required|exists:prefixes,id',
             'firstname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname)],
             'lastname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname)],
-            'phone' => 'required|max:10',
+            'phone' => 'required|regex:/^\d{10}$/',
             'type' => ['required', Rule::enum(UserType::class)],
             'district_id' => 'required|exists:geography,district_code',
-            'department_id' => [Rule::requiredIf($this->type == UserType::INSIDE_AREA->value), 'exists:departments,id'],
+            'department_id' => [Rule::requiredIf($this->type == UserType::INSIDE_AREA->value), 'nullable', 'exists:departments,id'],
             'position_id' => 'required|exists:positions,id'
         ];
     }
@@ -67,6 +65,17 @@ class RegisterRequest extends FormRequest
         return [
             'email.regex' => __('validation.custom.email.regex'),
             'username.regex' => __('validation.custom.username.regex'),
+            'phone.regex' => __('validation.custom.phone.regex'),
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        dd($this->input('department_id'));
+        if ($this->has('department_id') && $this->input('department_id') === "") {
+            $this->merge([
+                'department_id' => null,
+            ]);
+        }
     }
 }
