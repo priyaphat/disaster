@@ -324,7 +324,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/member/transfer', [UserTransferController::class, 'transferTeam']);
     Route::post('/member/leave', [UserTransferController::class, 'leaveTeam']);
     Route::post('/staff/join', [UserTransferController::class, 'joinShelter']);
-    Route::post('/staff/transfer', [UserTransferController::class, 'tranferShelter']);
+    Route::post('/staff/transfer', [UserTransferController::class, 'transferShelter']);
     Route::post('/staff/leave', [UserTransferController::class, 'leaveShelter']);
 
     /*
