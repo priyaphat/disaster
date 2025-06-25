@@ -22,6 +22,11 @@ class AssignShelterPositionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ส่งตัวแปร shelter_position_id ของตำแหน่งในศูนย์พักพิง สามารถดูได้จาก https://disaster-backend.gentechsoft.tech/api/docs#/operations/shelterPosition.index
+             * @var string
+             * @example 3
+             */
             'shelter_position_id' => 'required|exists:shelter_positions,id',
         ];
     }

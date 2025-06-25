@@ -12,6 +12,7 @@ use App\Services\ImageService;
 use App\Services\PopulationService;
 use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
+use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 
@@ -27,6 +28,9 @@ class ShelterController extends Controller
         $this->transferLogService = $transferLogService;
     }
 
+    /**
+     * Display a listing of shelter| แสดงรายการศูนย์พักพิง
+     */
     #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "Shelter 00")]
     #[QueryParameter('status', description: 'ค้นหาตามสถานะการเปิด-ปิด ศูนย์พักพิง 0 = ปิด 1 = เปิด', type: 'string', example: "1")]
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
@@ -37,6 +41,9 @@ class ShelterController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Created shelter| สร้างศูนย์พักพิง
+     */
     public function store(CreateShelterRequest $request)
     {
         $data = $this->shelterService->create($request->all());
@@ -44,6 +51,10 @@ class ShelterController extends Controller
         return ApiResponse::createdResponse('Success', $data);
     }
 
+    /**
+     * Update the specified shelter| แก้ไขศูนย์พักพิง
+     */
+    #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
     public function update(UpdateShelterRequest $request, Shelter $shelter)
     {
         if (isset($request->status) && (int) $request->status === Shelter::CLOSED) {
@@ -59,21 +70,32 @@ class ShelterController extends Controller
         $action_type = $data->status == Shelter::CLOSED ? TransferHistory::CLOSE : TransferHistory::OPEN;
         $this->transferLogService->createLog($action_type, Shelter::class, $shelter_id, Shelter::class, $shelter_id);
         return ApiResponse::successResponse(__('success.updated'), $data);
-    } 
+    }
 
+    /**
+     * Show specified shelter| แสดงรายศูนย์พักพิง
+     */
+    #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
     public function show(Shelter $shelter)
     {
         $data = $this->shelterService->show($shelter);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    /**
+     * Display a listing of utilities| แสดงรายการสาธารณูปโภคของศูนย์พักพิง
+     */
     public function utility()
     {
         $data = $this->shelterService->utility();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    public function dashboard(Request $request) {
+    /**
+     * Display a summary shelter and population dashboard| แสดงรายการผลสรุปของศูนย์พักพิงและผู้ประสบภัย
+     */
+    public function dashboard(Request $request)
+    {
         return $data = $this->shelterService->dashboard($request->all());
     }
 }

@@ -22,7 +22,12 @@ class ExitAllShelterStaffRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'shelter_id' => 'exists:shelters,id',
+            /**
+             * ส่งตัวแปร shelter_id ของศูนย์พักพิง
+             * @var string
+             * @example 3
+             */
+            'shelter_id' => 'required|exists:shelters,id',
         ];
     }
 }

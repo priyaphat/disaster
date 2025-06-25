@@ -15,6 +15,7 @@ use App\Models\TransferHistory;
 use App\Services\ShelterService;
 use App\Services\ShelterStaffService;
 use App\Services\TransferHistoryService;
+use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 
@@ -29,6 +30,9 @@ class ShelterStaffController extends Controller
         $this->transferLogService = $transferLogService;
     }
 
+    /**
+     * Display a listing of shelter staff| รายชื่อเจ้าหน้าที่ในศูนย์
+     */
     #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "ไก่ ทอด")]
     #[QueryParameter('position', description: 'ค้นหาตามตำแหน่ง https://disaster-backend.gentechsoft.tech/api/docs#/operations/position.index ', type: 'string', example: "1")]
     #[QueryParameter('shelter_position', description: 'ค้นหาตามตำแหน่งในศูนย์ https://disaster-backend.gentechsoft.tech/api/docs#/operations/shelterPosition.index', type: 'string', example: "3")]
@@ -56,6 +60,7 @@ class ShelterStaffController extends Controller
     /**
      * Transfer staff | ย้ายเจ้าหน้าที่ศูนย์พักพิงรายบุคคล
      */
+    #[PathParameter('shelterstaff', description: 'ส่ง id ของ shelter_staffs', type: 'string', example: '3')]
     public function transfer(TransferShelterStaffRequest $request, ShelterStaff $shelterstaff)
     {
         $oldShelter_id = $shelterstaff->shelter_id;
@@ -74,6 +79,7 @@ class ShelterStaffController extends Controller
     /**
      * Assign position to staff | มอบหน้าที่ให้เจ้าหน้าที่ภายในศูนย์พักพิงรายบุคคล
      */
+    #[PathParameter('shelterstaff', description: 'ส่ง id ของ shelter_staffs', type: 'string', example: '3')]
     public function assignposition(AssignShelterPositionRequest $request, ShelterStaff $shelterstaff)
     {
         $position = $request->shelter_position_id;
@@ -87,6 +93,7 @@ class ShelterStaffController extends Controller
     /**
      * Exit staff | นำเจ้าหน้าที่ออกจากศูนย์พักพิงรายบุคคล
      */
+    #[PathParameter('shelterstaff', description: 'ส่ง id ของ shelter_staffs', type: 'string', example: '3')]
     public function exit(ShelterStaff $shelterstaff)
     {
         $oldShelter_id = $shelterstaff->shelter_id;

@@ -22,7 +22,18 @@ class CreateShelterStaffRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /**
+             * ส่งตัวแปร user_id
+             * @var array
+             * @example [1, 2, 3]
+             */
+            'user_id' => 'required|array',
             'user_id.*' => 'required|exists:users,id',
+            /**
+             * ส่งตัวแปร shelter_id ของศูนย์พักพิง
+             * @var string
+             * @example 3
+             */
             'shelter_id' => 'required|exists:shelters,id',
         ];
     }

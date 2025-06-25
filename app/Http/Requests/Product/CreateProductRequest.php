@@ -25,8 +25,9 @@ class CreateProductRequest extends FormRequest
     {
         return [
             /**
+             * ชื่อทรัพยากรที่ต้องการสร้าง
              * @var string
-             * @example "มาม่า"
+             * @example 250
              */
             'name' => [
                 'required',
@@ -37,13 +38,51 @@ class CreateProductRequest extends FormRequest
                         ->where('category_id', $this->category_id);
                 }),
             ],
+            /**
+             * ID ของ unit_id หน่วยของทรัพยากร หาได้จาก https://disaster-backend.gentechsoft.tech/api/docs#/operations/unit.index
+             * @var string
+             * @example 1
+             */
             'unit_id' => 'nullable|exists:units,id',
+            /**
+             * หากไม่มี unit_id ให้เป็น null
+             * @var string
+             * @example null
+             */
             'no_unit' => 'nullable',
+            /**
+             * ID ของ category_id ประเภทของทรัพยากร หาได้จาก https://disaster-backend.gentechsoft.tech/api/docs#/operations/category.index
+             * @var string
+             * @example 2
+             */
             'category_id' => 'exists:categories,id',
+            /**
+             * รายละเอียดทรัพยากร
+             * @var string
+             * @example ได้จากการบริจาค
+             */
             'detail' => 'nullable|string',
+            /**
+             * จำนวนทรัพยากร หากไม่ระบุจำนวนให้ส่งมา null
+             * @var string
+             * @example 250
+             */
             'quantity' => 'nullable|integer',
+            /**
+             * ไม่ต้องส่งอะไรมาหลังบ้านจะ set ให้เอง
+             * @var string
+             * @example 0
+             */
             'no_quantity' => 'nullable|integer',
+            /**
+             * ไม่ต้องส่งก็ได้ Default คือ 1
+             * @var string
+             */
             'status' => 'integer',
+            /**
+             * รูป
+             * @var image
+             */
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
         ];
     }
