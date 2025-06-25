@@ -91,11 +91,30 @@ class ShelterController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    /**
-     * Display a summary shelter and population dashboard| แสดงรายการผลสรุปของศูนย์พักพิงและผู้ประสบภัย
-     */
     public function dashboard(Request $request)
     {
-        return $data = $this->shelterService->dashboard($request->all());
+        return $this->shelterService->dashboard($request->all());
     }
+
+    /**
+     * สาธารณประโยชน์ที่ได้รับความเสียหาย | show // type name paginate
+     */
+    public function dmgs(Request $request, $type = null)
+    {
+        $data = $this->shelterService->damaged_utilities($request, $type);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    /**
+     * สาธารณประโยชน์ที่ได้รับความเสียหาย | ดึง ชื่อ
+     */
+    public function dmg_name()
+    {
+        $data = $this->shelterService->utilities();
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    /**
+     * สาธารณประโยชน์ที่ได้รับความเสียหาย | create // type name
+     */
 }

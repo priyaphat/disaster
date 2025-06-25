@@ -2,13 +2,17 @@
 
 namespace App\Services;
 
+use App\Enums\DamagedUtility;
 use App\Enums\ShelterUtilities;
 use App\Http\Resources\ShelterResource;
 use App\Http\Resources\ShelterShowResource;
+use App\Http\Utility\PaginateUtility;
+use App\Models\DamagedUtility as ModelsDamagedUtility;
 use App\Models\Population;
 use App\Models\Shelter;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ShelterService
 {
@@ -60,7 +64,7 @@ class ShelterService
 
         $query = Population::query();
 
-        if ($shelter_id != null){
+        if ($shelter_id != null) {
             $query = $query->where('shelter_id', $shelter_id);
         }
 
@@ -89,5 +93,32 @@ class ShelterService
             'id' => $case->value,
             'name' => $case->utility(),
         ], ShelterUtilities::cases());
+    }
+
+    public function utilities()
+    {
+        return array_map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label(),
+        ], DamagedUtility::cases());
+    }
+
+    public function damaged_utilities($request, $type = null)
+    {
+
+        $data = ModelsDamagedUtility::query()->when(
+            $type,
+            fn($q) =>
+            $q->where('type', $type)
+        )->when(
+            $request->name,
+            fn($q) =>
+            $q->where('name', 'like', '%' . $request->name . '%')
+        );
+
+        if ($type) return PaginateUtility::Paginate($data->get(), $request->paginate ?? 10);
+
+        $data = $data->select('type', DB::raw('count(id) as total'))->groupBy('type')->get();
+        return $data;
     }
 }

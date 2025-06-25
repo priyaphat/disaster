@@ -55,12 +55,17 @@ class PopulationController extends Controller
      */
     public function store(CreatePopulationRequest $request)
     {
-        if ($this->populationService->isShelterMax($request->shelter_id)) {
-            return ApiResponse::errorResponse(__('ศูนย์พักพิงเต็ม'));
+        $shelter = $request->shelter_id;
+        if ($shelter) {
+            if ($this->populationService->isShelterMax($shelter)) {
+                return ApiResponse::errorResponse(__('ศูนย์พักพิงเต็ม'));
+            }
         }
         $data = $this->populationService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
-        $this->transferLogService->createLog(TransferHistory::ENTER, Population::class, $data->id, Shelter::class, $data->shelter_id);
+        if ($shelter) { //ตอนสร้าง ปชช ยังไม่เข้า shelter
+            $this->transferLogService->createLog(TransferHistory::ENTER, Population::class, $data->id, Shelter::class, $data->shelter_id);
+        }
         return ApiResponse::createdResponse(__('success.data'), $data);
     }
 

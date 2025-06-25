@@ -80,10 +80,19 @@ class ConfigController extends Controller
      */
     public function reset()
     {
-        Config::where('type', 1)->update([
-            'description->population' => 0,
-            'description->user' => 0,
-        ]);
+        // Config::where('type', 1)->update([
+        //     'description->population' => 0,
+        //     'description->user' => 0,
+        // ]);
+        Config::where('type', 1)->chunkById(100, function ($configs) {
+            foreach ($configs as $config) {
+                $description = $config->description;
+                if (isset($description['population'])) $description['population'] = 0;
+                if (isset($description['user'])) $description['user'] = 0;
+                $config->description = $description;
+                $config->save();
+            }
+        });
         return ApiResponse::successResponse(__('success.config.reset'));
     }
 

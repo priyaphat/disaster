@@ -31,12 +31,12 @@ class EmergencyRequestService
 
     public function emcRequestBy($request, $search = null)
     {
-        if(!Auth::check() && !$search){
+        if (!Auth::check() && !$search) {
             throw new AuthenticationException();
         }
 
         $searchArr = ['phone'];
-        if(Auth::check()){
+        if (Auth::check()) {
             $searchArr = ['phone', 'id'];
         }
 
@@ -61,8 +61,8 @@ class EmergencyRequestService
                 $item->victim_name = $victimName;
                 return $item;
             });
-            
-        if ($request->paginate) return PaginateUtility::Paginate($items);
+
+        if ($request->paginate) return PaginateUtility::Paginate($items, $request->paginate);
         return $items[0] ?? [];
     }
 
