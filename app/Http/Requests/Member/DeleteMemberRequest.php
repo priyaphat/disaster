@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\UserTranfer;
+namespace App\Http\Requests\Member;
 
 use App\Rules\CheckUserExistsInDB;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StaffRequest extends FormRequest
+class DeleteMemberRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class StaffRequest extends FormRequest
     {
         return [
             'user_id' => ['required', 'integer', 'exists:users,id'],
-            'shelter_id' => 'required|exists:shelters,id',
-            'position_id' => 'required|exists:shelter_positions,id',
+            'discontinued' => 'nullable'
         ];
     }
 }

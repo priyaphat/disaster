@@ -157,6 +157,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/staff/exit/{shelterstaff}', [ShelterStaffController::class, 'exit']);
     Route::post('/staff/exit-all', [ShelterStaffController::class, 'exitall']);
     Route::post('/staff/assign/{shelterstaff}', [ShelterStaffController::class, 'assignposition']);
+    Route::post('/staff/join', [ShelterStaffController::class, 'join']);
 
     /*
     |--------------------------------------------------------------------------
@@ -320,13 +321,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
 
-    Route::post('/member/join', [UserTransferController::class, 'joinTeam']);
-    Route::post('/member/transfer', [UserTransferController::class, 'transferTeam']);
-    Route::post('/member/leave', [UserTransferController::class, 'leaveTeam']);
-    Route::post('/staff/join', [UserTransferController::class, 'joinShelter']);
-    Route::post('/staff/transfer', [UserTransferController::class, 'transferShelter']);
-    Route::post('/staff/leave', [UserTransferController::class, 'leaveShelter']);
-
+    Route::post('/member/join', [TeamMemberController::class, 'join']);
+    Route::post('/member/transfer', [TeamMemberController::class, 'transfer']);
+    Route::post('/member/leave', [TeamMemberController::class, 'leave']);
     /*
     |--------------------------------------------------------------------------
     | Routes for display appointment

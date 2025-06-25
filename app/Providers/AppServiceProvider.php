@@ -8,7 +8,9 @@ use App\Listeners\CreateUserApproval;
 use App\Listeners\SendPasswordEmail;
 use App\Listeners\SendWelcomeEmail;
 use App\Listeners\UserEventSubscriber;
+use App\Models\ShelterStaff;
 use App\Models\TeamMember;
+use App\Observers\ShelterStaffObserver;
 use App\Observers\TeamMemberObserver;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -49,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
         JsonResource::withoutWrapping();
 
         TeamMember::observe(TeamMemberObserver::class);
-
+        ShelterStaff::observe(ShelterStaffObserver::class);
         // API Document
         Scramble::configure()
             ->expose(

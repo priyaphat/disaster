@@ -5,41 +5,36 @@ namespace App\Services;
 use App\Enums\TeamPosition;
 use App\Exceptions\MemberException;
 use App\Http\Utility\ConvertUtility;
-use App\Models\ShelterStaff;
+use App\Models\Position;
 use App\Models\TeamMember;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class UserTransferService
+class TeamMemberService
 {
     /**
      * Create a member.
      */
-    public function createMember(array $data): string
+    public function create(array $data): TeamMember
     {
-        $returnMessage = __('success.member.selected');
         $member = $this->getMember($data['user_id']);
         if ($member) {
             throw new BadRequestHttpException(__('error.member.have_team'));
         }
 
         $latestNumber = $this->getLatestNumber($data['team_id']);
-        TeamMember::create([
+        return TeamMember::create([
             'team_id' => $data['team_id'],
             'user_id' => $data['user_id'],
             'team_position' => TeamPosition::MEMBER->value,
             'sequence' => $latestNumber + 1
         ]);
-
-        return $returnMessage;
     }
 
     /**
      * Update a member.
      */
-    public function updateMember(array $data, $discontinue = false): string
+    public function update(array $data, $discontinue = false): TeamMember
     {
-        $returnMessage = __('success.member.selected');
         $member = $this->getMember($data['user_id']);
 
         if (!$member) {
@@ -74,18 +69,16 @@ class UserTransferService
         if (($member->team_position == TeamPosition::LEADER->value || $count <= 0) && $discontinue) {
             $teamService = new TeamService();
             $teamService->delete($member->team);
-            $returnMessage = __('success.team.deleted');
         }
 
-        return $returnMessage;
+        return $member;
     }
 
     /**
      * Delete a member.
      */
-    public function deleteMember(array $data, $discontinue = false): string
+    public function delete(array $data, $discontinue = false): TeamMember
     {
-        $returnMessage = __('success.member.leaved');
         $member = $this->getMember($data['user_id']);
         if (!$member) {
             throw new BadRequestHttpException(__('error.member.no_team'));
@@ -109,14 +102,13 @@ class UserTransferService
         if (($member->team_position == TeamPosition::LEADER->value || $count <= 0) && $discontinue) {
             $teamService = new TeamService();
             $teamService->delete($member->team);
-            $returnMessage = __('success.team.deleted');
         }
 
         // Delete a member
         $member->delete();
         // Re index member in team
         $this->reIndex($teamId, $deleteNumber);
-        return $returnMessage;
+        return $member;
     }
 
     /**
@@ -136,7 +128,7 @@ class UserTransferService
     {
         $userId = ConvertUtility::toInt($userId);
         $query = TeamMember::where('user_id', $userId);
-        return $query->firstOrFail();
+        return $query->first();
     }
 
     /**
@@ -157,59 +149,5 @@ class UserTransferService
         $deleteNumber = ConvertUtility::toInt($deleteNumber);
         TeamMember::where('team_id', $teamId)->where('sequence', '>', $deleteNumber)
             ->decrement('sequence');
-    }
-
-    /**
-     * Retrieve the staff ftom shelter staff.
-     */
-    public function getStaff(int $userId)
-    {
-        $userId = ConvertUtility::toInt($userId);
-        $query = ShelterStaff::where('user_id', $userId);
-        return $query->first();
-    }
-
-    /**
-     * Create a staff.
-     */
-    public function createShelterStaff(array $data)
-    {
-        $staff = $this->getStaff($data['user_id']);
-        if ($staff) {
-            throw new BadRequestHttpException(__('error.staff.have_shelter'));
-        }
-
-        return ShelterStaff::create([
-            'user_id' => $data['user_id'],
-            'shelter_id' => $data['shelter_id'],
-            'shelter_position_id' => $data['position_id']
-        ]);
-    }
-
-    /**
-     * Update a staff.
-     */
-    public function updateShelterStaff(array $data)
-    {
-        $staff = $this->getStaff($data['user_id']);
-        if (!$staff) {
-            throw new ModelNotFoundException();
-        }
-        return $staff->update([
-            'shelter_id' => $data['shelter_id'],
-            'shelter_position_id' => $data['position_id']
-        ]);
-    }
-
-    /**
-     * Delete a staff.
-     */
-    public function deleteShelterStaff(array $data)
-    {
-        $staff = $this->getStaff($data['user_id']);
-        if (!$staff) {
-            throw new ModelNotFoundException();
-        }
-        return $staff->delete();
     }
 }

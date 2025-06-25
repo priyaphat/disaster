@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ShelterPosition\AssignShelterPositionRequest;
+use App\Http\Requests\ShelterStaff\CreateOneStaffRequest;
 use App\Http\Requests\ShelterStaff\CreateShelterStaffRequest;
 use App\Http\Requests\ShelterStaff\ExitAllShelterStaffRequest;
 use App\Http\Requests\ShelterStaff\TransferShelterStaffRequest;
@@ -50,11 +51,20 @@ class ShelterStaffController extends Controller
     public function store(CreateShelterStaffRequest $request)
     {
         $data = $this->shelterstaffService->create($request->all());
-        //Craete transfer log for each staff
-        foreach ($data as $staff) {
-            $this->transferLogService->createLog(TransferHistory::ENTER, ShelterStaff::class, $staff->id, Shelter::class, $staff->shelter_id);
-        }
-        return ApiResponse::createdResponse('Success', $data);
+        return ApiResponse::createdResponse(__('success.staff.created'), $data);
+    }
+
+    /**
+     * Create shelter staff | เพิ่มเจ้าหน้าที่ศูนย์พักพิงรายบุคคล
+     */
+    public function join(CreateOneStaffRequest $request)
+    {
+        $data = ShelterStaff::create([
+            'user_id' => $request->user_id,
+            'shelter_id' => $request->shelter_id,
+            'shelter_position_id' => $request->shelter_position_id,
+        ]);
+        return ApiResponse::createdResponse(__('success.staff.created'), $data);
     }
 
     /**
@@ -64,16 +74,14 @@ class ShelterStaffController extends Controller
     public function transfer(TransferShelterStaffRequest $request, ShelterStaff $shelterstaff)
     {
         $oldShelter_id = $shelterstaff->shelter_id;
-        $shelterstaff_id = $shelterstaff->id;
         $newShelter_id = $request->shelter_id;
 
         if ($newShelter_id == $oldShelter_id) {
-            return ApiResponse::successResponse(__('success.updated'));
+            return ApiResponse::successResponse(__('success.staff.updated'));
         }
 
-        $shelterstaff->update(['shelter_id' => $newShelter_id, 'shelter_position_id' => null]);
-        $this->transferLogService->createLog(TransferHistory::TRANSFER, ShelterStaff::class, $shelterstaff_id, Shelter::class, $newShelter_id);
-        return ApiResponse::successResponse(__('success.updated'));
+        $shelterstaff->update(['shelter_id' => $newShelter_id]);
+        return ApiResponse::successResponse(__('success.staff.updated'));
     }
 
     /**
@@ -83,10 +91,7 @@ class ShelterStaffController extends Controller
     public function assignposition(AssignShelterPositionRequest $request, ShelterStaff $shelterstaff)
     {
         $position = $request->shelter_position_id;
-        $shelterstaff_id = $shelterstaff->id;
-
         $shelterstaff->update(['shelter_position_id' => $position]);
-        $this->transferLogService->createLog(TransferHistory::ASSIGN, ShelterStaff::class, $shelterstaff_id, ShelterPosition::class, $position);
         return ApiResponse::successResponse(__('success.updated'));
     }
 
@@ -96,11 +101,7 @@ class ShelterStaffController extends Controller
     #[PathParameter('shelterstaff', description: 'ส่ง id ของ shelter_staffs', type: 'string', example: '3')]
     public function exit(ShelterStaff $shelterstaff)
     {
-        $oldShelter_id = $shelterstaff->shelter_id;
-        $shelterstaff_id = $shelterstaff->id;
-
-        $shelterstaff->update(['shelter_id' => null, 'shelter_position_id' => null]);
-        $this->transferLogService->createLog(TransferHistory::EXIT, ShelterStaff::class, $shelterstaff_id, Shelter::class, $oldShelter_id);
+        $shelterstaff->delete();
         return ApiResponse::successResponse(__('success.updated'));
     }
 
@@ -110,12 +111,7 @@ class ShelterStaffController extends Controller
     public function exitall(ExitAllShelterStaffRequest $request)
     {
         $shelter_id = $request->shelter_id;
-        $shelterstaff = ShelterStaff::where('shelter_id', $shelter_id)->get();
-        ShelterStaff::where('shelter_id', $shelter_id)->update(['shelter_id' => null, 'shelter_position_id' => null]);
-        foreach ($shelterstaff as $staff) {
-            $this->transferLogService->createLog(TransferHistory::EXIT, ShelterStaff::class, $staff->id, Shelter::class, $shelter_id);
-        }
-
-        return ApiResponse::successResponse(__('success.updated'));
+        ShelterStaff::where('shelter_id', $shelter_id)->each->delete();
+        return ApiResponse::successResponse(__('success.deleted'));
     }
 }

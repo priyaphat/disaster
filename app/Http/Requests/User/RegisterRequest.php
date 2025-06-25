@@ -68,14 +68,4 @@ class RegisterRequest extends FormRequest
             'phone.regex' => __('validation.custom.phone.regex'),
         ];
     }
-
-    protected function prepareForValidation()
-    {
-        dd($this->input('department_id'));
-        if ($this->has('department_id') && $this->input('department_id') === "") {
-            $this->merge([
-                'department_id' => null,
-            ]);
-        }
-    }
 }

@@ -32,11 +32,21 @@ class Image extends Model
         return Attribute::make(
             get: function ($value, $attributes) {
                 if ($attributes['image_name'] === 'default.png') {
-                    return Storage::disk('public')->url('default.png');
+                    switch ($attributes['parentable_type']) {
+                        case User::class:
+                            $url = Storage::disk('public')->url('user-default.png');
+                            break;
+                        case Shelter::class:
+                            $url = Storage::disk('public')->url('shelter-default.png');
+                            break;
+                        default:
+                            $url = Storage::disk('public')->url('default.png');
+                    }
+                    return $url;
                 } elseif ($attributes['image_type'] === self::PUBLIC) {
                     return Storage::disk('public')->url($this->image_url);
                 } else {
-                    return url('api/'.$this->image_url);
+                    return url('api/' . $this->image_url);
                 }
             },
         );

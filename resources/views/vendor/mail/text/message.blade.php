@@ -13,14 +13,14 @@
     <x-slot:subcopy>
         <x-mail::subcopy>
             หากคุณต้องการความช่วยเหลืออื่นๆ สามารถติดต่อได้ที่ <br>
-            สำนักงาน เวลาทำการ 9.00 - 16.00 น.
+            สำนักงาน เวลาทำการ 8.00 - 16.00 น.
         </x-mail::subcopy>
     </x-slot:subcopy>
 
     {{-- Footer --}}
     <x-slot:footer>
         <x-mail::footer>
-            © {{ date('Y') }} {{ config('app.name') }}. @lang('All rights reserved.')
+            <!-- © {{ date('Y') }} {{ config('app.name') }}. @lang('All rights reserved.') -->
         </x-mail::footer>
     </x-slot:footer>
 </x-mail::layout>
