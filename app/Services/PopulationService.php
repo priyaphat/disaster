@@ -46,7 +46,7 @@ class PopulationService
             'same_address' => $data['same_address'],
             'status' => $data['status'],
             // 'tracking' => $data['tracking'],
-            'shelter_id' => $data['shelter_id'],
+            'shelter_id' => $data['shelter_id'] ?? null,
             'line_token' => $data['line_token'],
             'created_date' => $data['created_date'],
         ]);

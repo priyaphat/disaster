@@ -123,9 +123,8 @@ class LineController extends Controller
 
     public function LineNotification(array $data = null, $form, $recipint = null)
     {
-
         $config = Config::WhereJsonContains('description->line_type', $form)
-            ->where('type', 0)
+            ->where('type', 1)
             ->first();
 
         if ($recipint) {
@@ -149,13 +148,15 @@ class LineController extends Controller
                         self::broadcast_multi($hasUser, $message);
                     }
                 }
-                if ($config->description['population']) {
-                    $noUser = $line->filter(fn($item) =>
-                    is_null($item->user_id))->pluck('token_id');
+                if (isset($config->description['population'])) {
+                    if ($config->description['population']) {
+                        $noUser = $line->filter(fn($item) =>
+                        is_null($item->user_id))->pluck('token_id');
 
-                    if ($noUser->isNotEmpty()) {
-                        $message = self::form_box($form, $data, self::Population);
-                        self::broadcast_multi($noUser, $message);
+                        if ($noUser->isNotEmpty()) {
+                            $message = self::form_box($form, $data, self::Population);
+                            self::broadcast_multi($noUser, $message);
+                        }
                     }
                 }
             }

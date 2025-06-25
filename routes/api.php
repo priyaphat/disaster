@@ -43,6 +43,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
+Route::get('/disaster', [DisasterController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
@@ -146,6 +147,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
     Route::get('/shelter-dashboard', [ShelterController::class, 'dashboard']);
+    Route::get('/damaged-utilities/{type?}', [ShelterController::class, 'dmgs']);
+    Route::get('/damaged-utility-name', [ShelterController::class, 'dmg_name']);
+
+
+
     /*
     |--------------------------------------------------------------------------
     | Routes for display shelter staff
@@ -239,7 +245,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display disaster
     |-------------------------------------------------------- ------------------
     */
-    Route::get('/disaster', [DisasterController::class, 'index']);
     Route::get('/disaster/{disaster}', [DisasterController::class, 'show']);
     Route::post('/disaster', [DisasterController::class, 'store']);
     Route::post('/disaster/{disaster}', [DisasterController::class, 'update']);
