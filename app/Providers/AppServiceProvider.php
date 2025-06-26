@@ -65,7 +65,5 @@ class AppServiceProvider extends ServiceProvider
                     SecurityScheme::http('bearer')
                 );
             });
-        
-        Mail::alwaysTo(env('DEV_MAIL_TO', 'maikung1720@gmail.com'));
     }
 }
