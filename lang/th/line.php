@@ -39,9 +39,9 @@ return [
     'damaged_utilities_detail_end' => "ขณะนี้ :utility เปิดทำการเป็น ปกติแล้ว\n",
 
     'resoure' =>  "🚨 คำร้องขอทรัพยากร\n"
-    . "ขณะนี้ มีคำร้องขอ :product\n\n"
-    . "รายชื่อศูนย์พักพิงที่ต้องการมีดังนี้\n"
-    . ":shelter \n\n",
+        . "ขณะนี้ มีคำร้องขอ :product\n\n"
+        . "รายชื่อศูนย์พักพิงที่ต้องการมีดังนี้\n"
+        . ":shelter \n\n",
 
     'news_post' => "📰 ประกาศข่าวประชาสัมพันธ์\n\n"
         . " :name",
@@ -100,4 +100,31 @@ return [
         . "นัดหมาย ในวันที่ :date ช่วง: :time กับทีมเจ้าหน้าที่ :teams\n\n"
         . "ถูกยกเลิก ขออภัยในความไม่สะดวก",
 
+    'disaster_flood' => 'รายงานข้อมูล อุทกภัย\n\n'
+        . 'ชื่อแหล่งน้ำ:\n :water_source\n\n'
+        . 'ประเภทแหล่งน้ำ:\n :water_source_type \n\n'
+        . 'ตำแหน่งเครื่องตรวจวัด:\n :address \n\n'
+        . 'ปริมาณน้ำในแหล่งน้ำ: \n :water_value \n\n'
+        . 'สถานะ: \n :status \n\n',
+
+    'disaster_landslide' => 'รายงานข้อมูล ดินถล่ม \n\n :name \n\n',
+
+    'disaster_wildfire_h' => 'รายงานข้อมูล ไฟป่า\n\n',
+
+    'disaster_wildfire_m1' => 'ข้อมูลจุดความร้อน \n MODIS (จุด): :modis\n'
+        . 'VIIRS (จุด): :viirs\n\n',
+
+    'disaster_wildfire_m2' => ':district \n MODIS (จุด): :modis \n VIIRS (จุด): :viirs \n\n',
+
+    'disater_wildfire_m3' => 'จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน MODIS \n :detail \n\n',
+
+    'disaster_wildfire_m4' => 'จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน VIIRS \n :detail \n\n',
+
+    'disaster_smog' => 'รายงานข้อมูล หมอกควัน \n'
+        . 'ชื่อจุดตรวจวัด: \n :soure\n\n'
+        . 'ตำแหน่งจุดตรวจวัด: \n :address \n\n'
+        . 'ค่ามลพิษ: \n :smog_value μg/m³\n\n'
+        . 'สถานะ:\n :status \n\n',
+    
+    
 ];

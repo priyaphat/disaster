@@ -51,37 +51,37 @@ class UpdatePopulationRequest extends FormRequest
              * @var string
              * @example 1
              */
-            'gender' => 'string|in:0,1,2',
+            'gender' => 'in:0,1,2',
             /**
              * เบอร์มือถือ
              * @var string
              * @example 081234567
              */
-            'phone' => 'string|size:10',
+            'phone' => 'size:10',
             /**
              * รายละเอียดของภูมิลำเนา
              * @var string
              * @example 87/2 บ้านสันทราย
              */
-            'p_address' => 'string|max:100',
+            'p_address' => 'max:100',
             /**
              * ID ของภูมิลำเนา ใช้ geography_id จาก https://disaster-backend.gentechsoft.tech/api/docs#/operations/address.getAddress
              * @var string
              * @example 4826
              */
-            'p_geography_id' => 'string|exists:geography,id',
+            'p_geography_id' => 'exists:geography,id',
             /**
              * รายละเอียดของที่อยู่ปัจจุบัน
              * @var string
              * @example 87/2 บ้านสันทราย
              */
-            'c_address' => 'string|max:100',
+            'c_address' => 'max:100',
             /**
              * ID ของที่อยู่ปัจจุบัน ใช้ geography_id จาก https://disaster-backend.gentechsoft.tech/api/docs#/operations/address.getAddress
              * @var string
              * @example 4826
              */
-            'c_geography_id' => 'string|exists:geography,id',
+            'c_geography_id' => 'exists:geography,id',
             /**
              * หากที่อยู่ปัจจุบัน และ ภูมิลำเนา เหมือนกัยให้ส่ง 1 มา ไม่เหมือน 0
              * @var string
@@ -93,13 +93,13 @@ class UpdatePopulationRequest extends FormRequest
              * @var string
              * @example 1
              */
-            'status' => 'string|in:0,1,2',
+            'status' => 'in:0,1,2',
             /**
              * ส่งตัวแปร shelter_id ของศูนย์พักพิง
              * @var string
              * @example 3
              */
-            'shelter_id' => 'nullable|string|exists:shelters,id',
+            'shelter_id' => 'nullable|exists:shelters,id',
             // 'tracking' => 'in:0,1',
             /**
              * Line token

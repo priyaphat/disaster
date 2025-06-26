@@ -29,7 +29,7 @@ class EmergencyRequestService
         return $data;
     }
 
-    public function emcRequestBy($request, $search = null, $id)
+    public function emcRequestBy($request, $search = null, $id = null) // id ใช้ สำหรับ get พร้อม phone public
     {
         if(!Auth::check() && !$search){
             throw new AuthenticationException();
@@ -45,6 +45,10 @@ class EmergencyRequestService
             $search,
             fn($q) =>
             $q->whereAny($searchArr, $search)
+        )->when(
+            $id,
+            fn($q) =>
+            $q->where('id', $id)
         )
             ->with('prefix', 'disaster', 'reason', 'geography')
             ->get()

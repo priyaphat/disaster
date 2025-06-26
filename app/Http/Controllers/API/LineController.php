@@ -41,6 +41,14 @@ class LineController extends Controller
     public const Appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
     public const Emc_success = 14; //แจ้งเตือน รายงานผลการช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ)) req id
     public const Emc_unsuccess = 23; //
+    public const Disaster_flood = 24;
+    public const Disaster_landslide = 25;
+    public const Disaster_wildfire_m1 = 26.1;
+    public const Disaster_wildfire_m2 = 26.2;
+    public const Disaster_wildfire_m3 = 26.3;
+    public const Disaster_wildfire_m4 = 26.4;
+    public const Disaster_smog = 27;
+    public const Disaster_earthquake = 28;
 
     public function handle(Request $request)
     {
@@ -447,6 +455,8 @@ class LineController extends Controller
                 'teams' => $data['teams'],
             ]);
             $text = self::flex_box($text);
+        } else if($form== self::Disaster_flood){
+            
         }
         return $text;
     }
@@ -581,6 +591,8 @@ class LineController extends Controller
             return redirect('/emergency-requests/waiting-lists-for-help');
         } else if ($chanel == self::Emc_success) {
         } else if ($chanel == self::Emc_unsuccess) {
+        } else if ($chanel == self::Disaster_landslide){
+
         }
     }
 }

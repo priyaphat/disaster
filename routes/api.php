@@ -39,7 +39,6 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
-Route::get('/disaster', [DisasterController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +61,13 @@ Route::get('/prefixes', [PrefixController::class, 'index']);
 Route::get('/emc-requests/{phone}', [EmergencyRequestController::class, 'emcRequestBy']);
 Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
 Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
+Route::get('/disaster', [DisasterController::class, 'index']);
+Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'phone_detail']);
+Route::get('/dst-floods/{flood?}', [DisasterController::class, 'dst_fl_show']);
+Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_show']);
+Route::get('dst-wildfires', [DisasterController::class, 'dst_wf_show']);
+Route::get('dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
+
 Route::middleware('auth:api')->group(function () {
 
     Route::post('/change-password', [UserController::class, 'changePassword']);
@@ -144,10 +150,16 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
     Route::get('/shelter-dashboard', [ShelterController::class, 'dashboard']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display damaged utility
+    |--------------------------------------------------------------------------
+    */
     Route::get('/damaged-utilities/{type?}', [ShelterController::class, 'dmgs']);
     Route::get('/damaged-utility-name', [ShelterController::class, 'dmg_name']);
-
-
+    Route::post('/damaged-utility', [ShelterController::class, 'dmg_stroe']);
+    Route::delete('/damaged-utility/{damaged}', [ShelterController::class, 'dmg_delete']);
 
     /*
     |--------------------------------------------------------------------------
@@ -255,20 +267,16 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
     Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
 
-    Route::get('/dst-floods/{flood?}', [DisasterController::class, 'dst_fl_show']);
     Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
     Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
 
-    Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_show']);
     Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
     Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
     Route::delete('/dst-landslide/{id}', [DisasterController::class, 'dst_ls_delete']);
 
-    Route::get('dst-wildfires', [DisasterController::class, 'dst_wf_show']);
     Route::post('dst-wildfire', [DisasterController::class, 'dst_wf_create']);
 
     Route::get('dst-smog-status', [DisasterController::class, 'dst_sm_status']);
-    Route::get('dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
     Route::post('dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
 
     /*

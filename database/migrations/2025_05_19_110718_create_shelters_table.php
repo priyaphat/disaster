@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('address', 255)->nullable();
             $table->tinyInteger('status')
                   ->default(1)
-                  ->comment('0 - inactive , 1 - active');
+                  ->comment('2 - inactive , 1 - active');
             $table->timestamp('created_date')
                   ->comment('วันก่อตั้ง');
             $table->unsignedBigInteger('leader_id'); // not null

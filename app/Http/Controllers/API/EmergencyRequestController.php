@@ -114,4 +114,10 @@ class EmergencyRequestController extends Controller
         $data = $this->emergencyRequestService->noti();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
+
+    public function phone_detail(Request $request, $phone, $id)
+    {
+        $data = $this->emergencyRequestService->emcRequestBy($request, $phone, $id); //phone & id
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
 }
