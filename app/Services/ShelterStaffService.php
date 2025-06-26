@@ -34,7 +34,8 @@ class ShelterStaffService
             $query->orderBy('created_at', $sort);
         }
         
-        $data = $query->with('user.prefix:id,name', 'user.position:id,name', 'user.department:id,name', 'shelterposition')->paginate(10);
+        $data = $query->with('user.prefix:id,name', 'user.position:id,name', 'user.department:id,name', 'shelterposition')
+        ->whereDoesntHave('user.member')->paginate(10);
         return $data->setCollection(ShelterStaffResource::collection($data->items())->collection);
     }
 

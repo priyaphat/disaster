@@ -19,7 +19,7 @@ class TransferHistoryResource extends JsonResource
             'id' => $this->id,
             'created_at' => $this->created_at,
             'action_type' => ActionType::from($this->action_type)->action_type(),
-            'object' => $this->shelter->name ?? $this->team->name,
+            'object' => $this->childable?->name,
             'description' => ActionType::from($this->action_type)->action_type().' '. $this->childable?->name,
             'created_by' => $this->created_by_name->firstname . ' ' . $this->created_by_name->lastname
         ];

@@ -47,7 +47,10 @@ class UserService
     public function selectableUsers(array $filters = [])
     {
         $filters['approve'] = 'success';
-        $data = $this->baseQuery($filters)->select('id','prefix_id', 'firstname', 'lastname')->whereDoesntHave('member')->latest()->get();
+        $data = $this->baseQuery($filters)
+            ->select('id', 'prefix_id', 'firstname', 'lastname')
+            ->whereDoesntHave('shelterstaff')
+            ->whereDoesntHave('member')->latest()->get();
         return UserSelectResource::collection($data);
     }
 

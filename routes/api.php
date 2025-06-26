@@ -156,10 +156,10 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/staff', [ShelterStaffController::class, 'index']);
     Route::post('/staff', [ShelterStaffController::class, 'store']);
-    Route::post('/staff/transfer/{shelterstaff}', [ShelterStaffController::class, 'transfer']);
-    Route::post('/staff/exit/{shelterstaff}', [ShelterStaffController::class, 'exit']);
+    Route::post('/staff/transfer/{userId}', [ShelterStaffController::class, 'transfer']);
+    Route::post('/staff/exit/{userId}', [ShelterStaffController::class, 'exit']);
     Route::post('/staff/exit-all', [ShelterStaffController::class, 'exitall']);
-    Route::post('/staff/assign/{shelterstaff}', [ShelterStaffController::class, 'assignposition']);
+    Route::post('/staff/assign/{userId}', [ShelterStaffController::class, 'assignposition']);
     Route::post('/staff/join', [ShelterStaffController::class, 'join']);
 
     /*
@@ -322,7 +322,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
-
     Route::post('/member/join', [TeamMemberController::class, 'join']);
     Route::post('/member/transfer', [TeamMemberController::class, 'transfer']);
     Route::post('/member/leave', [TeamMemberController::class, 'leave']);
@@ -352,7 +351,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display transfer history
     |--------------------------------------------------------------------------
     */
-    Route::get('/transfer-history/{model}/{id}', [TransferHistoryController::class, 'getlog']);
-    Route::get('/shelter-history', [TransferHistoryController::class, 'shelterlog']);
-    Route::get('/action-type', [TransferHistoryController::class, 'actiontype']);
+    Route::get('/transfer-history/{model}/{id}', [TransferHistoryController::class, 'getLog']);
+    Route::get('/shelter-history', [TransferHistoryController::class, 'shelterLog']);
+    Route::get('/action-type', [TransferHistoryController::class, 'actionType']);
 });

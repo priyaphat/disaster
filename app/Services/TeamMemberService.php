@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\TeamPosition;
 use App\Exceptions\MemberException;
 use App\Http\Utility\ConvertUtility;
-use App\Models\Position;
 use App\Models\TeamMember;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -135,7 +134,7 @@ class TeamMemberService
     {
         $userId = ConvertUtility::toInt($userId);
         $query = TeamMember::where('user_id', $userId);
-        return $query->firstOrFail();
+        return $query->first();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ActionType;
 use App\Models\Shelter;
 use App\Models\ShelterPosition;
 use App\Models\ShelterStaff;
@@ -23,9 +24,9 @@ class ShelterStaffObserver
      */
     public function created(ShelterStaff $shelterStaff): void
     {
-        $this->logService->createLog(TransferHistory::ENTER, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
+        $this->logService->createLog(ActionType::ENTER->value, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
         if($shelterStaff->shelter_position_id){
-            $this->logService->createLog(TransferHistory::ASSIGN, User::class, $shelterStaff->user_id, ShelterPosition::class, $shelterStaff->shelter_position_id);
+            $this->logService->createLog(ActionType::ASSIGN->value, User::class, $shelterStaff->user_id, ShelterPosition::class, $shelterStaff->shelter_position_id);
         }
     }
 
@@ -35,11 +36,11 @@ class ShelterStaffObserver
     public function updated(ShelterStaff $shelterStaff): void
     {
         if ($shelterStaff->isDirty('shelter_id')) {
-            $this->logService->createLog(TransferHistory::TRANSFER, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
+            $this->logService->createLog(ActionType::TRANSFER->value, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
         }
 
         if ($shelterStaff->isDirty('shelter_position_id')) {
-            $this->logService->createLog(TransferHistory::ASSIGN, User::class, $shelterStaff->user_id, ShelterPosition::class, $shelterStaff->shelter_position_id);
+            $this->logService->createLog(ActionType::ASSIGN->value, User::class, $shelterStaff->user_id, ShelterPosition::class, $shelterStaff->shelter_position_id);
         }
     }
 
@@ -48,6 +49,6 @@ class ShelterStaffObserver
      */
     public function deleted(ShelterStaff $shelterStaff): void
     {
-         $this->logService->createLog(TransferHistory::EXIT, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
+         $this->logService->createLog(ActionType::EXIT->value, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
     }
 }

@@ -62,7 +62,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $data = $user->load(['prefix', 'department', 'position', 'area', 'approval', 'member', 'image']);
+        $data = $user->load(['prefix', 'department', 'position', 'area', 'approval', 'member', 'image', 'shelterstaff']);
         return ApiResponse::successResponse(__('success.data'), new UserResource($data));
     }
 

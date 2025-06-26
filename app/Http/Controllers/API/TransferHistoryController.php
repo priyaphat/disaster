@@ -31,9 +31,9 @@ class TransferHistoryController extends Controller
     #[QueryParameter('year', description: 'ค้นหาตามปี', type: 'datetime', example: "2025-6-17 00:00:00")]
     // #[QueryParameter('start_date', description: 'ค้นหาวัน (ระยะ)', type: 'datetime', example: "2025-6-17 00:00:00")]
     // #[QueryParameter('end_date', description: 'ค้นหาวัน (ระยะ)', type: 'datetime', example: "2025-6-20 00:00:00")]
-    public function getlog(Request $request, $model, $id)
+    public function getLog(Request $request, $model, $id)
     {
-        $data = $this->transferLogService->getlog($request->all(), LogUtility::getClassName($model), $id);
+        $data = $this->transferLogService->getLog($request->all(), LogUtility::getClassName($model), $id);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -46,18 +46,20 @@ class TransferHistoryController extends Controller
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     #[QueryParameter('start_date', description: 'ค้นหาวัน (ระยะ)', type: 'datetime', example: "2025-6-17 00:00:00")]
     #[QueryParameter('end_date', description: 'ค้นหาวัน (ระยะ)', type: 'datetime', example: "2025-6-20 00:00:00")]
-    public function shelterlog(Request $request)
+    public function shelterLog(Request $request)
     {
-        $data = $this->transferLogService->getshelterlog($request->all());
+        $data = $this->transferLogService->getShelterlog($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
      * Display a listing of action type for filter logs| รายชื่อการกระทำ
      */
-    public function actiontype()
+    public function actionType(Request $request)
     {
-        $data = $this->transferLogService->getactiontype();
+        // Get name of param for check model
+        $model = $request->input('model');
+        $data = $this->transferLogService->getActiontype($model);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

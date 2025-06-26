@@ -35,7 +35,7 @@ class TeamMemberObserver
         $newData = $teamMember->getAttributes();
 
         if ($teamMember->isDirty('team_id')) {
-            $this->logService->createLog(ActionType::CHANGE_TEAM->value, User::class, $oldData['user_id'], Team::class, $oldData['team_id']);
+            $this->logService->createLog(ActionType::EXIT_TEAM->value, User::class, $oldData['user_id'], Team::class, $oldData['team_id']);
             $this->logService->createLog(ActionType::JOIN_TEAM->value, User::class, $newData['user_id'], Team::class, $newData['team_id']);
         }
     }
@@ -45,6 +45,6 @@ class TeamMemberObserver
      */
     public function deleted(TeamMember $teamMember): void
     {
-        $this->logService->createLog(ActionType::CHANGE_TEAM->value, User::class, $teamMember->user_id, Team::class, $teamMember->team_id);
+        $this->logService->createLog(ActionType::EXIT_TEAM->value, User::class, $teamMember->user_id, Team::class, $teamMember->team_id);
     }
 }

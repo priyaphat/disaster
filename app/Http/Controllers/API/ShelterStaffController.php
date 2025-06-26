@@ -18,7 +18,9 @@ use App\Services\ShelterStaffService;
 use App\Services\TransferHistoryService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShelterStaffController extends Controller
 {
@@ -59,10 +61,14 @@ class ShelterStaffController extends Controller
      */
     public function join(CreateOneStaffRequest $request)
     {
+        $staff = ShelterStaff::where('user_id', $request->user_id)->first();
+        if($staff){
+            throw new BadRequestHttpException('user มี shelter อยู่แล้ว');
+        }
         $data = ShelterStaff::create([
             'user_id' => $request->user_id,
             'shelter_id' => $request->shelter_id,
-            'shelter_position_id' => $request->shelter_position_id,
+            'shelter_position_id' => $request->position_id,
         ]);
         return ApiResponse::createdResponse(__('success.staff.created'), $data);
     }
@@ -70,39 +76,52 @@ class ShelterStaffController extends Controller
     /**
      * Transfer staff | ย้ายเจ้าหน้าที่ศูนย์พักพิงรายบุคคล
      */
-    #[PathParameter('shelterstaff', description: 'ส่ง id ของ shelter_staffs', type: 'string', example: '3')]
-    public function transfer(TransferShelterStaffRequest $request, ShelterStaff $shelterstaff)
+    #[PathParameter('userId', description: 'ส่ง id ของ user_id', type: 'integer', example: 3)]
+    public function transfer(TransferShelterStaffRequest $request, $userId)
     {
-        $oldShelter_id = $shelterstaff->shelter_id;
+
+        $staff = ShelterStaff::where('user_id', $userId)->first();
+        if(!$staff){
+            throw new ModelNotFoundException();
+        }
+        $oldShelter_id = $staff->shelter_id;
         $newShelter_id = $request->shelter_id;
 
         if ($newShelter_id == $oldShelter_id) {
             return ApiResponse::successResponse(__('success.staff.updated'));
         }
 
-        $shelterstaff->update(['shelter_id' => $newShelter_id]);
+        $staff->update(['shelter_id' => $newShelter_id]);
         return ApiResponse::successResponse(__('success.staff.updated'));
     }
 
     /**
      * Assign position to staff | มอบหน้าที่ให้เจ้าหน้าที่ภายในศูนย์พักพิงรายบุคคล
      */
-    #[PathParameter('shelterstaff', description: 'ส่ง id ของ shelter_staffs', type: 'string', example: '3')]
-    public function assignposition(AssignShelterPositionRequest $request, ShelterStaff $shelterstaff)
+    #[PathParameter('userId', description: 'ส่ง id ของ user_id', type: 'integer', example: 3)]
+    public function assignposition(AssignShelterPositionRequest $request, $userId)
     {
+        $staff = ShelterStaff::where('user_id', $userId)->first();
+        if(!$staff){
+            throw new ModelNotFoundException();
+        }
         $position = $request->shelter_position_id;
-        $shelterstaff->update(['shelter_position_id' => $position]);
+        $staff->update(['shelter_position_id' => $position]);
         return ApiResponse::successResponse(__('success.updated'));
     }
 
     /**
      * Exit staff | นำเจ้าหน้าที่ออกจากศูนย์พักพิงรายบุคคล
      */
-    #[PathParameter('shelterstaff', description: 'ส่ง id ของ shelter_staffs', type: 'string', example: '3')]
-    public function exit(ShelterStaff $shelterstaff)
+    #[PathParameter('userId', description: 'ส่ง id ของ user_id', type: 'integer', example: 3)]
+    public function exit($userId)
     {
-        $shelterstaff->delete();
-        return ApiResponse::successResponse(__('success.updated'));
+        $staff = ShelterStaff::where('user_id', $userId)->first();
+        if(!$staff){
+            throw new ModelNotFoundException();
+        }
+        $staff->delete();
+        return ApiResponse::successResponse(__('success.staff.leaved'));
     }
 
     /**
@@ -112,6 +131,6 @@ class ShelterStaffController extends Controller
     {
         $shelter_id = $request->shelter_id;
         ShelterStaff::where('shelter_id', $shelter_id)->each->delete();
-        return ApiResponse::successResponse(__('success.deleted'));
+        return ApiResponse::successResponse(__('success.staff.leaved'));
     }
 }
