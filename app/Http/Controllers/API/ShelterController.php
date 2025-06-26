@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\DamagedUtility as EnumsDamagedUtility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Shelter\CreateShelterRequest;
 use App\Http\Requests\Shelter\UpdateShelterRequest;
 use App\Http\Responses\ApiResponse;
+use App\Models\DamagedUtility;
 use App\Models\Shelter;
 use App\Models\TransferHistory;
 use App\Services\ImageService;
@@ -115,6 +117,25 @@ class ShelterController extends Controller
     }
 
     /**
-     * สาธารณประโยชน์ที่ได้รับความเสียหาย | create // type name
+     * สาธารณประโยชน์ที่ได้รับความเสียหาย | create // type, name
      */
+    public function dmg_stroe(Request $request)
+    {
+        $data = $request->validate([
+            'data' => 'required|array',
+            'data.*.type' => 'required|in:' . implode(',', array_map(fn($e) => $e->value, EnumsDamagedUtility::cases())),
+            'data.*.name' => 'required|string|max:255',
+        ], []);
+        self::dmg_delete($data['data'][0]['type']);
+        if (DamagedUtility::insert($data['data'])) return $data['data'];
+    }
+
+    /**
+     * สาธารณประโยชน์ที่ได้รับความเสียหาย | dalete // type
+     */
+    public function dmg_delete($damaged)
+    {
+        DamagedUtility::where('type', $damaged)->delete();
+        return ApiResponse::successResponse(__('success.deleted'));
+    }
 }

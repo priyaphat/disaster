@@ -86,7 +86,9 @@ class PopulationController extends Controller
     public function update(UpdatePopulationRequest $request, Population $population)
     {
         $data = $this->populationService->update($population, $request->all());
-        $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
+        if ($request->image) {
+            $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
+        }
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
