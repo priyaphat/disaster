@@ -75,7 +75,8 @@ class CreateShelterRequest extends FormRequest
              * @var array
              * @example ["1", "2"]
              */
-            'utilities' => 'required|array',
+            'utilities' => 'nullable|array',
+            'utilities.*' => 'integer',
             /**
              * รายละเอียดของที่อยู่
              * @var string

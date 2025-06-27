@@ -34,8 +34,8 @@ class ShelterShowResource extends JsonResource
             'subdistrict_code' => $this->geography->subdistrict_code,
             'subdistrict_name' => $this->geography->subdistrict_name_th,
             'postal_code' => $this->geography->postal_code,
-            'staff_count' => $this->countstaff->count(),
-            'current_capacity' => $this->countpopulation->count(),
+            'staff_count' => $this->staff->count(),
+            'current_capacity' => $this->population->count(),
             'max_capacity' => $this->max_capacity,
             'utilities' => is_array($this->utilities)
                 ? collect($this->utilities)->map(fn($u) => [
@@ -43,6 +43,7 @@ class ShelterShowResource extends JsonResource
                     'name' => ShelterUtilities::from($u)->utility(),
                 ])->toArray()
                 : [],
+            'image' =>  $this->when($this->image, $this->image?->image_path),
         ];
     }
 }

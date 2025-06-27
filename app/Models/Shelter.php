@@ -50,7 +50,7 @@ class Shelter extends Model
         return $this->morphOne(Image::class, 'parentable');
     }
 
-    public function fulladdress() {
+    public function fullAddress() {
         return $this->belongsTo(Geography::class, 'geography_id')->select('id', 'province_name_th', 'district_name_th', 'subdistrict_name_th');
     }
 
@@ -59,7 +59,7 @@ class Shelter extends Model
         return $this->belongsTo(Geography::class, 'geography_id')->select('id', 'province_code', 'province_name_th', 'province_name_en', 'district_code', 'district_name_th', 'district_name_en', 'subdistrict_code', 'subdistrict_name_th', 'subdistrict_name_en', 'postal_code');
     }
 
-    public function countpopulation() {
+    public function population() {
         return $this->hasMany(Population::class, 'shelter_id');
     }
 
@@ -67,17 +67,17 @@ class Shelter extends Model
         return $this->belongsTo(User::class, 'leader_id')->select('id', 'firstname', 'lastname');
     }
 
-    public function countstaff() {
+    public function staff() {
         return $this->hasMany(User::class, 'id');
+    }
+
+    public function histories()
+    {
+        return $this->morphMany(TransferHistory::class, 'childable');
     }
 
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return (new ShelterFilter($filters))->apply($query);
-    }
-
-        public function histories()
-    {
-        return $this->morphMany(TransferHistory::class, 'childable');
     }
 }

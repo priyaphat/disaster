@@ -18,7 +18,7 @@ class ShelterService
 {
     public function getList(array $filters = [])
     {
-        $data = Shelter::filter($filters)->with('fulladdress', 'countpopulation')->paginate(10);
+        $data = Shelter::filter($filters)->with('fullAddress', 'population')->paginate(10);
         return $data->setCollection(ShelterResource::collection($data->items())->collection);
     }
 
@@ -35,7 +35,7 @@ class ShelterService
             'district_code' => $data['district_code'],
             'subdistrict_code' => $data['subdistrict_code'],
             'max_capacity' => $data['max_capacity'],
-            'utilities' => $data['utilities'], //uncomment this line when use in production
+            'utilities' => $data['utilities'] ?? null, //uncomment this line when use in production
             // 'utilities' => json_decode($data['utilities'], true), //decode use for dev only, comment or removed this line when use in production
         ]);
 
@@ -50,7 +50,7 @@ class ShelterService
 
     public function show(Shelter $shelter)
     {
-        $data = Shelter::with('countpopulation', 'leader', 'countstaff', 'geography')->findOrFail($shelter->id);
+        $data = Shelter::with('image', 'population', 'leader', 'staff', 'geography')->findOrFail($shelter->id);
         return new ShelterShowResource($data);
     }
 

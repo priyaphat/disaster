@@ -23,6 +23,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     public const IMAGE_FOLDER = 'users';
+    public const SUCCESS = 'success';
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
@@ -88,11 +89,6 @@ class User extends Authenticatable
         return $this->morphOne(Image::class, 'parentable');
     }
 
-    public function transfer_histories()
-    {
-        return $this->morphMany(TransferHistory::class, 'parentable');
-    }
-
     public function approval(): HasOne
     {
         return $this->hasOne(UserApproval::class);
@@ -123,19 +119,20 @@ class User extends Authenticatable
         return $this->belongsTo(TeamMember::class, 'id', 'user_id');
     }
 
-    public function shelterstaff(): BelongsTo
+    public function staff(): BelongsTo
     {
         return $this->belongsTo(ShelterStaff::class, 'id', 'user_id');
-    }
-
-    public function scopeFilter(Builder $query, array $filters): Builder
-    {
-        return (new UserFilter($filters))->apply($query);
     }
 
     // send forgot password
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPassword($token, $this->email));
+    }
+
+    // Filter a user model
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return (new UserFilter($filters))->apply($query);
     }
 }

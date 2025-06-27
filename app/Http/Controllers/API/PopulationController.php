@@ -10,6 +10,7 @@ use App\Http\Requests\Population\TransferPopulationRequest;
 use App\Http\Requests\Population\UpdatePopulationRequest;
 use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
+use App\Models\Image;
 use App\Models\Population;
 use App\Models\Shelter;
 use App\Models\TransferHistory;

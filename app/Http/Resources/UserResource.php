@@ -41,10 +41,10 @@ class UserResource extends JsonResource
             'team_id' => $this->when($this->relationLoaded('member'), $this->member?->team?->id),
             'team_name' => $this->when($this->relationLoaded('member'), $this->member?->team?->name),
             'image' =>  $this->when($this->image, $this->image?->image_path),
-            'shelter_id' =>  $this->when($this->relationLoaded('shelterstaff'), $this->shelterstaff?->shelter?->id),
-            'shelter_name' =>  $this->when($this->relationLoaded('shelterstaff'), $this->shelterstaff?->shelter?->name),
-            'shelter_position_id' =>  $this->when($this->relationLoaded('shelterstaff'), $this->shelterstaff?->shelterposition?->id),
-            'shelter_position_name' =>  $this->when($this->relationLoaded('shelterstaff'), $this->shelterstaff?->shelterposition?->name),
+            'shelter_id' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelter?->id),
+            'shelter_name' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelter?->name),
+            'shelter_position_id' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelterPosition?->id),
+            'shelter_position_name' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelterPosition?->name),
         ];
     }
 }

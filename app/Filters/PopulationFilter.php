@@ -18,12 +18,16 @@ class PopulationFilter extends QueryFilter
 
     public function gender($value)
     {
-        return $this->builder->where('gender', $value);
+        if ($value) {
+            return $this->builder->where('gender', $value);
+        }
     }
 
     public function status($value)
     {
-        return $this->builder->where('status', $value);
+        if ($value) {
+            return $this->builder->where('status', $value);
+        }
     }
 
     public function shelter()
@@ -33,7 +37,9 @@ class PopulationFilter extends QueryFilter
 
     public function shelter_id($value)
     {
-        return $this->builder->where('shelter_id', $value);
+        if ($value) {
+            return $this->builder->where('shelter_id', $value);
+        }
     }
 
     public function tracking()

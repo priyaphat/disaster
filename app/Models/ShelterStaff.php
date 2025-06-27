@@ -59,7 +59,7 @@ class ShelterStaff extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function shelterposition()
+    public function shelterPosition()
     {
         return $this->belongsTo(ShelterPosition::class, 'shelter_position_id')->select('id', 'name');
     }

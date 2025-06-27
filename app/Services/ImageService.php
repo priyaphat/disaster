@@ -18,7 +18,7 @@ class ImageService
      * @param int $id (Updated file request)
      * @return Image
      */
-    public function getByTableAndId($table, int $id): Image
+    public function getByTableAndId($table, int $id)
     {
         return Image::where('parentable_type', $table)->where('parentable_id', $id)->first();
     }

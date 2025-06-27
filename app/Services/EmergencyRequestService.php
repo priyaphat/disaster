@@ -62,6 +62,7 @@ class EmergencyRequestService
                         }
                     }
                 }
+                $item->address = $item->address.' '.$item->geography->postal_code;
                 $item->victim_name = $victimName;
                 return $item;
             });

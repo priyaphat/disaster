@@ -83,8 +83,13 @@ class UserFilter extends QueryFilter
         return $this->builder->where('status', $status);
     }
 
-    public function staffs()
+    public function available_staff()
     {
-        return $this->builder->doesntHave('shelterstaff');
+        return $this->builder->doesntHave('staff');
+    }
+
+    public function available_member()
+    {
+        return $this->builder->doesntHave('member');
     }
 }

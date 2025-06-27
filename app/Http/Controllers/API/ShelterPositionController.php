@@ -13,11 +13,11 @@ use Illuminate\Http\Request;
 
 class ShelterPositionController extends Controller
 {
-    protected $shelterpositionService;
+    protected $shelterPositionService;
 
-    public function __construct(ShelterPositionService $shelterpositionService)
+    public function __construct(ShelterPositionService $shelterPositionService)
     {
-        $this->shelterpositionService = $shelterpositionService;
+        $this->shelterPositionService = $shelterPositionService;
     }
     
     /**
@@ -26,7 +26,7 @@ class ShelterPositionController extends Controller
     public function index()
     {
         //
-        $data = $this->shelterpositionService->getList();
+        $data = $this->shelterPositionService->getList();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -36,29 +36,29 @@ class ShelterPositionController extends Controller
     public function store(CreateShelterPositionRequest $request)
     {
         //
-        $data = $this->shelterpositionService->create($request->all());
+        $data = $this->shelterPositionService->create($request->all());
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
     /**
      * Update the specified shelter position| แก้ไขชื่อตำแหน่ง
      */
-    #[PathParameter('shelterposition', description: 'ส่ง id ของ shelter_positions', type: 'string', example: '3')]
-    public function update(UpdateShelterPositionRequest $request, ShelterPosition $shelterposition)
+    #[PathParameter('shelterPosition', description: 'ส่ง id ของ shelter_positions', type: 'string', example: '3')]
+    public function update(UpdateShelterPositionRequest $request, ShelterPosition $shelterPosition)
     {
         //
-        $data = $this->shelterpositionService->update($shelterposition, $request->all());
+        $data = $this->shelterPositionService->update($shelterPosition, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
     /**
      * Remove the specified shelter  position| ลบตำแหน่งภายในศูนย์
      */
-    #[PathParameter('shelterposition', description: 'ส่ง id ของ shelter_positions', type: 'string', example: '5')]
-    public function destroy(ShelterPosition $shelterposition)
+    #[PathParameter('shelterPosition', description: 'ส่ง id ของ shelter_positions', type: 'string', example: '5')]
+    public function destroy(ShelterPosition $shelterPosition)
     {
         //
-        $this->shelterpositionService->delete($shelterposition);
+        $this->shelterPositionService->delete($shelterPosition);
         return ApiResponse::successResponse(__('success.deleted'));
     }
 }

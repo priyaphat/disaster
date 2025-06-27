@@ -66,6 +66,12 @@ class ShelterController extends Controller
             }
         }
 
+        if (!isset($request->utilities)){
+            $request->merge([
+                'utilities' => null
+            ]);
+        }
+        
         $data = $this->shelterService->update($shelter, $request->all());
         $data->image = $this->imageService->updateImage($request->image, Shelter::IMAGE_FOLDER, Shelter::class, $data->id);
         $shelter_id = $data->id;

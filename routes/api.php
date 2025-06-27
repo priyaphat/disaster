@@ -181,8 +181,8 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/shelter-position', [ShelterPositionController::class, 'index']);
     Route::post('/shelter-position', [ShelterPositionController::class, 'store']);
-    Route::post('/shelter-position/{shelterposition}', [ShelterPositionController::class, 'update']);
-    Route::delete('/shelter-position/{shelterposition}', [ShelterPositionController::class, 'destroy']);
+    Route::post('/shelter-position/{shelterPosition}', [ShelterPositionController::class, 'update']);
+    Route::delete('/shelter-position/{shelterPosition}', [ShelterPositionController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------

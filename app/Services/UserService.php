@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class UserService
 {
-    protected $relations = ['prefix', 'department', 'position', 'area', 'approval', 'member', 'image', 'shelterstaff'];
+    protected $relations = ['prefix', 'department', 'position', 'area', 'approval', 'member', 'image', 'staff'];
     public function baseQuery($filters)
     {
         return User::filter($filters)->with($this->relations);
@@ -35,6 +35,11 @@ class UserService
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
         $filters['approve'] = isset($filters['approve']) ? $filters['approve'] : 'success';
+        if(isset($filters['available'])){
+            $filters['available_staff'] = true;
+            $filters['available_member'] = true;
+        }
+
         if (!$paginate) {
             return new UserCollection($this->baseQuery($filters)->latest()->get());
         } else {
@@ -47,10 +52,11 @@ class UserService
     public function selectableUsers(array $filters = [])
     {
         $filters['approve'] = 'success';
+        $filters['available_staff'] = true;
+        $filters['available_member'] = true;
         $data = $this->baseQuery($filters)
             ->select('id', 'prefix_id', 'firstname', 'lastname')
-            ->whereDoesntHave('shelterstaff')
-            ->whereDoesntHave('member')->latest()->get();
+            ->latest()->get();
         return UserSelectResource::collection($data);
     }
 

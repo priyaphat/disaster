@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Shelter;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateShelterRequest extends FormRequest
 {
@@ -27,7 +28,7 @@ class UpdateShelterRequest extends FormRequest
              * @var string
              * @example ศูนย์พักใจ
              */
-            'name' => 'string|max:255|unique:shelters,name',
+            'name' => ['string','max:255', Rule::unique('shelters', 'name')->ignore($this->shelter->id)],
             /**
              * เบอร์โทร
              * @var string
@@ -75,8 +76,8 @@ class UpdateShelterRequest extends FormRequest
              * @var array
              * @example ["1", "2"]
              */
-            'utilities' => 'array',
-            'utilities.*' => 'string',
+            'utilities' => 'nullable|array',
+            'utilities.*' => 'integer',
             /**
              * รายละเอียดของที่อยู่
              * @var string

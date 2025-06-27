@@ -158,6 +158,7 @@ return [
     */
 
     'attributes' => [
+        'name' => 'ชื่อ',
         'username' => 'ชื่อผู้ใช้งาน',
         'email' => 'อีเมล',
         'password' => 'รหัสผ่าน',
@@ -171,7 +172,16 @@ return [
         'district_id' => 'พื้นที่ ที่สังกัด',
         'position_id' => 'ตำแหน่งงาน',
         'user_id' => 'ผู้ใช้งาน',
-        'team_id' => 'ทีมที่สังกัด'
+        'team_id' => 'ทีมที่สังกัด',
+        'created_date' => 'วันที่สร้าง',
+        'leader_id' => 'หัวหน้า',
+        'geography_id' => 'ID ของที่อยู่',
+        'province_code' => 'จังหวัด',
+        'district_code' => 'อำเภอ',
+        'subdistrict_code' => 'ตำบล',
+        'address' => 'ที่อยู่',
+        'utilities' => 'สาธารณูปโภคประจำศูนย์',
+        'max_capacity' => 'ระบุความจุ'
     ],
 
 ];

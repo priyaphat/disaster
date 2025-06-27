@@ -107,12 +107,12 @@ class Population extends Model
         return $this->morphOne(Image::class, 'parentable');
     }
 
-    public function fullpaddress()
+    public function permanentAddress()
     {
         return $this->belongsTo(Geography::class, 'p_geography_id')->select('id', 'province_code', 'province_name_th', 'province_name_en', 'district_code', 'district_name_th', 'district_name_en', 'subdistrict_code', 'subdistrict_name_th', 'subdistrict_name_en', 'postal_code');
     }
 
-    public function fullcaddress()
+    public function currentAddress()
     {
         return $this->belongsTo(Geography::class, 'c_geography_id')->select('id', 'province_code', 'province_name_th', 'province_name_en', 'district_code', 'district_name_th', 'district_name_en', 'subdistrict_code', 'subdistrict_name_th', 'subdistrict_name_en', 'postal_code');
     }

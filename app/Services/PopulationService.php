@@ -26,7 +26,7 @@ class PopulationService
     public function getList(array $filters = [])
     {
         $query = Population::filter($filters);
-        $data = $query->with('fullpaddress', 'fullcaddress', 'prefix')->latest()->paginate(10);
+        $data = $query->with('permanentAddress', 'currentAddress', 'prefix')->latest()->paginate(10);
         return $data->setCollection(PopulationResource::collection($data->items())->collection);
     }
 
@@ -62,7 +62,7 @@ class PopulationService
 
     public function show(Population $population)
     {
-        $data = Population::with('fullpaddress', 'fullcaddress', 'prefix', 'shelter', 'image')->findOrFail($population->id);
+        $data = Population::with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image')->findOrFail($population->id);
         return new PopulationShowResource($data);
     }
 
@@ -85,7 +85,7 @@ class PopulationService
         $user = Population::where('first_name', $data['first_name'])
             ->where('last_name', $data['last_name'])
             ->where('prefix_id', $data['prefix_id'])
-            ->with('fullpaddress', 'fullcaddress', 'prefix', 'shelter')
+            ->with('permanentAddress', 'currentAddress', 'prefix', 'shelter')
             ->first();
         return $user ? new PopulationShowResource($user) : false;
     }
