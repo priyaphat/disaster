@@ -60,13 +60,14 @@ Route::get('/positions', [PositionController::class, 'index']);
 Route::get('/prefixes', [PrefixController::class, 'index']);
 Route::get('/emc-requests/{phone}', [EmergencyRequestController::class, 'emcRequestBy']);
 Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
-Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
 Route::get('/disaster', [DisasterController::class, 'index']);
 Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'phone_detail']);
 Route::get('/dst-floods/{flood?}', [DisasterController::class, 'dst_fl_show']);
 Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_show']);
 Route::get('dst-wildfires', [DisasterController::class, 'dst_wf_show']);
 Route::get('dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
+Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
+Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -268,7 +269,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
 
     Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
-    Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
 
     Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
     Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
@@ -276,8 +276,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('dst-wildfire', [DisasterController::class, 'dst_wf_create']);
 
-    Route::get('dst-smog-status', [DisasterController::class, 'dst_sm_status']);
-    Route::post('dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
+    Route::post('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
 
     /*
     |--------------------------------------------------------------------------
@@ -285,7 +284,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/post/{post}', [PostController::class, 'index']);
-    Route::post('/posts', [PostController::class, 'show']);
+    Route::get('/posts', [PostController::class, 'show']);
     Route::post('/post', [PostController::class, 'store']);
     Route::post('/post/{post}', [PostController::class, 'update']);
     Route::delete('/post/{post}', [PostController::class, 'destroy']);
@@ -303,6 +302,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
+    Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
     Route::post('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
     Route::post('/emc-requests-history', [EmergencyRequestController::class, 'show_history']);

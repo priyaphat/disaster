@@ -24,4 +24,11 @@ class DateUtility
         );
         return $formatted;
     }
+
+    public static function formFormat1($val)
+    {
+        $date = Carbon::parse($val);
+        $newYear = $date->year + 543;
+        return $date->format('d/m/') . $newYear . $date->format(' H:i');
+    }
 }

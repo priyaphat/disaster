@@ -42,7 +42,7 @@ class ConfigSeeder extends Seeder
                 "population" => 0
             ]],
             ['name' => 'แจ้งเตือน คำร้องขอทรัพยากร', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Resoure],
+                "line_type" => [LineController::Resource],
                 "user" => 0,
                 "population" => 0
             ]],

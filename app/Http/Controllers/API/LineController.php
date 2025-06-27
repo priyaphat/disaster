@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\FloodStatus;
 use App\Enums\ShiftType;
+use App\Enums\SmogStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Utility\DateUtility;
 use App\Models\LineUser;
@@ -11,10 +13,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Config;
+use App\Models\Population;
+use App\Models\User;
 
 class LineController extends Controller
 {
 
+    #region LINE CONSTANTS
     public const Population = 1;
     public const User = 7;
 
@@ -24,7 +29,7 @@ class LineController extends Controller
     public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง
     public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย
     public const Damaged_utility_end = 6; //
-    public const Resoure = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
+    public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
     public const News_post = 8; //แจ้งเตือน ยุติเหตุภัยพิบัติ
     public const News_end = 9; //
     public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ req id
@@ -49,6 +54,17 @@ class LineController extends Controller
     public const Disaster_wildfire_m4 = 26.4;
     public const Disaster_smog = 27;
     public const Disaster_earthquake = 28;
+    private const Hotline = [
+        24,
+        25,
+        26.1,
+        26.2,
+        26.3,
+        26.4,
+        27,
+        28
+    ];
+    #endregion
 
     public function handle(Request $request)
     {
@@ -114,7 +130,6 @@ class LineController extends Controller
     public function test()
     {
 
-
         $data = [
             'product' => 'น้ำ 600 มล.(แพ็ก)',
             'shelter' => [
@@ -124,13 +139,21 @@ class LineController extends Controller
                 'ศูนย์พักพิงดอยหลวงเชียงราย',
             ],
         ];
-        // $recipint = ['Uaa3e2b17e373580b16101b64937e4a39'];
+        $recipint = ['Uaa3e2b17e373580b16101b64937e4a39'];
 
-        return self::LineNotification($data, self::Disaster_post);
+        return self::LineNotification($data, self::Disaster_earthquake, $recipint);
     }
 
     public function LineNotification(array $data = null, $form, $recipint = null)
     {
+        if (in_array($form, self::Hotline)) {
+            //หา จังหวัด user pop ในระบบ
+            return self::areaFind('เชียงราย');
+            $message = self::form_box($form, $data, self::Population);
+            // self::broadcast_multi($recipint, $message);
+            return response()->json(["success" => true, "message" => 'Send Line OK.', 'data' => $message]);
+        }
+        return 'x';
         $config = Config::WhereJsonContains('description->line_type', $form)
             ->where('type', 1)
             ->first();
@@ -169,8 +192,25 @@ class LineController extends Controller
                 }
             }
         }
-
         return response()->json(["success" => true, "message" => 'Send Line OK.']);
+    }
+
+    private function areaFind($province)
+    {
+        $recipint = [];
+
+        $user = User::select(
+            // 'users.*', 'geography.province_name_th', 
+            'line_users.token_id as token'
+        )
+            ->leftJoin('geography', 'users.district_id', 'geography.district_code')
+            ->leftJoin('line_users', 'users.id', 'line_users.user_id')
+            ->where('geography.province_name_th', $province)
+            ->whereNotNull('line_users.token_id')
+            ->distinct()->get()->keyBy('token')->keys();
+        // return $user;
+        $population = Population::get();
+        return $population;
     }
 
     private function form_box($form, $data = null, $type = null)
@@ -259,7 +299,7 @@ class LineController extends Controller
             }
             $text = $text . "\n" . __('line.close_follow');
             $text = self::flex_box($text);
-        } else if ($form == self::Resoure) {
+        } else if ($form == self::Resource) {
             // $data = [
             //     'product' => 'น้ำ 600 มล.(แพ็ก)',
             //     'shelter' => [
@@ -269,11 +309,11 @@ class LineController extends Controller
             //         'ศูนย์พักพิงดอยหลวงเชียงราย',
             //     ],
             // ];
-            $text = __('line.resoure', [
+            $text = __('line.resource', [
                 'product' => $data['product'],
                 'shelter' => "• " . implode("\n• ", $data['shelter'])
             ]) . __('line.close_follow');
-            $text = self::flex_box_link($text, self::Resoure, __('line.see_more'), $type);
+            $text = self::flex_box_link($text, self::Resource, __('line.see_more'), $type);
         } else if ($form == self::News_post) {
             // $data = [
             //     'name' => 'xxxxxxxx',
@@ -455,8 +495,136 @@ class LineController extends Controller
                 'teams' => $data['teams'],
             ]);
             $text = self::flex_box($text);
-        } else if($form== self::Disaster_flood){
-            
+        } else if ($form == self::Disaster_flood) {
+            // $data = [
+            //     'water_source' => 'xxx x frx1',
+            //     'water_source_type' => '2015-03-11',
+            //     'address' => 1,
+            //     'water_value' => 999,
+            //     'status' => 1,
+            // ];
+            $text = __('line.disaster_flood', [
+                'water_source' => $data['water_source'],
+                'water_source_type' => $data['water_source_type'],
+                'address' => $data['address'],
+                'water_value' => $data['water_value'],
+                'status' => FloodStatus::from($data['status'])->label(),
+            ]) . __('line.close_follow');
+            $text = self::flex_box($text);
+        } else if ($form == self::Disaster_landslide) {
+            // $data = [
+            //     'name' => 'xxx x x1',
+            // ];
+            $text = __('line.disaster_landslide', [
+                'name' => $data['name'],
+            ]) . __('line.close_follow');
+            $text = self::flex_box_link($text, self::Disaster_landslide, __('line.see_more'), $type);
+        } else if ($form == self::Disaster_wildfire_m1) {
+            // $data = [
+            //     'modis' => 'xx1',
+            //     'viirs' => 'xxx2',
+            // ];
+            $text = __('line.disaster_wildfire_h') . __('line.disaster_wildfire_m1', [
+                'modis' => $data['modis'],
+                'viirs' => $data['viirs'],
+            ]) . __('line.close_follow');
+            $text = self::flex_box($text);
+        } else if ($form == self::Disaster_wildfire_m2) {
+            // $data = [
+            //     [
+            //         'district' => 'jj',
+            //         'modis' => 'xx1',
+            //         'viirs' => 'xx2',
+            //     ],
+            //     [
+            //         'district' => 'aa',
+            //         'modis' => 'aa1',
+            //         'viirs' => 'aa2',
+            //     ],
+
+            // ];
+            $text = __('line.disaster_wildfire_h')
+                . "ข้อมูล " . count($data) . " อันดับ จุดความร้อน\n";
+
+            foreach ($data as $item) {
+                $text = $text . __('line.disaster_wildfire_m2', [
+                    'district' => "• " . $item['modis'],
+                    'modis' => $item['modis'],
+                    'viirs' => $item['viirs'],
+                ]);
+            }
+            $text = $text . __('line.close_follow');
+            $text = self::flex_box($text);
+        } else if ($form == self::Disaster_wildfire_m3) {
+            // $data = [
+            //     141,
+            //     141,
+            //     141,
+            //     141,
+            //     141,
+            //     141,
+            // ];
+            $text = __('line.disaster_wildfire_h') . __('line.disaster_wildfire_m34', [
+                'type' => 'MODIS',
+                'val1' => $data[0] ?? 0,
+                'val2' => $data[1] ?? 0,
+                'val3' => $data[2] ?? 0,
+                'val4' => $data[3] ?? 0,
+                'val5' => $data[4] ?? 0,
+                'val6' => $data[5] ?? 0,
+            ]) . __('line.close_follow');
+            $text = self::flex_box($text);
+        } else if ($form == self::Disaster_wildfire_m4) {
+            // $data = [
+            //     141,
+            //     141,
+            //     141,
+            //     141,
+            //     141,
+            //     141,
+            // ];
+            $text = __('line.disaster_wildfire_h') . __('line.disaster_wildfire_m34', [
+                'type' => 'VIIRS',
+                'val1' => $data[0] ?? 0,
+                'val2' => $data[1] ?? 0,
+                'val3' => $data[2] ?? 0,
+                'val4' => $data[3] ?? 0,
+                'val5' => $data[4] ?? 0,
+                'val6' => $data[5] ?? 0,
+            ]) . __('line.close_follow');
+            $text = self::flex_box($text);
+        } else if ($form == self::Disaster_smog) {
+            // $data = [
+            //     'source' => 'xxxxxx',
+            //     'address' => '123',
+            //     'smog_value' => '1',
+            //     'status' => '1',
+            // ];
+            $text = __('line.disaster_smog', [
+                'source' => $data['source'],
+                'address' => $data['address'],
+                'smog_value' => $data['smog_value'],
+                'status' => SmogStatus::tryFrom($data['status'])->label(),
+            ]) . __('line.close_follow');
+            $text = self::flex_box($text);
+        } else if ($form == self::Disaster_earthquake) {
+            $data = [
+                'address' => 'เชียงราย ประเทศไทย',
+                'occurrence_time' => '2025-06-06 02:30:00',
+                'latitude' => 19.9132130,
+                'longitude' => 99.490000,
+                'magnitude' => 7.8,
+                'depth' => 3.9,
+            ];
+            $text =  __('line.disaster_earthquake', [
+                'address' => $data['address'],
+                'occurrence_time' => DateUtility::formFormat1($data['occurrence_time']),
+                'latitude' => $data['latitude'],
+                'longitude' => $data['longitude'],
+                'magnitude' => $data['magnitude'],
+                'depth' => $data['depth'],
+            ]) . __('line.close_follow');
+            $text = self::flex_box($text);
         }
         return $text;
     }
@@ -580,7 +748,7 @@ class LineController extends Controller
         // return response()->json(['success' => true, 'message' => $request->type]);
         $type = $request->type;
 
-        if ($chanel == self::Resoure) {
+        if ($chanel == self::Resource) {
             if ($type == self::User) return redirect('/dashboard');
             return redirect('/home-page');
         } else if ($chanel == self::News_post || $chanel == self::News_end) {
@@ -591,8 +759,7 @@ class LineController extends Controller
             return redirect('/emergency-requests/waiting-lists-for-help');
         } else if ($chanel == self::Emc_success) {
         } else if ($chanel == self::Emc_unsuccess) {
-        } else if ($chanel == self::Disaster_landslide){
-
+        } else if ($chanel == self::Disaster_landslide) {
         }
     }
 }

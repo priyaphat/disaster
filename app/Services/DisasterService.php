@@ -57,7 +57,7 @@ class DisasterService
             );
         $data = $query->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
         if ($id) return $data[0];
-        return PaginateUtility::Paginate($data);
+        return PaginateUtility::Paginate($data, $req->paginate ?? 10);
     }
 
     public function fl_show($req, $id = null)
@@ -86,11 +86,11 @@ class DisasterService
             ->when(
                 $req->search,
                 fn($q) =>
-                $q->whereAny(['name', 'water_source_type'], $req->search)
+                $q->whereAny(['water_source', 'water_source_type'], $req->search)
             );
         $data = $q->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
         if ($id) return $data[0];
-        return PaginateUtility::Paginate($data);
+        return PaginateUtility::Paginate($data, $req->paginate ?? 10);
     }
 
     public function ls_show($req, $id = null)
@@ -108,7 +108,7 @@ class DisasterService
             );
         $q = $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
         if ($id) return $q[0];
-        return PaginateUtility::Paginate($q);
+        return PaginateUtility::Paginate($q, $req->paginate ?? 10);
     }
 
     public function ls_create($r)
@@ -198,6 +198,6 @@ class DisasterService
             );
         $data = $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
         if ($id) return $data[0];
-        return PaginateUtility::Paginate($data);
+        return PaginateUtility::Paginate($data, $req->paginate ?? 10);
     }
 }

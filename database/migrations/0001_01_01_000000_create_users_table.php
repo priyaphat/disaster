@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->integer('status')->default(true);
-            $table->string('line_token')->nullable();
             $table->integer('type')->default(1);
             $table->unsignedBigInteger('district_id')->nullable();
             $table->unsignedBigInteger('department_id')->nullable();

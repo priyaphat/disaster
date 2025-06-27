@@ -100,13 +100,6 @@ class UpdatePopulationRequest extends FormRequest
              * @example 3
              */
             'shelter_id' => 'nullable|exists:shelters,id',
-            // 'tracking' => 'in:0,1',
-            /**
-             * Line token
-             * @var string
-             * @example 3e12as@dAS3tgsdfg423f
-             */
-            'line_token' => 'nullable|string',
             /**
              * วันที่บันทึกข้อมูลลงระบบ
              * @var datetime
