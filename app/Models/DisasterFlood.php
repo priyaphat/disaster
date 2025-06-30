@@ -28,7 +28,7 @@ class DisasterFlood extends Model
     }
 }
 
-// INSERT INTO water_sources (id, address, water_source, water_source_type, status, water_value, line_oa)
+// INSERT INTO water_floods (id, address, water_source, water_source_type, status, water_value, line_oa)
 // VALUES
 // (1, 'ตำบลบางรัก, อำเภอเมือง, กรุงเทพ', 'แม่น้ำเจ้าพระยา', 'แม่น้ำ', 3, 250, 1),
 // (2, 'ตำบลหนองบัว, อำเภอบางเลน, นครปฐม', 'คลองบางเลน', 'คลอง', 2, 80, 0),

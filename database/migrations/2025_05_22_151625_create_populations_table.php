@@ -25,7 +25,6 @@ return new class extends Migration
             $table->unsignedBigInteger('shelter_id')->nullable()->comment('หากออกจากศูนย์พักพิงแล้วจะเป็น null');
             $table->unsignedTinyInteger('tracking')->default(1)->comment('0 - ไม่ติดตาม , 1 - ติดตาม');
             $table->integer('sequence_id')->nullable()->comment('id ที่อ้างอิงจากการดึงข้อมูลจากภายนอก');
-            $table->text('line_token')->nullable();
             $table->dateTime('created_date');
             $table->unsignedBigInteger('created_by');
             $table->timestamps();

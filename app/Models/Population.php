@@ -43,7 +43,7 @@ class Population extends Model
         'shelter_id',
         'tracking',
         'sequence_id',
-        'line_token',
+        // 'line_token',
         'created_date',
         'created_by',
         'updated_by',

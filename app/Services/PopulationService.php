@@ -47,7 +47,6 @@ class PopulationService
             'status' => $data['status'],
             // 'tracking' => $data['tracking'],
             'shelter_id' => $data['shelter_id'] ?? null,
-            'line_token' => $data['line_token'],
             'created_date' => $data['created_date'],
         ]);
 
@@ -146,7 +145,6 @@ class PopulationService
                             'c_geography_id' => null,
                             'sequence_id' => $sequence_id,
                             'shelter_id' => null,
-                            'line_token' => null,
                             'created_date' => Carbon::now(),
                         ]);
                     }
