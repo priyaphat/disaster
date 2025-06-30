@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ActionType;
 use App\Http\Resources\TransferHistoryResource;
+use App\Http\Utility\LogUtility;
 use App\Models\Population;
 use App\Models\Shelter;
 use App\Models\Team;
@@ -23,6 +24,12 @@ class TransferHistoryService
         ];
 
         TransferHistory::create($tableData);
+    }
+
+    public function updateLog($childTable, $childId, $childName)
+    {
+        return TransferHistory::where(['childable_type' => $childTable, 'childable_id' => $childId])
+            ->update(['childable_name' => $childName]);
     }
 
     public function getLog(array $filters = [], $table, $id)
@@ -51,9 +58,13 @@ class TransferHistoryService
             default:
                 $enum = array_slice(ActionType::cases(), 6, 8);
         }
-        return array_map(fn($case) => [
-            'id' => $case->value,
-            'name' => $case->action_type(),
-        ], $enum);
+
+        return array_map(function ($case) use ($model) {
+            $class = LogUtility::getClassName($model);
+            return [
+                'id' => $case->value,
+                'name' => $case->label($class)
+            ];
+        }, $enum);
     }
 }

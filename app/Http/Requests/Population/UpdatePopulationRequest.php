@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Population;
 
+use App\Enums\PopulationStatus;
+use App\Enums\VictimStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePopulationRequest extends FormRequest
 {
@@ -87,13 +90,13 @@ class UpdatePopulationRequest extends FormRequest
              * @var string
              * @example 1
              */
-            'same_address' => 'required',
+            'same_address' => 'nullable',
             /**
              * สถานะ 0 - เสียชีวิต , 1 - บาดเจ็บ , 2 - ปกติ
              * @var string
              * @example 1
              */
-            'status' => 'in:0,1,2',
+            'status' => Rule::enum(PopulationStatus::class),
             /**
              * ส่งตัวแปร shelter_id ของศูนย์พักพิง
              * @var string

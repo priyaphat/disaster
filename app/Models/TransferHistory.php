@@ -27,6 +27,7 @@ class TransferHistory extends Model
         'parentable_type',
         'parentable_id',
         'childable_type',
+        'childable_name',
         'childable_id',
     ];
 

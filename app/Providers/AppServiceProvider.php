@@ -9,9 +9,11 @@ use App\Listeners\SendPasswordEmail;
 use App\Listeners\SendWelcomeEmail;
 use App\Listeners\UserEventSubscriber;
 use App\Models\ShelterStaff;
+use App\Models\Team;
 use App\Models\TeamMember;
 use App\Observers\ShelterStaffObserver;
 use App\Observers\TeamMemberObserver;
+use App\Observers\TeamObserver;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -52,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
 
         TeamMember::observe(TeamMemberObserver::class);
         ShelterStaff::observe(ShelterStaffObserver::class);
+        Team::observe(TeamObserver::class);
         // API Document
         Scramble::configure()
             ->expose(
@@ -65,5 +68,9 @@ class AppServiceProvider extends ServiceProvider
                     SecurityScheme::http('bearer')
                 );
             });
+
+        if (env('DEV_MAIL')) {
+            Mail::alwaysTo(env('DEV_MAIL_TO', 'gensoft.dev.tech@gmail.com'));
+        }
     }
 }

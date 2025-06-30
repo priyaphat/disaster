@@ -11,8 +11,8 @@ class AddressUtility
         $fullAdress = $address;
         $postalCode = $postalCode ? $postalCode : "";
         if ($geography) {
-            if ($geography === 10) {
-                $fullAdress .= ' แขวง' . $geography->subdistrict_name_th . ' เขต' . $geography->district_name_th . ' จ.' . $geography->province_name_th. ' ' . $postalCode;
+            if ($geography->province_code === 10) {
+                $fullAdress .= ' แขวง ' . $geography->subdistrict_name_th . ' เขต ' . $geography->district_name_th . ' จ.' . $geography->province_name_th. ' ' . $postalCode;
             } else {
                 $fullAdress .= ' ต.' . $geography->subdistrict_name_th . ' อ.' . $geography->district_name_th . ' จ.' . $geography->province_name_th . ' ' . $postalCode;
             }

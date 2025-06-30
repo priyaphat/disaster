@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Population;
 
+use App\Enums\PopulationStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreatePopulationRequest extends FormRequest
 {
@@ -93,7 +95,7 @@ class CreatePopulationRequest extends FormRequest
              * @var string
              * @example 1
              */
-            'status' => 'required|in:0,1,2',
+            'status' => ['required', Rule::enum(PopulationStatus::class)],
             /**
              * ส่งตัวแปร shelter_id ของศูนย์พักพิง
              * @var string

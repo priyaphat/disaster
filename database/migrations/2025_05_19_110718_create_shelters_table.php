@@ -28,7 +28,7 @@ return new class extends Migration
                   ->comment('วันก่อตั้ง');
             $table->unsignedBigInteger('leader_id'); // not null
             $table->json('utilities')
-                  ->comment('1 = น้ำประปา, 2 = ไฟฟ้า, 3 = บำบัดน้ำเสีย, 4 = สุขาภิบาล (ห้องน้ำ), 5 = การกำจัดขยะ, 6 = สัญญาณอินเทอร์เน็ต');
+                  ->nullable()->comment('1 = น้ำประปา, 2 = ไฟฟ้า, 3 = บำบัดน้ำเสีย, 4 = สุขาภิบาล (ห้องน้ำ), 5 = การกำจัดขยะ, 6 = สัญญาณอินเทอร์เน็ต');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
             $table->unsignedBigInteger('updated_by')->nullable();

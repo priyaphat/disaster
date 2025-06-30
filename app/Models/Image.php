@@ -33,14 +33,11 @@ class Image extends Model
             get: function ($value, $attributes) {
                 if ($attributes['image_name'] === 'default.png') {
                     switch ($attributes['parentable_type']) {
-                        case User::class:
-                            $url = Storage::disk('public')->url('user-default.png');
-                            break;
                         case Shelter::class:
-                            $url = Storage::disk('public')->url('shelter-default.png');
+                            $url = Storage::disk('public')->url('shelter_default.png');
                             break;
                         default:
-                            $url = Storage::disk('public')->url('default.png');
+                            $url = Storage::disk('public')->url('user_default.png');
                     }
                     return $url;
                 } elseif ($attributes['image_type'] === self::PUBLIC) {

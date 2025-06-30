@@ -27,8 +27,10 @@ class UserResource extends JsonResource
             'type_name' => $this->type->label(),
             'area' => $this->when($this->relationLoaded('area'), function (){
                 return [
+                    'province_code' => $this->area?->province_code,
                     'province_name_th' => $this->area?->province_name_th,
                     'province_name_en' => $this->area?->province_name_en,
+                    'district_code' => $this->area?->district_code,
                     'district_name_th' => $this->area?->district_name_th,
                     'district_name_en' => $this->area?->district_name_en,
                 ];
