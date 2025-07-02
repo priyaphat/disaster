@@ -55,14 +55,14 @@ class LineController extends Controller
     public const Disaster_smog = 27;
     public const Disaster_earthquake = 28;
     private const Hotline = [
-        24,
-        25,
-        26.1,
-        26.2,
-        26.3,
-        26.4,
-        27,
-        28
+        self::Disaster_flood,
+        self::Disaster_landslide,
+        self::Disaster_wildfire_m1,
+        self::Disaster_wildfire_m2,
+        self::Disaster_wildfire_m3,
+        self::Disaster_wildfire_m4,
+        self::Disaster_smog,
+        self::Disaster_earthquake,
     ];
     #endregion
 
@@ -153,7 +153,7 @@ class LineController extends Controller
             // self::broadcast_multi($recipint, $message);
             return response()->json(["success" => true, "message" => 'Send Line OK.', 'data' => $message]);
         }
-        return 'x';
+        // return 'x'; //interapt
         $config = Config::WhereJsonContains('description->line_type', $form)
             ->where('type', 1)
             ->first();
@@ -199,7 +199,7 @@ class LineController extends Controller
     {
         $recipint = [];
 
-        $user = User::select(
+        $recipint = User::select(
             // 'users.*', 'geography.province_name_th', 
             'line_users.token_id as token'
         )
@@ -209,8 +209,8 @@ class LineController extends Controller
             ->whereNotNull('line_users.token_id')
             ->distinct()->get()->keyBy('token')->keys();
         // return $user;
-        $population = Population::get();
-        return $population;
+        // $population = Population::get();
+        return $recipint;
     }
 
     private function form_box($form, $data = null, $type = null)
