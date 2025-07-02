@@ -117,9 +117,11 @@ class PopulationService
                     $data = $data['properties'];
 
                     $prefix_id = PrefixId::from($data['title'])->label();
-                    $name = explode(' ', $data['name']);
+                    // $name = explode(' ', $data['name']);
+                    $name = preg_split('/\s+/', trim($data['name']));
                     $first_name = $name[0] ?? '';
                     $last_name = $name[1] ?? '';
+
                     $birth_date = Carbon::parse($data['date_of_birth'])->format('Y-m-d');
                     $gender_id = GenderId::label($prefix_id)->value;
                     $sequence_id = $data['id'];

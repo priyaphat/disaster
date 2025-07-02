@@ -65,14 +65,26 @@ class ConfigController extends Controller
     public function update(Request $request, Config $config)
     {
         $data = $request->validate([
-            'name' => 'nullable|string|max:255|unique:configs,name,' . $config->id,
-            'type' => 'nullable|integer|in:1,2',
-            'description' => 'nullable|array',
-            'status' => 'nullable|integer|in:0,1',
+            // 'name' => 'nullable|string|max:255|unique:configs,name,' . $config->id,
+            // 'type' => 'nullable|integer|in:1,2',
+            // 'description' => 'nullable|array',
+            // 'status' => 'nullable|integer|in:0,1',
+            'population' => 'nullable|integer|in:0,1',
+            'user' => 'nullable|integer|in:0,1',
         ]);
 
-        $config->update($request->all());
-        return ApiResponse::successResponse(__('success.config.update'), $config);
+        // $config->update($request->all());
+
+        $description = $config->description ?? [];
+        if (isset($request->population)) $description['population'] = $request->population;
+        if (isset($request->user)) $description['user'] = $request->user;
+        $config->description = $description;
+        $config->save();
+
+        if (($request->user ?? null) === '0' || ($request->population ?? null) === '0') {
+            return ApiResponse::successResponse(__('success.config.update_off'), $config);
+        }
+        return ApiResponse::successResponse(__('success.config.update_on'), $config);
     }
 
     /**
