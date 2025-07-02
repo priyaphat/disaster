@@ -99,7 +99,7 @@ class ShelterStaffController extends Controller
      * Assign position to staff | มอบหน้าที่ให้เจ้าหน้าที่ภายในศูนย์พักพิงรายบุคคล
      */
     #[PathParameter('userId', description: 'ส่ง id ของ user_id', type: 'integer', example: 3)]
-    public function assignposition(AssignShelterPositionRequest $request, $userId)
+    public function assignPosition(AssignShelterPositionRequest $request, $userId)
     {
         $staff = ShelterStaff::where('user_id', $userId)->first();
         if(!$staff){
@@ -127,7 +127,7 @@ class ShelterStaffController extends Controller
     /**
      * Exit all staff | นำเจ้าหน้าที่ออกจากศูนย์พักพิงทั้งหมด
      */
-    public function exitall(ExitAllShelterStaffRequest $request)
+    public function exitAll(ExitAllShelterStaffRequest $request)
     {
         $shelter_id = $request->shelter_id;
         ShelterStaff::where('shelter_id', $shelter_id)->each->delete();

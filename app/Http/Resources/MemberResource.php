@@ -36,7 +36,7 @@ class MemberResource extends JsonResource
             'team_position' =>  $this->when($this->team_position, $this->team_position),
             'team_position_name' =>  $this->when($this->team_position, $this->team_position ? TeamPosition::from($this->team_position)->label() : null),
             'position_name' => $this->position->name,
-            'image' => $this->image?->image_url,
+            'image' => $this->image?->image_path,
         ];
     }
 }

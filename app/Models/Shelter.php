@@ -15,7 +15,7 @@ class Shelter extends Model
 
     public const IMAGE_FOLDER = 'shelter';
     public const OPEN = 1;
-    public const CLOSED = 0;
+    public const CLOSED = 2;
 
     protected $fillable = [
         'name',
@@ -68,7 +68,7 @@ class Shelter extends Model
     }
 
     public function staff() {
-        return $this->hasMany(User::class, 'id');
+        return $this->hasMany(ShelterStaff::class, 'shelter_id');
     }
 
     public function histories()

@@ -67,7 +67,7 @@ class PopulationController extends Controller
         if ($shelter) { //ตอนสร้าง ปชช ยังไม่เข้า shelter
             $this->transferLogService->createLog(TransferHistory::ENTER, Population::class, $data->id, Shelter::class, $data->shelter_id);
         }
-        return ApiResponse::createdResponse(__('success.data'), $data);
+        return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
     /**
@@ -135,7 +135,7 @@ class PopulationController extends Controller
     /**
      * Exit all population | นำประชากรออกจากศูนย์พักพิงทั้งหมด
      */
-    public function exitall(ExitAllPopulationRequest $request)
+    public function exitAll(ExitAllPopulationRequest $request)
     {
         $shelter_id = $request->shelter_id;
         $populations = Population::where('shelter_id', $shelter_id)->get();
@@ -150,9 +150,9 @@ class PopulationController extends Controller
     /**
      * Check population | เช็คประชากรที่อยู่ในระบบ
      */
-    public function checkpopulation(CheckPopulationRequest $request)
+    public function checkPopulation(CheckPopulationRequest $request)
     {
-        $data = $this->populationService->checkpupulation($request->all());
+        $data = $this->populationService->checkPopulation($request->all());
         if ($data) {
             return ApiResponse::successResponse(__('success.data'), $data);
         } else {
@@ -163,9 +163,9 @@ class PopulationController extends Controller
     /**
      * Import population | นำเข้าประชากรจากภายนอก
      */
-    public function addexternalpop()
+    public function addExternalPop()
     {
-        $data = $this->populationService->addexternalpopulation();
+        $data = $this->populationService->addExternalPopulation();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

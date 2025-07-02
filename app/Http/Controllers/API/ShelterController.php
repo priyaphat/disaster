@@ -50,7 +50,7 @@ class ShelterController extends Controller
     {
         $data = $this->shelterService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Shelter::IMAGE_FOLDER, Shelter::class, $data->id);
-        return ApiResponse::createdResponse('Success', $data);
+        return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
     /**
@@ -59,19 +59,24 @@ class ShelterController extends Controller
     #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
     public function update(UpdateShelterRequest $request, Shelter $shelter)
     {
-        if (isset($request->status) && (int) $request->status === Shelter::CLOSED) {
-            $isShelterClear = $this->populationService->isShelterClear($shelter->id);
-            if (!$isShelterClear) {
-                return ApiResponse::errorResponse(('ยังมีผู้ประสบภัยอยู่ในศูนย์พักพิงนี้'));
+        if (isset($request->status)) {
+            if ((int) $request->status === Shelter::CLOSED) {
+                $isShelterClear = $this->populationService->isShelterClear($shelter->id);
+                if (!$isShelterClear) {
+                    return ApiResponse::errorResponse(('ยังมีผู้ประสบภัยอยู่ในศูนย์พักพิงนี้'));
+                }
             }
+
+            $data = $this->shelterService->update($shelter, $request->only('status'));
+            return ApiResponse::successResponse($data->status == Shelter::OPEN ? __('success.shelter.active') : __('success.shelter.inactive'), $data);
         }
 
-        if (!isset($request->utilities)){
+        if (!isset($request->utilities)) {
             $request->merge([
                 'utilities' => null
             ]);
         }
-        
+
         $data = $this->shelterService->update($shelter, $request->all());
         $data->image = $this->imageService->updateImage($request->image, Shelter::IMAGE_FOLDER, Shelter::class, $data->id);
         $shelter_id = $data->id;

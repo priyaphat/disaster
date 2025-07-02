@@ -11,6 +11,7 @@ use App\Enums\UserType;
 use App\Filters\UserFilter;
 use App\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -32,6 +33,10 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    protected $appends = [
+        'fullname'
+    ];
+
     protected $fillable = [
         'prefix_id',
         'firstname',
@@ -44,7 +49,7 @@ class User extends Authenticatable
         'district_id',
         'department_id',
         'position_id',
-        'registration_type'
+        // 'registration_type'
     ];
 
     /**
@@ -134,5 +139,13 @@ class User extends Authenticatable
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return (new UserFilter($filters))->apply($query);
+    }
+
+    /**
+     * Get the user's full name.
+     */
+    protected function getFullNameAttribute()
+    {
+        return $this->prefix->name.' '.$this->firstname.' '.$this->lastname;
     }
 }

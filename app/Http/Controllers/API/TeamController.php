@@ -34,7 +34,7 @@ class TeamController extends Controller
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->teamService->getList($request->all(), $paginate, $perPage);
-        return ApiResponse::successResponse(__('success.team.created'), $data);
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
@@ -44,7 +44,7 @@ class TeamController extends Controller
     {
         //
         $data = $this->teamService->create($request->normalized());
-        return ApiResponse::createdResponse(__('success.created'), $data);
+        return ApiResponse::createdResponse(__('success.team.created'), $data);
     }
 
     /**
@@ -62,7 +62,7 @@ class TeamController extends Controller
     public function update(UpdateTeamRequest $request, Team $team)
     {
         $data = $this->teamService->update($team, $request->normalized());
-        return ApiResponse::successResponse(__('success.updated'), $data);
+        return ApiResponse::successResponse(__('success.team.updated'), $data);
     }
 
 /**
@@ -72,6 +72,6 @@ class TeamController extends Controller
     {
         //
         $this->teamService->delete($team);
-        return ApiResponse::successResponse(__('success.deleted'));
+        return ApiResponse::successResponse(__('success.team.deleted'));
     }
 }

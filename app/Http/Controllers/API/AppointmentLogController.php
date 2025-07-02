@@ -62,7 +62,5 @@ class AppointmentLogController extends Controller
                 ]);
             }
         }
-
-        return ApiResponse::successResponse(__('success.data'));
     }
 }

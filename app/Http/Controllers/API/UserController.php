@@ -8,6 +8,7 @@ use App\Http\Requests\User\FilterUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\UserApproval\ApprovalRequest;
+use App\Http\Resources\ProfileResource;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Image;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    protected $userService, $imageService;
+    protected $userService, $imageService, $notificationService;
 
     public function __construct(UserService $userService, ImageService $imageService)
     {
@@ -73,7 +74,11 @@ class UserController extends Controller
     {
         //
         $data = $this->userService->update($user, $request->all());
-        $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
+        if ($request->has('image')) {
+            $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
+        } else {
+            $this->imageService->deleteImage(User::class, $data->id);
+        }
         return ApiResponse::successResponse(__('success.user.updated'), new UserResource($data));
     }
 
@@ -85,7 +90,7 @@ class UserController extends Controller
         //
         $user = Auth::user();
         $data = $user->load(['prefix', 'department', 'position', 'area', 'approval', 'member', 'image']);
-        return ApiResponse::successResponse(__('success.data'), new UserResource($data));
+        return ApiResponse::successResponse(__('success.data'), new ProfileResource($data));
     }
 
     /**
@@ -96,8 +101,12 @@ class UserController extends Controller
         //
         $user = Auth::user();
         $data = $this->userService->update($user, $request->all());
-        $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
-        return ApiResponse::successResponse(__('success.saved'), new UserResource($data));
+        if ($request->has('image')) {
+            $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
+        } else {
+            $this->imageService->deleteImage(User::class, $data->id);
+        }
+        return ApiResponse::successResponse(__('success.saved'), new ProfileResource($data));
     }
 
     /**

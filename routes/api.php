@@ -171,8 +171,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/staff', [ShelterStaffController::class, 'store']);
     Route::post('/staff/transfer/{userId}', [ShelterStaffController::class, 'transfer']);
     Route::post('/staff/exit/{userId}', [ShelterStaffController::class, 'exit']);
-    Route::post('/staff/exit-all', [ShelterStaffController::class, 'exitall']);
-    Route::post('/staff/assign/{userId}', [ShelterStaffController::class, 'assignposition']);
+    Route::post('/staff/exit-all', [ShelterStaffController::class, 'exitAll']);
+    Route::post('/staff/assign/{userId}', [ShelterStaffController::class, 'assignPosition']);
     Route::post('/staff/join', [ShelterStaffController::class, 'join']);
 
     /*
@@ -206,9 +206,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/population/{population}', [PopulationController::class, 'update']);
     Route::post('/population/transfer/{population}', [PopulationController::class, 'transfer']);
     Route::post('/population/exit/{population}', [PopulationController::class, 'exit']);
-    Route::post('/population-exit-all', [PopulationController::class, 'exitall']);
-    Route::post('/population-check', [PopulationController::class, 'checkpopulation']);
-    Route::post('/population-add', [PopulationController::class, 'addexternalpop']);
+    Route::post('/population-exit-all', [PopulationController::class, 'exitAll']);
+    Route::post('/population-check', [PopulationController::class, 'checkPopulation']);
+    Route::post('/population-add', [PopulationController::class, 'addExternalPop']);
 
     /*
     |--------------------------------------------------------------------------

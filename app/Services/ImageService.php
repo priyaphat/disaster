@@ -7,6 +7,7 @@ use Intervention\Image\ImageManager;
 use App\Models\Image;
 use App\Models\News;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\UploadedFile;
 use Intervention\Image\Drivers\Gd\Driver;
 
 class ImageService
@@ -62,7 +63,7 @@ class ImageService
             return null;
         }
 
-        if (!$file) {
+        if (!$file || !$file instanceof UploadedFile) {
             return $image;
         }
 

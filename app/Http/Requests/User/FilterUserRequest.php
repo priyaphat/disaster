@@ -30,7 +30,8 @@ class FilterUserRequest extends FormRequest
             'district_id' => 'nullable|exists:geography,district_code',
             'department_id' => 'nullable|exists:departments,id',
             'position_id' => 'nullable|exists:positions,id',
-            'approve' => 'nullable'
+            'approve' => 'nullable',
+            'team_id' => 'nullable|exists:teams,id',
         ];
     }
 

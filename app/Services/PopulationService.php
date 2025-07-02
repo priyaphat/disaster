@@ -7,14 +7,10 @@ use App\Enums\PrefixId;
 use App\Http\Resources\PopulationResource;
 use App\Http\Resources\PopulationShowResource;
 use App\Models\Population;
-use App\Models\Prefix;
 use App\Models\Shelter;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\QueryParameter;
-use Illuminate\Container\Attributes\Auth;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Http;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PopulationService
 {
@@ -79,7 +75,7 @@ class PopulationService
         return $population;
     }
 
-    public function checkpupulation(array $data)
+    public function checkPopulation(array $data)
     {
         $user = Population::where('first_name', $data['first_name'])
             ->where('last_name', $data['last_name'])
@@ -101,7 +97,7 @@ class PopulationService
         return $populationCount >= $shelter->max_capacity;
     }
 
-    public function addexternalpopulation()
+    public function addExternalPopulation()
     {
         //Uncomment if timeout
         // ini_set('max_execution_time', 600);

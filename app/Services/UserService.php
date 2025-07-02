@@ -35,7 +35,7 @@ class UserService
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
         $filters['approve'] = isset($filters['approve']) ? $filters['approve'] : 'success';
-        if(isset($filters['available'])){
+        if (isset($filters['available'])) {
             $filters['available_staff'] = true;
             $filters['available_member'] = true;
         }
@@ -54,8 +54,15 @@ class UserService
         $filters['approve'] = 'success';
         $filters['available_staff'] = true;
         $filters['available_member'] = true;
-        $data = $this->baseQuery($filters)
-            ->select('id', 'prefix_id', 'firstname', 'lastname')
+        $query = $this->baseQuery($filters);
+
+        if (isset($filters['team_id']) && $filters['team_id']) {
+            $query->orWhereHas('member', function ($query) use ($filters) {
+                $query->where('team_id', $filters['team_id']);
+            });
+        }
+
+        $data = $query->select('id', 'prefix_id', 'firstname', 'lastname')
             ->latest()->get();
         return UserSelectResource::collection($data);
     }
