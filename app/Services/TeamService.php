@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Http\Resources\TeamResource;
-use App\Models\Appointment;
+use App\Http\Utility\LogUtility;
 use App\Models\AppointmentLog;
 use App\Models\Team;
 use App\Models\TeamMember;
+use App\Models\User;
 use Carbon\Carbon;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TeamService
 {
@@ -50,13 +50,13 @@ class TeamService
     public function show(Team $team, array $search)
     {
         $teamLog = null;
-        if(isset($search['date'])){
+        if (isset($search['date'])) {
             $logDate = Carbon::parse($search['date'])->format('Y-m-d');
             $teamLog = AppointmentLog::where('parentable_id', $team->id)
-            ->where('parentable_type', Team::class)->where('log_date', $logDate)->first();
+                ->where('parentable_type', Team::class)->where('log_date', $logDate)->first();
         }
 
-        if($teamLog){
+        if ($teamLog) {
             return $teamLog;
         }
 
@@ -79,12 +79,25 @@ class TeamService
      */
     public function delete(Team $team): bool
     {
-        $logDate = Carbon::now()->format('Y-m-d');
-        $checkAppointment = Appointment::whereDate('appointment_date', '>=', $logDate)->get();
-        if($checkAppointment->isNotEmpty()){
-            throw new BadRequestHttpException(__('error.team.deleted'));
-        }
+        // Save team log before delete
+        $teamData = [
+            'parentable_id' => $team->id,
+            'parentable_type' => Team::class,
+            'description' => $team,
+            'log_date' => Carbon::now()->format('Y-m-d')
+        ];
 
+        $memberData = [
+            'parentable_id' => $team->id,
+            'parentable_type' => User::class,
+            'description' => $team->allUsers,
+            'log_date' => Carbon::now()->format('Y-m-d')
+        ];
+
+        LogUtility::createAppointment($teamData);
+        LogUtility::createAppointment($memberData);
+
+        $team->upcomingAppointments()->delete();
         $team->team_members->each->delete();
         return $team->delete();
     }
