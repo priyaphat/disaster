@@ -3,6 +3,7 @@
 namespace App\Http\Utility;
 
 use App\Models\Appointment;
+use App\Models\AppointmentLog;
 use App\Models\Population;
 use App\Models\Shelter;
 use App\Models\ShelterStaff;
@@ -23,5 +24,18 @@ class LogUtility
             'user' => User::class,
             default => Appointment::class,
         };
+    }
+
+    public static function createAppointment(array $data = [])
+    {
+        return AppointmentLog::updateOrCreate([
+            'parentable_id'   => $data['parentable_id'],
+            'parentable_type'   => $data['parentable_type'],
+        ], [
+            'parentable_id'   => $data['parentable_id'],
+            'parentable_type'   => $data['parentable_type'],
+            'description'   => $data['description'],
+            'log_date'   => $data['log_date'],
+        ]);
     }
 }

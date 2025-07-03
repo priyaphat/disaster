@@ -175,6 +175,10 @@ class AppointmentService
      */
     public function update(Appointment $appointment, array $data): Appointment
     {
+        // Check if appointment is past, return error message
+        if ($appointment->time_disabled) {
+            throw new BadRequestHttpException(__('error.appointment.is_past'));
+        }
         // Check if appointment is existing, return error message
         $isExisting = $this->isAppointmentExisting($data, $appointment->id);
         if ($isExisting) {
@@ -206,6 +210,11 @@ class AppointmentService
      */
     public function delete(Appointment $appointment): bool
     {
+        // Check if appointment is past, return error message
+        if ($appointment->time_disabled) {
+            throw new BadRequestHttpException(__('error.appointment.is_past'));
+        }
+
         return $appointment->delete();
     }
 

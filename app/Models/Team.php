@@ -6,8 +6,10 @@ use App\Casts\ThaiDateTimeFormat;
 use App\Filters\TeamFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use App\Services\TransferHistoryService;
+use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -135,6 +137,13 @@ class Team extends Model
                 }
             }
         }
+    }
+
+    public function upcomingAppointments(): HasMany
+    {
+        $now = Carbon::now()->format('Y-m-d H:i:s');
+        return $this->hasMany(Appointment::class, 'team_id', 'id')
+            ->whereRaw("STR_TO_DATE(CONCAT(appointments.appointment_date, ' ', appointments.end_time), '%Y-%m-%d %H:%i:%s') > ?", [$now]);
     }
 
     public function scopeFilter(Builder $query, array $filters): Builder

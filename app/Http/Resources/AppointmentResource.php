@@ -21,10 +21,11 @@ class AppointmentResource extends JsonResource
             'shift' => $this->shift,
             'shelter_id' => $this->when($this->relationLoaded('shelter'), $this->shelter?->id),
             'shelter_name' => $this->when($this->relationLoaded('shelter'), $this->shelter?->name),
-            'team_id' =>  $this->when($this->relationLoaded('team'), $this->team?->id),
-            'team_name' =>  $this->when($this->relationLoaded('team'), $this->team?->name),
+            'team_id' =>  $this->team_id,
+            'team_name' =>  $this->team ? $this->team->name : $this->teamLog?->description['name'],
             'start_time' => $this->start_time,
-            'end_time' => $this->end_time
+            'end_time' => $this->end_time,
+            'time_disabled' => $this->time_disabled
         ];
     }
 }

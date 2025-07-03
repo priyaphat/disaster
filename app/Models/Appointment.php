@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Filters\AppointmentFilter;
 use App\Http\Traits\CreatedUpdatedBy;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -12,6 +13,10 @@ class Appointment extends Model
 {
     //
     use CreatedUpdatedBy;
+
+    protected $appends = [
+        'time_disabled'
+    ];
 
     protected $fillable = [
         'appointment_date',
@@ -51,7 +56,7 @@ class Appointment extends Model
         return $this->hasOne(AppointmentLog::class, 'parentable_id', 'team_id')
             ->where('parentable_type', Team::class)
             ->join('appointments', 'appointment_logs.parentable_id', '=', 'appointments.team_id')
-            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.start_time)');
+            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.appointment_date)');
     }
 
     public function userLog()
@@ -59,7 +64,7 @@ class Appointment extends Model
         return $this->hasOne(AppointmentLog::class, 'parentable_id', 'team_id')
             ->where('parentable_type', User::class)
             ->join('appointments', 'appointment_logs.parentable_id', '=', 'appointments.team_id')
-            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.start_time)');
+            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.appointment_date)');
     }
 
     public function shelterLog()
@@ -67,11 +72,25 @@ class Appointment extends Model
         return $this->hasOne(AppointmentLog::class, 'parentable_id', 'shelter_id')
             ->where('parentable_type', Shelter::class)
             ->join('appointments', 'appointment_logs.parentable_id', '=', 'appointments.shelter_id')
-            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.start_time)');
+            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.appointment_date)');
     }
 
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return (new AppointmentFilter($filters))->apply($query);
+    }
+
+    /**
+     * Get the disabled appointment.
+     */
+    protected function getTimeDisabledAttribute()
+    {
+        if ($this->appointment_date) {
+            if (Carbon::now()->greaterThan($this->appointment_date)) {
+                return true;
+            }
+            return false;
+        }
+        return true;
     }
 }
