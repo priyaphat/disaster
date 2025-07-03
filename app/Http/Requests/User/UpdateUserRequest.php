@@ -7,6 +7,7 @@ use App\Rules\CheckFullNameExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class UpdateUserRequest extends FormRequest
@@ -26,21 +27,22 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = $this->user ?? Auth::user();
         return [
             'email' => [
                 'required',
                 'max:255',
                 'regex:/^[a-zA-Z][a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-                Rule::unique('users')->where(fn(Builder $query) => $query->where('email', Str::lower($this->email)))->ignore($this->user->id)
+                Rule::unique('users')->where(fn(Builder $query) => $query->where('email', Str::lower($this->email)))->ignore($user->id)
             ],
             'username' => [
                 'required',
                 'regex:/^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/',
-                Rule::unique('users')->where(fn(Builder $query) => $query->where('username', Str::lower($this->username)))->ignore($this->user->id)
+                Rule::unique('users')->where(fn(Builder $query) => $query->where('username', Str::lower($this->username)))->ignore($user->id)
             ],
             'prefix_id' => 'required|exists:prefixes,id',
-            'firstname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname, $this->user->id)],
-            'lastname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname, $this->user->id)],
+            'firstname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname, $user->id)],
+            'lastname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname, $user->id)],
             'phone' => 'required|regex:/^\d{10}$/',
             'type' => ['required', Rule::enum(UserType::class)],
             'district_id' => 'required|exists:geography,district_code',

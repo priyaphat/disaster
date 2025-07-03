@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Filters\AppointmentFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Appointment\SearchAppointmentRequest;
 use App\Http\Requests\Appointment\SearchCalendarRequest;
@@ -24,7 +25,7 @@ class AppointmentController extends Controller
     /**
      * Display a listing of the an appointment | แสดงรายการนัดหมาย
      */
-    public function index(Request $request)
+    public function index(SearchAppointmentRequest $request)
     {
         $data = $this->appointmentService->index($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
