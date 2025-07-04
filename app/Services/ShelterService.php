@@ -35,7 +35,6 @@ class ShelterService
             'name' => $data['name'],
             'phone' => $data['phone'],
             'created_date' => $data['created_date'],
-            'leader_id' => $data['leader_id'],
             'address' => $data['address'],
             'geography_id' => $data['geography_id'],
             'province_code' => $data['province_code'],
