@@ -9,6 +9,7 @@ class FileController extends Controller
 {
     public function servePrivate($fileName)
     {
+        $fileName = 'image'. DIRECTORY_SEPARATOR .$fileName;
         if (!Storage::disk('local')->exists($fileName)) {
             abort(404);
         }
