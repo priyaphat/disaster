@@ -168,6 +168,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/staff', [ShelterStaffController::class, 'index']);
+    Route::get('/staff', [ShelterStaffController::class, 'index']);
     Route::post('/staff', [ShelterStaffController::class, 'store']);
     Route::post('/staff/transfer/{userId}', [ShelterStaffController::class, 'transfer']);
     Route::post('/staff/exit/{userId}', [ShelterStaffController::class, 'exit']);
@@ -330,6 +331,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
+    Route::get('/team/{team}/check-appointment', [TeamController::class, 'checkUpcoming']);
     Route::post('/member/join', [TeamMemberController::class, 'join']);
     Route::post('/member/transfer', [TeamMemberController::class, 'transfer']);
     Route::post('/member/leave', [TeamMemberController::class, 'leave']);
@@ -345,7 +347,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'store']);
     Route::post('/appointment/{appointment}', [AppointmentController::class, 'update']);
     Route::delete('/appointment/{appointment}', [AppointmentController::class, 'destroy']);
-    Route::post('/appointment/log', [AppointmentLogController::class, 'store']);
+    Route::post('/appointment-log', [AppointmentLogController::class, 'store']);
 
     /*
     |--------------------------------------------------------------------------
