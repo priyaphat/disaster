@@ -12,14 +12,10 @@ use App\Http\Resources\UserSelectResource;
 use App\Mail\ApproveEmail;
 use App\Mail\RejectEmail;
 use App\Models\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use App\Models\UserApproval as Approval;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
@@ -56,6 +52,7 @@ class UserService
         $filters['available_member'] = true;
         $query = $this->baseQuery($filters);
 
+        // Team page
         if (isset($filters['team_id']) && $filters['team_id']) {
             $query->orWhereHas('member', function ($query) use ($filters) {
                 $query->where('team_id', $filters['team_id']);

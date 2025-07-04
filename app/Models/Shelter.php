@@ -22,7 +22,6 @@ class Shelter extends Model
         'phone',
         'created_date',
         'status',
-        'leader_id',
         'utilities',
         'geography_id',
         'province_code',

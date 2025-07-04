@@ -11,6 +11,7 @@ use App\Models\Shelter;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PopulationService
 {
@@ -55,6 +56,13 @@ class PopulationService
         return $population;
     }
 
+    public function updateByShelter(array $data)
+    {
+        $data['new_shelter'] = isset($data['new_shelter']) ? $data['new_shelter'] : null;
+        return Population::where('shelter_id', $data['shelter_id'])
+        ->cursor()->each->update(['shelter_id' => $data['new_shelter']]);
+    }
+
     public function show(Population $population)
     {
         $data = Population::with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image')->findOrFail($population->id);
@@ -65,13 +73,12 @@ class PopulationService
     {
         $populations = Population::where('shelter_id', $data['shelter_id'])->count();
         if ($populations >= $maxcap) {
-            // throw new \Exception(__('error.shelter_full'));
+            throw new BadRequestHttpException(__('error.shelter_full'));
         } else {
             $population->update([
                 'shelter_id' => $data['shelter_id'],
             ]);
         }
-
         return $population;
     }
 

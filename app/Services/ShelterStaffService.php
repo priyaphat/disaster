@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Resources\ShelterStaffResource;
 use App\Models\ShelterStaff;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShelterStaffService
 {
@@ -22,23 +23,63 @@ class ShelterStaffService
         if ($shelter_id != null) {
             $query->where('shelter_id', $shelter_id);
         }
+
         if ($position != null) {
             $query->whereHas('user', function ($q) use ($position) {
                 $q->where('position_id', $position);
             });
         }
+
         if ($shelter_position != null) {
             $query->where('shelter_position_id', $shelter_position);
         }
+
         if ($sort != null) {
             $query->orderBy('created_at', $sort);
         }
-        
+
         $data = $query->with('user.prefix:id,name', 'user.position:id,name', 'user.department:id,name', 'shelterPosition')->paginate(10);
         return $data->setCollection(ShelterStaffResource::collection($data->items())->collection);
     }
 
     public function create(array $data)
+    {
+        return ShelterStaff::create($data);
+    }
+
+    /**
+     * Update a shelter position.
+     */
+    public function update(ShelterStaff $staff, array $data): ShelterStaff
+    {
+        $checkData = ['shelter_id' => $data['shelter_id'] ??  $staff->shelter_id, 'user_id' => $staff->user_id];
+        $checkExists = $this->leaderExists($checkData);
+        if ($checkExists) {
+            throw new BadRequestHttpException(__('error.staff.leader_exists'));
+        }
+
+        $staff->update($data);
+        return $staff;
+    }
+
+    /**
+     * Delete a shelter position.
+     */
+    public function delete(ShelterStaff $position): bool
+    {
+        return $position->delete();
+    }
+
+    /**
+     * Delete a shelter position.
+     */
+    public function deleteAll($shelterId): bool
+    {
+        return ShelterStaff::where('shelter_id', $shelterId)->each->delete();
+    }
+
+
+    public function createMany(array $data)
     {
         $staffs = [];
         foreach ($data['user_id'] as $user_id) {
@@ -54,5 +95,11 @@ class ShelterStaffService
             }
         }
         return $staffs;
+    }
+
+    public function leaderExists(array $data = [])
+    {
+        return ShelterStaff::where(['shelter_id' => $data['shelter_id'], 'shelter_position_id' => ShelterStaff::LEADER_ID])
+            ->where('user_id', '!=', $data['user_id'])->exists();
     }
 }

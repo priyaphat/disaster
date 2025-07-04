@@ -28,4 +28,13 @@ class CreateOneStaffRequest extends FormRequest
             'position_id' => 'required|exists:shelter_positions,id',
         ];
     }
+
+    public function normalized(): array
+    {
+        return [
+            'user_id' => $this->input('user_id'),
+            'shelter_id' => $this->input('shelter_id'),
+            'shelter_position_id' => $this->input('position_id')
+        ];
+    }
 }

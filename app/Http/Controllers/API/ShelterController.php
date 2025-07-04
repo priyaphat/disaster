@@ -13,6 +13,7 @@ use App\Models\TransferHistory;
 use App\Services\ImageService;
 use App\Services\PopulationService;
 use App\Services\ShelterService;
+use App\Services\ShelterStaffService;
 use App\Services\TransferHistoryService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
@@ -20,14 +21,20 @@ use Illuminate\Http\Request;
 
 class ShelterController extends Controller
 {
-    protected $shelterService, $imageService, $populationService, $transferLogService;
+    protected $shelterService, $imageService, $populationService, $transferLogService, $staffServeice;
 
-    public function __construct(ShelterService $shelterService, ImageService $imageService, PopulationService $populationService, TransferHistoryService $transferLogService)
-    {
+    public function __construct(
+        ShelterService $shelterService,
+        ImageService $imageService,
+        PopulationService $populationService,
+        TransferHistoryService $transferLogService,
+        ShelterStaffService $staffServeice
+    ) {
         $this->shelterService = $shelterService;
         $this->imageService = $imageService;
         $this->populationService = $populationService;
         $this->transferLogService = $transferLogService;
+        $this->staffServeice = $staffServeice;
     }
 
     /**
@@ -39,7 +46,9 @@ class ShelterController extends Controller
     #[QueryParameter('district_code', description: 'ค้นหาตามอำเภอ', type: 'string', example: "5701")]
     public function index(Request $request)
     {
-        $data = $this->shelterService->getList($request->all());
+        $paginate = $request->has('paginate');
+        $perPage = $request->input('paginate') ?? 10;
+        $data = $this->shelterService->getList($request->all(), $paginate, $perPage);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -59,15 +68,13 @@ class ShelterController extends Controller
     #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
     public function update(UpdateShelterRequest $request, Shelter $shelter)
     {
+        // Update only status
         if (isset($request->status)) {
             if ((int) $request->status === Shelter::CLOSED) {
-                $isShelterClear = $this->populationService->isShelterClear($shelter->id);
-                if (!$isShelterClear) {
-                    return ApiResponse::errorResponse(('ยังมีผู้ประสบภัยอยู่ในศูนย์พักพิงนี้'));
-                }
+                $this->populationService->updateByShelter(['shelter_id' => $shelter->id]);
             }
-
             $data = $this->shelterService->update($shelter, $request->only('status'));
+            $this->transferLogService->createLog($data->status, Shelter::class, $data->id, Shelter::class, $data->id);
             return ApiResponse::successResponse($data->status == Shelter::OPEN ? __('success.shelter.active') : __('success.shelter.inactive'), $data);
         }
 
@@ -77,11 +84,9 @@ class ShelterController extends Controller
             ]);
         }
 
+        // Update all data;
         $data = $this->shelterService->update($shelter, $request->all());
         $data->image = $this->imageService->updateImage($request->image, Shelter::IMAGE_FOLDER, Shelter::class, $data->id);
-        $shelter_id = $data->id;
-        $action_type = $data->status == Shelter::CLOSED ? TransferHistory::CLOSE : TransferHistory::OPEN;
-        $this->transferLogService->createLog($action_type, Shelter::class, $shelter_id, Shelter::class, $shelter_id);
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 

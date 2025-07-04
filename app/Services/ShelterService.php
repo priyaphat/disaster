@@ -16,10 +16,17 @@ use Illuminate\Support\Facades\DB;
 
 class ShelterService
 {
-    public function getList(array $filters = [])
+    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
-        $data = Shelter::filter($filters)->with('fullAddress', 'population')->paginate(10);
-        return $data->setCollection(ShelterResource::collection($data->items())->collection);
+        $query = Shelter::filter($filters)->with('fullAddress', 'population');
+
+        if (!$paginate) {
+            return $query->get();
+        } else {
+            $data = $query->paginate($perPage);
+            $paginate = $data->setCollection(ShelterResource::collection($data->items())->collection);
+            return $paginate;
+        }
     }
 
     public function create(array $data): Shelter

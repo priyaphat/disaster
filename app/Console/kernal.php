@@ -8,7 +8,8 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('app:sample-task')->dailyAt('13:00');
+        // $schedule->command('app:sample-task')->dailyAt('13:00');
+        $schedule->command('app:appointment-task')->dailyAt('20:00');
     }
 
     protected function commands()

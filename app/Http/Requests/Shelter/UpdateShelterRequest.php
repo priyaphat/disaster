@@ -42,12 +42,6 @@ class UpdateShelterRequest extends FormRequest
              */
             'created_date' => 'date',
             /**
-             * หัวหน้าศูนย์พักพิง ใช้ user_id
-             * @var string
-             * @example 10
-             */
-            'leader_id' => 'string|exists:users,id',
-            /**
              * ID ของที่อยู่ ใช้ geography_id จาก https://disaster-backend.gentechsoft.tech/api/docs#/operations/address.getAddress
              * @var string
              * @example 4826

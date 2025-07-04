@@ -23,8 +23,6 @@ class ShelterShowResource extends JsonResource
             'phone' => $this->phone,
             'status' => $this->status,
             'created_date' => Carbon::parse($this->created_date)->format('Y-m-d'),
-            'leader_id' => $this->leader_id,
-            'leader_name' => $this->leader->firstname . ' ' . $this->leader->lastname,
             'address' => $this->address,
             'geography_id' => $this->geography->id,
             'province_code' => $this->geography->province_code,

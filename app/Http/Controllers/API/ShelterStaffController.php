@@ -24,12 +24,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShelterStaffController extends Controller
 {
-    protected $shelterService, $shelterstaffService, $transferLogService;
+    protected $shelterService, $shelterStaffService, $transferLogService;
 
-    public function __construct(ShelterService $shelterService, ShelterStaffService $shelterstaffService, TransferHistoryService $transferLogService)
+    public function __construct(ShelterService $shelterService, ShelterStaffService $shelterStaffService, TransferHistoryService $transferLogService)
     {
         $this->shelterService = $shelterService;
-        $this->shelterstaffService = $shelterstaffService;
+        $this->shelterStaffService = $shelterStaffService;
         $this->transferLogService = $transferLogService;
     }
 
@@ -43,7 +43,7 @@ class ShelterStaffController extends Controller
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
-        $data = $this->shelterstaffService->getList($request->all());
+        $data = $this->shelterStaffService->getList($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -52,7 +52,7 @@ class ShelterStaffController extends Controller
      */
     public function store(CreateShelterStaffRequest $request)
     {
-        $data = $this->shelterstaffService->create($request->all());
+        $data = $this->shelterStaffService->createMany($request->all());
         return ApiResponse::createdResponse(__('success.staff.created'), $data);
     }
 
@@ -61,15 +61,7 @@ class ShelterStaffController extends Controller
      */
     public function join(CreateOneStaffRequest $request)
     {
-        $staff = ShelterStaff::where('user_id', $request->user_id)->first();
-        if($staff){
-            throw new BadRequestHttpException('user มี shelter อยู่แล้ว');
-        }
-        $data = ShelterStaff::create([
-            'user_id' => $request->user_id,
-            'shelter_id' => $request->shelter_id,
-            'shelter_position_id' => $request->position_id,
-        ]);
+        $data = $this->shelterStaffService->create($request->normalized());
         return ApiResponse::createdResponse(__('success.staff.created'), $data);
     }
 
@@ -81,7 +73,7 @@ class ShelterStaffController extends Controller
     {
 
         $staff = ShelterStaff::where('user_id', $userId)->first();
-        if(!$staff){
+        if (!$staff) {
             throw new ModelNotFoundException();
         }
         $oldShelter_id = $staff->shelter_id;
@@ -90,8 +82,8 @@ class ShelterStaffController extends Controller
         if ($newShelter_id == $oldShelter_id) {
             return ApiResponse::successResponse(__('success.staff.updated'));
         }
-
-        $staff->update(['shelter_id' => $newShelter_id]);
+        
+        $this->shelterStaffService->update($staff, $request->only('shelter_id'));
         return ApiResponse::successResponse(__('success.staff.updated'));
     }
 
@@ -102,11 +94,11 @@ class ShelterStaffController extends Controller
     public function assignPosition(AssignShelterPositionRequest $request, $userId)
     {
         $staff = ShelterStaff::where('user_id', $userId)->first();
-        if(!$staff){
+        if (!$staff) {
             throw new ModelNotFoundException();
         }
-        $position = $request->shelter_position_id;
-        $staff->update(['shelter_position_id' => $position]);
+
+        $this->shelterStaffService->update($staff, $request->only('shelter_position_id'));
         return ApiResponse::successResponse(__('success.updated'));
     }
 
@@ -117,7 +109,7 @@ class ShelterStaffController extends Controller
     public function exit($userId)
     {
         $staff = ShelterStaff::where('user_id', $userId)->first();
-        if(!$staff){
+        if (!$staff) {
             throw new ModelNotFoundException();
         }
         $staff->delete();
@@ -130,7 +122,7 @@ class ShelterStaffController extends Controller
     public function exitAll(ExitAllShelterStaffRequest $request)
     {
         $shelter_id = $request->shelter_id;
-        ShelterStaff::where('shelter_id', $shelter_id)->each->delete();
+        ShelterStaff::where('shelter_id', $shelter_id)->cursor()->each->delete();
         return ApiResponse::successResponse(__('success.staff.leaved'));
     }
 }

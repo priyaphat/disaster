@@ -74,4 +74,17 @@ class TeamController extends Controller
         $this->teamService->delete($team);
         return ApiResponse::successResponse(__('success.team.deleted'));
     }
+
+    /**
+     * Check upcoming appointment | ตรวจสอบทีมที่มีนัดหมายที่ยังไม่เสร็จ
+     */
+    public function checkUpcoming(Team $team)
+    {
+        //
+        if(empty($team->upcomingAppointments)){
+            return ApiResponse::successResponse(__('error.team.warning'));
+        }
+
+        return ApiResponse::successResponse(__('error.team.appointment_warning'));
+    }
 }

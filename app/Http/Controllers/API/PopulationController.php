@@ -20,7 +20,6 @@ use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
-use Illuminate\Support\Facades\Http;
 
 class PopulationController extends Controller
 {
@@ -64,9 +63,6 @@ class PopulationController extends Controller
         }
         $data = $this->populationService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
-        if ($shelter) { //ตอนสร้าง ปชช ยังไม่เข้า shelter
-            $this->transferLogService->createLog(TransferHistory::ENTER, Population::class, $data->id, Shelter::class, $data->shelter_id);
-        }
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
@@ -99,21 +95,17 @@ class PopulationController extends Controller
     #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function transfer(TransferPopulationRequest $request, Population $population)
     {
-        $oldShelter_id = $population->shelter_id;
-        $population_id = $population->id;
-        $newShelter_id = $request->shelter_id;
+        $oldShelter = $population->shelter_id;
+        $newShelter = $request->shelter_id;
+        // $populationId = $population->id;
 
-        if ($newShelter_id == $oldShelter_id) {
+        if ($newShelter == $oldShelter) {
             return ApiResponse::successResponse(__('success.updated'));
         }
 
-        $shelter = $this->shelterService->getShelter($newShelter_id);
+        $shelter = $this->shelterService->getShelter($newShelter);
         $data = $this->populationService->transfer($population, $request->all(), $shelter->max_capacity);
-        if ($data['shelter_id'] == $oldShelter_id) {
-            return ApiResponse::errorResponse(__('ศูนย์พักพิงเต็ม'));
-        } else {
-            $this->transferLogService->createLog(TransferHistory::TRANSFER, Population::class, $population_id, Shelter::class, $newShelter_id);
-        }
+        // $this->transferLogService->createLog(TransferHistory::TRANSFER, Population::class, $populationId, Shelter::class, $newShelter);
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
@@ -123,12 +115,8 @@ class PopulationController extends Controller
     #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function exit(Population $population)
     {
-        $oldShelter_id = $population->shelter_id;
-        $population_id = $population->id;
-
         $request = ['shelter_id' => Population::exit];
         $data = $this->populationService->update($population, $request);
-        $this->transferLogService->createLog(TransferHistory::EXIT, Population::class, $population_id, Shelter::class, $oldShelter_id);
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
@@ -137,13 +125,13 @@ class PopulationController extends Controller
      */
     public function exitAll(ExitAllPopulationRequest $request)
     {
-        $shelter_id = $request->shelter_id;
-        $populations = Population::where('shelter_id', $shelter_id)->get();
-        Population::where('shelter_id', $shelter_id)->update(['shelter_id' => null]);
-        foreach ($populations as $population) {
-            $this->transferLogService->createLog(TransferHistory::EXIT, Population::class, $population->id, Shelter::class, $shelter_id);
-        }
-
+        // $shelter_id = $request->shelter_id;
+        // $populations = Population::where('shelter_id', $shelter_id)->get();
+        //
+        // foreach ($populations as $population) {
+        //     $this->transferLogService->createLog(TransferHistory::EXIT, Population::class, $population->id, Shelter::class, $shelter_id);
+        // }
+        $this->populationService->updateByShelter($request->all());
         return ApiResponse::successResponse(__('success.updated'));
     }
 
@@ -153,11 +141,10 @@ class PopulationController extends Controller
     public function checkPopulation(CheckPopulationRequest $request)
     {
         $data = $this->populationService->checkPopulation($request->all());
-        if ($data) {
-            return ApiResponse::successResponse(__('success.data'), $data);
-        } else {
-            return ApiResponse::errorResponse(__('ไม่พบประชากร'));
+        if (!$data) {
+             return ApiResponse::errorResponse(__('ไม่พบประชากร'));
         }
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
