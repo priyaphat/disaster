@@ -86,11 +86,13 @@ class Appointment extends Model
     protected function getTimeDisabledAttribute()
     {
         if ($this->appointment_date) {
-            if (Carbon::now()->greaterThan($this->appointment_date)) {
+            $date = Carbon::parse($this->appointment_date)->format('Y-m-d');
+            $datetime = Carbon::parse("{$date} {$this->end_time}");
+            if (Carbon::now()->greaterThan($datetime)) {
                 return true;
             }
             return false;
         }
-        return true;
+        return false;
     }
 }
