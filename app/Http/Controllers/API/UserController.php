@@ -15,7 +15,6 @@ use App\Models\Image;
 use App\Models\User;
 use App\Services\ImageService;
 use App\Services\UserService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -78,9 +77,9 @@ class UserController extends Controller
         if ($request->has('image')) {
             $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
         } else {
-            $this->imageService->deleteImage(User::class, $data->id);
+            $this->imageService->deleteImage(User::IMAGE_FOLDER, User::class, $data->id);
         }
-        return ApiResponse::successResponse(__('success.user.updated'), new UserResource($data));
+        return ApiResponse::successResponse(__('success.user.updated'), new UserResource($data->load('image')));
     }
 
     /**
@@ -105,7 +104,7 @@ class UserController extends Controller
         if ($request->has('image')) {
             $data->image = $this->imageService->updateImage($request->image, User::IMAGE_FOLDER, User::class, $data->id, Image::PRIVATE);
         } else {
-            $this->imageService->deleteImage(User::class, $data->id);
+            $this->imageService->deleteImage(User::IMAGE_FOLDER, User::class, $data->id);
         }
         return ApiResponse::successResponse(__('success.saved'), new ProfileResource($data));
     }
@@ -128,7 +127,10 @@ class UserController extends Controller
     {
         //
         $this->userService->delete($user);
-        $this->imageService->deleteImage(User::class, $user->id, Image::PRIVATE);
+        $image = $this->imageService->getByTableAndId(User::class, $user->id);
+        if ($image) {
+            $image->delete();
+        }
         return ApiResponse::successResponse(__('success.user.deleted'));
     }
 

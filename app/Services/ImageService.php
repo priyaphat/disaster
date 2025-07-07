@@ -5,8 +5,6 @@ namespace App\Services;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use App\Models\Image;
-use App\Models\News;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -54,13 +52,13 @@ class ImageService
      * @param int $id (attribute id from model)
      * @return Image
      */
-    public function updateImage($file, $folder, $table, $id)
+    public function updateImage($file, $folder, $table, $id, $diskName = Image::PUBLIC)
     {
         // Get an image instance
         $image = $this->getByTableAndId($table, $id);
 
         if (!$image) {
-            return null;
+            return self::uploadImage($file, $folder, $table, $id, $diskName);
         }
 
         if (!$file || !$file instanceof UploadedFile) {
@@ -84,8 +82,9 @@ class ImageService
      * @param int $id
      * @return bool
      */
-    public function deleteImage($table, $id): bool
+    public function deleteImage($folder, $table, $id): bool
     {
+        $folderPath = 'image/' . $folder . '/';
         $image = $this->getByTableAndId($table, $id);
 
         if (!$image) {
@@ -96,7 +95,10 @@ class ImageService
             self::removeFile($image->image_url, $image->image_type);
         }
 
-        return $image->delete();
+        return $image->update([
+            'image_name' => 'default.png',
+            'image_url' => $folderPath . 'default.png',
+        ]);
     }
 
     /**

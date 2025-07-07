@@ -70,7 +70,7 @@ class NewsController extends Controller
     public function destroy(News $news)
     {
         $this->newsService->delete($news);
-        $this->imageService->deleteImage(News::class, $news->id);
+        $this->imageService->deleteImage(News::IMAGE_FOLDER, News::class, $news->id);
         return ApiResponse::successResponse(__('success.deleted'));
     }
 }
