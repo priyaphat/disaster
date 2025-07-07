@@ -12,8 +12,9 @@ enum ActionType: int
     case ASSIGN = 4;
     case JOIN_TEAM = 5;
     case EXIT_TEAM = 6;
-    case OPEN = 7;
-    case CLOSE = 8;
+    case CREATE_SHELTER = 7;
+    case OPEN = 8;
+    case CLOSE = 9;
 
     public function label(?string $model): string
     {

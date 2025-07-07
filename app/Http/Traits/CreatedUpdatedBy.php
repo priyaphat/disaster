@@ -3,6 +3,7 @@
 namespace App\Http\Traits;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 trait CreatedUpdatedBy
 {
@@ -11,19 +12,20 @@ trait CreatedUpdatedBy
     {
         // Listen to the 'created' event
         static::creating(function ($model) {
-
             // Automatically set created_by if not set
-            if (Auth::check() && empty($model->created_by)) {
+            if (Auth::check() && Schema::hasColumn($model->getTable(), 'created_by')) {
                 $model->created_by = Auth::id();
+            }
+
+            if (Auth::check() && Schema::hasColumn($model->getTable(), 'updated_by')) {
                 $model->updated_by = Auth::id();
             }
         });
 
         // Optionally, you can also listen to the 'updating' event
         static::updating(function ($model) {
-            // Automatically set updated_by when updating
-            // if (Auth::check() && !empty($model->updated_by)) {
-            if (Auth::check()) {
+            // Automatically set updated_by when updating{
+            if (Auth::check() && Schema::hasColumn($model->getTable(), 'updated_by')) {
                 $model->updated_by = Auth::id();
             }
         });
