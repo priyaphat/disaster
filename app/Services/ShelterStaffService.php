@@ -52,12 +52,10 @@ class ShelterStaffService
      */
     public function update(ShelterStaff $staff, array $data): ShelterStaff
     {
-        $checkData = ['shelter_id' => $data['shelter_id'] ??  $staff->shelter_id, 'user_id' => $staff->user_id];
-        $checkExists = $this->leaderExists($checkData);
+        $checkExists = $this->leaderExists($data);
         if ($checkExists) {
             throw new BadRequestHttpException(__('error.staff.leader_exists'));
         }
-
         $staff->update($data);
         return $staff;
     }
@@ -99,7 +97,10 @@ class ShelterStaffService
 
     public function leaderExists(array $data = [])
     {
-        return ShelterStaff::where(['shelter_id' => $data['shelter_id'], 'shelter_position_id' => ShelterStaff::LEADER_ID])
-            ->where('user_id', '!=', $data['user_id'])->exists();
+        if ($data['shelter_position_id'] == ShelterStaff::LEADER_ID) {
+            return ShelterStaff::where(['shelter_id' => $data['shelter_id'], 'shelter_position_id' => ShelterStaff::LEADER_ID])
+                ->where('user_id', '!=', $data['user_id'])->exists();
+        }
+        return false;
     }
 }

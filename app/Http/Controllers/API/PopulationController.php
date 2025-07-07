@@ -55,12 +55,6 @@ class PopulationController extends Controller
      */
     public function store(CreatePopulationRequest $request)
     {
-        $shelter = $request->shelter_id;
-        if ($shelter) {
-            if ($this->populationService->isShelterMax($shelter)) {
-                return ApiResponse::errorResponse(__('ศูนย์พักพิงเต็ม'));
-            }
-        }
         $data = $this->populationService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
         return ApiResponse::createdResponse(__('success.created'), $data);

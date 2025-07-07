@@ -34,15 +34,15 @@ class PopulationObserver
         $oldData = $population->getOriginal();
         $newData = $population->getAttributes();
 
-        if ($population->isDirty('shelter_id') && !$oldData['shelter_id'] && $newData['shelter_id']) {
+        if ($population->wasChanged('shelter_id') && !$oldData['shelter_id'] && $newData['shelter_id']) {
             $this->logService->createLog(ActionType::ENTER->value, Population::class, $population->id, Shelter::class, $newData['shelter_id']);
         }
 
-        if ($population->isDirty('shelter_id') && $oldData['shelter_id'] && $newData['shelter_id']) {
+        if ($population->wasChanged('shelter_id') && $oldData['shelter_id'] && $newData['shelter_id']) {
             $this->logService->createLog(ActionType::TRANSFER->value, Population::class, $population->id, Shelter::class, $newData['shelter_id']);
         }
 
-        if ($population->isDirty('shelter_id') && !$newData['shelter_id']) {
+        if ($population->wasChanged('shelter_id') && !$newData['shelter_id']) {
             $this->logService->createLog(ActionType::EXIT->value, Population::class, $population->id, Shelter::class, $oldData['shelter_id']);
         }
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\ActionType;
 use App\Enums\DamagedUtility as EnumsDamagedUtility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Shelter\CreateShelterRequest;
@@ -74,7 +75,6 @@ class ShelterController extends Controller
                 $this->populationService->updateByShelter(['shelter_id' => $shelter->id]);
             }
             $data = $this->shelterService->update($shelter, $request->only('status'));
-            $this->transferLogService->createLog($data->status, Shelter::class, $data->id, Shelter::class, $data->id);
             return ApiResponse::successResponse($data->status == Shelter::OPEN ? __('success.shelter.active') : __('success.shelter.inactive'), $data);
         }
 

@@ -35,11 +35,11 @@ class ShelterStaffObserver
      */
     public function updated(ShelterStaff $shelterStaff): void
     {
-        if ($shelterStaff->isDirty('shelter_id')) {
+        if ($shelterStaff->wasChanged('shelter_id')) {
             $this->logService->createLog(ActionType::TRANSFER->value, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
         }
 
-        if ($shelterStaff->isDirty('shelter_position_id') && $shelterStaff->shelter_position_id) {
+        if ($shelterStaff->wasChanged('shelter_position_id') && $shelterStaff->shelter_position_id) {
             $this->logService->createLog(ActionType::ASSIGN->value, User::class, $shelterStaff->user_id, ShelterPosition::class, $shelterStaff->shelter_position_id);
         }
     }

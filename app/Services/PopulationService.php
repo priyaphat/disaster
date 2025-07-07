@@ -29,6 +29,16 @@ class PopulationService
 
     public function create(array $data): Population
     {
+        if (isset($data['shelter_id']) && $data['shelter_id']) {
+            if ($this->isShelterMax($data['shelter_id'])) {
+                throw new BadRequestHttpException(__('error.shelter.full'));
+            }
+
+            if (!$this->isShelterOpen($data['shelter_id'])) {
+                throw new BadRequestHttpException(__('error.shelter.closed'));
+            }
+        }
+
         $population = Population::create([
             'prefix_id' => $data['prefix_id'],
             'first_name' => $data['first_name'],
@@ -52,6 +62,16 @@ class PopulationService
 
     public function update(Population $population, array $data): Population
     {
+        if (isset($data['shelter_id']) && $data['shelter_id']) {
+            if ($this->isShelterMax($data['shelter_id'], $population->id)) {
+                throw new BadRequestHttpException(__('error.shelter.full'));
+            }
+
+            if (!$this->isShelterOpen($data['shelter_id'])) {
+                throw new BadRequestHttpException(__('error.shelter.closed'));
+            }
+        }
+
         $population->update($data);
         return $population;
     }
@@ -60,7 +80,7 @@ class PopulationService
     {
         $data['new_shelter'] = isset($data['new_shelter']) ? $data['new_shelter'] : null;
         return Population::where('shelter_id', $data['shelter_id'])
-        ->cursor()->each->update(['shelter_id' => $data['new_shelter']]);
+            ->cursor()->each->update(['shelter_id' => $data['new_shelter']]);
     }
 
     public function show(Population $population)
@@ -73,7 +93,7 @@ class PopulationService
     {
         $populations = Population::where('shelter_id', $data['shelter_id'])->count();
         if ($populations >= $maxcap) {
-            throw new BadRequestHttpException(__('error.shelter_full'));
+            throw new BadRequestHttpException(__('error.shelter.full'));
         } else {
             $population->update([
                 'shelter_id' => $data['shelter_id'],
@@ -97,11 +117,21 @@ class PopulationService
         return Population::where('shelter_id', $id)->count() === 0;
     }
 
-    public function isShelterMax($id): bool
+    public function isShelterMax($id, $populationId = null): bool
     {
         $shelter = Shelter::find($id);
-        $populationCount = Population::where('shelter_id', $id)->count();
+        $populationQuery = Population::where('shelter_id', $id);
+        if ($populationId) {
+            $populationQuery->where('id', '!=', $populationId);
+        }
+        $populationCount = $populationQuery->count();
         return $populationCount >= $shelter->max_capacity;
+    }
+
+    public function isShelterOpen($id): bool
+    {
+        $shelter = Shelter::find($id);
+        return $shelter->status == Shelter::OPEN ? true : false;
     }
 
     public function addExternalPopulation()

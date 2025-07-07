@@ -39,7 +39,7 @@ class ProfileResource extends JsonResource
             'registration_type' => $this->registration_type,
             'team_id' => $this->when($this->relationLoaded('member'), $this->member?->team?->id),
             'team_name' => $this->when($this->relationLoaded('member'), $this->member?->team?->name),
-            'image' =>  $this->when($this->image, $this->image?->image_path),
+            'image' =>  $this->image?->image_path ?? null,
             'shelter_id' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelter?->id),
             'shelter_name' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelter?->name),
             'shelter_position_id' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelterPosition?->id),

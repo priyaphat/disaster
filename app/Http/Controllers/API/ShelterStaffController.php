@@ -82,8 +82,9 @@ class ShelterStaffController extends Controller
         if ($newShelter_id == $oldShelter_id) {
             return ApiResponse::successResponse(__('success.staff.updated'));
         }
-        
-        $this->shelterStaffService->update($staff, $request->only('shelter_id'));
+
+        $requestArr = ['shelter_id' => $request->shelter_id, 'user_id' => $staff->user_id, 'shelter_position_id' => $staff->shelter_position_id];
+        $this->shelterStaffService->update($staff, $requestArr);
         return ApiResponse::successResponse(__('success.staff.updated'));
     }
 
@@ -98,7 +99,8 @@ class ShelterStaffController extends Controller
             throw new ModelNotFoundException();
         }
 
-        $this->shelterStaffService->update($staff, $request->only('shelter_position_id'));
+        $requestArr = ['shelter_id' => $staff->shelter_id, 'user_id' => $staff->user_id, 'shelter_position_id' => $request->shelter_position_id];
+        $this->shelterStaffService->update($staff, $requestArr);
         return ApiResponse::successResponse(__('success.updated'));
     }
 

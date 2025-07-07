@@ -34,7 +34,7 @@ class TeamMemberObserver
         $oldData = $teamMember->getOriginal();
         $newData = $teamMember->getAttributes();
 
-        if ($teamMember->isDirty('team_id')) {
+        if ($teamMember->wasChanged('team_id')) {
             $this->logService->createLog(ActionType::EXIT_TEAM->value, User::class, $oldData['user_id'], Team::class, $oldData['team_id']);
             $this->logService->createLog(ActionType::JOIN_TEAM->value, User::class, $newData['user_id'], Team::class, $newData['team_id']);
         }
