@@ -2,7 +2,6 @@
 
 namespace App\Rules;
 
-use App\Models\Team;
 use App\Models\TeamMember;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;

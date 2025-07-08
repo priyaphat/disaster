@@ -15,6 +15,7 @@ use App\Models\Image;
 use App\Models\User;
 use App\Services\ImageService;
 use App\Services\UserService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller

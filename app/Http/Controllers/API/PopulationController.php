@@ -76,11 +76,15 @@ class PopulationController extends Controller
     #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function update(UpdatePopulationRequest $request, Population $population)
     {
+        $prevShelter = $population->shelter_id;
         $data = $this->populationService->update($population, $request->all());
         if ($request->image) {
             $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
         }
-        return ApiResponse::successResponse(__('success.updated'), $data);
+        if ($prevShelter == $data->shelter_id) {
+            return ApiResponse::successResponse(__('success.updated'), $data);
+        }
+        return ApiResponse::successResponse(__('success.created'), $data);
     }
 
     /**
@@ -100,7 +104,7 @@ class PopulationController extends Controller
         $shelter = $this->shelterService->getShelter($newShelter);
         $data = $this->populationService->transfer($population, $request->all(), $shelter->max_capacity);
         // $this->transferLogService->createLog(TransferHistory::TRANSFER, Population::class, $populationId, Shelter::class, $newShelter);
-        return ApiResponse::successResponse(__('success.updated'), $data);
+        return ApiResponse::successResponse(__('success.population.tranfered'), $data);
     }
 
     /**
@@ -111,7 +115,7 @@ class PopulationController extends Controller
     {
         $request = ['shelter_id' => Population::exit];
         $data = $this->populationService->update($population, $request);
-        return ApiResponse::successResponse(__('success.updated'), $data);
+        return ApiResponse::successResponse(__('success.population.leaved'), $data);
     }
 
     /**
@@ -126,7 +130,7 @@ class PopulationController extends Controller
         //     $this->transferLogService->createLog(TransferHistory::EXIT, Population::class, $population->id, Shelter::class, $shelter_id);
         // }
         $this->populationService->updateByShelter($request->all());
-        return ApiResponse::successResponse(__('success.updated'));
+        return ApiResponse::successResponse(__('success.population.leaved'));
     }
 
     /**
@@ -136,7 +140,7 @@ class PopulationController extends Controller
     {
         $data = $this->populationService->checkPopulation($request->all());
         if (!$data) {
-             return ApiResponse::errorResponse(__('ไม่พบประชากร'));
+            return ApiResponse::errorResponse(__('ไม่พบประชากร'));
         }
         return ApiResponse::successResponse(__('success.data'), $data);
     }

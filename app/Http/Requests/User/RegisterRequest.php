@@ -4,6 +4,7 @@ namespace App\Http\Requests\User;
 
 use App\Enums\UserType;
 use App\Rules\CheckFullNameExists;
+use App\Rules\CheckInsideUser;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -54,7 +55,7 @@ class RegisterRequest extends FormRequest
             'lastname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname)],
             'phone' => 'required|regex:/^\d{10}$/',
             'type' => ['required', Rule::enum(UserType::class)],
-            'district_id' => 'required|exists:geography,district_code',
+            'district_id' => ['required','exists:geography,district_code', new CheckInsideUser($this->type)],
             'department_id' => [Rule::requiredIf($this->type == UserType::INSIDE_AREA->value), 'nullable', 'exists:departments,id'],
             'position_id' => 'required|exists:positions,id'
         ];

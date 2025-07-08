@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('subdistrict_code');
             $table->string('address', 255)->nullable();
             $table->tinyInteger('status')
-                  ->default(1)
+                  ->default(2)
                   ->comment('2 - inactive , 1 - active');
             $table->timestamp('created_date')
                   ->comment('วันก่อตั้ง');
