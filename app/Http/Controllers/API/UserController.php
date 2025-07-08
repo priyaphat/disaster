@@ -80,7 +80,7 @@ class UserController extends Controller
         } else {
             $this->imageService->deleteImage(User::IMAGE_FOLDER, User::class, $data->id);
         }
-        return ApiResponse::successResponse(__('success.user.updated'), new UserResource($data->load('image')));
+        return ApiResponse::successResponse(__('success.saved'), new UserResource($data->load('image')));
     }
 
     /**
@@ -118,7 +118,7 @@ class UserController extends Controller
         //
         $user = Auth::user();
         $this->userService->update($user, $request->only('password'));
-        return ApiResponse::successResponse(__('success.updated'));
+        return ApiResponse::successResponse(__('success.saved'));
     }
 
     /**
@@ -143,5 +143,24 @@ class UserController extends Controller
         //
         $message = $this->userService->approve($request->all());
         return ApiResponse::successResponse($message);
+    }
+
+
+    /**
+     * Delete a user | ลบผู้ใช้งาน
+     */
+    public function destroyByEmail(Request $request)
+    {
+        //
+        $users = User::whereIn('email', $request->email)->get();
+        foreach ($users as $user) {
+            $user->delete();
+            $image = $this->imageService->getByTableAndId(User::class, $user->id);
+            if ($image) {
+                $image->delete();
+            }
+        }
+
+        return ApiResponse::successResponse(__('success.user.deleted'));
     }
 }

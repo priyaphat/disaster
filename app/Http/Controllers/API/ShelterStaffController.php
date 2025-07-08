@@ -53,7 +53,7 @@ class ShelterStaffController extends Controller
     public function store(CreateShelterStaffRequest $request)
     {
         $data = $this->shelterStaffService->createMany($request->all());
-        return ApiResponse::createdResponse(__('success.staff.created'), $data);
+        return ApiResponse::createdResponse(__('success.staff.joined'), $data);
     }
 
     /**
@@ -62,7 +62,7 @@ class ShelterStaffController extends Controller
     public function join(CreateOneStaffRequest $request)
     {
         $data = $this->shelterStaffService->create($request->normalized());
-        return ApiResponse::createdResponse(__('success.staff.created'), $data);
+        return ApiResponse::createdResponse(__('success.staff.joined'), $data);
     }
 
     /**
@@ -80,12 +80,12 @@ class ShelterStaffController extends Controller
         $newShelter_id = $request->shelter_id;
 
         if ($newShelter_id == $oldShelter_id) {
-            return ApiResponse::successResponse(__('success.staff.updated'));
+            return ApiResponse::successResponse(__('success.staff.tranfered'));
         }
 
         $requestArr = ['shelter_id' => $request->shelter_id, 'user_id' => $staff->user_id, 'shelter_position_id' => $staff->shelter_position_id];
         $this->shelterStaffService->update($staff, $requestArr);
-        return ApiResponse::successResponse(__('success.staff.updated'));
+        return ApiResponse::successResponse(__('success.staff.tranfered'));
     }
 
     /**
@@ -101,7 +101,7 @@ class ShelterStaffController extends Controller
 
         $requestArr = ['shelter_id' => $staff->shelter_id, 'user_id' => $staff->user_id, 'shelter_position_id' => $request->shelter_position_id];
         $this->shelterStaffService->update($staff, $requestArr);
-        return ApiResponse::successResponse(__('success.updated'));
+        return ApiResponse::successResponse(__('success.staff.assigned'));
     }
 
     /**
