@@ -21,12 +21,12 @@ class Notification implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct($userId, $message)
+    public function __construct($notification, $userId)
     {
         //
 
         $this->userId = $userId;
-        $this->message = $message;
+        $this->message = $notification;
         // dd($this->groupId,  $this->message);
         Log::info('[NotifyUser] Constructed for user: ');
     }

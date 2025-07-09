@@ -3,19 +3,22 @@
 namespace App\Jobs;
 
 use App\Events\Notification;
+use App\Models\NotificationUser;
+use App\Notifications\SendNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Collection;
 
 class BroadcastNotification implements ShouldQueue
 {
-    use Dispatchable, Queueable;
+
+    use Queueable;
 
     /**
      * Create a new job instance.
      */
     public function __construct(
-        public array $notifications // array ของ payloads
+        public Collection $users, public $data
     ) {}
 
     /**
@@ -23,8 +26,15 @@ class BroadcastNotification implements ShouldQueue
      */
     public function handle()
     {
-        foreach ($this->notifications as $noti) {
-            broadcast(new Notification($noti['user_id'], 'test1'));
+        $rows = $this->users->map(fn($user) => [
+            'notification_id' => $this->data->id,
+            'user_id' => $user->id,
+            'is_read' => false
+        ])->toArray();
+
+        NotificationUser::upsert($rows, ['notification_id', 'user_id'], ['is_read']);
+        foreach ($this->users as $user) {
+            $user->notify(new SendNotification($this->data->notification));
         }
     }
 }

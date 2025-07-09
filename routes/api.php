@@ -26,6 +26,7 @@ use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\FileController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
+use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
@@ -364,4 +365,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/transfer-history/{model}/{id}', [TransferHistoryController::class, 'getLog']);
     Route::get('/shelter-history', [TransferHistoryController::class, 'shelterLog']);
     Route::get('/action-type', [TransferHistoryController::class, 'actionType']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notification', [NotificationController::class, 'notification']);
+    Route::get('/add-all-images', [UserController::class, 'updateImage']);
 });

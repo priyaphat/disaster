@@ -21,17 +21,12 @@ class Language
         // Attempt to get the language from AJAX request or header
         $lang = request()->header('Accept-Language', 'th');
 
-        // Logging for debugging
-        Log::info("Is AJAX: " . $request->ajax());
-        Log::info("Language selected: " . $lang);
-
         // Validate and set the language
         if (in_array($lang, ['en', 'th'])) {
             App::setLocale($lang);
             Config::set('app.locale', $lang);
             Config::set('app.fallback_locale', $lang);
             Config::set('app.faker_locale', $lang.'_'.strtoupper($lang));
-            Log::info("Locale set to: " . App::getLocale());
         }
 
         return $next($request);

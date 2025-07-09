@@ -57,7 +57,14 @@ class TeamService
         }
 
         if ($teamLog) {
-            return $teamLog;
+            $data = $teamLog->description;
+            $allUsers = collect($data['all_members'])->pluck('id');
+            $users = User::select('id', 'prefix_id', 'firstname', 'lastname')->whereIn('id', $allUsers)->with('image')->get();
+            $data['all_members'] = collect($data['all_members'])->map(function ($item) use ($users) {
+                $item['image'] = $users->where('id', $item['id'])->first()->image?->image_path;
+                return $item;
+            });
+            return $data;
         }
 
         $team->load(['leader', 'allUsers']);
@@ -87,15 +94,8 @@ class TeamService
             'log_date' => Carbon::now()->format('Y-m-d')
         ];
 
-        $memberData = [
-            'parentable_id' => $team->id,
-            'parentable_type' => User::class,
-            'description' => $team->allUsers,
-            'log_date' => Carbon::now()->format('Y-m-d')
-        ];
-
-        LogUtility::createAppointment($teamData);
-        LogUtility::createAppointment($memberData);
+        $teamData = new TeamResource($teamData);
+        LogUtility::createAppointment($teamData->toArray((request())));
 
         $team->upcomingAppointments()->delete();
         $team->team_members->each->delete();

@@ -1,10 +1,17 @@
 <?php
 
+use App\Models\Shelter;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('Notification.User.{id}', function ($user, $id) {
+Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+
+// Broadcast::channel('Notification.User.{id}', function ($user, $id) {
+//     return (int) $user->id === (int) $id;
+// });
 
 // Broadcast::channel('notification', function ($user, $id) {
 //     return (int) $user->id === (int) $id;

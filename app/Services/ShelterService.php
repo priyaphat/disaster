@@ -7,6 +7,7 @@ use App\Enums\ShelterUtilities;
 use App\Http\Resources\ShelterResource;
 use App\Http\Resources\ShelterShowResource;
 use App\Http\Utility\PaginateUtility;
+use App\Models\AppointmentLog;
 use App\Models\DamagedUtility as ModelsDamagedUtility;
 use App\Models\Population;
 use App\Models\Shelter;
@@ -54,8 +55,22 @@ class ShelterService
         return $shelter;
     }
 
-    public function show(Shelter $shelter)
+    public function show(Shelter $shelter, array $search)
     {
+        $shelterLog = null;
+        if (isset($search['date'])) {
+            $logDate = Carbon::parse($search['date'])->format('Y-m-d');
+            $shelterLog = AppointmentLog::where('parentable_id', $shelter->id)
+                ->where('parentable_type', Shelter::class)->where('log_date', $logDate)->first();
+            // 
+        }
+
+        if ($shelterLog) {
+            $data = collect($shelterLog->description);
+            $data = $shelter->load('image');
+            return new ShelterShowResource($data);
+        }
+
         $data = Shelter::with('image', 'population', 'leader', 'staff', 'geography')->findOrFail($shelter->id);
         return new ShelterShowResource($data);
     }

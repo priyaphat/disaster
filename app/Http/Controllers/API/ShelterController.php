@@ -94,9 +94,9 @@ class ShelterController extends Controller
      * Show specified shelter| แสดงรายศูนย์พักพิง
      */
     #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
-    public function show(Shelter $shelter)
+    public function show(Request $request, Shelter $shelter)
     {
-        $data = $this->shelterService->show($shelter);
+        $data = $this->shelterService->show($shelter, $request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 

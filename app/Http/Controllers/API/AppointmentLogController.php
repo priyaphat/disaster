@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ShelterResource;
+use App\Http\Resources\TeamResource;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\LogUtility;
 use App\Models\Appointment;
@@ -20,11 +22,12 @@ class AppointmentLogController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store()
     {
         $logDate = Carbon::now()->format('Y-m-d');
-        $apps = Appointment::whereDate('appointment_date', $logDate)->with('team.allUsers', 'shelter')->get();
-
+        $apps = Appointment::whereDate('appointment_date', $logDate)->get();
+        $teams = TeamResource::collection(Team::with('allUsers')->get());
+        $shelters = ShelterResource::collection(Shelter::with('image', 'population', 'leader', 'staff', 'geography')->get());
         foreach ($apps as $app) {
             // Create appointment log
             $appointmentData = [
@@ -34,41 +37,28 @@ class AppointmentLogController extends Controller
                 'log_date' => $logDate
             ];
             LogUtility::createAppointment($appointmentData);
+        }
 
-            // Create team and mebers log
-            if ($app->team) {
+        foreach ($teams as $team) {
+            // Create appointment log
+            $teamData = [
+                'parentable_id' => $team->id,
+                'parentable_type' => Team::class,
+                'description' => $team,
+                'log_date' => $logDate
+            ];
+            LogUtility::createAppointment($teamData);
+        }
 
-                $teamLog = AppointmentLog::where(['parentable_id' => $app->team?->id, 'parentable_type' => Team::class, 'log_date' => $logDate])->first();
-                if (!$teamLog) {
-                    $teamData = [
-                        'parentable_id' => $app->team?->id,
-                        'parentable_type' => Team::class,
-                        'description' => $app->team,
-                        'log_date' => $logDate
-                    ];
-                    LogUtility::createAppointment($teamData);
-
-                    $userData = [
-                        'parentable_id' => $app->team->id,
-                        'parentable_type' => User::class,
-                        'description' => $app->team->allUsers,
-                        'log_date' => $logDate
-                    ];
-                    LogUtility::createAppointment($userData);
-                }
-            }
-
-            // Create shelter log
-            $shelterLog = AppointmentLog::where(['parentable_id' => $app->shelter?->id, 'parentable_type' => Shelter::class, 'log_date' => $logDate])->first();
-            if (!$shelterLog) {
-                $shelterData = [
-                    'parentable_id' => $app->shelter?->id,
-                    'parentable_type' => Shelter::class,
-                    'description' => $app->shelter,
-                    'log_date' => $logDate
-                ];
-                LogUtility::createAppointment($shelterData);
-            }
+        foreach ($shelters as $shelter) {
+            // Create appointment log
+            $shelterData = [
+                'parentable_id' => $shelter->id,
+                'parentable_type' => Shelter::class,
+                'description' => $shelter,
+                'log_date' => $logDate
+            ];
+            LogUtility::createAppointment($shelterData);
         }
     }
 }

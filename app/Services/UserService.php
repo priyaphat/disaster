@@ -27,7 +27,6 @@ class UserService
         return User::filter($filters)->with($this->relations);
     }
 
-
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
         $filters['approve'] = isset($filters['approve']) ? $filters['approve'] : 'success';
@@ -104,7 +103,7 @@ class UserService
 
     public function delete(User $user): void
     {
-        $user->approval->delete();
+        $user->approval?->delete();
         $user->delete();
     }
 

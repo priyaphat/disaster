@@ -86,17 +86,3 @@ return Application::configure(basePath: dirname(__DIR__))
             return ApiResponse::customErrorResponse($exception->getMessage(), [], $exception);
         });
     })->create();
-
-
-// $app->singleton(
-//     Illuminate\Contracts\Console\Kernel::class,
-//     App\Console\Kernel::class
-// );
-
-
-// $app->singleton(
-//     Illuminate\Contracts\Http\Kernel::class,
-//     App\Http\Kernel::class
-// );
-
-// return $app;

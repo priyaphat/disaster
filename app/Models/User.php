@@ -84,11 +84,6 @@ class User extends Authenticatable
         ];
     }
 
-    public function scopeStatus($query, $status)
-    {
-        return $query->where('status', $status);
-    }
-
     public function image()
     {
         return $this->morphOne(Image::class, 'parentable');

@@ -81,10 +81,6 @@ class TeamController extends Controller
     public function checkUpcoming(Team $team)
     {
         //
-        if(empty($team->upcomingAppointments)){
-            return ApiResponse::successResponse(__('error.team.warning'));
-        }
-
         return ApiResponse::successResponse(__('error.team.appointment_warning'));
     }
 }
