@@ -34,7 +34,7 @@ class EmergencyPostRequest extends FormRequest
                         ->exists();
 
                     if ($exists) {
-                        $fail('มีการประกาศภัยพิบัติซ้ำอยู่แล้ว');
+                        $fail(__('error.post.repetitive'));
                     }
                 },
             ],
@@ -61,7 +61,7 @@ class EmergencyPostRequest extends FormRequest
                         ->exists();
 
                     if ($exists) {
-                        $fail('มีการประกาศภัยพิบัติซ้ำอยู่แล้ว');
+                        $fail(__('error.post.repetitive'));
                     }
                 },
             ],

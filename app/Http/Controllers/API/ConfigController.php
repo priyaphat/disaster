@@ -81,7 +81,7 @@ class ConfigController extends Controller
         $config->description = $description;
         $config->save();
 
-        if (($request->user ?? null) === '0' || ($request->population ?? null) === '0') {
+        if (in_array(0, [$request->user, $request->population], true)) {
             return ApiResponse::successResponse(__('success.config.update_off'), $config);
         }
         return ApiResponse::successResponse(__('success.config.update_on'), $config);

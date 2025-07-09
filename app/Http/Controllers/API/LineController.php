@@ -23,15 +23,15 @@ class LineController extends Controller
     public const Population = 1;
     public const User = 7;
 
-    public const Disaster_post = 1; //แจ้งเตือน ยุติเหตุภัยพิบัติ
-    public const Disaster_end = 2; //
+    public const Disaster_post = 1; // hotline
+    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ
     public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง
     public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง
     public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย
     public const Damaged_utility_end = 6; //
     public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
-    public const News_post = 8; //แจ้งเตือน ยุติเหตุภัยพิบัติ
-    public const News_end = 9; //
+    public const News_post = 8; // hotline
+    public const News_update = 9; // hotline
     public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ req id
     public const Emc_request_post_team = 11; //แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ) req id
     public const Emc_request_end = 12; // แจ้งเตือน รายการรอช่วยเหลือถูกยกเลิก (ส่งให้หัวหน้าทีมที่เกี่ยวข้อง) req id
@@ -63,6 +63,9 @@ class LineController extends Controller
         self::Disaster_wildfire_m4,
         self::Disaster_smog,
         self::Disaster_earthquake,
+        self::Disaster_post,
+        self::News_post,
+        self::News_update,
     ];
     #endregion
 
@@ -127,33 +130,34 @@ class LineController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    public function test()
-    {
+    // public function test()
+    // {
 
-        $data = [
-            'product' => 'น้ำ 600 มล.(แพ็ก)',
-            'shelter' => [
-                'ศูนย์พักพิงบ้านดอยสะเก็ด',
-                'ศูนย์พักพิงแม่ฟ้าหลวง',
-                'ศูนย์พักพิงบ้านห้วยทราย',
-                'ศูนย์พักพิงดอยหลวงเชียงราย',
-            ],
-        ];
-        $recipint = ['Uaa3e2b17e373580b16101b64937e4a39'];
+    //     $data = [
+    //         'product' => 'น้ำ 600 มล.(แพ็ก)',
+    //         'shelter' => [
+    //             'ศูนย์พักพิงบ้านดอยสะเก็ด',
+    //             'ศูนย์พักพิงแม่ฟ้าหลวง',
+    //             'ศูนย์พักพิงบ้านห้วยทราย',
+    //             'ศูนย์พักพิงดอยหลวงเชียงราย',
+    //         ],
+    //     ];
+    //     $recipint = ['Uaa3e2b17e373580b16101b64937e4a39'];
 
-        return self::LineNotification($data, self::Disaster_earthquake, $recipint);
-    }
+    //     return self::LineNotification($data, self::Disaster_earthquake, $recipint);
+    // }
 
     public function LineNotification(array $data = null, $form, $recipint = null)
     {
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
-            return self::areaFind('เชียงราย');
+            // return self::areaFind('เชียงราย'); //$recipint =
             $message = self::form_box($form, $data, self::Population);
-            // self::broadcast_multi($recipint, $message);
+            self::broadcast_multi($recipint, $message);
             return response()->json(["success" => true, "message" => 'Send Line OK.', 'data' => $message]);
         }
         // return 'x'; //interapt
+
         $config = Config::WhereJsonContains('description->line_type', $form)
             ->where('type', 1)
             ->first();
@@ -195,41 +199,35 @@ class LineController extends Controller
         return response()->json(["success" => true, "message" => 'Send Line OK.']);
     }
 
-    private function areaFind($province)
+    private function areaFind($province, $select = 'all') //select : 1 : user , 2 : pop , null : all
     {
         $recipint = [];
 
-        $recipint = User::select(
-            // 'users.*', 'geography.province_name_th', 
-            'line_users.token_id as token'
-        )
-            ->leftJoin('geography', 'users.district_id', 'geography.district_code')
-            ->leftJoin('line_users', 'users.id', 'line_users.user_id')
-            ->where('geography.province_name_th', $province)
-            ->whereNotNull('line_users.token_id')
-            ->distinct()->get()->keyBy('token')->keys();
-        // return $user;
-        // $population = Population::get();
+        if ($select == 1 || $select == 'all') {
+            $recipint = User::select(
+                // 'users.*', 'geography.province_name_th', 
+                'line_users.token_id as token'
+            )
+                ->leftJoin('geography', 'users.district_id', 'geography.district_code')
+                ->leftJoin('line_users', 'users.id', 'line_users.user_id')
+                ->where('geography.province_name_th', $province)
+                ->whereNotNull('line_users.token_id')
+                ->distinct()->get()->keyBy('token')->keys();
+        }
+        if ($select == 2 || $select == 'all') {
+            // $population = Population::get(); // ไม่สามารถหาที่อยู่ของประชาชนได้ ไม่ได้จับคู่
+        }
+
         return $recipint;
     }
 
     private function form_box($form, $data = null, $type = null)
     {
         if ($form == self::Disaster_post) {
-            // $data = [
-            //     'type' => 'ดินถล่ม',
-            //     'level' => 3,
-            //     'areas' => [
-            //         'เมืองเชียงราย',
-            //         'อำเภอแม่จัน',
-            //         'อำเภอแม่ฟ้าหลวง',
-            //         'อำเภอแม่สาย',
-            //     ],
-            // ];
             $text = __('line.disaster_post', [
                 'type' => $data['type'],
                 'level' => $data['level'],
-                'type_areas' => "• " . implode("\n• ", $data['areas']),
+                'type_areas' => "• " . implode("\n• ", $data['areas']->toArray()),
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_end) {
@@ -322,14 +320,14 @@ class LineController extends Controller
                 'name' => $data['name'],
             ]);
             $text = self::flex_box_link($text, self::News_post, __('line.read_more'), $type);
-        } else if ($form == self::News_end) {
+        } else if ($form == self::News_update) {
             // $data = [
             //     'name' => 'xxxxxxxx',
             // ];
-            $text = __('line.news_end', [
+            $text = __('line.news_update', [
                 'name' => $data['name'],
             ]);
-            $text = self::flex_box_link($text, self::News_end, __('line.read_more'), $type);
+            $text = self::flex_box_link($text, self::News_update, __('line.read_more'), $type);
         } else if ($form == self::Emc_request_post) {
             // $data = [
             //     'name' => 'xxxx xxxx',
@@ -751,7 +749,7 @@ class LineController extends Controller
         if ($chanel == self::Resource) {
             if ($type == self::User) return redirect('/dashboard');
             return redirect('/home-page');
-        } else if ($chanel == self::News_post || $chanel == self::News_end) {
+        } else if ($chanel == self::News_post || $chanel == self::News_update) {
             return redirect('/home-page');
         } else if ($chanel == self::Emc_request_post) {
             return redirect('/emergency-requests/requests');

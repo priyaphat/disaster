@@ -18,10 +18,7 @@ class ConfigSeeder extends Seeder
             ['name' => '@AlertNowCRI', 'type' => 2],
             ['name' => 'แจ้งเตือน ยุติเหตุภัยพิบัติ', 'type' => 1, 'description' => [
                 "line_type" => [
-                    LineController::Disaster_post,
                     LineController::Disaster_end,
-                    LineController::News_post,
-                    LineController::News_end
                 ],
                 "user" => 0,
                 "population" => 0

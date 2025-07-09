@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\API\LineController;
+use App\Http\Utility\LinePostUtility;
 use App\Models\Disaster;
 use App\Models\EmergencyPost;
 use App\Models\EmergencyPostLog;
@@ -54,6 +56,16 @@ class EmergencyPostService
 
     public function create($post): EmergencyPost
     {
+        //data already exists -> updated same disaster_id
+        $repetitive = EmergencyPost::where('disaster_id', $post['disaster_id'])
+            ->where('status', EmergencyPost::inactive)
+            ->first();
+        if ($repetitive) {
+            $data = self::update($repetitive, $post);
+            LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data));
+            return $data;
+        }
+
         $data = EmergencyPost::create($post);
         if (isset($post['area'])) {
             foreach ($post['area'] as $area) {
@@ -65,6 +77,7 @@ class EmergencyPostService
             }
         }
         $this->emergencylog_save($data, $district, $district_id);
+        // LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data));
         return $data;
     }
 
@@ -82,6 +95,8 @@ class EmergencyPostService
             }
         }
         $this->emergencylog_save($post, $district, $district_id);
+        $type['type'] = Disaster::where('id', $post['disaster_id'])->value('name');
+        // if ($post['status'] == EmergencyPost::inactive) (new LineController)->LineNotification($type, LineController::Disaster_end);
         return $post;
     }
 
@@ -104,13 +119,13 @@ class EmergencyPostService
 
         if ($action === 'store') {
             $log->action = EmergencyPost::create;
-            $description = 'ประกาศเหตุภัยพิบัติ ';
+            $description = __('data.post.post');
         } elseif ($action === 'update') {
             $log->action = EmergencyPost::update;
-            $description = 'อัปเดตเหตุภัยพิบัติ ';
+            $description = __('data.post.update');
         } else {
             $log->action = EmergencyPost::delete;
-            $description = 'ยุติเหตุภัยพิบัติ ';
+            $description = __('data.post.end');
         }
         $description .= Disaster::where('id', $post->disaster_id)->pluck('name')->first();
 

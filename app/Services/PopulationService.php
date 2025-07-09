@@ -20,9 +20,10 @@ class PopulationService
     #[QueryParameter('unit_id', description: 'ค้นหาตามหน่วย ดึงหน่วยจาก api unit.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/unit.index', type: 'string', example: "1")]
     #[QueryParameter('category_id', description: 'ค้นหาตามประเภท ดึงประเภทจาก api category.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/category.index', type: 'string', example: "2")]
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
-    public function getList(array $filters = [])
+    public function getList(array $filters = [], $extra = null)
     {
         $query = Population::filter($filters);
+        if (isset($extra['whereNull'])) $query = $query->whereNull('shelter_id'); //ประชาชนทั้งหมดต้องไม่อยู่ใน shelter
         $data = $query->with('permanentAddress', 'currentAddress', 'prefix')->latest()->paginate(10);
         return $data->setCollection(PopulationResource::collection($data->items())->collection);
     }

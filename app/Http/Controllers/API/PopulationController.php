@@ -46,7 +46,8 @@ class PopulationController extends Controller
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
-        $data = $this->populationService->getList($request->all());
+        $extra['whereNull'] = true;
+        $data = $this->populationService->getList($request->all(), $extra);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 

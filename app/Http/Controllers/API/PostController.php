@@ -8,6 +8,7 @@ use App\Models\EmergencyPost;
 use Illuminate\Http\Request;
 use App\Services\EmergencyPostService;
 use App\Http\Requests\EmergencyPostRequest;
+use Spatie\FlareClient\Api;
 
 class PostController extends Controller
 {
@@ -36,8 +37,9 @@ class PostController extends Controller
      */
     public function store(EmergencyPostRequest $request)
     {
+        $request['status'] = 1; //set default
         $post = $this->emergencyPostService->create($request->all());
-        return ApiResponse::successResponse(__('success.data'), $post);
+        return ApiResponse::successResponse(__('success.post.created'), $post);
     }
 
     /**
@@ -46,7 +48,8 @@ class PostController extends Controller
     public function update(EmergencyPostRequest $request, EmergencyPost $post)
     {
         $post = $this->emergencyPostService->update($post, $request->all());
-        return ApiResponse::successResponse(__('success.data'), $post);
+        if ($post['status'] == EmergencyPost::inactive) return ApiResponse::successResponse(__('success.post.deleted'), $post);
+        return ApiResponse::successResponse(__('success.post.updated'), $post);
     }
 
     /**
