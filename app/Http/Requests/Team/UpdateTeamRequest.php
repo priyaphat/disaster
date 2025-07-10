@@ -33,7 +33,7 @@ class UpdateTeamRequest extends FormRequest
              * @var string
              * @example "ทีมงานประสบภัย แก้ไข"
              */
-            'name' => ['required', 'max:255'],
+            'name' => ['required', 'max:255', Rule::unique('shelters', 'name')->ignore($id)],
             /**
              * หัวหน้าทีม : user_id | เอามาจาก users
              * @var integer

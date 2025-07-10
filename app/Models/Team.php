@@ -68,7 +68,8 @@ class Team extends Model
             'id',     // Foreign key on posts table
             'id',          // Local key on team table
             'user_id'           // Local key on users table
-        )->where('team_members.team_position', 2);
+        )->where('team_members.team_position', 2)
+            ->orderBy('team_members.sequence', 'ASC');
     }
 
     public function allUsers()
@@ -81,7 +82,8 @@ class Team extends Model
             'id',          // Local key on team table
             'user_id'           // Local key on users table
         )->orderBy('team_members.team_position')
-            ->select('users.*', 'team_members.team_position');
+            ->select('users.*', 'team_members.team_position')
+            ->orderBy('team_members.sequence', 'ASC');
     }
 
     public function totalMembers()
@@ -131,7 +133,16 @@ class Team extends Model
                 // Check if the position exists. If it does, update the user_id; otherwise, create a new team member with the given user_id and position
                 $checkExist = $this->team_members()->where(['sequence' => $member['sequence']])->exists();
                 if ($checkExist) {
-                    $this->team_members->where(['sequence' => $member['sequence']])->each->update(['user_id' => $member['user_id'], 'team_position' => $member['team_position']]);
+                    $this->team_members()
+                        ->where('sequence', $member['sequence'])
+                        ->cursor()
+                        ->each(function ($teamMember) use ($member) {
+                            $teamMember->fill([
+                                'user_id' => $member['user_id'],
+                                'team_position' => $member['team_position'],
+                            ]);
+                            $teamMember->save();
+                        });
                 } else {
                     $this->team_members()->create(['user_id' => $member['user_id'], 'sequence' => $member['sequence'], 'team_position' => $member['team_position']]);
                 }

@@ -31,7 +31,7 @@ class StoreTeamRequest extends FormRequest
              * @var string
              * @example "ทีมงานประสบภัย"
              */
-            'name' => ['required', 'max:255'],
+            'name' => ['required', 'max:255', 'unique:teams,name'],
             /**
              * หัวหน้าทีม : user_id | เอามาจาก users
              * @var integer

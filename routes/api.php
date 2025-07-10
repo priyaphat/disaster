@@ -328,7 +328,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/teams', [TeamController::class, 'index']);
-    Route::get('/team/{team}', [TeamController::class, 'show']);
+    Route::get('/team/{id}', [TeamController::class, 'show']);
     Route::post('/team', [TeamController::class, 'store']);
     Route::post('/team/{team}', [TeamController::class, 'update']);
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);

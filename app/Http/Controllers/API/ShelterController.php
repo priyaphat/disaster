@@ -85,6 +85,10 @@ class ShelterController extends Controller
         }
 
         // Update all data;
+        if($request->max_capacity < $shelter->population->count()){
+            return ApiResponse::errorResponse(__('error.shelter.limit'));
+        }
+
         $data = $this->shelterService->update($shelter, $request->all());
         $data->image = $this->imageService->updateImage($request->image, Shelter::IMAGE_FOLDER, Shelter::class, $data->id);
         return ApiResponse::successResponse(__('success.updated'), $data);

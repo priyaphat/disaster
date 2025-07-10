@@ -9,6 +9,7 @@ use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TeamService
 {
@@ -47,15 +48,19 @@ class TeamService
     /**
      * Show a Team.
      */
-    public function show(Team $team, array $search)
+    public function show($id, array $search)
     {
+        $team = Team::find($id);
         $teamLog = null;
+
+        // If request has date, find team log
         if (isset($search['date'])) {
             $logDate = Carbon::parse($search['date'])->format('Y-m-d');
-            $teamLog = AppointmentLog::where('parentable_id', $team->id)
+            $teamLog = AppointmentLog::where('parentable_id', $id)
                 ->where('parentable_type', Team::class)->where('log_date', $logDate)->first();
         }
 
+        // If the team has log, show a log.
         if ($teamLog) {
             $data = $teamLog->description;
             $allUsers = collect($data['all_members'])->pluck('id');
@@ -67,6 +72,11 @@ class TeamService
             return $data;
         }
 
+        if (!$teamLog && !$team) {
+            throw new ModelNotFoundException();
+        }
+
+        // Show a current data
         $team->load(['leader', 'allUsers']);
         return new TeamResource($team);
     }
@@ -87,15 +97,14 @@ class TeamService
     public function delete(Team $team): bool
     {
         // Save team log before delete
+        $team = new TeamResource($team->load('allUsers'));
         $teamData = [
             'parentable_id' => $team->id,
             'parentable_type' => Team::class,
             'description' => $team,
             'log_date' => Carbon::now()->format('Y-m-d')
         ];
-
-        $teamData = new TeamResource($teamData);
-        LogUtility::createAppointment($teamData->toArray((request())));
+        LogUtility::createAppointment($teamData);
 
         $team->upcomingAppointments()->delete();
         $team->team_members->each->delete();

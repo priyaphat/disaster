@@ -2,9 +2,6 @@
 
 namespace App\Filters;
 
-use App\Models\Population;
-use Carbon\Carbon;
-
 class ShelterFilter extends QueryFilter
 {
     public function search($keyword)
@@ -21,15 +18,11 @@ class ShelterFilter extends QueryFilter
 
     public function max_capacity($value)
     {
-        if ($value) {
-            return $this->builder->where('action_type', $value);
+        if ($value === 'false') {
+            return $this->builder->withCount('population')
+                ->havingRaw('population_count < max_capacity');
         }
     }
-
-    // public function year($value)
-    // {
-    //     return $this->builder->whereYear('created_at', $value);
-    // }
 
     public function sort($value)
     {

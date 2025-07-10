@@ -4,6 +4,7 @@ namespace App\Rules;
 
 use App\Models\Team;
 use App\Models\TeamMember;
+use App\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
@@ -26,7 +27,8 @@ class CheckDuplicateMember implements ValidationRule
     {
         //
         if ($this->leaderId && $this->leaderId === $value) {
-            $fail("{$attribute} เป็นหัวหน้าทีมแล้ว");
+            $user = User::select('id', 'prefix_id', 'firstname', 'lastname')->find($value);
+            $fail($user->fullname.' '. 'เป็นหัวหน้าทีมแล้ว');
         }
     }
 }

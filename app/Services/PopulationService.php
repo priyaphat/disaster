@@ -20,10 +20,9 @@ class PopulationService
     #[QueryParameter('unit_id', description: 'ค้นหาตามหน่วย ดึงหน่วยจาก api unit.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/unit.index', type: 'string', example: "1")]
     #[QueryParameter('category_id', description: 'ค้นหาตามประเภท ดึงประเภทจาก api category.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/category.index', type: 'string', example: "2")]
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
-    public function getList(array $filters = [], $extra = null)
+    public function getList(array $filters = [])
     {
         $query = Population::filter($filters);
-        if (isset($extra['whereNull'])) $query = $query->whereNull('shelter_id'); //ประชาชนทั้งหมดต้องไม่อยู่ใน shelter
         $data = $query->with('permanentAddress', 'currentAddress', 'prefix')->latest()->paginate(10);
         return $data->setCollection(PopulationResource::collection($data->items())->collection);
     }
@@ -81,7 +80,11 @@ class PopulationService
     {
         $data['new_shelter'] = isset($data['new_shelter']) ? $data['new_shelter'] : null;
         return Population::where('shelter_id', $data['shelter_id'])
-            ->cursor()->each->update(['shelter_id' => $data['new_shelter']]);
+            ->cursor()
+            ->each(function ($population) use ($data) {
+                $population->fill(['shelter_id' => $data['new_shelter']]);
+                $population->save();
+            });
     }
 
     public function show(Population $population)

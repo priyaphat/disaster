@@ -5,14 +5,12 @@ namespace App\Services;
 use App\Enums\DamagedUtility;
 use App\Enums\ShelterUtilities;
 use App\Http\Resources\ShelterResource;
-use App\Http\Resources\ShelterShowResource;
 use App\Http\Utility\PaginateUtility;
 use App\Models\AppointmentLog;
 use App\Models\DamagedUtility as ModelsDamagedUtility;
 use App\Models\Population;
 use App\Models\Shelter;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class ShelterService
@@ -22,7 +20,7 @@ class ShelterService
         $query = Shelter::filter($filters)->with('fullAddress', 'population');
 
         if (!$paginate) {
-            return $query->get();
+            return ShelterResource::collection($query->get());
         } else {
             $data = $query->paginate($perPage);
             $paginate = $data->setCollection(ShelterResource::collection($data->items())->collection);
@@ -58,21 +56,22 @@ class ShelterService
     public function show(Shelter $shelter, array $search)
     {
         $shelterLog = null;
+        // If request has date, find team log
         if (isset($search['date'])) {
             $logDate = Carbon::parse($search['date'])->format('Y-m-d');
             $shelterLog = AppointmentLog::where('parentable_id', $shelter->id)
                 ->where('parentable_type', Shelter::class)->where('log_date', $logDate)->first();
-            // 
         }
 
+        // If request has date, find team log
         if ($shelterLog) {
             $data = collect($shelterLog->description);
             $data = $shelter->load('image');
-            return new ShelterShowResource($data);
+            return new ShelterResource($data);
         }
 
-        $data = Shelter::with('image', 'population', 'leader', 'staff', 'geography')->findOrFail($shelter->id);
-        return new ShelterShowResource($data);
+        $data = $shelter->load('image', 'population', 'leader', 'staff', 'geography');
+        return new ShelterResource($data);
     }
 
     public function dashboard(array $filters = [])

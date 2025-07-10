@@ -77,9 +77,9 @@ return [
         'array' => ':attribute ต้องมีจำนวนรายการไม่เกินค่า :value',
     ],
     'max' => [
-        'numeric' => ':attribute ต้องไม่เกิน :max',
+        'numeric' => 'ขออภัย โปรดกรอกข้อความไม่เกิน :max ตัวอักษร',
         'file' => ':attribute มีขนาดเกิน :max กิโลไบต์',
-        'string' => ':attribute ต้องมีความยาวไม่เกิน :max ตัวอักษร',
+        'string' => 'ขออภัย โปรดกรอกข้อความไม่เกิน :max ตัวอักษร',
         'array' => ':attribute ต้องมีจำนวนรายการไม่เกิน :max',
     ],
     'mimes' => ':attribute ต้องเป็นไฟล์ประเภท: :values',

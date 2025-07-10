@@ -32,10 +32,13 @@ class PopulationFilter extends QueryFilter
 
     public function shelter($value)
     {
-        if ($value) {
+        if ($value === 'true') {
             return $this->builder->whereNotNull('shelter_id');
         }
-        return $this->builder->whereNull('shelter_id');
+
+        if ($value === 'false') {
+            return $this->builder->whereNull('shelter_id');
+        }
     }
 
     public function shelter_id($value)

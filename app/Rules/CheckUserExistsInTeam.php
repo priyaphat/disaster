@@ -3,6 +3,7 @@
 namespace App\Rules;
 
 use App\Models\TeamMember;
+use App\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
@@ -33,7 +34,8 @@ class CheckUserExistsInTeam implements ValidationRule
         }
 
         if ($existsInTeam) {
-            $fail("{$attribute} มีทีมอยู่แล้ว");
+            $user = User::select('id', 'prefix_id', 'firstname', 'lastname')->find($value);
+            $fail($user->fullname.' '. 'มีทีมอยู่แล้ว');
         }
     }
 }

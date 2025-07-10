@@ -49,7 +49,8 @@ class Shelter extends Model
         return $this->morphOne(Image::class, 'parentable');
     }
 
-    public function fullAddress() {
+    public function fullAddress()
+    {
         return $this->belongsTo(Geography::class, 'geography_id')->select('id', 'province_name_th', 'district_name_th', 'subdistrict_name_th');
     }
 
@@ -58,15 +59,25 @@ class Shelter extends Model
         return $this->belongsTo(Geography::class, 'geography_id')->select('id', 'province_code', 'province_name_th', 'province_name_en', 'district_code', 'district_name_th', 'district_name_en', 'subdistrict_code', 'subdistrict_name_th', 'subdistrict_name_en', 'postal_code');
     }
 
-    public function population() {
+    public function population()
+    {
         return $this->hasMany(Population::class, 'shelter_id');
     }
 
-    public function leader() {
-        return $this->belongsTo(User::class, 'leader_id')->select('id', 'firstname', 'lastname');
+    public function leader()
+    {
+        return $this->hasOneThrough(
+            User::class,   // Final model
+            ShelterStaff::class, // Intermediate model
+            'shelter_id',
+            'id',
+            'id',
+            'user_id'
+        )->where('shelter_staffs.shelter_position_id', 1);
     }
 
-    public function staff() {
+    public function staff()
+    {
         return $this->hasMany(ShelterStaff::class, 'shelter_id');
     }
 

@@ -71,6 +71,6 @@ class NewsController extends Controller
     {
         $this->newsService->delete($news);
         $this->imageService->deleteImage(News::IMAGE_FOLDER, News::class, $news->id);
-        return ApiResponse::successResponse(__('success.deleted'));
+        return ApiResponse::successResponse(__('success.new.deleted'));
     }
 }

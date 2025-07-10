@@ -50,9 +50,9 @@ class TeamController extends Controller
     /**
      * Show a team | รายละเอียดแต่ละทีม
      */
-    public function show(Request $request, Team $team)
+    public function show(Request $request, string $id)
     {
-        $data = $this->teamService->show($team, $request->all());
+        $data = $this->teamService->show($id, $request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
