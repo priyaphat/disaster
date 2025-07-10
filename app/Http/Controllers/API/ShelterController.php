@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Shelter\CreateShelterRequest;
 use App\Http\Requests\Shelter\UpdateShelterRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\LinePostUtility;
 use App\Models\DamagedUtility;
 use App\Models\Shelter;
 use App\Models\TransferHistory;
@@ -146,8 +147,13 @@ class ShelterController extends Controller
             'data.*.type' => 'required|in:' . implode(',', array_map(fn($e) => $e->value, EnumsDamagedUtility::cases())),
             'data.*.name' => 'required|string|max:255',
         ], []);
-        self::dmg_delete($data['data'][0]['type']);
-        if (DamagedUtility::insert($data['data'])) return $data['data'];
+
+        $type = $data['data'][0]['type'];
+        self::dmg_delete($type);
+        if (DamagedUtility::insert($data['data'])) {
+            // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_post, $data);
+            return ApiResponse::successResponse(__('success.damaged_utility.created'), $data['data']);
+        }
     }
 
     /**
@@ -156,6 +162,7 @@ class ShelterController extends Controller
     public function dmg_delete($damaged)
     {
         DamagedUtility::where('type', $damaged)->delete();
-        return ApiResponse::successResponse(__('success.deleted'));
+        // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_end, $damaged);
+        return ApiResponse::successResponse(__('success.damaged_utility.deleted'));
     }
 }

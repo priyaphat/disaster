@@ -23,12 +23,12 @@ class LineController extends Controller
     public const Population = 1;
     public const User = 7;
 
-    public const Disaster_post = 1; // hotline
-    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ
+    public const Disaster_post = 1; // hotline s
+    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ s
     public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง
     public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง
-    public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย
-    public const Damaged_utility_end = 6; //
+    public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย s
+    public const Damaged_utility_end = 6; // s
     public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
     public const News_post = 8; // hotline
     public const News_update = 9; // hotline
@@ -231,9 +231,6 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_end) {
-            // $data = [
-            //     'type'=>'ดินถล่ม'
-            // ];
             $text = __('line.disaster_end', [
                 'type' => $data['type'],
             ]) . __('line.close_follow');
@@ -252,24 +249,6 @@ class LineController extends Controller
             $text = __('line.shelter_end', ['shelter' => $data['shelter']]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Damaged_utility_post) {
-            // $data = [
-            //     [
-            //         'utility' => 'xxx',
-            //         'amount' => 3,
-            //         'name' => [
-            //             'xxx1',
-            //             'xxx2',
-            //             'xxx3',
-            //         ]
-            //     ],
-            //     [
-            //         'utility' => 'xxx2',
-            //         'amount' => 1,
-            //         'name' => [
-            //             'xxx1',
-            //         ]
-            //     ]
-            // ];
             $text = __('line.damaged_utilities_head');
             foreach ($data as $item) {
                 $text = $text . __('line.damaged_utilities_detail_post', [
@@ -281,14 +260,6 @@ class LineController extends Controller
             $text = $text . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Damaged_utility_end) {
-            // $data = [
-            //     [
-            //         'utility' => 'xxx',
-            //     ],
-            //     [
-            //         'utility' => 'xxx2',
-            //     ]
-            // ];
             $text = __('line.damaged_utilities_head');
             foreach ($data as $item) {
                 $text = $text . __('line.damaged_utilities_detail_end', [
