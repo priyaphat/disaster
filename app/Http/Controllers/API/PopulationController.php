@@ -47,7 +47,11 @@ class PopulationController extends Controller
     public function index(Request $request)
     {
         $data = $this->populationService->getList($request->all());
-        return ApiResponse::successResponse(__('success.data'), $data);
+        $summary = $this->populationService->summary($request->all());
+        return ApiResponse::customSuccessResponse(__('success.data'), [
+            'data' => $data,
+            'summary' => $summary
+        ]);
     }
 
     /**
@@ -95,7 +99,6 @@ class PopulationController extends Controller
     {
         $oldShelter = $population->shelter_id;
         $newShelter = $request->shelter_id;
-        // $populationId = $population->id;
 
         if ($newShelter == $oldShelter) {
             return ApiResponse::successResponse(__('success.updated'));
@@ -103,7 +106,6 @@ class PopulationController extends Controller
 
         $shelter = $this->shelterService->getShelter($newShelter);
         $data = $this->populationService->transfer($population, $request->all(), $shelter->max_capacity);
-        // $this->transferLogService->createLog(TransferHistory::TRANSFER, Population::class, $populationId, Shelter::class, $newShelter);
         return ApiResponse::successResponse(__('success.population.tranfered'), $data);
     }
 
@@ -123,12 +125,6 @@ class PopulationController extends Controller
      */
     public function exitAll(ExitAllPopulationRequest $request)
     {
-        // $shelter_id = $request->shelter_id;
-        // $populations = Population::where('shelter_id', $shelter_id)->get();
-        //
-        // foreach ($populations as $population) {
-        //     $this->transferLogService->createLog(TransferHistory::EXIT, Population::class, $population->id, Shelter::class, $shelter_id);
-        // }
         $this->populationService->updateByShelter($request->all());
         return ApiResponse::successResponse(__('success.population.leaved'));
     }

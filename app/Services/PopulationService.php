@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\GenderId;
+use App\Enums\PopulationStatus;
 use App\Enums\PrefixId;
 use App\Http\Resources\PopulationResource;
 use App\Http\Resources\PopulationShowResource;
@@ -25,6 +26,20 @@ class PopulationService
         $query = Population::filter($filters);
         $data = $query->with('permanentAddress', 'currentAddress', 'prefix')->latest()->paginate(10);
         return $data->setCollection(PopulationResource::collection($data->items())->collection);
+    }
+
+    public function summary(array $filters = [])
+    {
+        $query = Population::filter($filters);
+        $total = $query->count();
+        $group = $query->get()->countBy('status');
+        $lastUpdated = $query->select('updated_at')->latest()->value('updated_at');
+        return [
+            'total_victims' => $total,
+            'total_injuries' => $group[PopulationStatus::INJURED->value] ?? 0,
+            'total_deaths' => $group[PopulationStatus::DECREASE->value] ?? 0,
+            'last_updated' =>  $lastUpdated,
+        ];
     }
 
     public function create(array $data): Population
