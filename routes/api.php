@@ -369,4 +369,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification', [NotificationController::class, 'notification']);
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display Weather
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/weather', [ConfigController::class, 'weather']);
 });
