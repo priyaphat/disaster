@@ -289,7 +289,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/posts', [PostController::class, 'show']);
     Route::post('/post', [PostController::class, 'store']);
     Route::post('/post/{post}', [PostController::class, 'update']);
-    Route::delete('/post/{post}', [PostController::class, 'destroy']);
+    // Route::delete('/post/{post}', [PostController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
@@ -320,7 +320,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/config', [ConfigController::class, 'store']);
     Route::post('/config/{config}', [ConfigController::class, 'update']);
     Route::post('/config-reset', [ConfigController::class, 'reset']);
-    Route::delete('/config/{config}', [ConfigController::class, 'destroy']);
+    // Route::delete('/config/{config}', [ConfigController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
@@ -369,4 +369,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification', [NotificationController::class, 'notification']);
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display Weather
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/weather', [ConfigController::class, 'weather']);
 });

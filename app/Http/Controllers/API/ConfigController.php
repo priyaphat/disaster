@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\Config;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Spatie\FlareClient\Api;
 
@@ -20,7 +21,11 @@ class ConfigController extends Controller
         $population = $request->population;
         $data = Config::select('*');
         if ($id) $data = $data->where('id', $id);
-        if ($request->type) $data = $data->whrer('type', $request->type);
+        if ($request->type) {
+            $data = $data->where('type', $request->type);
+        } else {
+            $data = $data->whereIn('type', [1, 2]);
+        }
         if ($request->status) $data = $data->where('status', $request->status);
         if (!is_null($user)) $data = $data->where('description->user', $user);
         if (!is_null($population)) $data = $data->where('description->population', $population);
@@ -115,5 +120,27 @@ class ConfigController extends Controller
     {
         $config->delete();
         return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+    public function weather()
+    {
+        $config = Config::select('description')->where('type', Config::weather)->first();
+        $data = $config ? $config->description : null;
+        if ($data) {
+            $now = Carbon::now('Asia/Bangkok')->hour;
+            // $today = collect($data['hour'])->first(function ($item) use ($now) {
+            //     $itemHour = Carbon::parse($item['time'])->hour;
+            //     return $itemHour >= $now;
+            // });
+            // $data['today'] = $today['data'];
+
+            $data['hour'] = collect($data['hour'])->filter(function ($item) use ($now) {
+                $itemHour = Carbon::parse($item['time'])->hour;
+                return $itemHour >= $now;
+            })->values();
+
+            $data['today'] = $data['hour']->first();
+        }
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

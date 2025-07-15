@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('configs', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->tinyInteger('type')->default(1)->commet('1 line');
+            $table->tinyInteger('type')->default(1)->commet('1 line , 2 name line , 3 weather');
             $table->json('description')->nullable();
             $table->tinyInteger('status')->defalt(1)->commet('0 inactive , 1 active');
             $table->foreignId('created_by')->nullable()->constrained('users');

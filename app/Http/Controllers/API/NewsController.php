@@ -59,6 +59,7 @@ class NewsController extends Controller
      */
     public function update(NewsRequest $request, News $news)
     {
+        unset($request['shelter_id']);
         $data = $this->newsService->update($news, $request->all());
         $data->image = $this->imageService->updateImage($request->image, News::IMAGE_FOLDER, News::class, $data->id);
         return ApiResponse::successResponse(__('success.new.updated'), new NewsResource($data));

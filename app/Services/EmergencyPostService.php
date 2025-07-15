@@ -95,7 +95,7 @@ class EmergencyPostService
             }
         }
         $this->emergencylog_save($post, $district, $district_id);
-        $type['type'] = Disaster::where('id', $post['disaster_id'])->value('name');
+        // $type['type'] = Disaster::where('id', $post['disaster_id'])->value('name');
         // if ($post['status'] == EmergencyPost::inactive) (new LineController)->LineNotification($type, LineController::Disaster_end);
         return $post;
     }
@@ -156,7 +156,7 @@ class EmergencyPostService
         }
         if ($request->disaster_id) $query = $query->where('emergency_post_logs.disaster_id', $request->disaster_id);
         if ($request->district) $query = $query->whereJsonContains('emergency_post_logs.district', (int)$request->district);
-        if ($request->action) $query = $query->where('emergency_post_logs.action', $request->action);
+        if ($request->action) $query = $query->where('emergency_post_logs.action', $request->action); //1,2,3 c,u,d
         return $query->get();
     }
 }
