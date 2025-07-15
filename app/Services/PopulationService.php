@@ -33,7 +33,7 @@ class PopulationService
         $query = Population::filter($filters);
         $total = $query->count();
         $group = $query->get()->countBy('status');
-        $lastUpdated = $query->select('updated_at')->latest()->value('updated_at');
+        $lastUpdated = $query->select('updated_at')->latest('updated_at')->value('updated_at');
         return [
             'total_victims' => $total,
             'total_injuries' => $group[PopulationStatus::INJURED->value] ?? 0,

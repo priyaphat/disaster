@@ -47,7 +47,7 @@ class PopulationController extends Controller
     public function index(Request $request)
     {
         $data = $this->populationService->getList($request->all());
-        $summary = $this->populationService->summary($request->all());
+        $summary = $this->populationService->summary($request->except('sort'));
         return ApiResponse::customSuccessResponse(__('success.data'), [
             'data' => $data,
             'summary' => $summary

@@ -54,4 +54,11 @@ class StoreAppointmentRequest extends FormRequest
             'team_id' => 'required|exists:teams,id'
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'end_time.after' => __('validation.custom.endtime.after')
+        ];
+    }
 }

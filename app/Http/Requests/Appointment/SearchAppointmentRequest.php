@@ -39,6 +39,7 @@ class SearchAppointmentRequest extends FormRequest
              * @example '2025-06'
              */
             'selected_month' => 'nullable|date_format:Y-m',
+            'selected_date' => 'nullable|date_format:d',
             /**
              * ID ของศูนย์พักพิงที่ต้องการดู
              * @var integer

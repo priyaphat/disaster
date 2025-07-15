@@ -33,11 +33,9 @@ class AppointmentService
      */
     public function getDailySchedule(array $filters = [])
     {
-        $date = isset($filters['selected_date']) ? Carbon::parse($filters['selected_date'])->format('Y-m-d') : Carbon::now()->format('Y-m-d');
+        $filters['selected_date'] = isset($filters['selected_date']) ? Carbon::parse($filters['selected_date'])->format('Y-m-d') : Carbon::now()->format('Y-m-d');
 
-        $shiftData = Appointment::filter($filters)->where(function ($query) use ($date) {
-            $query->whereDate('appointment_date', $date);
-        })->with('team', 'shelter')->oldest('start_time')->get();
+        $shiftData = Appointment::filter($filters)->with('team', 'shelter')->oldest('start_time')->get();
 
         $data = $shiftData->groupBy('shift')->map(function ($recordsByShift, $shift) use ($filters) {
             $tranformedData = [
@@ -62,22 +60,26 @@ class AppointmentService
      */
     public function getMonthSchedule(array $filters = [])
     {
-        $type = isset($filters['type']) ? ConvertUtility::toInt($filters['type']) : 1;
-        if ($type == 1) {
+        $newFilterss['type'] = isset($filters['type']) ? ConvertUtility::toInt($filters['type']) : 1;
+        if (isset($newFilterss['type']) && $newFilterss['type']) {
+            $filters['selected_date'] = Carbon::createFromFormat('Y-m-d',  $filters['selected_month'].'-'.$filters['selected_date'])->format('Y-m-d');
+        } else {
+            $filters['selected_month'] = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->format('Y-m');
+        }
+
+        if ($newFilterss['type'] == 1) {
             $monthAppointment = $this->getCalendar($filters);
         } else {
             $monthAppointment = $this->getTimeTables($filters);
         }
         return $monthAppointment;
     }
-    
+
     /**
      * Get calendar detail.
      */
     public function getCalendar($filters)
     {
-        $filters['selected_month'] = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->format('Y-m');
-
         $shiftData = Appointment::filter($filters)->get();
         $data = $shiftData->groupBy('appointment_date')
             ->map(function ($recordsByDate, $date) use ($filters) {
@@ -98,8 +100,6 @@ class AppointmentService
      */
     public function getTimeTables($filters)
     {
-        $filters['selected_month'] = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->format('Y-m');
-
         $monthAppointment = Appointment::with(
             'team',
             'shelter',
@@ -107,7 +107,7 @@ class AppointmentService
             'teamLog',
             'shelterLog',
             'userLog'
-        )->filter($filters)->get();
+        )->filter($filters)->oldest('appointment_date', 'start_time')->get();
 
 
         $tranformedData = AppointmentResource::collection($monthAppointment)->toArray(request());
@@ -176,7 +176,7 @@ class AppointmentService
     public function update(Appointment $appointment, array $data): Appointment
     {
         // Check if appointment is past, return error message
-        if ($appointment->time_disabled) {
+        if ($appointment->info_disabled) {
             throw new BadRequestHttpException(__('error.appointment.is_past'));
         }
         // Check if appointment is existing, return error message
@@ -211,7 +211,7 @@ class AppointmentService
     public function delete(Appointment $appointment): bool
     {
         // Check if appointment is past, return error message
-        if ($appointment->time_disabled) {
+        if ($appointment->info_disabled) {
             throw new BadRequestHttpException(__('error.appointment.is_past'));
         }
 
@@ -221,24 +221,40 @@ class AppointmentService
     /**
      * Check if the team has any overlapping appointments at the requested date and time.
      */
-    public function isAppointmentExisting(array $data, $appointmentId = null): bool
+    public function isAppointmentExisting(array $data, $appointmentId = null)
     {
+        $startTime = $data['start_time'];
+        $endTime = $data['end_time'];
+        $allowedBorder = '13:00';
+
         // Find all appointment by team_id
-        $appointmentQuery = Appointment::where('team_id', $data['team_id']);
+        $appointmentQuery = Appointment::where('team_id', $data['team_id'])->where('appointment_date', $data['appointment_date']);
 
         // If the appointmentId exists, it means this is an update function; if not, it’s a create function.
         if ($appointmentId) {
             $appointmentQuery->where('id', '!=', $appointmentId);
         }
 
-        // Condition for time overlap.
-        return $appointmentQuery->where('appointment_date', $data['appointment_date'])
-            ->where(function ($query) use ($data) {
-                $query->whereBetween('start_time', [$data['start_time'], $data['end_time']])
-                    ->orWhereBetween('end_time', [$data['start_time'], $data['end_time']]);
+        // Condition for check time overlap.
+        $overlap = $appointmentQuery
+            // Check time is between two times.
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->whereBetween('start_time', [$startTime, $endTime])
+                    ->orWhereBetween('end_time', [$startTime, $endTime]);
+            })
+            // Allow this if start_time or end_time is 13:00
+            ->where(function ($query) use ($startTime, $endTime, $allowedBorder) {
+                $query->where(function ($sub) use ($startTime, $allowedBorder) {
+                    $sub->where('end_time', '!=', $startTime)
+                        ->orWhereRaw('? != ?', [$startTime, $allowedBorder]);
+                })
+                    ->where(function ($sub) use ($endTime, $allowedBorder) {
+                        $sub->where('start_time', '!=', $endTime)
+                            ->orWhereRaw('? != ?', [$endTime, $allowedBorder]);
+                    });
             })->exists();
+        return $overlap;
     }
-
 
     /**
      * Split the shift ("morning" or "afternoon") based on datetime.
@@ -249,9 +265,9 @@ class AppointmentService
         $start = Carbon::parse($appointment['start_time']);
         $end   = Carbon::parse($appointment['end_time']);
         $morningStart = $start->copy()->setTime(0, 0);
-        $morningEnd   = $start->copy()->setTime(11, 59, 59);
+        $morningEnd   = $start->copy()->setTime(13, 0);
 
-        $eveningStart = $end->copy()->setTime(12, 0);
+        $eveningStart = $end->copy()->setTime(13, 0);
         $eveningEnd   = $end->copy()->setTime(23, 59, 59);
 
         // Check for morning shift overlap

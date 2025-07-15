@@ -27,8 +27,12 @@ class AppointmentFilter extends QueryFilter
     {
         $startDate = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
         $endDate = Carbon::createFromFormat('Y-m', $month)->endOfMonth();
-        return $this->builder->where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('appointment_date', [$startDate, $endDate]);
-        });
+        return $this->builder->whereBetween('appointment_date', [$startDate, $endDate]);
+     
+    }
+
+    public function selected_date($date)
+    {
+        return $this->builder->whereDate('appointment_date', $date);
     }
 }

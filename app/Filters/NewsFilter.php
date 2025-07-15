@@ -43,7 +43,6 @@ class NewsFilter extends QueryFilter
         return $this->builder->where('shelter_id', $id);
     }
 
-    // ข่าวจากศูนย์กลาง
     public function center()
     {
         return $this->builder->whereNull('shelter_id');

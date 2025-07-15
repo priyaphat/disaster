@@ -15,7 +15,7 @@ class Appointment extends Model
     use CreatedUpdatedBy;
 
     protected $appends = [
-        'time_disabled'
+        'info_disabled'
     ];
 
     protected $fillable = [
@@ -83,7 +83,7 @@ class Appointment extends Model
     /**
      * Get the disabled appointment.
      */
-    protected function getTimeDisabledAttribute()
+    protected function getInfoDisabledAttribute()
     {
         if ($this->appointment_date) {
             $date = Carbon::parse($this->appointment_date)->format('Y-m-d');

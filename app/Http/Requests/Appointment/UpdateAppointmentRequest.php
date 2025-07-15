@@ -28,7 +28,7 @@ class UpdateAppointmentRequest extends FormRequest
              * @example 2025-06-06
              */
             'appointment_date' => 'required|date|date_format:Y-m-d',
-             /**
+            /**
              * เวลาเริ่มต้น
              * @var string
              * @example 07:30
@@ -52,6 +52,13 @@ class UpdateAppointmentRequest extends FormRequest
              * @example 1
              */
             'team_id' => 'required|exists:teams,id'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'end_time.after' => __('validation.custom.endtime.after')
         ];
     }
 }

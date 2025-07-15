@@ -25,7 +25,7 @@ class AppointmentResource extends JsonResource
             'team_name' =>  $this->team ? $this->team->name : $this->teamLog?->description['name'],
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
-            'time_disabled' => $this->time_disabled
+            'info_disabled' => $this->info_disabled
         ];
     }
 }
