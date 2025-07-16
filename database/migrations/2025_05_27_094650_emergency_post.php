@@ -18,6 +18,8 @@ return new class extends Migration
             $table->tinyInteger('level');
             $table->unsignedBigInteger('province_id');
             $table->text('gis_map')->nullable();
+            $table->decimal('latitude', 10, 6)->nullable();
+            $table->decimal('longitude', 10, 6)->nullable();
             $table->tinyInteger('status')->default(1)->comment('0 - inactive, 1 - active');
             $table->tinyInteger('line_oa')->default(0)->comment('0 - inactive, 1 - active');
             $table->unsignedBigInteger('created_by')->nullable();

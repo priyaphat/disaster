@@ -8,6 +8,7 @@ use App\Http\Requests\FilterNewsRequest;
 use App\Http\Resources\NewsCollection;
 use App\Http\Resources\NewsResource;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\LinePostUtility;
 use App\Models\News;
 use App\Services\ImageService;
 use App\Services\NewsService;
@@ -42,6 +43,7 @@ class NewsController extends Controller
     {
         $data = $this->newsService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, News::IMAGE_FOLDER, News::class, $data->id);
+        LinePostUtility::line_oa_call(LineController::News_post, $data->toArray());
         return ApiResponse::createdResponse(__('success.new.created'), new NewsResource($data));
     }
 
@@ -62,6 +64,7 @@ class NewsController extends Controller
         unset($request['shelter_id']);
         $data = $this->newsService->update($news, $request->all());
         $data->image = $this->imageService->updateImage($request->image, News::IMAGE_FOLDER, News::class, $data->id);
+        LinePostUtility::line_oa_call(LineController::News_update, $data->toArray());
         return ApiResponse::successResponse(__('success.new.updated'), new NewsResource($data));
     }
 

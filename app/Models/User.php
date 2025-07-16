@@ -49,6 +49,9 @@ class User extends Authenticatable
         'district_id',
         'department_id',
         'position_id',
+        'gis_map',
+        'latitude',
+        'longitude',
         // 'registration_type'
     ];
 

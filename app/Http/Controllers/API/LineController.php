@@ -23,15 +23,15 @@ class LineController extends Controller
     public const Population = 1;
     public const User = 7;
 
-    public const Disaster_post = 1; // hotline s
-    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ s
+    public const Disaster_post = 1; // hotline ok
+    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ ok
     public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง
     public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง
-    public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย s
-    public const Damaged_utility_end = 6; // s
+    public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย ok
+    public const Damaged_utility_end = 6; // ok
     public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
-    public const News_post = 8; // hotline
-    public const News_update = 9; // hotline
+    public const News_post = 8; // hotline ok
+    public const News_update = 9; // hotline ok
     public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ req id
     public const Emc_request_post_team = 11; //แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ) req id
     public const Emc_request_end = 12; // แจ้งเตือน รายการรอช่วยเหลือถูกยกเลิก (ส่งให้หัวหน้าทีมที่เกี่ยวข้อง) req id
@@ -284,19 +284,13 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box_link($text, self::Resource, __('line.see_more'), $type);
         } else if ($form == self::News_post) {
-            // $data = [
-            //     'name' => 'xxxxxxxx',
-            // ];
             $text = __('line.news_post', [
-                'name' => $data['name'],
+                'name' => $data['title'],
             ]);
             $text = self::flex_box_link($text, self::News_post, __('line.read_more'), $type);
         } else if ($form == self::News_update) {
-            // $data = [
-            //     'name' => 'xxxxxxxx',
-            // ];
             $text = __('line.news_update', [
-                'name' => $data['name'],
+                'name' => $data['title'],
             ]);
             $text = self::flex_box_link($text, self::News_update, __('line.read_more'), $type);
         } else if ($form == self::Emc_request_post) {

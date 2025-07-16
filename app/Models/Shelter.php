@@ -29,6 +29,9 @@ class Shelter extends Model
         'subdistrict_code',
         'address',
         'max_capacity',
+        'gis_map',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [

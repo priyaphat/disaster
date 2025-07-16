@@ -124,6 +124,7 @@ class ConfigController extends Controller
 
     public function weather()
     {
+        //tc อุณหภูมิ,rh ความชื้น,cond สถานะ ,rain ฝน% ,ws10m ลม m/s
         $config = Config::select('description')->where('type', Config::weather)->first();
         $data = $config ? $config->description : null;
         if ($data) {

@@ -27,6 +27,9 @@ return new class extends Migration
             $table->unsignedBigInteger('position_id')->nullable();
             $table->unsignedBigInteger('role_id')->nullable();
             $table->enum('registration_type', ['self', 'admin'])->default('self');
+            $table->text('gis_map')->nullable();
+            $table->decimal('latitude', 10, 6)->nullable();
+            $table->decimal('longitude', 10, 6)->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
