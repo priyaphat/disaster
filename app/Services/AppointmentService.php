@@ -20,6 +20,7 @@ class AppointmentService
     {
         $data = [];
         $filters['type'] = 1;
+
         $todayAppointment = $this->getDailySchedule($filters);
         $monthAppointment = $this->getMonthSchedule($filters);
 
@@ -60,14 +61,17 @@ class AppointmentService
      */
     public function getMonthSchedule(array $filters = [])
     {
-        $newFilterss['type'] = isset($filters['type']) ? ConvertUtility::toInt($filters['type']) : 1;
-        if (isset($newFilterss['type']) && $newFilterss['type']) {
-            $filters['selected_date'] = Carbon::createFromFormat('Y-m-d',  $filters['selected_month'].'-'.$filters['selected_date'])->format('Y-m-d');
+        $filters['type'] = isset($filters['type']) ? ConvertUtility::toInt($filters['type']) : 1;
+        // If request has date, unset month.
+        if (isset($filters['selected_date']) && $filters['selected_date'] && $filters['type'] != 1) {
+            $filters['selected_date'] = Carbon::createFromFormat('Y-m-d',  $filters['selected_month'] . '-' . $filters['selected_date'])->format('Y-m-d');
+            unset($filters['selected_month']);
         } else {
             $filters['selected_month'] = isset($filters['selected_month']) ? $filters['selected_month'] : Carbon::now()->format('Y-m');
+            unset($filters['selected_date']);
         }
 
-        if ($newFilterss['type'] == 1) {
+        if ($filters['type'] == 1) {
             $monthAppointment = $this->getCalendar($filters);
         } else {
             $monthAppointment = $this->getTimeTables($filters);
@@ -84,7 +88,7 @@ class AppointmentService
         $data = $shiftData->groupBy('appointment_date')
             ->map(function ($recordsByDate, $date) use ($filters) {
                 $tranformedData = [
-                    'date' => $date,
+                    'date' => Carbon::parse($date)->format('Y-m-d'),
                     'total_team' => $recordsByDate->groupBy('team_id')->count(),
                     'total_shelter' => $recordsByDate->groupBy('shelter_id')->count()
                 ];
