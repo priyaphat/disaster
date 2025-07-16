@@ -38,7 +38,7 @@ class AppointmentService
 
         $shiftData = Appointment::filter($filters)->with('team', 'shelter')->oldest('start_time')->get();
 
-        $data = $shiftData->groupBy('shift')->map(function ($recordsByShift, $shift) use ($filters) {
+        $data = $shiftData->groupBy('shift')->mapWithKeys(function ($recordsByShift, $shift) use ($filters) {
             $tranformedData = [
                 'shift' => $shift,
                 'shift_name' => ShiftType::tryFrom($shift)->label(),
@@ -50,8 +50,8 @@ class AppointmentService
             ];
 
             $tranformedData = $this->resetData($tranformedData, $filters);
-            return $tranformedData;
-        })->values();
+            return [ShiftType::tryFrom($shift)->type() => $tranformedData];
+        });
 
         return $data;
     }
@@ -271,8 +271,8 @@ class AppointmentService
         $morningStart = $start->copy()->setTime(0, 0);
         $morningEnd   = $start->copy()->setTime(13, 0);
 
-        $eveningStart = $end->copy()->setTime(13, 0);
-        $eveningEnd   = $end->copy()->setTime(23, 59, 59);
+        $afternoonStart = $end->copy()->setTime(13, 0);
+        $afternoonEnd   = $end->copy()->setTime(23, 59, 59);
 
         // Check for morning shift overlap
         if (max($start, $morningStart) < min($end, $morningEnd)) {
@@ -287,11 +287,11 @@ class AppointmentService
         }
 
         // Check for evening shift overlap
-        if (max($start, $eveningStart) < min($end, $eveningEnd)) {
+        if (max($start, $afternoonStart) < min($end, $afternoonEnd)) {
             $shiftArr[] = [
                 'appointment_date' => $appointment['appointment_date'],
-                'start_time' => max($start, $eveningStart)->format('H:i'),
-                'end_time' => min($end, $eveningEnd)->format('H:i'),
+                'start_time' => max($start, $afternoonStart)->format('H:i'),
+                'end_time' => min($end, $afternoonEnd)->format('H:i'),
                 'shift' => 2,
                 'shelter_id' => $appointment['shelter_id'],
                 'team_id' => $appointment['team_id']

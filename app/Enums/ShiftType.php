@@ -6,13 +6,21 @@ enum ShiftType: int
 {
     //
     case MORNING = 1;
-    case EVENING = 2;
+    case AFTERNOON = 2;
 
     public function label(): string
     {
         return match ($this) {
             self::MORNING => __('data.morning'),
-            self::EVENING => __('data.evening'),
+            self::AFTERNOON => __('data.afternoon'),
+        };
+    }
+
+    public function type(): string
+    {
+        return match ($this) {
+            self::MORNING => 'morning',
+            self::AFTERNOON => 'afternoon',
         };
     }
 }
