@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Filters\AppointmentFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Appointment\SearchAppointmentRequest;
 use App\Http\Requests\Appointment\SearchCalendarRequest;
@@ -11,7 +10,6 @@ use App\Http\Requests\Appointment\UpdateAppointmentRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Appointment;
 use App\Services\AppointmentService;
-use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {

@@ -53,26 +53,14 @@ class Appointment extends Model
 
     public function teamLog()
     {
-        return $this->hasOne(AppointmentLog::class, 'parentable_id', 'team_id')
-            ->where('parentable_type', Team::class)
-            ->join('appointments', 'appointment_logs.parentable_id', '=', 'appointments.team_id')
-            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.appointment_date)');
-    }
-
-    public function userLog()
-    {
-        return $this->hasOne(AppointmentLog::class, 'parentable_id', 'team_id')
-            ->where('parentable_type', User::class)
-            ->join('appointments', 'appointment_logs.parentable_id', '=', 'appointments.team_id')
-            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.appointment_date)');
+        return $this->hasOne(AppointmentLog::class, 'appointment_id', 'id')
+            ->where('parentable_type', Team::class);
     }
 
     public function shelterLog()
     {
-        return $this->hasOne(AppointmentLog::class, 'parentable_id', 'shelter_id')
-            ->where('parentable_type', Shelter::class)
-            ->join('appointments', 'appointment_logs.parentable_id', '=', 'appointments.shelter_id')
-            ->whereRaw('DATE(appointment_logs.log_date) = DATE(appointments.appointment_date)');
+        return $this->hasOne(AppointmentLog::class, 'appointment_id', 'id')
+            ->where('parentable_type', Shelter::class);
     }
 
     public function scopeFilter(Builder $query, array $filters): Builder

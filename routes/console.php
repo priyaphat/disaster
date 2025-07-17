@@ -8,6 +8,6 @@ use Illuminate\Support\Facades\Schedule;
 //     $this->comment(Inspiring::quote());
 // })->purpose('Display an inspiring quote');
 
-Schedule::command('app:appointment-task')->everyOddHour();
 Schedule::command('app:weather-task')->everySixHours();
-// Schedule::command('app:appointment-task')->dailyAt('20:30');
+Schedule::command('app:appointment-task')->dailyAt('13:00');
+Schedule::command('app:appointment-task')->dailyAt('23:59');

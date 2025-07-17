@@ -97,16 +97,8 @@ class TeamService
     public function delete(Team $team): bool
     {
         // Save team log before delete
-        $team = new TeamResource($team->load('allUsers'));
-        $teamData = [
-            'parentable_id' => $team->id,
-            'parentable_type' => Team::class,
-            'description' => $team,
-            'log_date' => Carbon::now()->format('Y-m-d')
-        ];
-        LogUtility::createAppointment($teamData);
-
         $team->upcomingAppointments()->delete();
+        LogUtility::createAppointmentLog(['team' => $team->id]);
         $team->team_members->each->delete();
         return $team->delete();
     }

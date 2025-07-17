@@ -19,10 +19,10 @@ class AppointmentResource extends JsonResource
             'id' => $this->id,
             'appointment_date' => Carbon::parse($this->appointment_date)->format('Y-m-d'),
             'shift' => $this->shift,
-            'shelter_id' => $this->when($this->relationLoaded('shelter'), $this->shelter?->id),
-            'shelter_name' => $this->when($this->relationLoaded('shelter'), $this->shelter?->name),
+            'shelter_id' => $this->shelter_id,
+            'shelter_name' => $this->shelterLog ? $this->shelterLog?->description['name'] : $this->shelter->name,
             'team_id' =>  $this->team_id,
-            'team_name' =>  $this->team ? $this->team->name : $this->teamLog?->description['name'],
+            'team_name' =>  $this->teamLog ? $this->teamLog?->description['name'] : $this->team?->name,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
             'info_disabled' => $this->info_disabled

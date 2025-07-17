@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AppointmentLog extends Model
 {
     //
-    protected $fillable = ['parentable_id', 'parentable_type', 'description', 'log_date'];
+    protected $fillable = ['appointment_id', 'parentable_id', 'parentable_type', 'description', 'log_date'];
     protected $casts = [
         'description' => 'array'
     ];

@@ -15,12 +15,4 @@ enum ShiftType: int
             self::AFTERNOON => __('data.afternoon'),
         };
     }
-
-    public function type(): string
-    {
-        return match ($this) {
-            self::MORNING => 'morning',
-            self::AFTERNOON => 'afternoon',
-        };
-    }
 }
