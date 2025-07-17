@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Log;
 
 class LinePostUtility
 {
-    protected static $user = ['Uaa3e2b17e373580b16101b64937e4a39']; //test
+    protected static $user = ['Uaa3e2b17e373580b16101b64937e4a39']; //user test id line
 
-    public static function line_oa_call($form, $data)
+    public static function line_oa_call($form, $data)  //hotline use line checkbox
     {
         $data['line_oa'] = $data['line_oa'] ?? 0;
         if ($data['line_oa'] == 1) {
@@ -24,11 +24,12 @@ class LinePostUtility
                         ->pluck('district_name'),
                 ];
             }
+
             return (new LineController)->LineNotification($data, $form, self::$user);
         }
     }
 
-    public static function LineMakeInformation($form, $data)
+    public static function LineMakeInformation($form, $data) //use edit data form
     {
         if ($form == LineController::Damaged_utility_post) {
             $data = [
@@ -46,6 +47,7 @@ class LinePostUtility
                 ],
             ];
         }
+        if($for)
         return (new LineController)->LineNotification($data, $form, self::$user);
     }
 }

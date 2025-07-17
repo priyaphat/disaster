@@ -25,6 +25,8 @@ class EmergencyPost extends Model
         'level',
         'province_id',
         'gis_map',
+        'latitude',
+        'longitude',
         'status',
         'line_oa',
         // 'history_id',
