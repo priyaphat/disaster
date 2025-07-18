@@ -13,7 +13,7 @@ class EmergencyRequest extends Model
 
     public const waiting = 1;
     public const approve = 2; //รอความช่วยเหลือ
-    public const disapprove = 3;
+    public const disapprove = 3; //ปฏิเสธการช่วยเหลือ
     public const helping = 4;
     public const complete = 5;
     public const incomplete = 6;
@@ -31,7 +31,8 @@ class EmergencyRequest extends Model
         'subdistrict_id',
         'address',
         'status',
-        'emergency_team_id'
+        'emergency_team_id',
+        'assigner'
     ];
 
     public function prefix()

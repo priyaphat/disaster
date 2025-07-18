@@ -2,13 +2,13 @@
 
 namespace App\Enums;
 
-enum CancellationReason: string
+enum CancellationReason: int
 {
-    case USER_REQUEST = '1';
-    case DUPLICATE = '2';
-    case WRONG_INFO = '3';
-    case SYSTEM_ERROR = '4';
-    case OTHER = '5';
+    case USER_REQUEST = 1;
+    case DUPLICATE = 2;
+    case WRONG_INFO = 3;
+    case SYSTEM_ERROR = 4;
+    case OTHER = 5;
 
     public function label(): string
     {

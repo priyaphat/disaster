@@ -18,7 +18,7 @@ class ShelterService
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
         $query = Shelter::filter($filters)->with('fullAddress', 'population');
-
+        /** ShelterResource response time x 10 */
         if (!$paginate) {
             return ShelterResource::collection($query->get());
         } else {
@@ -41,6 +41,9 @@ class ShelterService
             'subdistrict_code' => $data['subdistrict_code'],
             'max_capacity' => $data['max_capacity'],
             'utilities' => $data['utilities'] ?? null, //uncomment this line when use in production
+            'gis_map' => $data['gis_map'] ?? null,
+            'latitude' => $data['latitude'] ?? null,
+            'longitude' => $data['longitude'] ?? null,
             // 'utilities' => json_decode($data['utilities'], true), //decode use for dev only, comment or removed this line when use in production
         ]);
 

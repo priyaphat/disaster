@@ -27,10 +27,14 @@ return new class extends Migration
             $table->integer('district_id')->nullable();
             $table->string('address')->nullable();
             $table->tinyInteger('status')->default(1)
-            ->comment('0 - inactive , 1 - waiting , 2 - approve , 3 - disapprove , 4 - helping , 5 - complete , 6 - incomplete');
+                ->comment('0 - inactive , 1 - waiting , 2 - approve , 3 - disapprove , 4 - helping , 5 - complete , 6 - incomplete');
             $table->unsignedInteger('emergency_team_id')->nullable()->comment('null=ยังไม่มีทีม');
             // $table->unsignedInteger('reason_id')->nullable()->comment('เหตุผล constants');
             // $table->string('reason')->nullable()->comment('เหตุผลอื่นๆ');
+            $table->foreignId('assigner')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->foreignId('created_by')
                 ->nullable()
                 ->constrained('users')
@@ -39,6 +43,7 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
+
             $table->timestamps();
         });
     }

@@ -44,7 +44,7 @@ class ConfigSeeder extends Seeder
                 "population" => 0
             ]],
             ['name' => 'แจ้งเตือน คำร้องขอใหม่', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Emc_request_post],
+                "line_type" => [LineController::Emc_request_post,LineController::Emc_request_unaccept],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ)', 'type' => 1, 'description' => [
