@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ShiftType;
 use App\Http\Resources\AppointmentResource;
 use App\Http\Utility\ConvertUtility;
+use App\Http\Utility\LogUtility;
 use App\Models\Appointment;
 use App\Utility\GvarFunc;
 use Illuminate\Support\Carbon;
@@ -116,7 +117,7 @@ class AppointmentService
         $search = isset($filters['search']) ? $filters['search'] : null;
         if ($search) {
             $tranformedData = collect($tranformedData)->filter(function ($item) use ($search) {
-                return Str::contains($item['team_name'], $search);
+                return Str::contains($item['team_name'], $search) || Str::contains($item['shelter_name'], $search);
             });
         }
 
@@ -154,7 +155,7 @@ class AppointmentService
     }
 
     /**
-     * Create a 
+     * Create a
      */
     public function create(array $data)
     {
@@ -163,6 +164,11 @@ class AppointmentService
         $isExisting = $this->isAppointmentExisting($data);
         if ($isExisting) {
             throw new BadRequestHttpException(__('error.appointment.exists'));
+        }
+
+        $isPass = $this->isTimePast($data);
+        if ($isPass) {
+            throw new BadRequestHttpException(__('error.appointment.is_past'));
         }
 
         // Create an appointment and shift details
@@ -180,7 +186,7 @@ class AppointmentService
     {
         // Check if appointment is past, return error message
         if ($appointment->info_disabled) {
-            throw new BadRequestHttpException(__('error.appointment.is_past'));
+            throw new BadRequestHttpException(__('error.appointment.disabled'));
         }
 
         // Check if appointment is existing, return error message
@@ -189,10 +195,13 @@ class AppointmentService
             throw new BadRequestHttpException(__('error.appointment.exists'));
         }
 
+        // Check if appointment is past, return error message
+        $isPass = $this->isTimePast($data);
+        if ($isPass) {
+            throw new BadRequestHttpException(__('error.appointment.is_past'));
+        }
 
         $newShifts = $this->splitShiftTime($data);
-
-
 
         if (count($newShifts) == 1) {
             $appointment = $this->getById($appointment->id);
@@ -225,10 +234,26 @@ class AppointmentService
     {
         // Check if appointment is past, return error message
         if ($appointment->info_disabled) {
-            throw new BadRequestHttpException(__('error.appointment.is_past'));
+            throw new BadRequestHttpException(__('error.appointment.disabled'));
         }
 
         return $appointment->delete();
+    }
+
+    /**
+     * Check if the team has any overlapping appointments at the requested date and time.
+     */
+    public function isTimePast(array $data)
+    {
+        $now = Carbon::now();
+        $startTime = Carbon::parse($data['appointment_date'] . ' ' . $data['start_time']);
+        $endTime = Carbon::parse($data['appointment_date'] . ' ' . $data['end_time']);
+
+        if ($now->greaterThan($startTime) || $now->greaterThan($endTime)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -333,5 +358,21 @@ class AppointmentService
             }
         }
         return $shiftGroup;
+    }
+
+    public function deleteUpcomingAppointment(array $data)
+    {
+        $time = Carbon::now()->format('Y-m-d H:i');
+        $date = Carbon::now()->format('Y-m-d');
+        $appQuery = Appointment::with(['team.allUsers', 'shelter'])->whereDate('appointment_date', $date)
+            ->whereRaw("STR_TO_DATE(CONCAT(appointment_date, ' ', end_time), '%Y-%m-%d %H:%i') > ?", [$time]);
+
+        if (isset($data['team_id'])) {
+            $appQuery->where('team_id', $data['team_id'])->delete();
+        }
+
+        if (isset($data['shelter_id'])) {
+            $appQuery->where('shelter_id', $data['shelter_id'])->delete();
+        }
     }
 }

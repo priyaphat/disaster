@@ -67,11 +67,11 @@ class AppointmentController extends Controller
 
     /**
      * Display by date | แสดงรายการนัดหมายโดยวันที่
-     * 
+     *
      * ถ้าแสดงนัดหมายทั้งหมด ไม่ต้องส่ง `shelter_id` และ `team_id` | When display all appointments, do not send `shelter_id` and `team_id`
-     * 
+     *
      * ถ้าแสดงนัดหมายแยกตามทีม ไม่ต้องส่ง `shelter_id` | When display appointments by team, do not send `shelter_id`
-     * 
+     *
      * ถ้าแสดงนัดหมายแยกตามศูนย์พักพิง ไม่ต้องส่ง `team_id` | When display appointments by  shelter, do not `send team_id`
      */
     public function getDailySchedule(SearchCalendarRequest $request)
@@ -83,11 +83,11 @@ class AppointmentController extends Controller
 
     /**
      * Display with calendar or table | แสดงรายการนัดหมายแบบปฏิทินหรือตาราง
-     * 
+     *
      * ถ้าแสดงนัดหมายทั้งหมด ไม่ต้องส่ง `shelter_id` และ `team_id` | When display all appointments, do not send `shelter_id` and `team_id`
-     * 
+     *
      * ถ้าแสดงนัดหมายแยกตามทีม ไม่ต้องส่ง `shelter_id` | When display appointments by team, do not send `shelter_id`
-     * 
+     *
      * ถ้าแสดงนัดหมายแยกตามศูนย์พักพิง ไม่ต้องส่ง `team_id` | When display appointments by  shelter, do not `send team_id`
      */
     public function getMonthSchedule(SearchAppointmentRequest $request)

@@ -169,7 +169,6 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/staff', [ShelterStaffController::class, 'index']);
-    Route::get('/staff', [ShelterStaffController::class, 'index']);
     Route::post('/staff', [ShelterStaffController::class, 'store']);
     Route::post('/staff/transfer/{userId}', [ShelterStaffController::class, 'transfer']);
     Route::post('/staff/exit/{userId}', [ShelterStaffController::class, 'exit']);

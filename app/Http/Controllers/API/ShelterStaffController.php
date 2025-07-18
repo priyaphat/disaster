@@ -43,7 +43,9 @@ class ShelterStaffController extends Controller
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
-        $data = $this->shelterStaffService->getList($request->all());
+        $paginate = $request->has('paginate');
+        $perPage = $request->input('paginate') ?? 10;
+        $data = $this->shelterStaffService->getList($request->all(), $paginate, $perPage);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 

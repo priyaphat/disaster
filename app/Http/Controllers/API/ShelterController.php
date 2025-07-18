@@ -12,6 +12,7 @@ use App\Http\Utility\LinePostUtility;
 use App\Models\DamagedUtility;
 use App\Models\Shelter;
 use App\Models\TransferHistory;
+use App\Services\AppointmentService;
 use App\Services\ImageService;
 use App\Services\PopulationService;
 use App\Services\ShelterService;
@@ -23,20 +24,22 @@ use Illuminate\Http\Request;
 
 class ShelterController extends Controller
 {
-    protected $shelterService, $imageService, $populationService, $transferLogService, $staffServeice;
+    protected $shelterService, $imageService, $populationService, $transferLogService, $staffServeice, $appointmentService;
 
     public function __construct(
         ShelterService $shelterService,
         ImageService $imageService,
         PopulationService $populationService,
         TransferHistoryService $transferLogService,
-        ShelterStaffService $staffServeice
+        ShelterStaffService $staffServeice,
+        AppointmentService $appointmentService
     ) {
         $this->shelterService = $shelterService;
         $this->imageService = $imageService;
         $this->populationService = $populationService;
         $this->transferLogService = $transferLogService;
         $this->staffServeice = $staffServeice;
+        $this->appointmentService = $appointmentService;
     }
 
     /**
@@ -74,6 +77,7 @@ class ShelterController extends Controller
         if (isset($request->status)) {
             if ((int) $request->status === Shelter::CLOSED) {
                 $this->populationService->updateByShelter(['shelter_id' => $shelter->id]);
+                $this->appointmentService->deleteUpcomingAppointment(['shelter_id' => $shelter->id]);
             }
             $data = $this->shelterService->update($shelter, $request->only('status'));
             return ApiResponse::successResponse($data->status == Shelter::OPEN ? __('success.shelter.active') : __('success.shelter.inactive'), $data);

@@ -12,6 +12,7 @@ use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class LogUtility
 {
@@ -41,10 +42,14 @@ class LogUtility
             $query->where('team_id', $data['team_id'])->doesntHave('teamLog');
         }
 
+        if (isset($data['shelter_id'])) {
+            $query->where('shelter_id', $data['shelter_id'])->doesntHave('shelterLog');
+        }
+
         $data = $query->chunkById(100, function ($apps) {
             $apps = AppointmentLogResource::collection($apps)->resolve();
             foreach ($apps as $app) {
-                // If has team, save log. 
+                // If has team, save log.
                 // If an appointment doesn't have a team, it means the log was saved before the team was deleted.
                 if ($app['team']) {
                     $appointmentData = [
@@ -76,6 +81,8 @@ class LogUtility
                 }
             }
         });
+
+        Log::info("Save appointment logs");
     }
 
     public static function saveAppointmentLog(array $data = [])

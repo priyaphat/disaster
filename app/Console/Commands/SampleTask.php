@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class SampleTask extends Command
 {
@@ -15,6 +16,6 @@ class SampleTask extends Command
 
     public function handle()
     {
-        // \Log::info('Run task at ' . now());
+        Log::info('Run task at ' . now());
     }
 }

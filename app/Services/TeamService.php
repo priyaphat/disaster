@@ -98,7 +98,7 @@ class TeamService
     {
         // Save team log before delete
         $team->upcomingAppointments()->delete();
-        LogUtility::createAppointmentLog(['team' => $team->id]);
+        LogUtility::createAppointmentLog(['team_id' => $team->id]);
         $team->team_members->each->delete();
         return $team->delete();
     }

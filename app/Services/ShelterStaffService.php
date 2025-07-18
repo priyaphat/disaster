@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShelterStaffService
 {
-    public function getList(array $filters = [])
+    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
         $query = ShelterStaff::query();
         if (!empty($filters['search'])) {
@@ -38,7 +38,13 @@ class ShelterStaffService
             $query->orderBy('created_at', $sort);
         }
 
-        $data = $query->with('user.prefix:id,name', 'user.position:id,name', 'user.department:id,name', 'shelterPosition')->paginate(10);
+        $query = $query->with('user.prefix:id,name', 'user.position:id,name', 'user.department:id,name', 'shelterPosition');
+
+        if (!$paginate) {
+            return ShelterStaffResource::collection($query->get());
+        }
+
+        $data = $query->paginate($perPage);
         return $data->setCollection(ShelterStaffResource::collection($data->items())->collection);
     }
 
