@@ -6,6 +6,7 @@ use App\Enums\ApprovalStatus;
 use App\Enums\RegistrationType;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
+use App\Http\Controllers\API\LineController;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserSelectResource;
@@ -76,6 +77,8 @@ class UserService
 
         // Send a password via email
         userRegistered::dispatch($user);
+        // Send line
+        (new LineController)->LineNotification(null, LineController::User_register);
         return $user;
     }
 
