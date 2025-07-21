@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\WarningException;
 use App\Http\Resources\ShelterStaffResource;
 use App\Models\ShelterStaff;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -67,6 +68,25 @@ class ShelterStaffService
     }
 
     /**
+     * Update a shelter position.
+     */
+    public function assign(ShelterStaff $staff, array $data, $continue = false): ShelterStaff
+    {
+        $oldLeaader = $this->getLeader($data);
+        if ($oldLeaader && !$continue) {
+            throw new WarningException(__('error.staff.change_leader'));
+        }
+
+        if ($oldLeaader) {
+            $oldLeaader->update([
+                'shelter_position_id' => NULL
+            ]);
+        }
+        $staff->update($data);
+        return $staff;
+    }
+
+    /**
      * Delete a shelter position.
      */
     public function delete(ShelterStaff $position): bool
@@ -106,6 +126,15 @@ class ShelterStaffService
         if ($data['shelter_position_id'] == ShelterStaff::LEADER_ID) {
             return ShelterStaff::where(['shelter_id' => $data['shelter_id'], 'shelter_position_id' => ShelterStaff::LEADER_ID])
                 ->where('user_id', '!=', $data['user_id'])->exists();
+        }
+        return false;
+    }
+
+    public function getLeader(array $data = [])
+    {
+        if ($data['shelter_position_id'] == ShelterStaff::LEADER_ID) {
+            return ShelterStaff::where(['shelter_id' => $data['shelter_id'], 'shelter_position_id' => ShelterStaff::LEADER_ID])
+                ->where('user_id', '!=', $data['user_id'])->first();
         }
         return false;
     }

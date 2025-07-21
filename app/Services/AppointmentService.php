@@ -184,9 +184,19 @@ class AppointmentService
      */
     public function update(Appointment $appointment, array $data)
     {
+        $newShifts = $this->splitShiftTime($data);
+
         // Check if appointment is past, return error message
         if ($appointment->info_disabled) {
             throw new BadRequestHttpException(__('error.appointment.disabled'));
+        }
+
+        foreach ($newShifts as $shift) {
+            // Check if appointment is past, return error message
+            $isPass = $this->isTimePast($data, $appointment);
+            if ($isPass) {
+                throw new BadRequestHttpException(__('error.appointment.is_past'));
+            }
         }
 
         // Check if appointment is existing, return error message
@@ -194,14 +204,6 @@ class AppointmentService
         if ($isExisting) {
             throw new BadRequestHttpException(__('error.appointment.exists'));
         }
-
-        // Check if appointment is past, return error message
-        $isPass = $this->isTimePast($data);
-        if ($isPass) {
-            throw new BadRequestHttpException(__('error.appointment.is_past'));
-        }
-
-        $newShifts = $this->splitShiftTime($data);
 
         if (count($newShifts) == 1) {
             $appointment = $this->getById($appointment->id);
@@ -243,14 +245,34 @@ class AppointmentService
     /**
      * Check if the team has any overlapping appointments at the requested date and time.
      */
-    public function isTimePast(array $data)
+    public function isTimePast(array $data, $old = null)
     {
         $now = Carbon::now();
         $startTime = Carbon::parse($data['appointment_date'] . ' ' . $data['start_time']);
         $endTime = Carbon::parse($data['appointment_date'] . ' ' . $data['end_time']);
 
-        if ($now->greaterThan($startTime) || $now->greaterThan($endTime)) {
-            return true;
+        if ($old) {
+            $oldDate = Carbon::parse($old['appointment_date'])->format('Y-m-d');
+            $newDate = Carbon::parse($data['appointment_date'])->format('Y-m-d');
+            if ($startTime->isToday() && $oldDate === $newDate) {
+                if ($startTime->lessThan($now)) {
+                    if ($data['start_time'] !== $old['start_time']) {
+                        return true;
+                    }
+                }
+
+                if ($endTime->lessThan($now)) {
+                    return true;
+                }
+            } else {
+                if ($now->greaterThan($startTime) || $now->greaterThan($endTime)) {
+                    return true;
+                }
+            }
+        } else {
+            if ($now->greaterThan($startTime) || $now->greaterThan($endTime)) {
+                return true;
+            }
         }
 
         return false;

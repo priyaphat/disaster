@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Enums\TeamPosition;
-use App\Exceptions\MemberException;
+use App\Exceptions\WarningException;
 use App\Http\Utility\ConvertUtility;
 use App\Models\TeamMember;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -46,13 +46,13 @@ class TeamMemberService
 
         // Check if the user is a leader. If the user is a leader, they must delete the team before the update.
         if ($member->team_position == TeamPosition::LEADER->value && !$discontinue) {
-            throw new MemberException(__('error.member.leader'));
+            throw new WarningException(__('error.member.leader'));
         }
 
         // Check if the team has one member, they must delete the team before the update.
         $count = $this->countOnlyMember($member['user_id'], $member['team_id']);
         if ($count <= 0 && !$discontinue) {
-            throw new MemberException(__('error.member.team_min_members'));
+            throw new WarningException(__('error.member.team_min_members'));
         }
 
         // Update member to another team
@@ -94,13 +94,13 @@ class TeamMemberService
 
         // Check if the user is a leader. If the user is a leader, they must delete the team before the delete.
         if ($member->team_position == TeamPosition::LEADER->value && !$discontinue) {
-            throw new MemberException(__('error.member.leader'));
+            throw new WarningException(__('error.member.leader'));
         }
 
         // Check if the team has one member, they must delete the team before the delete.
         $count = $this->countOnlyMember($data['user_id'], $teamId);
         if ($count <= 0 && !$discontinue) {
-            throw new MemberException(__('error.member.team_min_members'));
+            throw new WarningException(__('error.member.team_min_members'));
         }
 
         // Delete or disband the team when the user is a leader or when the team has member less than 1

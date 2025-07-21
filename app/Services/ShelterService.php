@@ -55,20 +55,18 @@ class ShelterService
 
     public function show(Shelter $shelter, array $search)
     {
-        $shelterLog = null;
-        // If request has date, find team log
-        if (isset($search['date'])) {
-            $logDate = Carbon::parse($search['date'])->format('Y-m-d');
-            $shelterLog = AppointmentLog::where('parentable_id', $shelter->id)
-                ->where('parentable_type', Shelter::class)->where('log_date', $logDate)->first();
-        }
+        // $shelterLog = null;
+        // // If request has date, find team log
+        // if (isset($search['log_id']) && $search['log_id']) {
+        //     $shelterLog = AppointmentLog::find($search['log_id']);
+        // }
 
-        // If request has date, find team log
-        if ($shelterLog) {
-            $data = collect($shelterLog->description);
-            $data = $shelter->load('image');
-            return new ShelterResource($data);
-        }
+        // // If request has date, find team log
+        // if ($shelterLog) {
+        //     $data = collect($shelterLog->description);
+        //     $data['image'] = $shelter->image?->image_path;
+        //     return $data;
+        // }
 
         $data = $shelter->load('image', 'population', 'leader', 'staff', 'geography');
         return new ShelterResource($data);

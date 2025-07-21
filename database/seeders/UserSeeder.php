@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->count(7)->create()->each(function ($user) {
+        User::factory()->count(20)->create()->each(function ($user) {
             $user->approval()->create([
                 'is_approved' => 1,
                 'approved_by' => $user->id,
@@ -22,12 +22,12 @@ class UserSeeder extends Seeder
             ]);
         });
 
-        User::factory()->count(3)->create()->each(function ($user) {
-            $user->approval()->create([
-                'is_approved' => 0,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        });
+        // User::factory()->count(3)->create()->each(function ($user) {
+        //     $user->approval()->create([
+        //         'is_approved' => 0,
+        //         'created_at' => now(),
+        //         'updated_at' => now(),
+        //     ]);
+        // });
     }
 }

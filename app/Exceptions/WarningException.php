@@ -4,9 +4,9 @@ namespace App\Exceptions;
 
 use Exception;
 
-class MemberException extends Exception
+class WarningException extends Exception
 {
-    
+
     public function report()
     {
         return false;

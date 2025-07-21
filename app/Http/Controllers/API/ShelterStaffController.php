@@ -102,7 +102,8 @@ class ShelterStaffController extends Controller
         }
 
         $requestArr = ['shelter_id' => $staff->shelter_id, 'user_id' => $staff->user_id, 'shelter_position_id' => $request->shelter_position_id];
-        $this->shelterStaffService->update($staff, $requestArr);
+        $continue = $request->has('continue') ? $request->input('continue') : false;
+        $this->shelterStaffService->assign($staff, $requestArr, $continue);
         return ApiResponse::successResponse(__('success.staff.assigned'));
     }
 

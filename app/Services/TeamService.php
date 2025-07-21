@@ -54,10 +54,8 @@ class TeamService
         $teamLog = null;
 
         // If request has date, find team log
-        if (isset($search['date'])) {
-            $logDate = Carbon::parse($search['date'])->format('Y-m-d');
-            $teamLog = AppointmentLog::where('parentable_id', $id)
-                ->where('parentable_type', Team::class)->where('log_date', $logDate)->first();
+        if (isset($search['log_id']) && $search['log_id']) {
+            $teamLog = AppointmentLog::find($search['log_id']);
         }
 
         // If the team has log, show a log.
