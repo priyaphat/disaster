@@ -64,6 +64,7 @@ class ShelterController extends Controller
     {
         $data = $this->shelterService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Shelter::IMAGE_FOLDER, Shelter::class, $data->id);
+        (new LineController)->LineNotification($data->toArray(), LineController::Shelter_post);
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
@@ -78,6 +79,10 @@ class ShelterController extends Controller
             if ((int) $request->status === Shelter::CLOSED) {
                 $this->populationService->updateByShelter(['shelter_id' => $shelter->id]);
                 $this->appointmentService->deleteUpcomingAppointment(['shelter_id' => $shelter->id]);
+                (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_end);
+            }
+            if ((int) $request->status === Shelter::OPEN) {
+                (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_post);
             }
             $data = $this->shelterService->update($shelter, $request->only('status'));
             return ApiResponse::successResponse($data->status == Shelter::OPEN ? __('success.shelter.active') : __('success.shelter.inactive'), $data);
@@ -90,7 +95,7 @@ class ShelterController extends Controller
         }
 
         // Update all data;
-        if($request->max_capacity < $shelter->population->count()){
+        if ($request->max_capacity < $shelter->population->count()) {
             return ApiResponse::errorResponse(__('error.shelter.limit'));
         }
 

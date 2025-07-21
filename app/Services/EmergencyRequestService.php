@@ -31,12 +31,12 @@ class EmergencyRequestService
 
     public function emcRequestBy($request, $search = null, $id = null) // id ใช้ สำหรับ get พร้อม phone public
     {
-        if(!Auth::check() && !$search){
+        if (!Auth::check() && !$search) {
             throw new AuthenticationException();
         }
 
         $searchArr = ['phone'];
-        if(Auth::check()){
+        if (Auth::check()) {
             $searchArr = ['phone', 'id'];
         }
 
@@ -62,14 +62,14 @@ class EmergencyRequestService
                         }
                     }
                 }
-                $item->address = $item->address.' '.$item->geography->postal_code;
+                $item->address = $item->address . ' ' . $item->geography->postal_code;
                 $item->victim_name = $victimName;
                 return $item;
             });
-            
+
         if ($request->paginate) return PaginateUtility::Paginate($items);
 
-        if(!Auth::check() && $id){
+        if (!Auth::check() && $id) {
             $items[0]['phone'] != $search;
         }
         return $items[0] ?? [];
@@ -137,8 +137,6 @@ class EmergencyRequestService
         $data['victim_name'] = json_encode($data['victim_name']);
         $emc = EmergencyRequest::create($data);
         if (isset($data['reason_id'])) self::created_reason($emc->id, $data);
-        $name = ['name' => $data['first_name'] . ' ' . $data['last_name']];
-        (new LineController)->LineNotification($name, LineController::Emc_request_post);
         return $emc;
     }
 
@@ -146,6 +144,7 @@ class EmergencyRequestService
     {
         $data['range_age'] = json_encode($data['range_age']);
         $data['victim_name'] = json_encode($data['victim_name']);
+        if ($data['status'] == EmergencyRequest::approve) $data['assigner'] = Auth::user()->id;
         $emergencyRequest->update($data);
         if (isset($data['reason_id'])) self::created_reason($emergencyRequest->id, $data);
         return $emergencyRequest;

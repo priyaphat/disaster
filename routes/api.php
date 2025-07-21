@@ -69,6 +69,7 @@ Route::get('dst-wildfires', [DisasterController::class, 'dst_wf_show']);
 Route::get('dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
 Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
 Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
+Route::get('/weather', [ConfigController::class, 'weather']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -368,11 +369,4 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notification', [NotificationController::class, 'notification']);
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Routes for display Weather
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/weather', [ConfigController::class, 'weather']);
 });

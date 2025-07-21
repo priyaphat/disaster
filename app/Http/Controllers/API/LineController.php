@@ -25,18 +25,21 @@ class LineController extends Controller
 
     public const Disaster_post = 1; // hotline ok
     public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ ok
-    public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง
-    public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง
+    public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง ok
+    public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง ok
     public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย ok
     public const Damaged_utility_end = 6; // ok
     public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
     public const News_post = 8; // hotline ok
     public const News_update = 9; // hotline ok
-    public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ req id
-    public const Emc_request_post_team = 11; //แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ) req id
+    public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ req id  ok
+    public const Emc_request_unaccept = 29; //แจ้งเตือน ปฏิเสธรายการรอช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ)) req id ok
+    public const Emc_request_post_team = 11; //แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ) req id ok
     public const Emc_request_end = 12; // แจ้งเตือน รายการรอช่วยเหลือถูกยกเลิก (ส่งให้หัวหน้าทีมที่เกี่ยวข้อง) req id
-    public const Emc_assigned = 13; // แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้สมาชิกในทีมที่เกี่ยวข้องเมื่ออนุมัติสำเร็จ) req id
-    public const User_register = 15; //แจ้งเตือน คำร้องขอลงทะเบียนใหม่ req id
+    public const Emc_assigned = 13; // แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้สมาชิกในทีมที่เกี่ยวข้องเมื่ออนุมัติสำเร็จ) req id ok
+    public const Emc_success = 14; //แจ้งเตือน รายงานผลการช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ)) req id ok
+    public const Emc_unsuccess = 23; // ok
+    public const User_register = 15; //แจ้งเตือน คำร้องขอลงทะเบียนใหม่ req id ok
     public const User_on = 16; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ศูนย์พักพิง req id
     public const User_off = 17; //
     public const User_join = 18; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่ req id
@@ -44,8 +47,6 @@ class LineController extends Controller
     public const Appointment = 20; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id
     public const Appointment_update = 21; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
     public const Appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
-    public const Emc_success = 14; //แจ้งเตือน รายงานผลการช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ)) req id
-    public const Emc_unsuccess = 23; //
     public const Disaster_flood = 24;
     public const Disaster_landslide = 25;
     public const Disaster_wildfire_m1 = 26.1;
@@ -149,9 +150,11 @@ class LineController extends Controller
 
     public function LineNotification(array $data = null, $form, $recipint = null)
     {
+
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
             // return self::areaFind('เชียงราย'); //$recipint =
+
             $message = self::form_box($form, $data, self::Population);
             self::broadcast_multi($recipint, $message);
             return response()->json(["success" => true, "message" => 'Send Line OK.', 'data' => $message]);
@@ -236,17 +239,10 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Shelter_post) {
-            // $data = [
-            //     'shelter' => 'xxxx',
-            //     'location' => 'x.xxx,x.xxx'
-            // ];
-            $text = __('line.shelter_post', ['shelter' => $data['shelter'], 'location' => $data['location']]) . __('line.close_follow');
+            $text = __('line.shelter_post', ['shelter' => $data['name'], 'location' => $data['gis_map']]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Shelter_end) {
-            // $data = [
-            //     'shelter' => 'xxxx',
-            // ];
-            $text = __('line.shelter_end', ['shelter' => $data['shelter']]) . __('line.close_follow');
+            $text = __('line.shelter_end', ['shelter' => $data['name']]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Damaged_utility_post) {
             $text = __('line.damaged_utilities_head');
@@ -294,19 +290,18 @@ class LineController extends Controller
             ]);
             $text = self::flex_box_link($text, self::News_update, __('line.read_more'), $type);
         } else if ($form == self::Emc_request_post) {
-            // $data = [
-            //     'name' => 'xxxx xxxx',
-            // ];
             $text = __('line.emc_request_post', [
                 'name' => $data['name'],
             ]) . __('line.quick');
             $text = self::flex_box_link($text, self::Emc_request_post, __('line.see_request'), $type);
+        } else if ($form == self::Emc_request_unaccept) {
+            $text = __('line.emc_request_unaccept', [
+                'name' => $data['name'],
+                'team' => $data['team'],
+                'assigner' => $data['assigner'],
+            ]) . __('line.quick');
+            $text = self::flex_box_link($text, self::Emc_request_post_team, __('line.see_request'), $type);
         } else if ($form == self::Emc_request_post_team) {
-            // $data = [
-            //     'name' => 'xxxx xxxx',
-            //     'team' => 'xxxx2',
-            //     'assigner' => 'xxx xxx',
-            // ];
             $text = __('line.emc_request_post_team', [
                 'name' => $data['name'],
                 'team' => $data['team'],
@@ -314,11 +309,6 @@ class LineController extends Controller
             ]) . __('line.quick');
             $text = self::flex_box_link($text, self::Emc_request_post_team, __('line.see_request'), $type);
         } else if ($form == self::Emc_request_end) {
-            // $data = [
-            //     'name' => 'xxxx xxxx',
-            //     'team' => 'xxxx2',
-            //     'assigner' => 'xxx xxx',
-            // ];
             $text = __('line.emc_request_end', [
                 'name' => $data['name'],
                 'team' => $data['team'],
@@ -326,12 +316,6 @@ class LineController extends Controller
             ]);
             $text = self::flex_box($text);
         } else if ($form == self::Emc_assigned) {
-            // $data = [
-            //     'name' => 'xxxx xxxx',
-            //     'team' => 'xxxx2',
-            //     'assigner' => 'xxx xxx',
-            //     'receiver' => 'xxxxxx xxxxx',
-            // ];
             $text = __('line.emc_assigned', [
                 'name' => $data['name'],
                 'team' => $data['team'],
@@ -340,14 +324,6 @@ class LineController extends Controller
             ]) . __('line.quick');
             $text = self::flex_box_link($text, self::Emc_assigned, __('line.see_request'), $type);
         } else if ($form == self::Emc_success) {
-            // $data = [
-            //     'name' => 'xxxx xxxx',
-            //     'team' => 'xxxx2',
-            //     'assigner' => 'xxx xxx',
-            //     'receiver' => 'xxxxxx xxxxx',
-            //     'status' => 'xxx',
-            //     'note' => 'xxxxxx',
-            // ];
             $text = __('line.emc_success', [
                 'name' => $data['name'],
                 'team' => $data['team'],
@@ -358,14 +334,6 @@ class LineController extends Controller
             ]);
             $text = self::flex_box_link($text, self::Emc_success, __('line.see_request'), $type);
         } else if ($form == self::Emc_unsuccess) {
-            // $data = [
-            //     'name' => 'xxxx xxxx',
-            //     'team' => 'xxxx2',
-            //     'assigner' => 'xxx xxx',
-            //     'receiver' => 'xxxxxx xxxxx',
-            //     'status' => 'xxx',
-            //     'note' => 'xxxxxx',
-            // ];
             $text = __('line.emc_success', [
                 'name' => $data['name'],
                 'team' => $data['team'],
@@ -634,6 +602,7 @@ class LineController extends Controller
     {
         return [
             'type' => 'flex',
+            'size' => 'giga',
             'altText' => '📢 ข่าวประชาสัมพันธ์',
             'contents' => [
                 'type' => 'bubble',
@@ -676,6 +645,7 @@ class LineController extends Controller
     {
         return [
             'type' => 'flex',
+            'size' => 'giga',
             'altText' => '📢 ข่าวประชาสัมพันธ์',
             'contents' => [
                 'type' => 'bubble',

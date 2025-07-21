@@ -24,7 +24,7 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        if(!$request->username || !$request->password){
+        if (!$request->username || !$request->password) {
             return ApiResponse::errorResponse(__('auth.required'), Response::HTTP_BAD_REQUEST);
         }
 
@@ -50,8 +50,9 @@ class LoginController extends Controller
 
     public function line(LoginRequest $request)
     {
-        $user = User::where('username', Str::lower($request->username))
-            ->leftJoin('user_approvals', 'users.id', 'user_approvals.user_id')
+        $user = User::select('users.*','user_approvals.is_approved')
+            ->where('username', Str::lower($request->username))
+            ->join('user_approvals', 'users.id', 'user_approvals.user_id')
             ->first();
 
         if ($user && Hash::check($request->password, $user->password)) {

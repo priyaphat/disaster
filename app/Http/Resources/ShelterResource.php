@@ -39,7 +39,7 @@ class ShelterResource extends JsonResource
             'utilities' => is_array($this->utilities)
                 ? collect($this->utilities)->map(fn($u) => [
                     'id' => $u,
-                    'name' => ShelterUtilities::from($u)->utility(),
+                    'name' => ShelterUtilities::tryFrom($u)->utility(),
                 ])->toArray()
                 : [],
             'image' =>  $this->when($this->image, $this->image?->image_path),
