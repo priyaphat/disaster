@@ -18,10 +18,8 @@ return new class extends Migration
             $table->string('parentable_type');
             $table->text('description');
             $table->date('log_date')->index();
-            $table->unsignedBigInteger('childable_id');
-            $table->string('childable_type');
             $table->timestamps();
-            $table->index(['parentable_id', 'parentable_type']);
+            $table->index(['appointment_id', 'parentable_id', 'parentable_type']);
         });
     }
 
