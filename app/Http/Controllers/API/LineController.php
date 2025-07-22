@@ -131,23 +131,6 @@ class LineController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    // public function test()
-    // {
-
-    //     $data = [
-    //         'product' => 'น้ำ 600 มล.(แพ็ก)',
-    //         'shelter' => [
-    //             'ศูนย์พักพิงบ้านดอยสะเก็ด',
-    //             'ศูนย์พักพิงแม่ฟ้าหลวง',
-    //             'ศูนย์พักพิงบ้านห้วยทราย',
-    //             'ศูนย์พักพิงดอยหลวงเชียงราย',
-    //         ],
-    //     ];
-    //     $recipint = ['Uaa3e2b17e373580b16101b64937e4a39'];
-
-    //     return self::LineNotification($data, self::Disaster_earthquake, $recipint);
-    // }
-
     public function LineNotification(array $data = null, $form, $recipint = null)
     {
 

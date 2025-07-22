@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            
         });
 
         // User::factory()->count(3)->create()->each(function ($user) {

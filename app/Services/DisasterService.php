@@ -96,6 +96,11 @@ class DisasterService
     public function ls_show($req, $id = null)
     {
         $q = DisasterLandslide::query()
+            ->when($req->start_date && $req->end_date, fn($q) =>
+            $q->whereBetween('created_at', [
+                Carbon::parse($req->start_date)->startOfDay(),
+                Carbon::parse($req->end_date)->endOfDay()
+            ]))
             ->when(
                 $req->search,
                 fn($q) =>
