@@ -385,14 +385,16 @@ class AppointmentService
     public function deleteUpcomingAppointment(array $data)
     {
         $time = Carbon::now()->format('Y-m-d H:i');
-        $date = Carbon::now()->format('Y-m-d');
-        $appQuery = Appointment::with(['team.allUsers', 'shelter'])->whereDate('appointment_date', $date)
+        // Delete upcoming appointment
+         $appQuery = Appointment::with(['team.allUsers', 'shelter'])
             ->whereRaw("STR_TO_DATE(CONCAT(appointment_date, ' ', end_time), '%Y-%m-%d %H:%i') > ?", [$time]);
 
+        // by team
         if (isset($data['team_id'])) {
             $appQuery->where('team_id', $data['team_id'])->delete();
         }
 
+        // by shelter
         if (isset($data['shelter_id'])) {
             $appQuery->where('shelter_id', $data['shelter_id'])->delete();
         }
