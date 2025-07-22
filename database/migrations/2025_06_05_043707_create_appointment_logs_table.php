@@ -17,9 +17,9 @@ return new class extends Migration
             $table->unsignedBigInteger('parentable_id');
             $table->string('parentable_type');
             $table->text('description');
-            $table->date('log_date')->index();
+            $table->date('log_date');
             $table->timestamps();
-            $table->index(['appointment_id', 'parentable_id', 'parentable_type']);
+            $table->foreign('appointment_id')->references('id')->on('appointments');
         });
     }
 
