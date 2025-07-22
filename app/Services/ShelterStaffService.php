@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Exceptions\WarningException;
+use App\Http\Controllers\API\LineController;
 use App\Http\Resources\ShelterStaffResource;
+use App\Http\Utility\LinePostUtility;
 use App\Models\ShelterStaff;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -51,6 +53,7 @@ class ShelterStaffService
 
     public function create(array $data)
     {
+        LinePostUtility::LineMakeInformation(LineController::User_on, ['user_id' => [$data['user_id']], 'shelter_id' => $data['shelter_id']]);
         return ShelterStaff::create($data);
     }
 
@@ -64,6 +67,7 @@ class ShelterStaffService
             throw new BadRequestHttpException(__('error.staff.leader_exists'));
         }
         $staff->update($data);
+        LinePostUtility::LineMakeInformation(LineController::User_on, ['user_id' => [$staff->user_id], 'shelter_id' => $staff->shelter_id]);
         return $staff;
     }
 
@@ -118,6 +122,7 @@ class ShelterStaffService
                 ]);
             }
         }
+        LinePostUtility::LineMakeInformation(LineController::User_on, $data);
         return $staffs;
     }
 

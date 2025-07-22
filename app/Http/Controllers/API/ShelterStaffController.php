@@ -9,6 +9,7 @@ use App\Http\Requests\ShelterStaff\CreateShelterStaffRequest;
 use App\Http\Requests\ShelterStaff\ExitAllShelterStaffRequest;
 use App\Http\Requests\ShelterStaff\TransferShelterStaffRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\LinePostUtility;
 use App\Models\Shelter;
 use App\Models\ShelterPosition;
 use App\Models\ShelterStaff;
@@ -117,7 +118,8 @@ class ShelterStaffController extends Controller
         if (!$staff) {
             throw new ModelNotFoundException();
         }
-        $staff->delete();
+        // $staff->delete();
+        LinePostUtility::LineMakeInformation(LineController::User_off, ['user_id' => [$staff->user_id], 'shelter_id' => $staff->shelter_id]);
         return ApiResponse::successResponse(__('success.staff.leaved'));
     }
 
@@ -127,7 +129,9 @@ class ShelterStaffController extends Controller
     public function exitAll(ExitAllShelterStaffRequest $request)
     {
         $shelter_id = $request->shelter_id;
+        $user_id = ShelterStaff::where('shelter_id', $shelter_id)->pluck('user_id');
         ShelterStaff::where('shelter_id', $shelter_id)->cursor()->each->delete();
+        LinePostUtility::LineMakeInformation(LineController::User_off, ['user_id' => $user_id, 'shelter_id' => $shelter_id]);
         return ApiResponse::successResponse(__('success.staff.leaved'));
     }
 }

@@ -67,6 +67,7 @@ class WeatherTask extends Command
             $config->update($data);
             Log::info('Weather pulled data at ' . now());
         } else {
+            $data['status'] = 
             $data = Config::create($data);
             Log::info('Weather pulled data at ' . now());
         }

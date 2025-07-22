@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Enums\ActionType;
+use App\Http\Controllers\API\LineController;
+use App\Http\Utility\LinePostUtility;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
@@ -23,6 +25,7 @@ class TeamMemberObserver
     {
         //
         $this->logService->createLog(ActionType::JOIN_TEAM->value, User::class, $teamMember->user_id, Team::class, $teamMember->team_id);
+        LinePostUtility::LineMakeInformation(LineController::User_join, $teamMember);
     }
 
     /**
@@ -37,6 +40,7 @@ class TeamMemberObserver
         if ($teamMember->wasChanged('team_id')) {
             $this->logService->createLog(ActionType::EXIT_TEAM->value, User::class, $oldData['user_id'], Team::class, $oldData['team_id']);
             $this->logService->createLog(ActionType::JOIN_TEAM->value, User::class, $newData['user_id'], Team::class, $newData['team_id']);
+            LinePostUtility::LineMakeInformation(LineController::User_join, $newData);
         }
     }
 
@@ -46,5 +50,6 @@ class TeamMemberObserver
     public function deleted(TeamMember $teamMember): void
     {
         $this->logService->createLog(ActionType::EXIT_TEAM->value, User::class, $teamMember->user_id, Team::class, $teamMember->team_id);
+        LinePostUtility::LineMakeInformation(LineController::User_leave, $teamMember);
     }
 }
