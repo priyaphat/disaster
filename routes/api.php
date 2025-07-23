@@ -65,10 +65,12 @@ Route::get('/disaster', [DisasterController::class, 'index']);
 Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'phone_detail']);
 Route::get('/dst-floods/{flood?}', [DisasterController::class, 'dst_fl_show']);
 Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_show']);
-Route::get('dst-wildfires', [DisasterController::class, 'dst_wf_show']);
-Route::get('dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
+Route::get('/dst-wildfires', [DisasterController::class, 'dst_wf_show']);
+Route::get('/dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
 Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
 Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
+Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
+Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
 
 Route::middleware('auth:api')->group(function () {
@@ -267,13 +269,11 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display disaster menu
     |-------------------------------------------------------- ------------------
     */
-    Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
     Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
 
     Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
 
     Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
-    Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
     Route::delete('/dst-landslide/{id}', [DisasterController::class, 'dst_ls_delete']);
 
     Route::post('dst-wildfire', [DisasterController::class, 'dst_wf_create']);
@@ -334,7 +334,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
     Route::get('/team/{team}/check-appointment', [TeamController::class, 'checkUpcoming']);
     Route::post('/member/join', [TeamMemberController::class, 'join']);
-    Route::post('/member/transfer', [TeamMemberController::class, 'transfer']);
+    Route::post('/member/transfer', [TeamMemberController::class, 'transfer']); 
     Route::post('/member/leave', [TeamMemberController::class, 'leave']);
     /*
     |--------------------------------------------------------------------------

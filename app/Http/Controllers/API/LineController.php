@@ -23,12 +23,12 @@ class LineController extends Controller
     public const Population = 1;
     public const User = 7;
 
-    public const Disaster_post = 1; // hotline ok
-    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ ok
-    public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง ok
-    public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง ok
+    public const Disaster_post = 1; // hotline success
+    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ success
+    public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง success
+    public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง success
     public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย ok
-    public const Damaged_utility_end = 6; // ok
+    public const Damaged_utility_end = 6; // ok 
     public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
     public const News_post = 8; // hotline ok
     public const News_update = 9; // hotline ok
@@ -40,10 +40,10 @@ class LineController extends Controller
     public const Emc_success = 14; //แจ้งเตือน รายงานผลการช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ)) req id ok
     public const Emc_unsuccess = 23; // ok
     public const User_register = 15; //แจ้งเตือน คำร้องขอลงทะเบียนใหม่ req id ok
-    public const User_on = 16; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ศูนย์พักพิง req id
-    public const User_off = 17; //
-    public const User_join = 18; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่ req id
-    public const User_leave = 19; //
+    public const User_on = 16; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ศูนย์พักพิง req id success
+    public const User_off = 17; // success
+    public const User_join = 18; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่ req id ok
+    public const User_leave = 19; //ok
     public const Appointment = 20; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id
     public const Appointment_update = 21; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
     public const Appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
@@ -330,33 +330,21 @@ class LineController extends Controller
             $text = __('line.user_register');
             $text = self::flex_box($text);
         } else if ($form == self::User_on) {
-            // $data = [
-            //     'shelter' => 'xxxxxxx'
-            // ];
             $text = __('line.user_on', [
                 'shelter' => $data['shelter'],
             ]);
             $text = self::flex_box($text);
-        } else if ($form == self::User_off) {
-            // $data = [
-            //     'shelter' => 'xxxxxxx'
-            // ];
+        } else if ($form == self::User_off) { 
             $text = __('line.user_off', [
                 'shelter' => $data['shelter'],
             ]);
             $text = self::flex_box($text);
         } else if ($form == self::User_join) {
-            // $data = [
-            //     'team' => 'xxxxxxx 2'
-            // ];
             $text = __('line.user_join', [
                 'team' => $data['team'],
             ]);
             $text = self::flex_box($text);
         } else if ($form == self::User_leave) {
-            // $data = [
-            //     'team' => 'xxxxxxx 2'
-            // ];
             $text = __('line.user_leave', [
                 'team' => $data['team'],
             ]);

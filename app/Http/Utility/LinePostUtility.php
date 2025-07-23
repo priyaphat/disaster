@@ -7,7 +7,9 @@ use App\Enums\DamagedUtility;
 use App\Enums\TeamPosition;
 use App\Http\Controllers\API\LineController;
 use App\Models\EmergencyRequestLog;
+use App\Models\LineUser;
 use App\Models\Prefix;
+use App\Models\Shelter;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -161,6 +163,20 @@ class LinePostUtility
                 'status' => $form == LineController::Emc_success ? 'สำเร็จ' : 'ล้มเหลว',
                 'note' => $form == LineController::Emc_success ? '-' : (CancellationReason::tryFrom($note) ? CancellationReason::tryFrom($note)->label() : '-'),
             ];
+        } else if ($form == LineController::User_on || $form == LineController::User_off) {
+            $recepint = LineUser::whereIn('user_id', $data['user_id'])->pluck('token_id');
+            $shelter = Shelter::find($data['shelter_id'])->value('name');
+            if ($recepint->isEmpty()) return;
+            return (new LineController)->LineNotification([
+                'shelter' => $shelter
+            ], $form, $recepint);
+        } else if ($form == LineController::User_join || $form == LineController::User_leave) {
+            $recepint = LineUser::whereIn('user_id', $data['user_id'])->pluck('token_id');
+            $shelter = Team::find($data['team_id'])->value('name');
+            if ($recepint->isEmpty()) return;
+            return (new LineController)->LineNotification([
+                'shelter' => $shelter
+            ], $form, $recepint);
         }
 
         return (new LineController)->LineNotification($data, $form, self::$user);
