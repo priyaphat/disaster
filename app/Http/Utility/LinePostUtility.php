@@ -165,17 +165,17 @@ class LinePostUtility
             ];
         } else if ($form == LineController::User_on || $form == LineController::User_off) {
             $recepint = LineUser::whereIn('user_id', $data['user_id'])->pluck('token_id');
-            $shelter = Shelter::find($data['shelter_id'])->value('name');
+            $shelter = Shelter::where('id', $data['shelter_id'])->value('name');
             if ($recepint->isEmpty()) return;
             return (new LineController)->LineNotification([
                 'shelter' => $shelter
             ], $form, $recepint);
         } else if ($form == LineController::User_join || $form == LineController::User_leave) {
-            $recepint = LineUser::whereIn('user_id', $data['user_id'])->pluck('token_id');
-            $shelter = Team::find($data['team_id'])->value('name');
+            $recepint = LineUser::where('user_id', $data['user_id'])->pluck('token_id');
+            $team = Team::where('id', $data['team_id'])->value('name');
             if ($recepint->isEmpty()) return;
             return (new LineController)->LineNotification([
-                'shelter' => $shelter
+                'team' => $team
             ], $form, $recepint);
         }
 

@@ -118,7 +118,7 @@ class ShelterStaffController extends Controller
         if (!$staff) {
             throw new ModelNotFoundException();
         }
-        // $staff->delete();
+        $staff->delete();
         LinePostUtility::LineMakeInformation(LineController::User_off, ['user_id' => [$staff->user_id], 'shelter_id' => $staff->shelter_id]);
         return ApiResponse::successResponse(__('success.staff.leaved'));
     }

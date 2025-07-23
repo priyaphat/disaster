@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    //php artisan migrate --path=/database/migrations/2025_06_02_032913_configs.php
     public function up(): void
     {
         Schema::create('configs', function (Blueprint $table) {
@@ -13,7 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->tinyInteger('type')->default(1)->commet('1 line , 2 name line , 3 weather');
             $table->json('description')->nullable();
-            $table->tinyInteger('status')->defalt(1)->commet('0 inactive , 1 active');
+            $table->tinyInteger('status')->default(1)->commet('0 inactive , 1 active');
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();

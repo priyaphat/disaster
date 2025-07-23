@@ -42,11 +42,14 @@ class LineController extends Controller
     public const User_register = 15; //แจ้งเตือน คำร้องขอลงทะเบียนใหม่ req id ok
     public const User_on = 16; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ศูนย์พักพิง req id success
     public const User_off = 17; // success
-    public const User_join = 18; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่ req id ok
-    public const User_leave = 19; //ok
-    public const Appointment = 20; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id
-    public const Appointment_update = 21; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
-    public const Appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
+    public const User_join = 18; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่ req id success
+    public const User_leave = 19; //success
+    public const Shelter_appointment = 30; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id 
+    public const Shelter_appointment_update = 31; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
+    public const Shelter_appointment_canceled = 32; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
+    public const Team_appointment = 20; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id 
+    public const Team_appointment_update = 21; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
+    public const Team_appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
     public const Disaster_flood = 24;
     public const Disaster_landslide = 25;
     public const Disaster_wildfire_m1 = 26.1;
@@ -334,7 +337,7 @@ class LineController extends Controller
                 'shelter' => $data['shelter'],
             ]);
             $text = self::flex_box($text);
-        } else if ($form == self::User_off) { 
+        } else if ($form == self::User_off) {
             $text = __('line.user_off', [
                 'shelter' => $data['shelter'],
             ]);
@@ -349,7 +352,7 @@ class LineController extends Controller
                 'team' => $data['team'],
             ]);
             $text = self::flex_box($text);
-        } else if ($form == self::Appointment) {
+        } else if ($form == self::Shelter_appointment) {
             // $data = [
             //     'shelter' => 'sh',
             //     'date' => '30 สค 2468',
@@ -363,38 +366,86 @@ class LineController extends Controller
                 'team' => $data['team'],
             ]);
             $text = self::flex_box($text);
-        } else if ($form == self::Appointment_update) {
+        } else if ($form == self::Shelter_appointment_update) {
             // $data = [
             //     'shelter' => 'xxx x x1',
             //     'old_date' => '2015-03-11',
             //     'old_time' => 1,
-            //     'old_teams' => 'xxxx',
+            //     'old_team' => 'xxxx',
             //     'new_date' => '2015-07-15',
             //     'new_time' => 1,
-            //     'new_teams' => '5xxxx25',
+            //     'new_team' => '5xxxx25',
             // ];
             $text = __('line.appointment_update', [
                 'shelter' => $data['shelter'],
                 'old_date' => DateUtility::th_time($data['old_date']),
                 'old_time' => ShiftType::from($data['old_time'])->label(),
-                'old_teams' => $data['old_teams'],
+                'old_team' => $data['old_team'],
                 'new_date' => DateUtility::th_time($data['new_date']),
                 'new_time' => ShiftType::from($data['new_time'])->label(),
-                'new_teams' => $data['new_teams'],
+                'new_team' => $data['new_team'],
             ]);
             $text = self::flex_box($text);
-        } else if ($form == self::Appointment_canceled) {
+        } else if ($form == self::Shelter_appointment_canceled) {
             // $data = [
             //     'shelter' => 'xxx x x1',
             //     'date' => '2015-03-11',
             //     'time' => 1,
-            //     'teams' => 'xxxx',
+            //     'team' => 'xxxx',
             // ];
             $text = __('line.appointment_canceled', [
                 'shelter' => $data['shelter'],
                 'date' => DateUtility::th_time($data['date']),
                 'time' => ShiftType::from($data['time'])->label(),
-                'teams' => $data['teams'],
+                'team' => $data['team'],
+            ]);
+            $text = self::flex_box($text);
+        } else if ($form == self::Team_appointment) {
+            // $data = [
+            //     'shelter' => 'sh',
+            //     'date' => '30 สค 2468',
+            //     'time' => 1,
+            //     'team' => '55',
+            // ];
+            $text = __('line.appointment', [
+                'shelter' => $data['shelter'],
+                'date' => DateUtility::th_time($data['date']),
+                'time' => ShiftType::from($data['time'])->label(),
+                'team' => $data['team'],
+            ]);
+            $text = self::flex_box($text);
+        } else if ($form == self::Team_appointment_update) {
+            // $data = [
+            //     'team' => 'xxx x x1',
+            //     'old_date' => '2015-03-11',
+            //     'old_time' => 1,
+            //     'old_shelter' => 'xxxx',
+            //     'new_date' => '2015-07-15',
+            //     'new_time' => 1,
+            //     'new_shelter' => '5xxxx25',
+            // ];
+            $text = __('line.appointment_update', [
+                'shelter' => $data['shelter'],
+                'old_date' => DateUtility::th_time($data['old_date']),
+                'old_time' => ShiftType::from($data['old_time'])->label(),
+                'old_team' => $data['old_team'],
+                'new_date' => DateUtility::th_time($data['new_date']),
+                'new_time' => ShiftType::from($data['new_time'])->label(),
+                'new_team' => $data['new_team'],
+            ]);
+            $text = self::flex_box($text);
+        } else if ($form == self::Team_appointment_canceled) {
+            // $data = [
+            //     'shelter' => 'xxx x x1',
+            //     'date' => '2015-03-11',
+            //     'time' => 1,
+            //     'team' => 'xxxx',
+            // ];
+            $text = __('line.appointment_canceled', [
+                'shelter' => $data['shelter'],
+                'date' => DateUtility::th_time($data['date']),
+                'time' => ShiftType::from($data['time'])->label(),
+                'team' => $data['team'],
             ]);
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_flood) {
@@ -561,8 +612,6 @@ class LineController extends Controller
 
     private function broadcast_multi($userIds, $message) // array userId
     {
-        // $userIds = ['Uaa3e2b17e373580b16101b64937e4a39'];
-
         Http::withToken(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'))->post('https://api.line.me/v2/bot/message/multicast', [
             'to' => $userIds,
             'messages' => [$message],

@@ -53,8 +53,11 @@ class ShelterStaffService
 
     public function create(array $data)
     {
-        LinePostUtility::LineMakeInformation(LineController::User_on, ['user_id' => [$data['user_id']], 'shelter_id' => $data['shelter_id']]);
-        return ShelterStaff::create($data);
+        $data =  ShelterStaff::create($data);
+        if ($data) {
+            LinePostUtility::LineMakeInformation(LineController::User_on, ['user_id' => [$data['user_id']], 'shelter_id' => $data['shelter_id']]);
+            return $data;
+        }
     }
 
     /**

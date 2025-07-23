@@ -44,7 +44,7 @@ class ConfigSeeder extends Seeder
                 "population" => 0
             ]],
             ['name' => 'แจ้งเตือน คำร้องขอใหม่', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Emc_request_post,LineController::Emc_request_unaccept],
+                "line_type" => [LineController::Emc_request_post, LineController::Emc_request_unaccept],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ)', 'type' => 1, 'description' => [
@@ -68,27 +68,27 @@ class ConfigSeeder extends Seeder
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ (ส่งให้ผู้ดูแลภายในศูนย์ที่เกี่ยวข้อง)', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Appointment],
+                "line_type" => [LineController::Shelter_appointment],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง (ส่งให้ผู้ดูแลภายในศูนย์ที่เกี่ยวข้อง)', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Appointment_update],
+                "line_type" => [LineController::Shelter_appointment_update],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก (ส่งให้ผู้ดูแลภายในศูนย์ที่เกี่ยวข้อง)', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Appointment_canceled],
+                "line_type" => [LineController::Shelter_appointment_canceled],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ (ส่งให้สมาชิกภายในทีมเจ้าหน้าที่ที่เกี่ยวข้อง)', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Appointment],
+                "line_type" => [LineController::Team_appointment],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง (ส่งให้สมาชิกภายในทีมเจ้าหน้าที่ที่เกี่ยวข้อง)', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Appointment_update],
+                "line_type" => [LineController::Team_appointment_update],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก (ส่งให้สมาชิกภายในทีมเจ้าหน้าที่ที่เกี่ยวข้อง)', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Appointment_canceled],
+                "line_type" => [LineController::Team_appointment_canceled],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ศูนย์พักพิง (ส่งให้เจ้าหน้าที่ที่ถูกย้าย / นำเข้า / นำออก)', 'type' => 1, 'description' => [
