@@ -16,10 +16,11 @@ return new class extends Migration
             $table->json('notification');
             $table->unsignedBigInteger('entity_id')->nullable();
             $table->string('entity_type')->nullable();
-            $table->unsignedBigInteger('created_by');
             $table->boolean('show_details')->default(false);
+            $table->string('notification_type');
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
-            
+
             // Foreign key constraints
             $table->foreign('created_by')->references('id')->on('users');
         });

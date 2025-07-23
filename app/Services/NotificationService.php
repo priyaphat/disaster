@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\TeamPosition;
 use App\Http\Resources\NotificationResource;
 use App\Jobs\BroadcastNotification;
 use App\Models\Notification;
 use App\Models\NotificationUser;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationService
@@ -22,13 +24,13 @@ class NotificationService
         return  $paginate;
     }
 
-    public function readAll()
+    public function markAllAsRead()
     {
         $data = NotificationUser::where('user_id', Auth::user()->id)->update(['is_read' => true]);
         return $data;
     }
 
-    public function delete(array $notiArr)
+    public function bulkDelte(array $notiArr)
     {
         $data = NotificationUser::whereIn('id', $notiArr)->delete();
         return $data;
@@ -50,6 +52,7 @@ class NotificationService
             'notification' => $notification,
             'entity_id' => $entityId,
             'entity_type' => $entityType,
+            'notification_type' => $type,
             'show_details' => $isShow
         ];
         return Notification::create($data);
@@ -74,7 +77,7 @@ class NotificationService
         $description = null;
         $collection = collect($format['message'])->map(function ($item) use ($data, &$description) {
             $item['content'] = self::replacePlaceholders($item['content'], $data);
-            $description .= $item['content'];
+            $description .= $item['content'] . ' ';
             return $item;
         });
         return [
@@ -92,8 +95,66 @@ class NotificationService
         return $text;
     }
 
-    public function sendNotification($notification, $userIds)
+    public function sendToSelfUser($notification, $userId)
     {
-        // dispatch(new BroadcastNotification($notification, $userIds))->onQueue('notifications');
+        $user = User::find($userId);
+        BroadcastNotification::dispatch($user, $notification);
     }
+
+    public function sendToAllUsers($notification, $chunkSize = 100)
+    {
+        $data['approve'] = 'approved';
+        User::filter($data)
+            ->chunk($chunkSize, function ($users) use ($notification) {
+                BroadcastNotification::dispatch($users, $notification);
+            });
+    }
+
+    public function sendToCenterStaff($notification, $chunkSize = 100)
+    {
+        User::where('username', 'superadmin')
+            ->chunk($chunkSize, function ($users) use ($notification) {
+                BroadcastNotification::dispatch($users, $notification);
+            });
+    }
+
+    public function sendToStaff($notification, $shelterId, $chunkSize = 100)
+    {
+        User::whereHas('staff', function ($query) use ($shelterId) {
+            $query->where('shelter_id', $shelterId);
+        })->chunk($chunkSize, function ($users) use ($notification) {
+            BroadcastNotification::dispatch($users, $notification);
+        });
+    }
+
+    public function sendToTeam($notification, $teamId, $chunkSize = 100)
+    {
+        User::whereHas('member', function ($query) use ($teamId) {
+            $query->where('team_id', $teamId);
+        })->chunk($chunkSize, function ($users) use ($notification) {
+            BroadcastNotification::dispatch($users, $notification);
+        });
+    }
+
+    public function sendToTeamLeader($notification, $teamId, $chunkSize = 100)
+    {
+        User::whereHas('member', function ($query) use ($teamId) {
+            $query->where('team_id', $teamId)
+                ->where('team_position', TeamPosition::LEADER);
+        })->chunk($chunkSize, function ($users) use ($notification) {
+            BroadcastNotification::dispatch($users, $notification);
+        });
+    }
+
+    public function sendToTeamMember($notification, $teamId, $chunkSize = 100)
+    {
+        User::whereHas('member', function ($query) use ($teamId) {
+            $query->where('team_id', $teamId)
+                ->where('team_position', TeamPosition::MEMBER);
+        })->chunk($chunkSize, function ($users) use ($notification) {
+            BroadcastNotification::dispatch($users, $notification);
+        });
+    }
+
+
 }

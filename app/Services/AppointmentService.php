@@ -14,6 +14,11 @@ use Illuminate\Support\Str;
 
 class AppointmentService
 {
+    protected $notificationService;
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Get all Appointmentes with filter and limit number.
      */
@@ -160,23 +165,25 @@ class AppointmentService
     public function create(array $data)
     {
         // Check if appointment is existing, return error message
-        $appointment = [];
+        $appointmentArr = [];
         $isExisting = $this->isAppointmentExisting($data);
         if ($isExisting) {
             throw new BadRequestHttpException(__('error.appointment.exists'));
         }
 
-        $isPass = $this->isTimePast($data);
-        if ($isPass) {
+        $isPast = $this->isTimePast($data);
+        if ($isPast) {
             throw new BadRequestHttpException(__('error.appointment.is_past'));
         }
 
         // Create an appointment and shift details
         $shiftArr = $this->splitShiftTime($data, $data['appointment_date']);
         foreach ($shiftArr as $shift) {
-            $appointment[] = Appointment::create($shift);
+            $appointment = Appointment::create($shift);
+            $this->notify($appointment, 'appointment.created');
+            $appointmentArr[] = $appointment;
         }
-        return $appointment;
+        return $appointmentArr;
     }
 
     /**
@@ -184,6 +191,7 @@ class AppointmentService
      */
     public function update(Appointment $appointment, array $data)
     {
+        $oldAppointment = $appointment->replicate();
         $newShifts = $this->splitShiftTime($data);
 
         // Check if appointment is past, return error message
@@ -193,8 +201,8 @@ class AppointmentService
 
         foreach ($newShifts as $shift) {
             // Check if appointment is past, return error message
-            $isPass = $this->isTimePast($data, $appointment);
-            if ($isPass) {
+            $isPast = $this->isTimePast($data, $appointment);
+            if ($isPast) {
                 throw new BadRequestHttpException(__('error.appointment.is_past'));
             }
         }
@@ -208,13 +216,17 @@ class AppointmentService
         if (count($newShifts) == 1) {
             $appointment = $this->getById($appointment->id);
             $appointment->update($newShifts[0]);
+            $appointment->refresh();
+            $this->notify($appointment, 'appointment.updated', $oldAppointment);
         } else {
             foreach ($newShifts as $shift) {
                 if ($shift['shift'] === $appointment->shift) {
                     $appointment = $this->getById($appointment['id']);
                     $appointment->update($shift);
+                    $appointment->refresh();
+                    $this->notify($appointment, 'appointment.updated', $oldAppointment);
                 } else {
-                    Appointment::create([
+                    $appointment = Appointment::create([
                         'appointment_date' => $data['appointment_date'],
                         'start_time' => $shift['start_time'],
                         'end_time' => $shift['end_time'],
@@ -222,11 +234,12 @@ class AppointmentService
                         'shelter_id' => $data['shelter_id'],
                         'team_id' => $data['team_id']
                     ]);
+                    $this->notify($appointment, 'appointment.updated', $oldAppointment);
                 }
             }
         }
 
-        return $appointment;
+        return $newShifts;
     }
 
     /**
@@ -239,7 +252,9 @@ class AppointmentService
             throw new BadRequestHttpException(__('error.appointment.disabled'));
         }
 
-        return $appointment->delete();
+        $deleted = $appointment->delete();
+        $this->notify($appointment, 'appointment.deleted');
+        return $deleted;
     }
 
     /**
@@ -386,7 +401,7 @@ class AppointmentService
     {
         $time = Carbon::now()->format('Y-m-d H:i');
         // Delete upcoming appointment
-         $appQuery = Appointment::with(['team.allUsers', 'shelter'])
+        $appQuery = Appointment::with(['team.allUsers', 'shelter'])
             ->whereRaw("STR_TO_DATE(CONCAT(appointment_date, ' ', end_time), '%Y-%m-%d %H:%i') > ?", [$time]);
 
         // by team
@@ -398,5 +413,49 @@ class AppointmentService
         if (isset($data['shelter_id'])) {
             $appQuery->where('shelter_id', $data['shelter_id'])->delete();
         }
+    }
+
+    /**
+     * Notification for register user
+     */
+    public function notify(Appointment $appointment, ?string $notiType, ?Appointment $oldAppointment = null): void
+    {
+        if (!$notiType) return;
+
+        if ($oldAppointment) {
+            $notification = $this->notificationService->createNotification(
+                $notiType,
+                [
+                    'old_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
+                    'old_shift' => $oldAppointment->shift->label(),
+                    'old_team' => $oldAppointment->team->name,
+                    'new_date' => $appointment->appointment_date->thaidate('j M Y'),
+                    'new_shift' => $appointment->shift->label(),
+                    'new_team' => $appointment->team->name
+                ],
+                $appointment->id,
+                Appointment::class,
+                true
+            );
+            // Old Appointment
+            $this->notificationService->sendToStaff($notification, $oldAppointment->shelter_id);
+            $this->notificationService->sendToTeam($notification, $oldAppointment->team_id);
+        }
+
+        $notification = $this->notificationService->createNotification(
+            $notiType,
+            [
+                'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
+                'shift' => $appointment->shift->label(),
+                'team' => $appointment->team->name
+            ],
+            $appointment->id,
+            Appointment::class,
+            true
+        );
+
+        // New Appointment
+        $this->notificationService->sendToStaff($notification, $appointment->shelter_id);
+        $this->notificationService->sendToTeam($notification, $appointment->team_id);
     }
 }
