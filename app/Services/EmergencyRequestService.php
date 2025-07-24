@@ -146,6 +146,7 @@ class EmergencyRequestService
         $data['victim_name'] = json_encode($data['victim_name']);
         if ($data['status'] == EmergencyRequest::approve) $data['assigner'] = Auth::user()->id;
         $emergencyRequest->update($data);
+        $emergencyRequest->refresh();
         if (isset($data['reason_id'])) self::created_reason($emergencyRequest->id, $data);
         return $emergencyRequest;
     }

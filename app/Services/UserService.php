@@ -12,6 +12,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\UserSelectResource;
 use App\Mail\ApproveEmail;
 use App\Mail\RejectEmail;
+use App\Models\Image;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -22,6 +23,13 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class UserService
 {
+    protected $notificationService, $imageService;
+    public function __construct(NotificationService $notificationService, ImageService $imageService)
+    {
+        $this->notificationService = $notificationService;
+        $this->imageService = $imageService;
+    }
+
     protected $relations = ['prefix', 'department', 'position', 'area', 'approval', 'member', 'image', 'staff'];
     public function baseQuery($filters)
     {
@@ -74,11 +82,15 @@ class UserService
         $data['password'] = Hash::make($data['password']);
         $data['registration_type'] = RegistrationType::SELF;
         $user = User::create($data);
-
+        $user->image = $this->imageService->uploadImage($data['image'] ?? null, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
         // Send a password via email
         userRegistered::dispatch($user);
+
         // Send line
         (new LineController)->LineNotification(null, LineController::User_register);
+        // Send a register notification
+        $notification = $this->notificationService->createNotification('user.register', ['name' => $user->fullname], $user->id, User::class, true);
+        $this->notificationService->sendToCenterStaff($notification);
         return $user;
     }
 
@@ -88,7 +100,7 @@ class UserService
         $data['password'] = Hash::make($password);
         $data['registration_type'] = RegistrationType::ADMIN;
         $user = User::create($data);
-
+        $user->image = $this->imageService->uploadImage($data['image'] ?? null, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
         // Send a password via email
         AdminRegistered::dispatch($user, $password);
         return $user;
@@ -99,8 +111,13 @@ class UserService
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
-
         $user->update($data);
+        $user->refresh();
+        if (isset($data['image'])) {
+            $user->image = $this->imageService->updateImage($data['image'], User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
+        } else {
+            $this->imageService->deleteImage(User::IMAGE_FOLDER, User::class, $user->id);
+        }
         return $user;
     }
 
@@ -108,6 +125,13 @@ class UserService
     {
         $user->approval?->delete();
         $user->delete();
+        $image = $this->imageService->getByTableAndId(User::class, $user->id);
+        if ($image) {
+            if ($image->image_name !== 'default.png') {
+                $this->imageService->removeFile($image->image_url, $image->image_type);
+            }
+            $image->delete();
+        }
     }
 
     public static function generatePassword(): string

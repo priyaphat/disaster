@@ -6,20 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
-use App\Models\Image;
-use App\Models\User;
-use App\Services\ImageService;
 use App\Services\UserService;
 
 class RegisterController extends Controller
 {
     //
-    protected $userService, $imageService;
+    protected $userService;
 
-    public function __construct(UserService $userService, ImageService $imageService)
+    public function __construct(UserService $userService)
     {
         $this->userService = $userService;
-        $this->imageService = $imageService;
     }
 
     /**
@@ -28,7 +24,6 @@ class RegisterController extends Controller
     public function register(RegisterRequest $request)
     {
         $user = $this->userService->register($request->all());
-        $user->image = $this->imageService->uploadImage($request->image, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
         return ApiResponse::createdResponse(__('success.created'), new UserResource($user));
     }
 }

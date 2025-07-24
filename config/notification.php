@@ -104,7 +104,7 @@ return [
             'message' => [
                 ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{old_date} #{old_shift} กับ ทีมเจ้าหน้าที่'],
                 ['type' => 'bold', 'content' => '#{old_team}'],
-                ['type' => 'text', 'content' => ' ถูกแก้ไขเป็น #{new_date} #{new_shift} กับ ทีมเจ้าหน้าที่ '],
+                ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น #{new_date} #{new_shift} กับ ทีมเจ้าหน้าที่ '],
                 ['type' => 'bold', 'content' => '#{new_team}'],
             ]
         ],
@@ -149,12 +149,21 @@ return [
                 ['type' => 'bold', 'content' => '#{name}'],
             ]
         ],
-        'accepted' => [
+        'approved' => [
             'title' => 'เหตุฉุกเฉิน',
             'message' => [
                 ['type' => 'text', 'content' => 'ทีมเจ้าหน้าที่'],
                 ['type' => 'bold', 'content' => '#{team}'],
                 ['type' => 'text', 'content' => 'รับคำร้องจาก'],
+                ['type' => 'bold', 'content' => '#{name}'],
+            ]
+        ],
+        'rejected' => [
+            'title' => 'เหตุฉุกเฉิน',
+            'message' => [
+                ['type' => 'text', 'content' => 'ทีมเจ้าหน้าที่'],
+                ['type' => 'bold', 'content' => '#{team}'],
+                ['type' => 'text', 'content' => 'ปฏิเสธคำร้องจาก'],
                 ['type' => 'bold', 'content' => '#{name}'],
             ]
         ],
@@ -166,7 +175,7 @@ return [
                 ['type' => 'text', 'content' => 'ได้รับการช่วยเหลือสำเร็จแล้ว'],
             ]
         ],
-        'failed' => [
+        'unsuceess' => [
             'title' => 'เหตุฉุกเฉิน',
             'message' => [
                 ['type' => 'text', 'content' => 'คำร้องจาก'],
@@ -174,14 +183,14 @@ return [
                 ['type' => 'text', 'content' => 'เข้าช่วยเหลือไม่สำเร็จ'],
             ]
         ],
-        'assign' => [
+        'assigned' => [
             'title' => 'เหตุฉุกเฉิน',
             'message' => [
                 ['type' => 'text', 'content' => 'ได้รับมอบหมาย เข้าช่วยเหลือ คำขอจาก'],
                 ['type' => 'bold', 'content' => '#{name}'],
             ]
         ],
-        'cancel' => [
+        'canceled' => [
             'title' => 'เหตุฉุกเฉิน ถูกยกเลิก',
             'message' => [
                 ['type' => 'text', 'content' => 'คำขอจาก'],

@@ -5,23 +5,21 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\NewsRequest;
 use App\Http\Requests\FilterNewsRequest;
-use App\Http\Resources\NewsCollection;
 use App\Http\Resources\NewsResource;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\LinePostUtility;
 use App\Models\News;
 use App\Services\ImageService;
 use App\Services\NewsService;
-use Illuminate\Http\Request;
+use App\Services\NotificationService;
 
 class NewsController extends Controller
 {
-    protected $newsService, $imageService;
+    protected $newsService;
 
-    public function __construct(NewsService $newsService, ImageService $imageService)
+    public function __construct(NewsService $newsService)
     {
         $this->newsService = $newsService;
-        $this->imageService = $imageService;
     }
 
     /**
@@ -42,8 +40,6 @@ class NewsController extends Controller
     public function store(NewsRequest $request)
     {
         $data = $this->newsService->create($request->all());
-        $data->image = $this->imageService->uploadImage($request->image, News::IMAGE_FOLDER, News::class, $data->id);
-        LinePostUtility::line_oa_call(LineController::News_post, $data->toArray());
         return ApiResponse::createdResponse(__('success.new.created'), new NewsResource($data));
     }
 
@@ -61,10 +57,7 @@ class NewsController extends Controller
      */
     public function update(NewsRequest $request, News $news)
     {
-        unset($request['shelter_id']);
-        $data = $this->newsService->update($news, $request->all());
-        $data->image = $this->imageService->updateImage($request->image, News::IMAGE_FOLDER, News::class, $data->id);
-        LinePostUtility::line_oa_call(LineController::News_update, $data->toArray());
+        $data = $this->newsService->update($news, $request->except('shelter_id'));
         return ApiResponse::successResponse(__('success.new.updated'), new NewsResource($data));
     }
 
@@ -74,7 +67,6 @@ class NewsController extends Controller
     public function destroy(News $news)
     {
         $this->newsService->delete($news);
-        $this->imageService->deleteImage(News::IMAGE_FOLDER, News::class, $news->id);
         return ApiResponse::successResponse(__('success.new.deleted'));
     }
 }

@@ -9,7 +9,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class EmergencyRequest extends Model
 {
-    use CreatedUpdatedBy,LogsActivity;
+    use CreatedUpdatedBy, LogsActivity;
 
     public const waiting = 1;
     public const approve = 2; //รอความช่วยเหลือ
@@ -35,6 +35,12 @@ class EmergencyRequest extends Model
         'assigner'
     ];
 
+    public function team()
+    {
+        return $this->hasOne(Team::class, 'id', 'emergency_team_id')
+            ->select('id', 'name');
+    }
+
     public function prefix()
     {
         return $this->belongsTo(Prefix::class)->select(['id', 'name']);
@@ -45,7 +51,8 @@ class EmergencyRequest extends Model
         return $this->belongsTo(Disaster::class)->select(['id', 'name']);
     }
 
-    public function reason(){
+    public function reason()
+    {
         return $this->hasOne(EmergencyRequestLog::class)->latestOfMany();
     }
     // public function emergencyTeam()
@@ -53,17 +60,16 @@ class EmergencyRequest extends Model
     //     return $this->belongsTo(EmergencyTeam::class);
     // }
 
-        public function getActivitylogOptions(): LogOptions
+    public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->useLogName('EmergencyRequest')
-        ->logOnly(['*'])
-        ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
+            ->useLogName('EmergencyRequest')
+            ->logOnly(['*'])
+            ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
     }
 
     public function geography()
     {
         return $this->belongsTo(Geography::class, 'subdistrict_id', 'subdistrict_code');
     }
-
 }

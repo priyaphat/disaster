@@ -10,8 +10,13 @@ use App\Http\Requests\Geography\SubDistrictRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\NotificationUtility;
 use App\Jobs\BroadcastNotification;
+use App\Models\DamagedUtility;
+use App\Models\EmergencyPost;
+use App\Models\EmergencyRequest;
+use App\Models\News;
 use App\Models\Notification;
 use App\Models\NotificationUser;
+use App\Models\Shelter;
 use App\Models\User;
 use App\Notifications\SendNotification;
 use App\Services\NotificationService;
@@ -37,19 +42,331 @@ class NotificationController extends Controller
 
     public function notification(Request $request)
     {
+        $notification = [];
+        // ลบ Appointment
+        // $user->notify(new SendNotification($data['notification']));
+        // $data = Notification::first();
+
+        // Register notification
+        // $data = Auth::user();
+
+        // Create a news notification
+        $data = News::first();
+        $notification = $this->notificationService->createNotification(
+            'news.created',
+            ['title' => $data->title],
+            $data->id,
+            User::class,
+            false
+        );
+        $this->notificationService->sendToAllUsers($notification);
+
+
+        // // Update a news notification
+        // $data = News::first();
+        // $notification = $this->notificationService->createNotification(
+        //     'news.updated',
+        //     ['title' => $data->title],
+        //     $data->id,
+        //     User::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+
+        // Create a news notification
+        // $data = News::first();
+        // $notification = $this->notificationService->createNotification(
+        //     'shelter_news.created',
+        //     ['title' => $data->title],
+        //     $data->id,
+        //     User::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // // Update a news notification
+        // $data = News::first();
+        // $notification = $this->notificationService->createNotification(
+        //     'shelter_news.updated',
+        //     ['title' => $data->title],
+        //     $data->id,
+        //     User::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // Active shelter
+        // $data = Shelter::first();
+        // $notification = $this->notificationService->createNotification(
+        //     'shelter.opened',
+        //     ['name' => $data->name],
+        //     $data->id,
+        //     Shelter::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // Inactive shelter
+        // $data = Shelter::first();
+        // $notification = $this->notificationService->createNotification(
+        //     'shelter.closed',
+        //     ['name' => $data->name],
+        //     $data->id,
+        //     Shelter::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // Create an appointment
+        // $data = Appointment::latest()->first();
+        // $data->load('team');
+
+
+        // Delete an appointment
+        // $data = Appointment::latest()->first();
+        // $data->load('team');
+        // $notification = $this->notificationService->createNotification(
+        //     'appointment.deleted',
+        //     [
+        //         'appointment_date' => $data->appointment_date->thaidate('j M Y'),
+        //         'shift' => AppointmentUtility::getShiftName($data->shift),
+        //         'team' => $data->team->name
+        //     ],
+        //     $data->id,
+        //     Appointment::class,
+        //     true
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // Update an appointment
+        // $old = Appointment::latest()->first();
+        // $old->load('team');
+
+        // $data = Appointment::latest()->first();
+        // $data->load('team');
+
+        // $notification = $this->notificationService->createNotification(
+        //     'appointment.updated',
+        //     [
+        //         'old_date' => $old->appointment_date->thaidate('j M Y'),
+        //         'old_shift' => AppointmentUtility::getShiftName($old->shift),
+        //         'old_team' => $old->team->name,
+        //         'new_date' => $data->appointment_date->thaidate('j M Y'),
+        //         'new_shift' => AppointmentUtility::getShiftName($data->shift),
+        //         'new_team' => $data->team->name
+        //     ],
+        //     $data->id,
+        //     Appointment::class,
+        //     true
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // join team notification
+        // $data = TeamMember::latest()->first();
+        // $data->load('team');
+
+
+
+
+        // Leave team notification
+        // $data = TeamMember::latest()->first();
+        // $data->load('team');
+
+        // $notification = $this->notificationService->createNotification(
+        //     'team.leave',
+        //     [
+        //         'name' => $data->team->name,
+        //     ],
+        //     $data->id,
+        //     TeamMember::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+
+        // Update team leader notification
+        // $data = Team::latest()->first();
+        // $data->load('leader');
+
+
+        // $data = ShelterStaff::latest()->first();
+        // $notification = $this->notificationService->createNotification(
+        //     'shelter_staff.tranfer',
+        //     [],
+        //     $data->id,
+        //     ShelterStaff::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // $data = ShelterStaff::latest()->first();
+        // $notification = $this->notificationService->createNotification(
+        //     'shelter_staff.leave',
+        //     [],
+        //     $data->id,
+        //     ShelterStaff::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // emergency request
+        // $data = EmergencyRequest::latest()->first();
+        // $notification = $this->notificationService->createNotification(
+        //     'emergency_request.created',
+        //     [
+        //         'name' => $data->prefix?->name.' '.$data->first_name.' '.$data->last_name
+        //     ],
+        //     $data->id,
+        //     EmergencyPost::class,
+        //     false
+        // );
+        // $this->notificationService->sendToCenterStaff($notification);
+
+
+        // $data = EmergencyRequest::latest()->first();
+        // $notification = $this->notificationService->createNotification(
+        //     'emergency_request.created',
+        //     [
+        //         'name' => $data->prefix?->name . ' ' . $data->first_name . ' ' . $data->last_name
+        //     ],
+        //     $data->id,
+        //     EmergencyPost::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // Update position
+        // $data = ShelterStaff::latest()->first();
+        // $notification = $this->notificationService->createNotification(
+        //     'staff_position.updated',
+        //     [],
+        //     $data->id,
+        //     ShelterStaff::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+
+        // Update leader dashboard
+        // $data = ShelterStaff::latest()->first();
+        // $notification = $this->notificationService->createNotification(
+        //     'staff_leader.updated',
+        //     [],
+        //     $data->id,
+        //     ShelterStaff::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // Emergency post
+        // $data = EmergencyPost::latest()->first();
+        // $area = $data->areas->pluck('district_name')->toArray();
+        // $area = implode(', ', $area);
+        // $notification = $this->notificationService->createNotification(
+        //     'post.created',
+        //     [
+        //         'disaster' => 'ดินถล่ม',
+        //         'level' => '4',
+        //         'area' => '1'
+        //     ],
+        //     $data->id,
+        //     EmergencyPost::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+
+        // $data = EmergencyPost::latest()->first();
+        // // $area = implode(", ", ['แม่จัน','แม่สาย']);
+        // $area = $data->areas->pluck('district_name')->toArray();
+        // $area = implode(', ', $area);
+        // $notification = $this->notificationService->createNotification(
+        //     'post.updated',
+        //     [
+        //         'disaster' => $data->disaster->name,
+        //         'level' => $data->level,
+        //         'area' => $area
+        //     ],
+        //     $data->id,
+        //     EmergencyPost::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
+        // $data = EmergencyPost::latest()->first();
+        // $notification = $this->notificationService->createNotification(
+        //     'post.deleted',
+        //     [
+        //         'disaster' => 'ดินถล่ม'
+        //     ],
+        //     $data->id,
+        //     EmergencyPost::class,
+        //     false
+        // );
+        // $this->notificationService->sendToUser($notification);
+
         $user = Auth::user();
         // $user->notify(new SendNotification($data['notification']));
         // $data = Notification::first();
-        // Send an notification
-        $data = $this->notificationService->createNotification(
-            'user.register',
-            ['name' => $user->fullname],
-            $user->id,
-            User::class,
+
+        // Send an damage notification
+        $data = DamagedUtility::where('type', 2)->first();
+        $total = DamagedUtility::where('type', 2)->count();
+        $notification = $this->notificationService->createNotification(
+            'damaged.updated',
+            [
+                'name' => $data->type->label(),
+                'total' => $total
+            ],
+            $data->id,
+            DamagedUtility::class,
             true
         );
-        $userIds = NotificationUtility::getAllUsers();
-        BroadcastNotification::dispatch($userIds, $data);
-        return ApiResponse::successResponse(__('success.data'), $data);
+
+        // $data = EmergencyRequest::latest()->first();
+        $notification = $this->notificationService->createNotification(
+            'emergency_request.failed',
+            [
+                'name' => $data->prefix?->name.' '.$data->first_name.' '.$data->last_name
+            ],
+            $data->id,
+            EmergencyRequest::class,
+            false
+        );
+
+
+        // $notification = $this->notificationService->createNotification(
+        //     'emergency_request.assign',
+        //     [
+        //         'name' => $data->prefix?->name.' '.$data->first_name.' '.$data->last_name
+        //     ],
+        //     $data->id,
+        //     EmergencyRequest::class,
+        //     false
+        // );
+
+
+        //  $notification = $this->notificationService->createNotification(
+        //     'emergency_request.cancel',
+        //     [
+        //         'name' => $data->prefix?->name.' '.$data->first_name.' '.$data->last_name
+        //     ],
+        //     $data->id,
+        //     EmergencyRequest::class,
+        //     false
+        // );
+
+        // $notification = $this->notificationService->createNotification(
+        //     'emergency_request.accepted',
+        //     [
+        //         'name' => $data->prefix?->name.' '.$data->first_name.' '.$data->last_name
+        //     ],
+        //     $data->id,
+        //     EmergencyRequest::class,
+        //     false
+        // );
+
+        return ApiResponse::successResponse(__('success.data'), $notification);
     }
 }

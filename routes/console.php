@@ -9,5 +9,5 @@ use Illuminate\Support\Facades\Schedule;
 // })->purpose('Display an inspiring quote');
 
 Schedule::command('app:weather-task')->everySixHours();
-Schedule::command('app:appointment-task')->timezone('Asia/Bangkok')->dailyAt('12:59');
-Schedule::command('app:appointment-task')->timezone('Asia/Bangkok')->dailyAt('23:59');
+Schedule::command('app:appointment-task')->everyMinute();
+// Schedule::command('app:appointment-task')->timezone('Asia/Bangkok')->dailyAt('23:59');

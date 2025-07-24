@@ -66,6 +66,7 @@ class EmergencyPostService
             return $data;
         }
 
+        // ประกาศ
         $data = EmergencyPost::create($post);
         if (isset($post['area'])) {
             foreach ($post['area'] as $area) {
@@ -84,6 +85,7 @@ class EmergencyPostService
     public function update($post, $data): EmergencyPost
     {
         $post->update($data);
+        $post->refresh();
         if (isset($data['area'])) {
             $post->areas()->delete();
             foreach ($data['area'] as $area) {
@@ -96,7 +98,9 @@ class EmergencyPostService
         }
         $this->emergencylog_save($post, $district, $district_id);
         // $type['type'] = Disaster::where('id', $post['disaster_id'])->value('name');
-        // if ($post['status'] == EmergencyPost::inactive) (new LineController)->LineNotification($type, LineController::Disaster_end);
+        if ($post['status'] == EmergencyPost::inactive){
+            // (new LineController)->LineNotification($type, LineController::Disaster_end);
+        }
         return $post;
     }
 

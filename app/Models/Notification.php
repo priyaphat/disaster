@@ -15,6 +15,7 @@ class Notification extends Model
         'notification',
         'entity_id',
         'entity_type',
+        'notification_type',
         'show_details'
     ];
 
@@ -31,4 +32,9 @@ class Notification extends Model
     //         set: fn (string $value) => json_encode($value),
     //     );
     // }
+
+    public function notification_users()
+    {
+        return $this->hasMany(NotificationUser::class, 'notification_id', 'id');
+    }
 }

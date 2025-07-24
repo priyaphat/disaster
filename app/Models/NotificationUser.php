@@ -14,6 +14,6 @@ class NotificationUser extends Model
     ];
 
      public function notification() {
-        return $this->hasOne(Notification::class, 'id', 'notification_id');
+        return $this->belongsTo(Notification::class, 'notification_id', 'id');
     }
 }

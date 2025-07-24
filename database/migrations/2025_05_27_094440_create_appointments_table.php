@@ -20,6 +20,7 @@ return new class extends Migration
             $table->tinyInteger('shift')->default(ShiftType::MORNING->value);
             $table->unsignedBigInteger('shelter_id');
             $table->unsignedBigInteger('team_id');
+            $table->boolean('logged')->nullable();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
 

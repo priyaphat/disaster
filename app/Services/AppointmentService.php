@@ -180,7 +180,7 @@ class AppointmentService
         $shiftArr = $this->splitShiftTime($data, $data['appointment_date']);
         foreach ($shiftArr as $shift) {
             $appointment = Appointment::create($shift);
-            $this->notify($appointment, 'appointment.created');
+            $this->notify($appointment, null, 'appointment.created');
             $appointmentArr[] = $appointment;
         }
         return $appointmentArr;
@@ -213,18 +213,19 @@ class AppointmentService
             throw new BadRequestHttpException(__('error.appointment.exists'));
         }
 
+        // ถ้ามีกะเดียว ให้ไปอัปเดต
         if (count($newShifts) == 1) {
             $appointment = $this->getById($appointment->id);
             $appointment->update($newShifts[0]);
             $appointment->refresh();
-            $this->notify($appointment, 'appointment.updated', $oldAppointment);
+            $this->notify($appointment, $oldAppointment);
         } else {
             foreach ($newShifts as $shift) {
                 if ($shift['shift'] === $appointment->shift) {
                     $appointment = $this->getById($appointment['id']);
                     $appointment->update($shift);
                     $appointment->refresh();
-                    $this->notify($appointment, 'appointment.updated', $oldAppointment);
+                    $this->notify($appointment, $oldAppointment, 'appointment.updated');
                 } else {
                     $appointment = Appointment::create([
                         'appointment_date' => $data['appointment_date'],
@@ -234,7 +235,7 @@ class AppointmentService
                         'shelter_id' => $data['shelter_id'],
                         'team_id' => $data['team_id']
                     ]);
-                    $this->notify($appointment, 'appointment.updated', $oldAppointment);
+                    $this->notify($appointment, $oldAppointment, 'appointment.updated');
                 }
             }
         }
@@ -253,7 +254,7 @@ class AppointmentService
         }
 
         $deleted = $appointment->delete();
-        $this->notify($appointment, 'appointment.deleted');
+        $this->notify($appointment, null, 'appointment.deleted');
         return $deleted;
     }
 
@@ -399,63 +400,192 @@ class AppointmentService
 
     public function deleteUpcomingAppointment(array $data)
     {
-        $time = Carbon::now()->format('Y-m-d H:i');
-        // Delete upcoming appointment
-        $appQuery = Appointment::with(['team.allUsers', 'shelter'])
-            ->whereRaw("STR_TO_DATE(CONCAT(appointment_date, ' ', end_time), '%Y-%m-%d %H:%i') > ?", [$time]);
-
         // by team
         if (isset($data['team_id'])) {
-            $appQuery->where('team_id', $data['team_id'])->delete();
+            LogUtility::createAppointmentLog(['team_id' => $data['team_id']]);
+            Appointment::with(['team.allUsers', 'shelter'])->where('team_id', $data['team_id'])->doesntHave('teamLog')->delete();
         }
 
         // by shelter
         if (isset($data['shelter_id'])) {
-            $appQuery->where('shelter_id', $data['shelter_id'])->delete();
+            LogUtility::createAppointmentLog(['shelter_id' => $data['shelter_id']]);
+            Appointment::with(['team.allUsers', 'shelter'])->where('shelter_id', $data['shelter_id'])->doesntHave('shelterLog')->delete();
         }
     }
 
     /**
      * Notification for register user
      */
-    public function notify(Appointment $appointment, ?string $notiType, ?Appointment $oldAppointment = null): void
+    public function notify(Appointment $appointment, ?Appointment $oldAppointment = null, ?string $notifyType = null): void
     {
-        if (!$notiType) return;
-
+        // อัปเดต
         if ($oldAppointment) {
-            $notification = $this->notificationService->createNotification(
-                $notiType,
+            $shelterChanged = $appointment->shelter_id !== $oldAppointment->shelter_id;
+            $teamChanged = $appointment->team_id !== $oldAppointment->team_id;
+
+            // ถ้าเปลี่ยนทีม และเปลี่ยนศูนย์พักพิง
+            if ($shelterChanged && $teamChanged) {
+
+                // สร้างยกเลิก notification
+                $notifyAppointmentCenceled = $this->notificationService->createNotification(
+                    'appointment.cancel',
+                    [
+                        'appointment_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
+                        'shift' => $oldAppointment->shift->label(),
+                        'team' => $oldAppointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+
+                // สร้างนัดหมาย notification
+                $notifyAppointmentCreated = $this->notificationService->createNotification(
+                    'appointment.created',
+                    [
+                        'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
+                        'shift' => $appointment->shift->label(),
+                        'team' => $appointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+
+                $this->notificationService->sendToStaff($notifyAppointmentCenceled, $oldAppointment->shelter_id);
+                $this->notificationService->sendToStaff($notifyAppointmentCreated, $appointment->shelter_id);
+                $this->notificationService->sendToTeam($notifyAppointmentCenceled, $oldAppointment->shelter_id);
+                $this->notificationService->sendToTeam($notifyAppointmentCreated, $appointment->shelter_id);
+            }
+            // ถ้าทีมถูกเปลี่ยน และ shelter ถูกเปลี่ยน
+            else if ($shelterChanged && !$teamChanged) {
+
+                // สร้างยกเลิก notification
+                $notifyAppointmentCenceled = $this->notificationService->createNotification(
+                    'appointment.cancel',
+                    [
+                        'appointment_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
+                        'shift' => $oldAppointment->shift->label(),
+                        'team' => $oldAppointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+
+                // สร้างนัดหมาย notification
+                $notifyAppointmentCreated = $this->notificationService->createNotification(
+                    'appointment.created',
+                    [
+                        'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
+                        'shift' => $appointment->shift->label(),
+                        'team' => $appointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+
+                // สร้างอัปเดต notification
+                $notifyAppointmentUpdated = $this->notificationService->createNotification(
+                    'appointment.updated',
+                    [
+                        'old_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
+                        'old_shift' => $oldAppointment->shift->label(),
+                        'old_team' => $oldAppointment->team->name,
+                        'new_date' => $appointment->appointment_date->thaidate('j M Y'),
+                        'new_shift' => $appointment->shift->label(),
+                        'new_team' => $appointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+
+                $this->notificationService->sendToStaff($notifyAppointmentCenceled, $oldAppointment->shelter_id);
+                $this->notificationService->sendToStaff($notifyAppointmentCreated, $appointment->shelter_id);
+                $this->notificationService->sendToTeam($notifyAppointmentUpdated, $appointment->team_id);
+            } else if (!$shelterChanged && $teamChanged) {
+
+                // สร้างยกเลิก notification
+                $notifyAppointmentCanceled = $this->notificationService->createNotification(
+                    'appointment.cancel',
+                    [
+                        'appointment_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
+                        'shift' => $oldAppointment->shift->label(),
+                        'team' => $oldAppointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+
+                // สร้างนัดหมาย notification
+                $notifyAppointmentCreated = $this->notificationService->createNotification(
+                    'appointment.created',
+                    [
+                        'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
+                        'shift' => $appointment->shift->label(),
+                        'team' => $appointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+
+                // สร้างอัปเดต notification
+                $notifyAppointmentUpdated = $this->notificationService->createNotification(
+                    'appointment.updated',
+                    [
+                        'old_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
+                        'old_shift' => $oldAppointment->shift->label(),
+                        'old_team' => $oldAppointment->team->name,
+                        'new_date' => $appointment->appointment_date->thaidate('j M Y'),
+                        'new_shift' => $appointment->shift->label(),
+                        'new_team' => $appointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+
+                $this->notificationService->sendToTeam($notifyAppointmentCanceled, $oldAppointment->team_id);
+                $this->notificationService->sendToTeam($notifyAppointmentCreated, $appointment->team_id);
+                $this->notificationService->sendToStaff($notifyAppointmentUpdated, $appointment->shelter_id);
+            } else {
+                $updateNotification = $this->notificationService->createNotification(
+                    'appointment.updated',
+                    [
+                        'old_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
+                        'old_shift' => $oldAppointment->shift->label(),
+                        'old_team' => $oldAppointment->team->name,
+                        'new_date' => $appointment->appointment_date->thaidate('j M Y'),
+                        'new_shift' => $appointment->shift->label(),
+                        'new_team' => $appointment->team->name
+                    ],
+                    $appointment->id,
+                    Appointment::class,
+                    true
+                );
+                $this->notificationService->sendToStaff($updateNotification, $appointment->shelter_id);
+                $this->notificationService->sendToTeam($updateNotification, $appointment->team_id);
+            }
+        } else {
+
+            $newNotification = $this->notificationService->createNotification(
+                $notifyType,
                 [
-                    'old_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
-                    'old_shift' => $oldAppointment->shift->label(),
-                    'old_team' => $oldAppointment->team->name,
-                    'new_date' => $appointment->appointment_date->thaidate('j M Y'),
-                    'new_shift' => $appointment->shift->label(),
-                    'new_team' => $appointment->team->name
+                    'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
+                    'shift' => $appointment->shift->label(),
+                    'team' => $appointment->team->name
                 ],
                 $appointment->id,
                 Appointment::class,
                 true
             );
-            // Old Appointment
-            $this->notificationService->sendToStaff($notification, $oldAppointment->shelter_id);
-            $this->notificationService->sendToTeam($notification, $oldAppointment->team_id);
+
+            $this->notificationService->sendToStaff($newNotification, $appointment->shelter_id);
+            $this->notificationService->sendToTeam($newNotification, $appointment->team_id);
         }
-
-        $notification = $this->notificationService->createNotification(
-            $notiType,
-            [
-                'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
-                'shift' => $appointment->shift->label(),
-                'team' => $appointment->team->name
-            ],
-            $appointment->id,
-            Appointment::class,
-            true
-        );
-
-        // New Appointment
-        $this->notificationService->sendToStaff($notification, $appointment->shelter_id);
-        $this->notificationService->sendToTeam($notification, $appointment->team_id);
     }
 }

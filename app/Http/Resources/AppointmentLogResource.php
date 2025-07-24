@@ -25,6 +25,7 @@ class AppointmentLogResource extends JsonResource
             'team_name' =>  $this->team?->name,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
+            'logged' => $this->logged,
             'team' => $this->team ? new TeamResource($this->team) : null,
             'shelter' => $this->shelter ? new ShelterResource($this->shelter) : null,
         ];

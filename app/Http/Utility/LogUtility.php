@@ -31,58 +31,62 @@ class LogUtility
 
     public static function createAppointmentLog(array $data = [])
     {
-        $now = Carbon::now()->format('Y-m-d');
-        $query = Appointment::with(['team.allUsers', 'shelter'])->where('appointment_date', $now);
+        $datetime = Carbon::now()->format('Y-m-d H:i');
+        $query = Appointment::with(['team.allUsers', 'shelter'])->whereNull('logged');
 
-        if (isset($data['shift'])) {
-            $query->where('shift', $data['shift']);
+        if (isset($data['team_id']) || isset($data['shelter_id'])) {
+            $query->whereRaw("STR_TO_DATE(CONCAT(appointment_date, ' ', start_time), '%Y-%m-%d %H:%i') <= ?", [$datetime]);
+        } else {
+            $query->whereRaw("STR_TO_DATE(CONCAT(appointment_date, ' ', end_time), '%Y-%m-%d %H:%i') <= ?", [$datetime]);
         }
 
         if (isset($data['team_id'])) {
-            $query->where('team_id', $data['team_id'])->doesntHave('teamLog');
+            $query->where('team_id', $data['team_id']);
         }
 
         if (isset($data['shelter_id'])) {
-            $query->where('shelter_id', $data['shelter_id'])->doesntHave('shelterLog');
+            $query->where('shelter_id', $data['shelter_id']);
         }
 
         $data = $query->chunkById(100, function ($apps) {
-            $apps = AppointmentLogResource::collection($apps)->resolve();
             foreach ($apps as $app) {
                 // If has team, save log.
                 // If an appointment doesn't have a team, it means the log was saved before the team was deleted.
-                if ($app['team']) {
-                    $appointmentData = [
-                        'appointment_id' => $app['id'],
-                        'parentable_id' => $app['id'],
-                        'parentable_type' => Appointment::class,
-                        'description' => $app,
-                        'log_date' => $app['appointment_date']
-                    ];
-                    self::saveAppointmentLog($appointmentData);
+                $app['logged'] = true;
+                $app->save();
 
-                    $teamData = [
-                        'appointment_id' => $app['id'],
-                        'parentable_id' => $app['team']['id'] ?? null,
-                        'parentable_type' => Team::class,
-                        'description' => $app['team'] ?? null,
-                        'log_date' => $app['appointment_date']
-                    ];
-                    self::saveAppointmentLog($teamData);
+                $log = (new AppointmentLogResource($app))->toArray(request());
 
-                    $shelterData = [
-                        'appointment_id' => $app['id'],
-                        'parentable_id' => $app['shelter']['id'] ?? null,
-                        'parentable_type' => Shelter::class,
-                        'description' => $app['shelter'] ?? null,
-                        'log_date' => $app['appointment_date']
-                    ];
-                    self::saveAppointmentLog($shelterData);
-                }
+                $appointmentData = [
+                    'appointment_id' => $log['id'],
+                    'parentable_id' => $log['id'],
+                    'parentable_type' => Appointment::class,
+                    'description' => $log,
+                    'log_date' => $log['appointment_date']
+                ];
+                self::saveAppointmentLog($appointmentData);
+
+                $teamData = [
+                    'appointment_id' => $log['id'],
+                    'parentable_id' => $log['team']['id'],
+                    'parentable_type' => Team::class,
+                    'description' => $log['team'],
+                    'log_date' => $log['appointment_date']
+                ];
+                self::saveAppointmentLog($teamData);
+
+                $shelterData = [
+                    'appointment_id' => $app['id'],
+                    'parentable_id' => $app['shelter']['id'],
+                    'parentable_type' => Shelter::class,
+                    'description' => $app['shelter'],
+                    'log_date' => $app['appointment_date']
+                ];
+                self::saveAppointmentLog($shelterData);
             }
         });
 
-        Log::info("Save appointment logs");
+        Log::info(`Save appointment logs : $datetime`);
     }
 
     public static function saveAppointmentLog(array $data = [])

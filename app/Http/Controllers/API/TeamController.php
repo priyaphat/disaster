@@ -13,19 +13,21 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
+use App\Services\NotificationService;
 use App\Services\TeamService;
 use Illuminate\Http\Request;
 use Dedoc\Scramble\Attributes\BodyParameter;
 
 class TeamController extends Controller
 {
-    protected $teamService;
+    protected $teamService, $notificationService;
 
-    public function __construct(TeamService $teamService)
+    public function __construct(TeamService $teamService, NotificationService $notificationService)
     {
         $this->teamService = $teamService;
+        $this->notificationService = $notificationService;
     }
-    
+
     /**
      * Display a listing of the team | แสดงรายชื่อทีมแพทย์ (paginate)
      */
@@ -65,7 +67,7 @@ class TeamController extends Controller
         return ApiResponse::successResponse(__('success.team.updated'), $data);
     }
 
-/**
+    /**
      * Delete a team | ลบทีม และสมาชิก
      */
     public function destroy(Team $team)

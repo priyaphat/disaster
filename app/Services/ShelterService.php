@@ -41,6 +41,7 @@ class ShelterService
             'subdistrict_code' => $data['subdistrict_code'],
             'max_capacity' => $data['max_capacity'],
             'utilities' => $data['utilities'] ?? null, //uncomment this line when use in production
+            'status' => $data['status'] ?? 1,
             'gis_map' => $data['gis_map'] ?? null,
             'latitude' => $data['latitude'] ?? null,
             'longitude' => $data['longitude'] ?? null,

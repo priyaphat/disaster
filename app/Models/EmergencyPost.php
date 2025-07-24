@@ -32,6 +32,12 @@ class EmergencyPost extends Model
         // 'history_id',
     ];
 
+    public function disaster()
+    {
+        return $this->hasOne(Disaster::class, 'id', 'disaster_id')
+            ->select('id', 'name');
+    }
+
     public function areas()
     {
         return $this->hasMany(RefArea::class, 'post_id')

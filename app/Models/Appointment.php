@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ShiftType;
 use App\Filters\AppointmentFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Carbon\Carbon;
@@ -35,6 +36,7 @@ class Appointment extends Model
     protected function casts(): array
     {
         return [
+            'shift' => ShiftType::class,
             'appointment_date' => 'date:Y-m-d',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -79,8 +81,12 @@ class Appointment extends Model
             if (Carbon::now()->greaterThan($datetime)) {
                 return true;
             }
-            return false;
         }
+
+        if ($this->logged) {
+            return true;
+        }
+
         return false;
     }
 }

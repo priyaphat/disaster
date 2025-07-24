@@ -14,7 +14,6 @@ class ShelterObserver
     {
         $this->logService = $logService;
     }
-    
     /**
      * Handle the ShelterStaff "created" event.
      */

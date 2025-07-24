@@ -334,7 +334,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/team/{team}', [TeamController::class, 'destroy']);
     Route::get('/team/{team}/check-appointment', [TeamController::class, 'checkUpcoming']);
     Route::post('/member/join', [TeamMemberController::class, 'join']);
-    Route::post('/member/transfer', [TeamMemberController::class, 'transfer']); 
+    Route::post('/member/transfer', [TeamMemberController::class, 'transfer']);
     Route::post('/member/leave', [TeamMemberController::class, 'leave']);
     /*
     |--------------------------------------------------------------------------
@@ -348,7 +348,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'store']);
     Route::post('/appointment/{appointment}', [AppointmentController::class, 'update']);
     Route::delete('/appointment/{appointment}', [AppointmentController::class, 'destroy']);
-    Route::post('/appointment-log', [AppointmentLogController::class, 'store']);
+    Route::post('/appointment-log/{log}', [AppointmentLogController::class, 'update']);
 
     /*
     |--------------------------------------------------------------------------
@@ -367,6 +367,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/action-type', [TransferHistoryController::class, 'actionType']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::post('/notification', [NotificationController::class, 'notification']);
+    Route::get('/notification', [NotificationController::class, 'notification']);
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
 });
