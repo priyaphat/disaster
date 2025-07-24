@@ -224,7 +224,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/unit/{unit}', [UnitController::class, 'update']);
     Route::delete('/unit/{unit}', [UnitController::class, 'destroy']);
 
-    /*
+    /* 
     |--------------------------------------------------------------------------
     | Routes for display categories
     |--------------------------------------------------------------------------
@@ -241,9 +241,21 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/product', [ProductController::class, 'index']);
     Route::get('/product/{product}', [ProductController::class, 'show']);
+    Route::get('/product-shlter-self',[ProductController::class, 'yourShelter']);
     Route::post('/product', [ProductController::class, 'store']);
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display products
+    |--------------------------------------------------------------------------
+    */
+    // Route::get('/product', [ProductController::class, 'index']);
+    // Route::get('/product/{product}', [ProductController::class, 'show']);
+    Route::post('/product-shelter', [ProductController::class, 'store']);
+    // Route::post('/product/{product}', [ProductController::class, 'update']);
+    // Route::delete('/product/{product}', [ProductController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
@@ -270,14 +282,10 @@ Route::middleware('auth:api')->group(function () {
     |-------------------------------------------------------- ------------------
     */
     Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
-
     Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
-
     Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
     Route::delete('/dst-landslide/{id}', [DisasterController::class, 'dst_ls_delete']);
-
-    Route::post('dst-wildfire', [DisasterController::class, 'dst_wf_create']);
-
+    Route::post('/dst-wildfire', [DisasterController::class, 'dst_wf_create']);
     Route::post('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
 
     /*

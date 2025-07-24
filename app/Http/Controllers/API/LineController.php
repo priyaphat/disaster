@@ -50,14 +50,14 @@ class LineController extends Controller
     public const Team_appointment = 20; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id 
     public const Team_appointment_update = 21; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
     public const Team_appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
-    public const Disaster_flood = 24;
-    public const Disaster_landslide = 25;
-    public const Disaster_wildfire_m1 = 26.1;
-    public const Disaster_wildfire_m2 = 26.2;
-    public const Disaster_wildfire_m3 = 26.3;
-    public const Disaster_wildfire_m4 = 26.4;
-    public const Disaster_smog = 27;
-    public const Disaster_earthquake = 28;
+    public const Disaster_flood = 24; //success
+    public const Disaster_landslide = 25; //success
+    public const Disaster_wildfire_m1 = 26.1; //success
+    public const Disaster_wildfire_m2 = 26.2; //success
+    public const Disaster_wildfire_m3 = 26.3; //success
+    public const Disaster_wildfire_m4 = 26.4; //success
+    public const Disaster_smog = 27; //success
+    public const Disaster_earthquake = 28; //success
     private const Hotline = [
         self::Disaster_flood,
         self::Disaster_landslide,
@@ -449,13 +449,6 @@ class LineController extends Controller
             ]);
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_flood) {
-            // $data = [
-            //     'water_source' => 'xxx x frx1',
-            //     'water_source_type' => '2015-03-11',
-            //     'address' => 1,
-            //     'water_value' => 999,
-            //     'status' => 1,
-            // ];
             $text = __('line.disaster_flood', [
                 'water_source' => $data['water_source'],
                 'water_source_type' => $data['water_source_type'],
@@ -465,43 +458,23 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_landslide) {
-            // $data = [
-            //     'name' => 'xxx x x1',
-            // ];
             $text = __('line.disaster_landslide', [
                 'name' => $data['name'],
             ]) . __('line.close_follow');
             $text = self::flex_box_link($text, self::Disaster_landslide, __('line.see_more'), $type);
         } else if ($form == self::Disaster_wildfire_m1) {
-            // $data = [
-            //     'modis' => 'xx1',
-            //     'viirs' => 'xxx2',
-            // ];
             $text = __('line.disaster_wildfire_h') . __('line.disaster_wildfire_m1', [
                 'modis' => $data['modis'],
                 'viirs' => $data['viirs'],
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_wildfire_m2) {
-            // $data = [
-            //     [
-            //         'district' => 'jj',
-            //         'modis' => 'xx1',
-            //         'viirs' => 'xx2',
-            //     ],
-            //     [
-            //         'district' => 'aa',
-            //         'modis' => 'aa1',
-            //         'viirs' => 'aa2',
-            //     ],
-
-            // ];
             $text = __('line.disaster_wildfire_h')
                 . "ข้อมูล " . count($data) . " อันดับ จุดความร้อน\n";
 
             foreach ($data as $item) {
                 $text = $text . __('line.disaster_wildfire_m2', [
-                    'district' => "• " . $item['modis'],
+                    'district' => "• " . $item['district_name'],
                     'modis' => $item['modis'],
                     'viirs' => $item['viirs'],
                 ]);
@@ -509,14 +482,6 @@ class LineController extends Controller
             $text = $text . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_wildfire_m3) {
-            // $data = [
-            //     141,
-            //     141,
-            //     141,
-            //     141,
-            //     141,
-            //     141,
-            // ];
             $text = __('line.disaster_wildfire_h') . __('line.disaster_wildfire_m34', [
                 'type' => 'MODIS',
                 'val1' => $data[0] ?? 0,
@@ -528,14 +493,6 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_wildfire_m4) {
-            // $data = [
-            //     141,
-            //     141,
-            //     141,
-            //     141,
-            //     141,
-            //     141,
-            // ];
             $text = __('line.disaster_wildfire_h') . __('line.disaster_wildfire_m34', [
                 'type' => 'VIIRS',
                 'val1' => $data[0] ?? 0,
@@ -547,12 +504,6 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_smog) {
-            // $data = [
-            //     'source' => 'xxxxxx',
-            //     'address' => '123',
-            //     'smog_value' => '1',
-            //     'status' => '1',
-            // ];
             $text = __('line.disaster_smog', [
                 'source' => $data['source'],
                 'address' => $data['address'],
@@ -561,14 +512,6 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_earthquake) {
-            $data = [
-                'address' => 'เชียงราย ประเทศไทย',
-                'occurrence_time' => '2025-06-06 02:30:00',
-                'latitude' => 19.9132130,
-                'longitude' => 99.490000,
-                'magnitude' => 7.8,
-                'depth' => 3.9,
-            ];
             $text =  __('line.disaster_earthquake', [
                 'address' => $data['address'],
                 'occurrence_time' => DateUtility::formFormat1($data['occurrence_time']),

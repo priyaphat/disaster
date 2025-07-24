@@ -2,11 +2,11 @@
 
 namespace App\Enums;
 
-enum SmogStatus: string
+enum SmogStatus: int
 {
-    case NORMAL = '1';
-    case HIGH = '2';
-    case OVER_FLOW = '3';
+    case NORMAL = 1;
+    case HIGH = 2;
+    case OVER_FLOW = 3;
 
     public function label(): string
     {

@@ -3,18 +3,26 @@
 namespace App\Services;
 
 use App\Models\Category;
+use App\Services\SearchService;
 
 class CategoryService
 {
-    public function index()
+    protected SearchService $search;
+
+    public function __construct(SearchService $search)
     {
-        return Category::all();
+        $this->search = $search;
+    }
+
+    public function index($filter)
+    {
+        $query = Category::query();
+        return $this->search->search($query, $filter, 'get');
     }
 
     public function create(array $data): Category
     {
         $category = Category::create($data);
-
         return $category;
     }
 
