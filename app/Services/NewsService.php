@@ -56,7 +56,7 @@ class NewsService
         $news = News::create($data);
         $news->image = $this->imageService->uploadImage($data['image'] ?? null, News::IMAGE_FOLDER, News::class, $news->id);
         // Send a notification via socket and line
-        LinePostUtility::line_oa_call(LineController::News_post, $news->toArray());
+        // LinePostUtility::line_oa_call(LineController::News_post, $news->toArray());
         $this->notify($news, 'created');
         return $news;
     }
@@ -69,7 +69,7 @@ class NewsService
         $news->update($data);
         $news->refresh();
         $this->imageService->updateImage($data['image'] ?? null, News::IMAGE_FOLDER, News::class, $news->id);
-        LinePostUtility::line_oa_call(LineController::News_update, $news->toArray());
+        // LinePostUtility::line_oa_call(LineController::News_update, $news->toArray());
         $this->notify($news, 'updated');
         return $news;
     }

@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Unit;
 use App\Services\UnitService;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class UnitController extends Controller
 {
@@ -40,7 +41,7 @@ class UnitController extends Controller
 
     public function destroy(Unit $unit)
     {
-        if (Product::where('unit_id', $unit->id)->first()) return ApiResponse::errorResponse(__('error.sql.fk-constraint'));
+        if (Product::where('unit_id', $unit->id)->first()) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
         $unit->delete();
         return ApiResponse::successResponse(__('success.unit.deleted'));
     }

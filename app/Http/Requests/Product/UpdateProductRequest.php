@@ -33,7 +33,7 @@ class UpdateProductRequest extends FormRequest
             'no_unit' => 'nullable',
             'category_id' => 'exists:categories,id',
             'detail' => 'nullable|string',
-            'unit_type' => 'nallable|in:1,2',
+            'unit_type' => 'nullable|in:1,2',
             'status' => 'integer',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
         ];

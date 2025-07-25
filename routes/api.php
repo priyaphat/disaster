@@ -27,6 +27,7 @@ use App\Http\Controllers\API\FileController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\NotificationController;
+use App\Http\Controllers\API\ProductTransferController;
 use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
@@ -63,6 +64,7 @@ Route::get('/emc-requests/{phone}', [EmergencyRequestController::class, 'emcRequ
 Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
 Route::get('/disaster', [DisasterController::class, 'index']);
 Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'phone_detail']);
+Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
 Route::get('/dst-floods/{flood?}', [DisasterController::class, 'dst_fl_show']);
 Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_show']);
 Route::get('/dst-wildfires', [DisasterController::class, 'dst_wf_show']);
@@ -241,14 +243,14 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/product', [ProductController::class, 'index']);
     Route::get('/product/{product}', [ProductController::class, 'show']);
-    Route::get('/product-shlter-self',[ProductController::class, 'yourShelter']);
+    Route::get('/product-shlter-self', [ProductController::class, 'yourShelter']);
     Route::post('/product', [ProductController::class, 'store']);
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------
-    | Routes for display products
+    | Routes for display products shelter
     |--------------------------------------------------------------------------
     */
     // Route::get('/product', [ProductController::class, 'index']);
@@ -256,6 +258,15 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/product-shelter', [ProductController::class, 'store']);
     // Route::post('/product/{product}', [ProductController::class, 'update']);
     // Route::delete('/product/{product}', [ProductController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display products transfer
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/transfer-shelter-list', [ProductTransferController::class, 'shelterList']);
+    Route::get('/transfer-product-list', [ProductTransferController::class, 'productList']);
+    Route::post('/transfer-product', [ProductTransferController::class, 'store']);
 
     /*
     |--------------------------------------------------------------------------
@@ -312,7 +323,6 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
-    Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
     Route::post('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
     Route::post('/emc-requests-history', [EmergencyRequestController::class, 'show_history']);
