@@ -143,4 +143,21 @@ class ShelterService
         $data = $data->select('type', DB::raw('count(id) as total'))->groupBy('type')->get();
         return $data;
     }
+
+    public function isShelterMax($id, $populationId = null): bool
+    {
+        $shelter = Shelter::find($id);
+        $populationQuery = Population::where('shelter_id', $id);
+        if ($populationId) {
+            $populationQuery->where('id', '!=', $populationId);
+        }
+        $populationCount = $populationQuery->count();
+        return $populationCount >= $shelter->max_capacity;
+    }
+
+    public function isShelterOpen($id): bool
+    {
+        $shelter = Shelter::find($id);
+        return $shelter->status == Shelter::OPEN ? true : false;
+    }
 }

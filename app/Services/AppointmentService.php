@@ -14,10 +14,11 @@ use Illuminate\Support\Str;
 
 class AppointmentService
 {
-    protected $notificationService;
-    public function __construct(NotificationService $notificationService)
+    protected $notificationService, $shelterService;
+    public function __construct(NotificationService $notificationService, ShelterService $shelterService)
     {
         $this->notificationService = $notificationService;
+        $this->shelterService = $shelterService;
     }
     /**
      * Get all Appointmentes with filter and limit number.
@@ -176,6 +177,12 @@ class AppointmentService
             throw new BadRequestHttpException(__('error.appointment.is_past'));
         }
 
+        // Check if the shelter is open. If it is not, the data cannot be created
+        $isShelterOpen = $this->shelterService->isShelterOpen($data['shelter_id']);
+        if (!$isShelterOpen) {
+            throw new BadRequestHttpException(__('error.shelter.closed'));
+        }
+
         // Create an appointment and shift details
         $shiftArr = $this->splitShiftTime($data, $data['appointment_date']);
         foreach ($shiftArr as $shift) {
@@ -211,6 +218,12 @@ class AppointmentService
         $isExisting = $this->isAppointmentExisting($data, $appointment->id);
         if ($isExisting) {
             throw new BadRequestHttpException(__('error.appointment.exists'));
+        }
+
+        // Check if the shelter is open. If it is not, the data cannot be updated
+        $isShelterOpen = $this->shelterService->isShelterOpen($data['shelter_id']);
+        if (!$isShelterOpen) {
+            throw new BadRequestHttpException(__('error.shelter.closed'));
         }
 
         // ถ้ามีกะเดียว ให้ไปอัปเดต

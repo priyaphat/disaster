@@ -16,6 +16,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PopulationService
 {
+    protected $shelterService;
+    public function __construct(ShelterService $shelterService)
+    {
+        $this->shelterService = $shelterService;
+    }
+
     #[QueryParameter('per_page', description: 'ส่งจำนวนข้อมูลที่ต้องการต่อหน้า', type: 'string', example: '3')]
     #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "มาม่า")]
     #[QueryParameter('unit_id', description: 'ค้นหาตามหน่วย ดึงหน่วยจาก api unit.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/unit.index', type: 'string', example: "1")]
@@ -45,11 +51,11 @@ class PopulationService
     public function create(array $data): Population
     {
         if (isset($data['shelter_id']) && $data['shelter_id']) {
-            if ($this->isShelterMax($data['shelter_id'])) {
+            if ($this->shelterService->isShelterMax($data['shelter_id'])) {
                 throw new BadRequestHttpException(__('error.shelter.full'));
             }
 
-            if (!$this->isShelterOpen($data['shelter_id'])) {
+            if (!$this->shelterService->isShelterOpen($data['shelter_id'])) {
                 throw new BadRequestHttpException(__('error.shelter.closed'));
             }
         }
@@ -78,11 +84,12 @@ class PopulationService
     public function update(Population $population, array $data): Population
     {
         if (isset($data['shelter_id']) && $data['shelter_id']) {
-            if ($this->isShelterMax($data['shelter_id'], $population->id)) {
+            if ($this->shelterService->isShelterMax($data['shelter_id'], $population->id)) {
                 throw new BadRequestHttpException(__('error.shelter.full'));
             }
 
-            if (!$this->isShelterOpen($data['shelter_id'])) {
+            // Check if the shelter is open. If it is not, the data cannot be updated
+            if (!$this->shelterService->isShelterOpen($data['shelter_id'])) {
                 throw new BadRequestHttpException(__('error.shelter.closed'));
             }
         }
@@ -129,28 +136,6 @@ class PopulationService
             ->with('permanentAddress', 'currentAddress', 'prefix', 'shelter')
             ->first();
         return $user ? new PopulationShowResource($user) : false;
-    }
-
-    public function isShelterClear($id): bool
-    {
-        return Population::where('shelter_id', $id)->count() === 0;
-    }
-
-    public function isShelterMax($id, $populationId = null): bool
-    {
-        $shelter = Shelter::find($id);
-        $populationQuery = Population::where('shelter_id', $id);
-        if ($populationId) {
-            $populationQuery->where('id', '!=', $populationId);
-        }
-        $populationCount = $populationQuery->count();
-        return $populationCount >= $shelter->max_capacity;
-    }
-
-    public function isShelterOpen($id): bool
-    {
-        $shelter = Shelter::find($id);
-        return $shelter->status == Shelter::OPEN ? true : false;
     }
 
     public function addExternalPopulation()

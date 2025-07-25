@@ -109,7 +109,7 @@ return [
             ]
         ],
         'deleted' => [
-            'title' => 'นัดหมายตรวจเยี่ยม ใหม่',
+            'title' => 'นัดหมายตรวจเยี่ยม ถูกยกเลิก',
             'message' => [
                 ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{appointment_date} #{shift} กับ ทีมเจ้าหน้าที่'],
                 ['type' => 'bold', 'content' => '#{team}'],

@@ -18,10 +18,10 @@ class TeamResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'leader' =>  $this->when($this->relationLoaded('leader'),fn() => new MemberResource($this->leader, $this->name)),
-            'total_members' => $this->when($this->relationLoaded('allUsers'),fn() => $this->allUsers->count()),
-            'members' => $this->when($this->relationLoaded('members'), new MemberCollection($this->members, $this->name)),
-            'all_members' => $this->when($this->relationLoaded('allUsers'), new MemberCollection($this->allUsers, $this->name)),
+            'leader' =>  $this->when($this->relationLoaded('leader'), fn() => new MemberResource($this->leader, $this->name)),
+            'total_members' => $this->when($this->relationLoaded('allUsers'), fn() => $this->allUsers->count()),
+            'all_members' => $this->when($this->relationLoaded('allUsers'), fn() => new MemberCollection($this->allUsers, $this->name)),
+            'members' => $this->when($this->relationLoaded('members'), fn() => new MemberCollection($this->members, $this->name)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
