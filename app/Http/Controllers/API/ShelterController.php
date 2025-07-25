@@ -2,47 +2,26 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Enums\ActionType;
 use App\Enums\DamagedUtility as EnumsDamagedUtility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Shelter\CreateShelterRequest;
 use App\Http\Requests\Shelter\UpdateShelterRequest;
 use App\Http\Responses\ApiResponse;
-use App\Http\Utility\LinePostUtility;
 use App\Models\DamagedUtility;
 use App\Models\Shelter;
-use App\Models\TransferHistory;
-use App\Services\AppointmentService;
-use App\Services\ImageService;
-use App\Services\NotificationService;
-use App\Services\PopulationService;
 use App\Services\ShelterService;
-use App\Services\ShelterStaffService;
-use App\Services\TransferHistoryService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 
 class ShelterController extends Controller
 {
-    protected $shelterService, $imageService, $populationService, $transferLogService, $staffServeice, $appointmentService, $notificationService;
+    protected $shelterService;
 
     public function __construct(
         ShelterService $shelterService,
-        ImageService $imageService,
-        PopulationService $populationService,
-        TransferHistoryService $transferLogService,
-        ShelterStaffService $staffServeice,
-        AppointmentService $appointmentService,
-        NotificationService $notificationService
     ) {
         $this->shelterService = $shelterService;
-        $this->imageService = $imageService;
-        $this->populationService = $populationService;
-        $this->transferLogService = $transferLogService;
-        $this->staffServeice = $staffServeice;
-        $this->appointmentService = $appointmentService;
-        $this->notificationService = $notificationService;
     }
 
     /**
@@ -79,23 +58,7 @@ class ShelterController extends Controller
     public function update(UpdateShelterRequest $request, Shelter $shelter)
     {
         // Update only status
-        if (isset($request->status)) {
-            if ((int) $request->status === Shelter::CLOSED) {
-                $this->populationService->updateByShelter(['shelter_id' => $shelter->id]);
-                $this->appointmentService->deleteUpcomingAppointment(['shelter_id' => $shelter->id]);
-                // Send a closed shelter notification
-                $notification = $this->notificationService->createNotification('shelter.closed', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
-                $this->notificationService->sendToAllUsers($notification);
-                (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_end);
-            }
-
-            if ((int) $request->status === Shelter::OPEN) {
-                // Send an opened shelter notification
-                $notification = $this->notificationService->createNotification('shelter.opened', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
-                $this->notificationService->sendToAllUsers($notification);
-                (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_post);
-            }
-
+        if ($request->has('status') && count($request->all()) === 1) {
             $data = $this->shelterService->update($shelter, $request->only('status'));
             return ApiResponse::successResponse($data->status == Shelter::OPEN ? __('success.shelter.active') : __('success.shelter.inactive'), $data);
         }
@@ -111,8 +74,7 @@ class ShelterController extends Controller
             return ApiResponse::errorResponse(__('error.shelter.limit'));
         }
 
-        $data = $this->shelterService->update($shelter, $request->all());
-        $data->image = $this->imageService->updateImage($request->image, Shelter::IMAGE_FOLDER, Shelter::class, $data->id);
+        $data = $this->shelterService->update($shelter, $request->all(), true);
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 

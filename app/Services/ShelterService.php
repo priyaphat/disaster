@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Enums\DamagedUtility;
 use App\Enums\ShelterUtilities;
+use App\Http\Controllers\API\LineController;
 use App\Http\Resources\ShelterResource;
 use App\Http\Utility\PaginateUtility;
-use App\Models\AppointmentLog;
 use App\Models\DamagedUtility as ModelsDamagedUtility;
 use App\Models\Population;
 use App\Models\Shelter;
@@ -51,9 +51,36 @@ class ShelterService
         return $shelter;
     }
 
-    public function update(Shelter $shelter, array $data): Shelter
+    public function update(Shelter $shelter, array $data, $updateImage = false): Shelter
     {
+        // Create an instance of notification
+        $notificationService = app(NotificationService::class);
+
         $shelter->update($data);
+        $shelter->refresh();
+
+        if ($shelter->wasChanged('status')) {
+            if ($shelter->status === Shelter::CLOSED) {
+                app(PopulationService::class)->updateByShelter(['shelter_id' => $shelter->id]);
+                app(AppointmentService::class)->deleteUpcomingAppointment(['shelter_id' => $shelter->id]);
+                // Send a closed shelter notification
+                $notification = $notificationService->createNotification('shelter.closed', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
+                $notificationService->sendToAllUsers($notification);
+                (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_end);
+            }
+
+            if ($shelter->status === Shelter::OPEN) {
+                // Send an opened shelter notification
+                $notification = $notificationService->createNotification('shelter.opened', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
+                $notificationService->sendToAllUsers($notification);
+                (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_post);
+            }
+        }
+
+        if ($updateImage) {
+            $shelter->image = app(ImageService::class)->updateImage($data['image'] ?? null, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
+        }
+
         return $shelter;
     }
 

@@ -14,12 +14,6 @@ use Illuminate\Support\Str;
 
 class AppointmentService
 {
-    protected $notificationService, $shelterService;
-    public function __construct(NotificationService $notificationService, ShelterService $shelterService)
-    {
-        $this->notificationService = $notificationService;
-        $this->shelterService = $shelterService;
-    }
     /**
      * Get all Appointmentes with filter and limit number.
      */
@@ -178,7 +172,7 @@ class AppointmentService
         }
 
         // Check if the shelter is open. If it is not, the data cannot be created
-        $isShelterOpen = $this->shelterService->isShelterOpen($data['shelter_id']);
+        $isShelterOpen = app(ShelterService::class)->isShelterOpen($data['shelter_id']);
         if (!$isShelterOpen) {
             throw new BadRequestHttpException(__('error.shelter.closed'));
         }
@@ -221,7 +215,7 @@ class AppointmentService
         }
 
         // Check if the shelter is open. If it is not, the data cannot be updated
-        $isShelterOpen = $this->shelterService->isShelterOpen($data['shelter_id']);
+        $isShelterOpen = app(ShelterService::class)->isShelterOpen($data['shelter_id']);
         if (!$isShelterOpen) {
             throw new BadRequestHttpException(__('error.shelter.closed'));
         }
@@ -231,14 +225,14 @@ class AppointmentService
             $appointment = $this->getById($appointment->id);
             $appointment->update($newShifts[0]);
             $appointment->refresh();
-            $this->notify($appointment, 'appointment.updated', $oldAppointment); // อับเดต 1 กะ ไหน ก็ได้
+            $this->notify($appointment, $oldAppointment, 'appointment.updated'); // อับเดต 1 กะ ไหน ก็ได้
         } else {
             foreach ($newShifts as $shift) {
                 if ($shift['shift'] === $appointment->shift) {
                     $appointment = $this->getById($appointment['id']);
                     $appointment->update($shift);
                     $appointment->refresh();
-                    $this->notify($appointment, 'appointment.updated', $oldAppointment); // อับเดต 2 กะ แต่มี แค่เปลี่ยน
+                    $this->notify($appointment, $oldAppointment, 'appointment.updated'); // อับเดต 2 กะ แต่มี แค่เปลี่ยน
                 } else {
                     $appointment = Appointment::create([
                         'appointment_date' => $data['appointment_date'],
@@ -248,7 +242,7 @@ class AppointmentService
                         'shelter_id' => $data['shelter_id'],
                         'team_id' => $data['team_id']
                     ]);
-                    $this->notify($appointment, 'appointment.updated', $oldAppointment); // อับเดต 2 กะ ไม่มีเพิ่มมา
+                    $this->notify($appointment, $oldAppointment, 'appointment.updated'); // อับเดต 2 กะ ไม่มีเพิ่มมา
                 }
             }
         }
@@ -276,7 +270,7 @@ class AppointmentService
      */
     public function isTimePast(array $data, $old = null)
     {
-        $now = Carbon::now();
+        $now = Carbon::now()->second(0)->millisecond(0);
         $startTime = Carbon::parse($data['appointment_date'] . ' ' . $data['start_time']);
         $endTime = Carbon::parse($data['appointment_date'] . ' ' . $data['end_time']);
 
@@ -285,21 +279,25 @@ class AppointmentService
             $newDate = Carbon::parse($data['appointment_date'])->format('Y-m-d');
             if ($startTime->isToday() && $oldDate === $newDate) {
                 if ($startTime->lessThan($now)) {
+                    error_log('today start time');
                     if ($data['start_time'] !== $old['start_time']) {
                         return true;
                     }
                 }
 
                 if ($endTime->lessThan($now)) {
+                     error_log('today end time');
                     return true;
                 }
             } else {
                 if ($now->greaterThan($startTime) || $now->greaterThan($endTime)) {
+                     error_log('today start end time');
                     return true;
                 }
             }
         } else {
             if ($now->greaterThan($startTime) || $now->greaterThan($endTime)) {
+                 error_log('another day');
                 return true;
             }
         }
@@ -431,6 +429,7 @@ class AppointmentService
      */
     public function notify(Appointment $appointment, ?Appointment $oldAppointment = null, ?string $notifyType = null): void
     {
+        $notificationService = app(NotificationService::class);
         // อัปเดต
         if ($oldAppointment) {
             $shelterChanged = $appointment->shelter_id !== $oldAppointment->shelter_id;
@@ -440,8 +439,8 @@ class AppointmentService
             if ($shelterChanged && $teamChanged) {
 
                 // สร้างยกเลิก notification
-                $notifyAppointmentCenceled = $this->notificationService->createNotification(
-                    'appointment.cancel',
+                $notifyAppointmentCenceled = $notificationService->createNotification(
+                    'appointment.deleted',
                     [
                         'appointment_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
                         'shift' => $oldAppointment->shift->label(),
@@ -453,7 +452,7 @@ class AppointmentService
                 );
 
                 // สร้างนัดหมาย notification
-                $notifyAppointmentCreated = $this->notificationService->createNotification(
+                $notifyAppointmentCreated = $notificationService->createNotification(
                     'appointment.created',
                     [
                         'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
@@ -465,17 +464,17 @@ class AppointmentService
                     true
                 );
 
-                $this->notificationService->sendToStaff($notifyAppointmentCenceled, $oldAppointment->shelter_id);
-                $this->notificationService->sendToStaff($notifyAppointmentCreated, $appointment->shelter_id);
-                $this->notificationService->sendToTeam($notifyAppointmentCenceled, $oldAppointment->shelter_id);
-                $this->notificationService->sendToTeam($notifyAppointmentCreated, $appointment->shelter_id);
+                $notificationService->sendToStaff($notifyAppointmentCenceled, $oldAppointment->shelter_id);
+                $notificationService->sendToStaff($notifyAppointmentCreated, $appointment->shelter_id);
+                $notificationService->sendToTeam($notifyAppointmentCenceled, $oldAppointment->shelter_id);
+                $notificationService->sendToTeam($notifyAppointmentCreated, $appointment->shelter_id);
             }
             // ถ้าทีมถูกเปลี่ยน และ shelter ถูกเปลี่ยน
             else if ($shelterChanged && !$teamChanged) {
 
                 // สร้างยกเลิก notification
-                $notifyAppointmentCenceled = $this->notificationService->createNotification(
-                    'appointment.cancel',
+                $notifyAppointmentCenceled = $notificationService->createNotification(
+                    'appointment.deleted',
                     [
                         'appointment_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
                         'shift' => $oldAppointment->shift->label(),
@@ -487,7 +486,7 @@ class AppointmentService
                 );
 
                 // สร้างนัดหมาย notification
-                $notifyAppointmentCreated = $this->notificationService->createNotification(
+                $notifyAppointmentCreated = $notificationService->createNotification(
                     'appointment.created',
                     [
                         'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
@@ -500,7 +499,7 @@ class AppointmentService
                 );
 
                 // สร้างอัปเดต notification
-                $notifyAppointmentUpdated = $this->notificationService->createNotification(
+                $notifyAppointmentUpdated = $notificationService->createNotification(
                     'appointment.updated',
                     [
                         'old_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
@@ -515,14 +514,14 @@ class AppointmentService
                     true
                 );
 
-                $this->notificationService->sendToStaff($notifyAppointmentCenceled, $oldAppointment->shelter_id);
-                $this->notificationService->sendToStaff($notifyAppointmentCreated, $appointment->shelter_id);
-                $this->notificationService->sendToTeam($notifyAppointmentUpdated, $appointment->team_id);
+                $notificationService->sendToStaff($notifyAppointmentCenceled, $oldAppointment->shelter_id);
+                $notificationService->sendToStaff($notifyAppointmentCreated, $appointment->shelter_id);
+                $notificationService->sendToTeam($notifyAppointmentUpdated, $appointment->team_id);
             } else if (!$shelterChanged && $teamChanged) {
 
                 // สร้างยกเลิก notification
-                $notifyAppointmentCanceled = $this->notificationService->createNotification(
-                    'appointment.cancel',
+                $notifyAppointmentCanceled = $notificationService->createNotification(
+                    'appointment.deleted',
                     [
                         'appointment_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
                         'shift' => $oldAppointment->shift->label(),
@@ -534,7 +533,7 @@ class AppointmentService
                 );
 
                 // สร้างนัดหมาย notification
-                $notifyAppointmentCreated = $this->notificationService->createNotification(
+                $notifyAppointmentCreated = $notificationService->createNotification(
                     'appointment.created',
                     [
                         'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
@@ -547,7 +546,7 @@ class AppointmentService
                 );
 
                 // สร้างอัปเดต notification
-                $notifyAppointmentUpdated = $this->notificationService->createNotification(
+                $notifyAppointmentUpdated = $notificationService->createNotification(
                     'appointment.updated',
                     [
                         'old_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
@@ -562,11 +561,11 @@ class AppointmentService
                     true
                 );
 
-                $this->notificationService->sendToTeam($notifyAppointmentCanceled, $oldAppointment->team_id);
-                $this->notificationService->sendToTeam($notifyAppointmentCreated, $appointment->team_id);
-                $this->notificationService->sendToStaff($notifyAppointmentUpdated, $appointment->shelter_id);
+                $notificationService->sendToTeam($notifyAppointmentCanceled, $oldAppointment->team_id);
+                $notificationService->sendToTeam($notifyAppointmentCreated, $appointment->team_id);
+                $notificationService->sendToStaff($notifyAppointmentUpdated, $appointment->shelter_id);
             } else {
-                $updateNotification = $this->notificationService->createNotification(
+                $updateNotification = $notificationService->createNotification(
                     'appointment.updated',
                     [
                         'old_date' => $oldAppointment->appointment_date->thaidate('j M Y'),
@@ -580,12 +579,12 @@ class AppointmentService
                     Appointment::class,
                     true
                 );
-                $this->notificationService->sendToStaff($updateNotification, $appointment->shelter_id);
-                $this->notificationService->sendToTeam($updateNotification, $appointment->team_id);
+                $notificationService->sendToStaff($updateNotification, $appointment->shelter_id);
+                $notificationService->sendToTeam($updateNotification, $appointment->team_id);
             }
         } else {
 
-            $newNotification = $this->notificationService->createNotification(
+            $newNotification = $notificationService->createNotification(
                 $notifyType,
                 [
                     'appointment_date' => $appointment->appointment_date->thaidate('j M Y'),
@@ -597,8 +596,8 @@ class AppointmentService
                 true
             );
 
-            $this->notificationService->sendToStaff($newNotification, $appointment->shelter_id);
-            $this->notificationService->sendToTeam($newNotification, $appointment->team_id);
+            $notificationService->sendToStaff($newNotification, $appointment->shelter_id);
+            $notificationService->sendToTeam($newNotification, $appointment->team_id);
         }
     }
 }

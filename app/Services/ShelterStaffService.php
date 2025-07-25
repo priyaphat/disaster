@@ -14,9 +14,6 @@ class ShelterStaffService
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
         $query = ShelterStaff::query();
-        if (!empty($filters['search'])) {
-            $query->whereAny(['firstname', 'lastname'], 'LIKE', '%' . $filters['search'] . '%');
-        }
 
         $position = $filters['position_id'] ?? null;
         $shelter_position = $filters['shelter_position_id'] ?? null;
@@ -41,7 +38,12 @@ class ShelterStaffService
             $query->orderBy('created_at', $sort);
         }
 
-        $query = $query->with('user.prefix:id,name', 'user.position:id,name', 'user.department:id,name', 'shelterPosition');
+        $query = $query->with('user.prefix:id,name', 'user.position:id,name', 'user.department:id,name', 'shelterPosition')
+            ->whereHas('user', function ($subQuery) use ($filters) {
+                if(isset($filters['search'])){
+                    $subQuery->whereAny(['firstname', 'lastname'], 'LIKE', '%' . $filters['search'] . '%');
+                }
+            });
 
         if (!$paginate) {
             return ShelterStaffResource::collection($query->get());

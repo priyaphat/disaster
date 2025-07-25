@@ -39,7 +39,11 @@ services:
         ports:
             - "8888:80"
         environment:
-            - PMA_HOST=db
+            - PMA_HOST=${DB_HOST}
+            - PMA_PORT=25060
+            - MYSQL_USER=${DB_USERNAME}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
         networks:
             - disaster
 

@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'default' => [
+        'title' => 'ทดสอบแจ้งเตือน',
+        'message' => [
+            ['type' => 'text', 'content' => 'ทดสอบแจ้งเตือน'],
+        ]
+    ],
     'disaster' => [
         'created' => [
             'title' => 'ประกาศภัยพิบัติ',
@@ -60,6 +66,22 @@ return [
                 ['type' => 'text', 'content' => '#{product} (#{unit})'],
                 ['type' => 'text', 'content' => 'คงเหลือ'],
                 ['type' => 'text', 'content' => '#{total}'],
+            ]
+        ]
+    ],
+    'shelter_staff' => [
+        'tranfer' => [
+            'title' => 'ถูกย้ายเข้าสู่ศูนย์พักพิง',
+            'message' => [
+                ['type' => 'text', 'content' => 'คุณถูกย้ายเข้าสู่ศูนย์พักพิง'],
+                ['type' => 'bold', 'content' => '#{name}'],
+            ]
+        ],
+        'leave' => [
+            'title' => 'ถูกนำออกจากศูนย์พักพิง',
+            'message' => [
+                ['type' => 'text', 'content' => 'คุณถูกนำออกจากศูนย์พักพิง'],
+                ['type' => 'bold', 'content' => '#{name}'],
             ]
         ]
     ],
@@ -230,5 +252,5 @@ return [
                 ['type' => 'text', 'content' => 'ถูกแต่งตั้งเป็นหัวหน้าทีมใหม่'],
             ]
         ],
-    ]
+    ],
 ];

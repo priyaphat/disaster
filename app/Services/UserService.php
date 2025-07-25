@@ -23,10 +23,9 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class UserService
 {
-    protected $notificationService, $imageService;
-    public function __construct(NotificationService $notificationService, ImageService $imageService)
+    protected $imageService;
+    public function __construct(ImageService $imageService)
     {
-        $this->notificationService = $notificationService;
         $this->imageService = $imageService;
     }
 
@@ -89,8 +88,9 @@ class UserService
         // Send line
         (new LineController)->LineNotification(null, LineController::User_register);
         // Send a register notification
-        $notification = $this->notificationService->createNotification('user.register', ['name' => $user->fullname], $user->id, User::class, true);
-        $this->notificationService->sendToCenterStaff($notification);
+        $notificationService = app(NotificationService::class);
+        $notification = $notificationService->createNotification('user.register', ['name' => $user->fullname], $user->id, User::class, true);
+        $notificationService->sendToCenterStaff($notification);
         return $user;
     }
 

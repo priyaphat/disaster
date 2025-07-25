@@ -97,7 +97,7 @@ class NotificationService
 
     public function sendToSelfUser($notification, $userId)
     {
-        $user = User::find($userId);
+        $user = User::where('id', $userId)->get();
         BroadcastNotification::dispatch($user, $notification);
     }
 

@@ -13,12 +13,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TeamService
 {
-    protected $appointmentService, $notificationService;
-    public function __construct(AppointmentService $appointmentService, NotificationService $notificationService)
-    {
-        $this->appointmentService = $appointmentService;
-        $this->notificationService = $notificationService;
-    }
     /**
      * Get all Teames with filter and limit number.
      */
@@ -98,8 +92,9 @@ class TeamService
 
         // Send Leader updated notification
         if ($oldLeader != $newLeader) {
-            $notification = $this->notificationService->createNotification('team.updated_leader', ['name' => $team->leader->fullname ?? null,], $team->id, Team::class, false);
-            $this->notificationService->sendToTeamMember($notification, $team->id);
+            $notificationService = app(NotificationService::class);
+            $notification = $notificationService->createNotification('team.updated_leader', ['name' => $team->leader->fullname ?? null,], $team->id, Team::class, false);
+            $notificationService->sendToTeamMember($notification, $team->id);
         }
         return $team;
     }
@@ -110,7 +105,7 @@ class TeamService
     public function delete(Team $team): bool
     {
         // Save team log before delete
-        $this->appointmentService->deleteUpcomingAppointment(['team_id' => $team->id]);
+        app(AppointmentService::class)->deleteUpcomingAppointment(['team_id' => $team->id]);
         $team->team_members->each->delete();
         return $team->delete();
     }
