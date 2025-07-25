@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\SmogStatus;
+use App\Http\Controllers\API\LineController;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\LinePostUtility;
 use App\Http\Utility\PaginateUtility;
 use App\Models\Disaster;
 use App\Models\DisasterEarthquake;
@@ -170,6 +173,12 @@ class DisasterService
         $model->type = $type;
         $model->model = $other;
         $model->save();
+
+        // if ($model->type == 1) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m1, $data);
+        // else if ($model->type == 2) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m2, $data);
+        // else if ($model->type == 3) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m3, $data);
+        // else if ($model->type == 4) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m4, $data);
+
         return $model;
     }
 
@@ -202,6 +211,10 @@ class DisasterService
                 $q->where('source', 'like', "%$req->search%")
             );
         $data = $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
+        $data->transform(function ($item) {
+            $item->status_name = SmogStatus::tryFrom($item->status)?->label();
+            return $item;
+        });
         if ($id) return $data[0];
         return PaginateUtility::Paginate($data, $req->paginate ?? 10);
     }

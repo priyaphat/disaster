@@ -34,6 +34,14 @@ class LinePostUtility
                 ];
             }
 
+            if (in_array($form, [
+                LineController::Disaster_wildfire_m2,
+                LineController::Disaster_wildfire_m3,
+                LineController::Disaster_wildfire_m4
+            ])) {
+                $data = $data['model'];
+            }
+
             return (new LineController)->LineNotification($data, $form, self::$user);
         }
     }

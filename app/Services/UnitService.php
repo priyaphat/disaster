@@ -3,19 +3,26 @@
 namespace App\Services;
 
 use App\Models\Unit;
+use App\Services\SearchService;
 
 class UnitService
 {
+
+    protected $search;
+
+    public function __construct(SearchService $search)
+    {
+        $this->search = $search;
+    }
     public function index(array $filters = [])
     {
-        return Unit::all();
+        $query = Unit::query();
+        return $this->search->search($query, $filters, 'get');
     }
 
     public function create(array $data): Unit
     {
-        $unit = Unit::create(['name' => $data['name']]);
-
-        return $unit;
+        return Unit::create($data);
     }
 
     public function update(Unit $unit, array $data): Unit

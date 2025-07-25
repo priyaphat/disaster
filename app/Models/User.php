@@ -144,6 +144,6 @@ class User extends Authenticatable
      */
     protected function getFullNameAttribute()
     {
-        return $this->prefix->name.' '.$this->firstname.' '.$this->lastname;
+        return ($this->prefix->name ?? null) . ' ' . $this->firstname . ' ' . $this->lastname;
     }
 }

@@ -25,4 +25,11 @@ class CreateUnitRequest extends FormRequest
             'name' => 'required|string|max:255|unique:units,name',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.unique' => __('validation.custom.unit.name'),
+        ];
+    }
 }

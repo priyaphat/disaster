@@ -10,6 +10,7 @@ use App\Http\Requests\DisasterRequest;
 use App\Models\DisasterFlood;
 use App\Enums\FloodStatus;
 use App\Enums\SmogStatus;
+use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterEarthquake;
 use App\Models\DisasterLandslide;
 use App\Models\DisasterSmog;
@@ -93,9 +94,8 @@ class DisasterController extends Controller
      */
     public function dst_eq_update(DisasterRequest $request, DisasterEarthquake $earthquake)
     {
-        // $request['updated_by'] = Auth::id();
-        // return $request->all();
         $earthquake->update($request->all());
+        // LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $earthquake);
     }
 
@@ -128,6 +128,7 @@ class DisasterController extends Controller
     public function dst_fl_update(DisasterRequest $request, DisasterFlood $flood)
     {
         $flood->update($request->all());
+        // LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $flood);
     }
 
@@ -142,12 +143,13 @@ class DisasterController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    /**
+    /** 
      * Disaster | สร้าง landslide
      */
     public function dst_ls_create(DisasterRequest $request)
     {
         $data = $this->disasterService->ls_create($request);
+        // LinePostUtility::line_oa_call(LineController::Disaster_land slide, $data->toArray()); 
         return ApiResponse::successResponse(__('success.sys_created'), $data);
     }
 
@@ -220,6 +222,7 @@ class DisasterController extends Controller
     public function dst_sm_update(DisasterRequest $request, DisasterSmog $smog)
     {
         $smog->update($request->all());
+        // LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog);
         return  ApiResponse::successResponse(__('success.data'), $smog);
     }
 }

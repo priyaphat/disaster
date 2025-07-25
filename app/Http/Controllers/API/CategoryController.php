@@ -4,10 +4,13 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\CreateCategoryRequest;
+use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Category;
+use App\Models\Product;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
+use Spatie\FlareClient\Api;
 
 class CategoryController extends Controller
 {
@@ -18,27 +21,30 @@ class CategoryController extends Controller
         $this->categoryService = $categoryService;
     }
 
-    public function index()
+    public function index(Request $filter)
     {
-        $data = $this->categoryService->index();
+        $data = $this->categoryService->index($filter);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
-    
+
     public function store(CreateCategoryRequest $request)
     {
         $data = $this->categoryService->create($request->all());
-        return ApiResponse::createdResponse(__('success.data'), $data);
+        return ApiResponse::createdResponse(__('success.categories.created'), $data);
     }
 
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
         $data = $this->categoryService->update($category, $request->all());
-        return ApiResponse::successResponse(__('success.updated'), $data);
+        return ApiResponse::successResponse(__('success.categories.updated'), $data);
     }
-    
+
     public function destroy(Category $category)
     {
+        if (Product::where('category_id', $category->id)->first()) {
+            return ApiResponse::errorResponse(__('error.sql.fk-constraint'));
+        }
         $category->delete();
-        return ApiResponse::successResponse(__('success.deleted'));
+        return ApiResponse::successResponse(__('success.categories.deleted'));
     }
 }

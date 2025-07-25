@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\CreateProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\ProductUtility;
 use App\Models\Product;
+use App\Models\Shelter;
+use App\Models\ShelterProduct;
 use App\Services\ImageService;
 use App\Services\ProductService;
 use Dedoc\Scramble\Attributes\PathParameter;
@@ -44,7 +47,7 @@ class ProductController extends Controller
     {
         $data = $this->productService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
-        return ApiResponse::createdResponse(__('success.created'), $data);
+        return ApiResponse::createdResponse(__('success.product.created'), $data);
     }
 
     /**
@@ -53,7 +56,8 @@ class ProductController extends Controller
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function show(Product $product)
     {
-        $product->image = $this->imageService->getByTableAndId(Product::class, $product->id);
+        $image = $this->imageService->getByTableAndId(Product::class, $product->id);
+        $product->image = $image ? $image['image_path'] : null;
         return ApiResponse::successResponse(__('success.data'), $product);
     }
 
@@ -63,9 +67,16 @@ class ProductController extends Controller
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function update(UpdateProductRequest $request, Product $product)
     {
+        if ($request['status'] != $product['status']) { // status
+            if ($request['status'] == Product::Inactive) {
+                if (ShelterProduct::where('product_id', $product->id)->first()) return ApiResponse::errorResponse(__('error.sql.fk-constraint'));
+            }
+            $product->update($request->all());
+            return ApiResponse::successResponse($product->status == Product::Active ? __('success.product.toggle_open') : __('success.product.toggle_close'), $product);
+        }
         $data = $this->productService->update($product, $request->all());
         $data->image = $this->imageService->updateImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
-        return ApiResponse::successResponse(__('success.data'), $data);
+        return ApiResponse::successResponse(__('success.product.updated'), $data);
     }
 
     /**
@@ -74,7 +85,25 @@ class ProductController extends Controller
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function destroy(Product $product)
     {
+        if (ShelterProduct::where('product_id', $product->id)->first()) return ApiResponse::errorResponse(__('error.sql.fk-constraint'));
         $product->delete();
-        return ApiResponse::successResponse(__('success.data'));
+        $image = $this->imageService->getByTableAndId(Product::class, $product->id);
+        if ($image) {
+            $image->delete();
+        }
+        return ApiResponse::successResponse(__('success.product.deleted'));
+    }
+
+    public function yourShelter($res = true)
+    {
+        $shelter = ProductUtility::getShelter();
+        if ($shelter == 0) {
+            $shelter = ['shelter_name' => 'ศูนย์กลาง'];
+        } else {
+            $shelter = Shelter::find($shelter)->value('name');
+        }
+
+        if ($res) return ApiResponse::successResponse(__('success.data'), $shelter);
+        return $shelter;
     }
 }

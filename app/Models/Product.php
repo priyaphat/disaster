@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Casts\ThaiDateTimeFormat;
 use App\Filters\ProductFilter;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -14,15 +13,17 @@ class Product extends Model
     use LogsActivity;
 
     public const IMAGE_FOLDER = 'product';
-    public const NO_QUANTITY = 1;
+    public const Active = 1;
+    public const Inactive = 0;
+    public const Not_unit = 1;
+    public const Is_unit = 2;
 
     protected $fillable = [
         'name',
         'unit_id',
         'category_id',
         'detail',
-        'quantity',
-        'no_quantity',
+        'unit_type',
         'status'
     ];
 

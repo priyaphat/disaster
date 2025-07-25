@@ -28,7 +28,7 @@ class DisasterWildfire extends Model
     public function getCreatedByAttribute($value)
     {
         // if ($value) { //ทำไม ตอน save ถึงทำงาน
-            return optional(User::selectRaw("concat(firstname, ' ', lastname) as fullname")->find($value))->fullname;
+        return optional(User::selectRaw("concat(firstname, ' ', lastname) as fullname")->find($value))->fullname ?? null;
         // }
     }
 }

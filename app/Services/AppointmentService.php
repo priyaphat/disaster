@@ -231,14 +231,14 @@ class AppointmentService
             $appointment = $this->getById($appointment->id);
             $appointment->update($newShifts[0]);
             $appointment->refresh();
-            $this->notify($appointment, $oldAppointment);
+            $this->notify($appointment, 'appointment.updated', $oldAppointment); // อับเดต 1 กะ ไหน ก็ได้
         } else {
             foreach ($newShifts as $shift) {
                 if ($shift['shift'] === $appointment->shift) {
                     $appointment = $this->getById($appointment['id']);
                     $appointment->update($shift);
                     $appointment->refresh();
-                    $this->notify($appointment, $oldAppointment, 'appointment.updated');
+                    $this->notify($appointment, 'appointment.updated', $oldAppointment); // อับเดต 2 กะ แต่มี แค่เปลี่ยน
                 } else {
                     $appointment = Appointment::create([
                         'appointment_date' => $data['appointment_date'],
@@ -248,7 +248,7 @@ class AppointmentService
                         'shelter_id' => $data['shelter_id'],
                         'team_id' => $data['team_id']
                     ]);
-                    $this->notify($appointment, $oldAppointment, 'appointment.updated');
+                    $this->notify($appointment, 'appointment.updated', $oldAppointment); // อับเดต 2 กะ ไม่มีเพิ่มมา
                 }
             }
         }
