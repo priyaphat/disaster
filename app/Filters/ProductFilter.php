@@ -8,21 +8,21 @@ class ProductFilter extends QueryFilter
 {
     public function search($keyword)
     {
-        return $this->builder->whereAny(['name'], 'LIKE', '%' . $keyword . '%');
+        if ($keyword) return $this->builder->whereAny(['products.name'], 'LIKE', '%' . $keyword . '%');
     }
 
     public function unit_id($value)
     {
-        return $this->builder->where('unit_id', $value);
+        if ($value)  return $this->builder->where('products.unit_id', $value);
     }
 
     public function category_id($value)
     {
-        return $this->builder->where('category_id', $value);
+        if ($value)  return $this->builder->where('products.category_id', $value);
     }
 
     public function sort($value)
     {
-        return $this->builder->orderBy('created_at', $value === 'asc' ? 'asc' : 'desc');
+        if ($value) return $this->builder->orderBy('products.created_at', $value === 'asc' ? 'asc' : 'desc');
     }
 }

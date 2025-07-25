@@ -9,6 +9,9 @@ class SearchService
         if (!empty($filters['name'])) {
             $query->where('name', 'like', '%' . $filters['name'] . '%');
         }
+        if (!empty($filters['search'])) {
+            $query->where('name', 'like', '%' . $filters['search'] . '%');
+        }
         if (!empty($filters['id'])) {
             $queryby = 'first';
             $query->where('id', $filters['id']);

@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
 use Spatie\FlareClient\Api;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CategoryController extends Controller
 {
@@ -42,7 +43,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         if (Product::where('category_id', $category->id)->first()) {
-            return ApiResponse::errorResponse(__('error.sql.fk-constraint'));
+            throw new BadRequestHttpException(__('error.sql.fk-constraint'));
         }
         $category->delete();
         return ApiResponse::successResponse(__('success.categories.deleted'));
