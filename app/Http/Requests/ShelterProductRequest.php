@@ -24,8 +24,7 @@ class ShelterProductRequest extends FormRequest
     protected function storeRules(): array
     {
         return [
-            'product_id' => 'required|unique:products,id',
-            'shelter_id' => 'required|unique:shelters,id',
+            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|numeric|min:0',
         ];
     }

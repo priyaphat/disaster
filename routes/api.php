@@ -29,9 +29,11 @@ use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ProductTransferController;
 use App\Http\Controllers\API\ShelterPositionController;
+use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
+use App\Models\ShelterProduct;
 use Illuminate\Support\Facades\Route;
 
 
@@ -244,6 +246,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/product', [ProductController::class, 'index']);
     Route::get('/product/{product}', [ProductController::class, 'show']);
     Route::get('/product-shlter-self', [ProductController::class, 'yourShelter']);
+    Route::post('/product-quantity/{id}', [ProductController::class, 'quantity']);
     Route::post('/product', [ProductController::class, 'store']);
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
@@ -253,9 +256,11 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display products shelter
     |--------------------------------------------------------------------------
     */
-    // Route::get('/product', [ProductController::class, 'index']);
-    // Route::get('/product/{product}', [ProductController::class, 'show']);
-    Route::post('/product-shelter', [ProductController::class, 'store']);
+    Route::get('/shelter-product', [ShelterProductController::class, 'index']);
+    Route::get('/shelter-all-transfer', [ShelterProductController::class, 'transfer']);
+    Route::get('/shelter-all-delete', [ShelterProductController::class, 'delete']);
+    Route::get('/shelter-product-excep', [ShelterProductController::class, 'productException']);
+    Route::post('/shelter-product', [ShelterProductController::class, 'store']);
     // Route::post('/product/{product}', [ProductController::class, 'update']);
     // Route::delete('/product/{product}', [ProductController::class, 'destroy']);
 
@@ -266,6 +271,7 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/transfer-shelter-list', [ProductTransferController::class, 'shelterList']);
     Route::get('/transfer-product-list', [ProductTransferController::class, 'productList']);
+    Route::get('/transfer-product-logs', [ProductTransferController::class, 'productLog']);
     Route::post('/transfer-product', [ProductTransferController::class, 'store']);
 
     /*
@@ -274,8 +280,9 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/product-request', [ProductRequestController::class, 'index']);
+    Route::get('/product-request-log', [ProductRequestController::class, 'requestLog']);
     Route::post('/product-request', [ProductRequestController::class, 'store']);
-    Route::post('/product-request/{product_req}', [ProductRequestController::class, 'update']);
+    Route::post('/product-request/{productReq}', [ProductRequestController::class, 'update']);
 
     /*
     |--------------------------------------------------------------------------

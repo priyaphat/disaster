@@ -8,9 +8,7 @@ use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+
     public function authorize(): bool
     {
         return true;
@@ -28,17 +26,16 @@ class UpdateProductRequest extends FormRequest
                         ->where('category_id', $this->category_id);
                 }),
             ],
-
             'unit_id' => 'nullable|exists:units,id',
             'no_unit' => 'nullable',
             'category_id' => 'exists:categories,id',
             'detail' => 'nullable|string',
             'unit_type' => 'nullable|in:1,2',
-            'status' => 'integer',
+            'status' => 'integer|in:0,1',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
         ];
     }
-    
+
     public function messages()
     {
         return [
