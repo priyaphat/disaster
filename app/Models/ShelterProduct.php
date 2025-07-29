@@ -10,6 +10,10 @@ class ShelterProduct extends Model
 {
     use LogsActivity;
 
+    public const PLUS = 1;
+    public const MINUS = -1;
+    public const Shelter_center = 0;
+
     protected $fillable = [
         'product_id',
         'quantity',

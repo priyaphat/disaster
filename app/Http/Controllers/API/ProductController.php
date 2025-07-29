@@ -31,7 +31,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Display a listing of the product | แสดงรายการทรัพยากร
+     * Display a listing of the product | แสดงรายการทรัพยากร กลาง
      */
     #[QueryParameter('per_page', description: 'ส่งจำนวนข้อมูลที่ต้องการต่อหน้า', type: 'string', example: '3')]
     #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "มาม่า")]
@@ -58,11 +58,15 @@ class ProductController extends Controller
      * Show specified product| แสดงทรัพยากร
      */
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
-    public function show(Product $product)
+    public function show($product)
     {
-        $image = $this->imageService->getByTableAndId(Product::class, $product->id);
-        $product->image = $image ? $image['image_path'] : null;
-        return ApiResponse::successResponse(__('success.data'), $product);
+        $q = Product::select('products.*', 'shelter_products.quantity')->where('products.id', $product)
+            ->leftJoin('shelter_products', 'shelter_products.product_id', 'products.id')
+            ->where('shelter_products.shelter_id', ProductUtility::getShelter())
+            ->first();
+        $image = $this->imageService->getByTableAndId(Product::class, $q->id);
+        $q->image = $image ? $image['image_path'] : null;
+        return ApiResponse::successResponse(__('success.data'), $q);
     }
 
     /**
@@ -86,7 +90,6 @@ class ProductController extends Controller
     /**
      * Delete the specified product| ลบทรัพยากร
      */
-    #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function destroy(Product $product)
     {
         if (ShelterProduct::where('product_id', $product->id)->first()) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
@@ -98,6 +101,9 @@ class ProductController extends Controller
         return ApiResponse::successResponse(__('success.product.deleted'));
     }
 
+    /**
+     * Get your shelter [name].
+     */
     public function yourShelter($res = true)
     {
         $shelter = ProductUtility::getShelter();
@@ -109,5 +115,23 @@ class ProductController extends Controller
 
         if ($res) return ApiResponse::successResponse(__('success.data'), $shelter);
         return $shelter;
+    }
+
+    /**
+     * change product quantity
+     */
+    public function quantity(Request $r, ShelterProduct $id)
+    {
+        $r->validate([
+            'quantity' => 'required|numeric',
+            'condition' => 'required|in:-1,1',
+        ]);
+        if ($r['condition'] == ShelterProduct::PLUS) $id->quantity += $r['quantity'];
+        if ($r['condition'] == ShelterProduct::MINUS) {
+            if ($r['quantity'] > $id->quantity) return ApiResponse::successResponse(__('error.shelter_product.minus_error') . '(' . $id->quantity . ')');
+            $id->quantity -= $r['quantity'];
+        }
+        $id->update();
+        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), $id);
     }
 }

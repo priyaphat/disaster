@@ -8,20 +8,18 @@ use App\Http\Utility\ProductUtility;
 use App\Models\Product;
 use App\Models\ShelterProduct;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
-    public function getList(array $filters = [])
+    public function getList(array $filters = [], $inside = false)
     {
-        // $data = Product::filter($filters)->with('image', 'unit', 'category')
-        // ->latest()->paginate($filters['per_page'] ?? 10);
-        // return $data->setCollection(ProductResource::collection($data->items())->collection);
-
         $data = Product::select(
             'products.*',
             'units.name as unit_name',
             'categories.name as category_name',
-            'shelter_products.quantity as quantity'
+            DB::raw('COALESCE(shelter_products.quantity, 0.00) as quantity'),
+            'shelter_products.shelter_id as shelter_id'
         )
             ->leftJoin('units', 'products.unit_id', 'units.id')
             ->leftJoin('categories', 'products.category_id', 'categories.id')
@@ -29,9 +27,18 @@ class ProductService
                 $join->on('products.id', '=', 'shelter_products.product_id')
                     ->where('shelter_products.shelter_id', '=', ProductUtility::getShelter());
             })
+            ->when(
+                $inside,
+                fn($q) =>
+                $q->where('shelter_products.shelter_id', ProductUtility::getShelter())
+            )
             ->with('image')
-            ->filter($filters)
-            ->paginate($filters['per_page'] ?? 10);
+            ->filter($filters);
+        if (isset($filters['paginate']) && $filters['paginate']) {
+            $data = $data->paginate($filters['per_page'] ?? 10);
+        } else {
+            return $data->get();
+        }
         return $data->setCollection(ProductResource::collection($data->items())->collection);
     }
 
@@ -40,7 +47,7 @@ class ProductService
         $Product = Product::create($data);
         if (isset($data['quantity'])) {
             $product = new ShelterProduct();
-            $product['shelter_id'] = 0;
+            $product['shelter_id'] = ShelterProduct::Shelter_center;
             $product['quantity'] = $data['quantity'];
             $product['product_id'] = $Product->id;
             $product->save();
