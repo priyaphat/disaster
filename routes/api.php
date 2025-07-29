@@ -245,7 +245,7 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/product', [ProductController::class, 'index']);
     Route::get('/product/{product}', [ProductController::class, 'show']);
-    Route::get('/product-shlter-self', [ProductController::class, 'yourShelter']);
+    Route::get('/product-shelter-self', [ProductController::class, 'yourShelter']);
     Route::post('/product-quantity/{id}', [ProductController::class, 'quantity']);
     Route::post('/product', [ProductController::class, 'store']);
     Route::post('/product/{product}', [ProductController::class, 'update']);

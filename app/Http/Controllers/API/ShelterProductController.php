@@ -29,7 +29,7 @@ class ShelterProductController extends Controller
      */
     public function delete()
     {
-        $q = (new ProductService)->getList([], true);
+        $q = (new ProductService)->getList([], true); //ถ้าไม่อยาก loop ก็ใช้ transfer product list
         foreach ($q as $i) if ($i['quantity'] > 0) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         ShelterProduct::where('shelter_id', ProductUtility::getShelter())->delete();
         return ApiResponse::successResponse(__('success.shelter_product.deleted_all'));

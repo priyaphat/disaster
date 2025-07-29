@@ -120,15 +120,17 @@ class ProductController extends Controller
     /**
      * change product quantity
      */
-    public function quantity(Request $r, ShelterProduct $id)
+    public function quantity(Request $r, $id)
     {
         $r->validate([
             'quantity' => 'required|numeric',
             'condition' => 'required|in:-1,1',
         ]);
-        if ($r['condition'] == ShelterProduct::PLUS) $id->quantity += $r['quantity'];
+        $id = ShelterProduct::where('product_id', $id)->where('shelter_id', ProductUtility::getShelter())->first();
+        if ($id['quantity'] == ShelterProduct::MINUS) throw new BadRequestHttpException(__('error.shelter_product.IsNotUnit_error'));
+        if ($r['condition'] == ShelterProduct::PLUS) $id['quantity'] += $r['quantity'];
         if ($r['condition'] == ShelterProduct::MINUS) {
-            if ($r['quantity'] > $id->quantity) return ApiResponse::successResponse(__('error.shelter_product.minus_error') . '(' . $id->quantity . ')');
+            if ($r['quantity'] > $id['quantity']) throw new BadRequestHttpException(__('error.shelter_product.minus_error') . '(' . $id['quantity'] . ')');
             $id->quantity -= $r['quantity'];
         }
         $id->update();

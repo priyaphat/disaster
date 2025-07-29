@@ -14,6 +14,8 @@ class ProductService
 {
     public function getList(array $filters = [], $inside = false)
     {
+        $shelter =  ProductUtility::getShelter();
+
         $data = Product::select(
             'products.*',
             'units.name as unit_name',
@@ -23,14 +25,22 @@ class ProductService
         )
             ->leftJoin('units', 'products.unit_id', 'units.id')
             ->leftJoin('categories', 'products.category_id', 'categories.id')
-            ->leftJoin('shelter_products', function ($join) {
+            ->leftJoin('shelter_products', function ($join) use ($shelter) {
                 $join->on('products.id', '=', 'shelter_products.product_id')
-                    ->where('shelter_products.shelter_id', '=', ProductUtility::getShelter());
+                    ->where('shelter_products.shelter_id', '=', $shelter);
             })
             ->when(
                 $inside,
                 fn($q) =>
-                $q->where('shelter_products.shelter_id', ProductUtility::getShelter())
+                $q->where('shelter_products.shelter_id', $shelter)
+                    ->addSelect(DB::raw("(
+                        SELECT r.status
+                        FROM product_requests r
+                        WHERE r.product_id = products.id
+                        AND r.shelter_id = $shelter
+                        ORDER BY r.created_at DESC
+                        LIMIT 1
+                    ) as product_request"))
             )
             ->with('image')
             ->filter($filters);

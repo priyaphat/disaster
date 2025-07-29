@@ -47,7 +47,7 @@ class ProductTransferController extends Controller
         )
             ->leftJoin('products', 'products.id', 'shelter_products.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
-            ->where('shelter_products.shelter_id', 1)
+            ->where('shelter_products.shelter_id', ProductUtility::getShelter())
             ->where('shelter_products.quantity', '>', 0)
             ->where('products.unit_type', Product::Is_unit)
             ->get();
