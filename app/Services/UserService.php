@@ -12,6 +12,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\UserSelectResource;
 use App\Mail\ApproveEmail;
 use App\Mail\RejectEmail;
+use App\Models\AppointmentLog;
 use App\Models\Image;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -58,6 +59,21 @@ class UserService
         $filters['available_staff'] = true;
         $filters['available_member'] = true;
         $query = $this->baseQuery($filters);
+
+        // Team log
+        if (isset($filters['team_log_id']) && $filters['team_log_id']) {
+            $log = AppointmentLog::find($filters['team_log_id']);
+            if ($log) {
+                $teamDescription = $log->description;
+                $teamId = $teamDescription['id'];
+                $userIds = collect($teamDescription['all_members'])->pluck('id');
+                
+                $query->orWhereHas('member', function ($query) use ($teamId, $userIds) {
+                    $query->where('team_id', $teamId)
+                        ->whereNotIn('user_id', $userIds);
+                });
+            }
+        }
 
         // Team page
         if (isset($filters['team_id']) && $filters['team_id']) {

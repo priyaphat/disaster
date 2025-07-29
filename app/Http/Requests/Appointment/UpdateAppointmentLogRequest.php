@@ -31,7 +31,7 @@ class UpdateAppointmentLogRequest extends FormRequest
              * @var int
              * @example 1
              */
-            'user_id.*' => 'required',
+            'user_id.*' => 'required|distinct',
         ];
     }
 }
