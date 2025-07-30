@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\ProductLogs;
 use App\Models\Shelter;
 use App\Models\ShelterProduct;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\SearchService;
@@ -136,6 +137,8 @@ class ProductTransferController extends Controller
 
     private function log($r, $i, $pdt)
     {
+        $i['product'] = Product::find($i['product_id']);
+        $i['product']['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
         $data = [
             'from' => $pdt['shelter_id'],
             'to' => $r['shelter_id'],

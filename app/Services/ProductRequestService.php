@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\ProductLogs;
 use App\Models\ProductRequest;
 use App\Models\ShelterProduct;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -101,21 +102,23 @@ class ProductRequestService
             $q->update();
             //log
             $pdt = Product::find($productReq->product_id);
-            self::log($productReq, $pdt, ProductLogs::RECEIVE);
+            self::log($productReq, $pdt, ProductLogs::RECEIVE, $r['quantity']);
             $stop = new UpdateProductReqRequest();
             if ($log_stop) app(ProductRequestController::class)->update($stop->merge(['status' => 0]), $productReq);
         }
-
         $productReq->update();
-
         return ApiResponse::successResponse(__('success.product_required.updated'));
     }
 
-    public function log($detail, $pdt, $type)
+    public function log($detail, $pdt, $type, $receive = null)
     {
+        $detail = is_array($detail) ? $detail : $detail->toArray();
+        $pdt = is_array($pdt) ? $pdt : $pdt->toArray();
+        if ($receive) $detail['receive'] = $receive ?? null;
+        $pdt['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
         $data = [
             'to' => $detail['shelter_id'],
-            'detail' =>  array_merge($detail, $pdt->toArray()),
+            'detail' => array_merge($detail, $pdt),
             'type' => $type,
             'name' => $pdt['name'],
             'category_id' => $pdt['category_id'],
