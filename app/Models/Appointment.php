@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\LogOptions;
 
 class Appointment extends Model
 {
@@ -88,5 +89,13 @@ class Appointment extends Model
         }
 
         return false;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('appointments')
+            ->logOnly(['*'])
+            ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
     }
 }

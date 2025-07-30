@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
 
 class AppointmentLog extends Model
 {
@@ -11,9 +12,17 @@ class AppointmentLog extends Model
     protected $casts = [
         'description' => 'array'
     ];
-    
+
     public function parent()
     {
         return $this->morphTo('parentable');  // เชื่อมกับ parentable_id, parentable_type
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('appointment_logs')
+            ->logOnly(['*'])
+            ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
     }
 }

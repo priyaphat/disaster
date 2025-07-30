@@ -11,21 +11,17 @@ use App\Http\Requests\UserApproval\ApprovalRequest;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
-use App\Models\Image;
 use App\Models\User;
-use App\Services\ImageService;
 use App\Services\UserService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    protected $userService, $imageService, $notificationService;
+    protected $userService;
 
-    public function __construct(UserService $userService, ImageService $imageService)
+    public function __construct(UserService $userService)
     {
         $this->userService = $userService;
-        $this->imageService = $imageService;
     }
 
     /**
@@ -130,21 +126,4 @@ class UserController extends Controller
         return ApiResponse::successResponse($message);
     }
 
-
-    /**
-     * Delete a user | ลบผู้ใช้งาน
-     */
-    public function destroyByEmail(Request $request)
-    {
-        //
-        $users = User::whereIn('email', $request->email)->get();
-        foreach ($users as $user) {
-            $user->delete();
-            $image = $this->imageService->getByTableAndId(User::class, $user->id);
-            if ($image) {
-                $image->delete();
-            }
-        }
-        return ApiResponse::successResponse(__('success.user.deleted'));
-    }
 }

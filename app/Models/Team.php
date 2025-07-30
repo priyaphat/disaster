@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
-use App\Casts\ThaiDateTimeFormat;
 use App\Filters\TeamFilter;
 use App\Http\Traits\CreatedUpdatedBy;
-use App\Services\TransferHistoryService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\LogOptions;
 
 class Team extends Model
 {
@@ -165,5 +164,13 @@ class Team extends Model
     public function histories()
     {
         return $this->morphMany(TransferHistory::class, 'childable');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('teams')
+            ->logOnly(['*'])
+            ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
     }
 }

@@ -129,11 +129,8 @@ class UserService
         }
         $user->update($data);
         $user->refresh();
-        if (isset($data['image'])) {
-            $user->image = $this->imageService->updateImage($data['image'], User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
-        } else {
-            $this->imageService->deleteImage(User::IMAGE_FOLDER, User::class, $user->id);
-        }
+        // Update an image
+        $user->image = $this->imageService->handleImageUpdate($data, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
         return $user;
     }
 
@@ -141,13 +138,7 @@ class UserService
     {
         $user->approval?->delete();
         $user->delete();
-        $image = $this->imageService->getByTableAndId(User::class, $user->id);
-        if ($image) {
-            if ($image->image_name !== 'default.png') {
-                $this->imageService->removeFile($image->image_url, $image->image_type);
-            }
-            $image->delete();
-        }
+        $image = $this->imageService->deleteImage(User::class, $user->id);
     }
 
     public static function generatePassword(): string

@@ -45,8 +45,6 @@ class ShelterController extends Controller
     public function store(CreateShelterRequest $request)
     {
         $data = $this->shelterService->create($request->all());
-        $data->image = $this->imageService->uploadImage($request->image, Shelter::IMAGE_FOLDER, Shelter::class, $data->id);
-
         (new LineController)->LineNotification($data->toArray(), LineController::Shelter_post);
         return ApiResponse::createdResponse(__('success.created'), $data);
     }

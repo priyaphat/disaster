@@ -48,6 +48,8 @@ class ShelterService
             // 'utilities' => json_decode($data['utilities'], true), //decode use for dev only, comment or removed this line when use in production
         ]);
 
+        app(ImageService::class)->uploadImage($data['image'] ?? null, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
+        
         return $shelter;
     }
 
@@ -79,6 +81,7 @@ class ShelterService
 
         if ($updateImage) {
             $shelter->image = app(ImageService::class)->updateImage($data['image'] ?? null, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
+            // $shelter->image = app(ImageService::class)->handleImageUpdate($data['image'] ?? null, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
         }
 
         return $shelter;

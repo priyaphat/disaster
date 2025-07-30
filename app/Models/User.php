@@ -5,19 +5,18 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Casts\LowerCase;
-use App\Casts\ThaiDateTimeFormat;
 use App\Enums\RegistrationType;
 use App\Enums\UserType;
 use App\Filters\UserFilter;
 use App\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
 
 
@@ -145,5 +144,13 @@ class User extends Authenticatable
     protected function getFullNameAttribute()
     {
         return ($this->prefix->name ?? null) . ' ' . $this->firstname . ' ' . $this->lastname;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('users')
+            ->logOnly(['*'])
+            ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
     }
 }

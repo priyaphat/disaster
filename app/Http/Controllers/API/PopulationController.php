@@ -84,6 +84,7 @@ class PopulationController extends Controller
         $data = $this->populationService->update($population, $request->all());
         if ($request->image) {
             $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
+            // $data->image = $this->imageService->handleImageUpdate($request->all(), Population::IMAGE_FOLDER, Population::class, $data->id);
         }
         if ($prevShelter == $data->shelter_id) {
             return ApiResponse::successResponse(__('success.updated'), $data);

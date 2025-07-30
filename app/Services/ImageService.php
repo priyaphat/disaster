@@ -5,7 +5,9 @@ namespace App\Services;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use App\Models\Image;
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log as FacadesLog;
 use Intervention\Image\Drivers\Gd\Driver;
 
 class ImageService
@@ -52,7 +54,7 @@ class ImageService
      * @param int $id (attribute id from model)
      * @return Image
      */
-    public function updateImage($file, $folder, $table, $id, $diskName = Image::PUBLIC)
+    public function updateImage($file, $folder, $table, $id, $diskName = Image::PUBLIC): Image
     {
         // Get an image instance
         $image = $this->getByTableAndId($table, $id);
@@ -80,11 +82,34 @@ class ImageService
      *
      * @param string $folder
      * @param int $id
-     * @return bool
+     * @return Image
      */
-    public function deleteImage($folder, $table, $id): bool
+    public function updateToDefault($folder, $table, $id): Image
     {
         $folderPath = 'image/' . $folder . '/';
+        $image = $this->getByTableAndId($table, $id);
+
+        if ($image->image_name !== 'default.png') {
+            self::removeFile($image->image_url, $image->image_type);
+        }
+
+        $image->update([
+            'image_name' => 'default.png',
+            'image_url' => $folderPath . 'default.png',
+        ]);
+
+        return $image->refresh();
+    }
+
+    /**
+     * Delete an existing image.
+     *
+     * @param string $folder
+     * @param int $id
+     * @return bool
+     */
+    public function deleteImage($table, $id): bool
+    {
         $image = $this->getByTableAndId($table, $id);
 
         if (!$image) {
@@ -95,10 +120,7 @@ class ImageService
             self::removeFile($image->image_url, $image->image_type);
         }
 
-        return $image->update([
-            'image_name' => 'default.png',
-            'image_url' => $folderPath . 'default.png',
-        ]);
+        return $image->delete();
     }
 
     /**
@@ -206,5 +228,21 @@ class ImageService
         } else {
             $file->move(dirname($location), basename($location));
         }
+    }
+
+    /**
+     * When sending 'image' variable:
+     * - If it's null -> do nothing
+     * - If it's file -> update an image
+     * When 'image' variable is not sentt:
+     * - Update an image to default
+     */
+    public function handleImageUpdate($data, $folder, $table, $id, $diskName = Image::PUBLIC)
+    {
+        if (isset($data['image'])) {
+            return $this->updateImage($data['image'], $folder, $table, $id, $diskName);
+        }
+
+        return $this->updateToDefault($folder, $table, $id);
     }
 }
