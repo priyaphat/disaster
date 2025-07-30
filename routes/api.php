@@ -373,6 +373,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'store']);
     Route::post('/appointment/{appointment}', [AppointmentController::class, 'update']);
     Route::delete('/appointment/{appointment}', [AppointmentController::class, 'destroy']);
+    Route::get('/appointment-log/{log}', [AppointmentLogController::class, 'show']);
     Route::post('/appointment-log/{log}', [AppointmentLogController::class, 'update']);
 
     /*

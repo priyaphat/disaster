@@ -20,10 +20,6 @@ class AppointmentTask extends Command
      */
     public function handle()
     {
-        $base = Carbon::today();
-        $morningTime = $base->copy()->addHours(14)->addMinutes(0);
-        $shift  = Carbon::now()->lessThan($morningTime) ? ShiftType::MORNING->value : ShiftType::AFTERNOON->value;
-        LogUtility::createAppointmentLog(['shift' => $shift]);
-        Log::info('Save appointment logs : ' . $shift);
+        LogUtility::createAppointmentLog();
     }
 }

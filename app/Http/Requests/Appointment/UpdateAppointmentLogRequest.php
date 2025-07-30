@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Appointment;
 
+use App\Rules\CheckVerifiedUserExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAppointmentLogRequest extends FormRequest
@@ -25,13 +26,23 @@ class UpdateAppointmentLogRequest extends FormRequest
             /**
              * array ของ user_id
              */
-            'user_id' => 'required|array|min:2',
+            'old_users' => 'required|array|min:2',
             /**
              * id ของผู้ใช้งาน
              * @var int
              * @example 1
              */
-            'user_id.*' => 'required|distinct',
+            'old_users.*' => 'required|distinct',
+            /**
+             * array ของ new_users
+             */
+            'new_users' => 'nullable|array',
+            /**
+             * id ของสมาชิกที่ถูกเพิ่มเข้ามา
+             * @var int
+             * @example 1
+             */
+            'new_users.*' => ['nullable', 'distinct', new CheckVerifiedUserExists()],
         ];
     }
 }

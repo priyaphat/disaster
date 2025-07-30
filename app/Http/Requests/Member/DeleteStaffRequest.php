@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\UserTranfer;
 
-use App\Rules\CheckUserExistsInDB;
+use App\Rules\CheckVerifiedUserExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DeleteStaffRequest extends FormRequest

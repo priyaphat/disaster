@@ -8,7 +8,7 @@ use App\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class CheckUserExistsInDB implements ValidationRule
+class CheckVerifiedUserExists implements ValidationRule
 {
     /**
      * Run the validation rule.

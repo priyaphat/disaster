@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\ShelterStaff;
 
-use App\Rules\CheckUserExistsInDB;
+use App\Rules\CheckVerifiedUserExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateOneStaffRequest extends FormRequest
