@@ -114,7 +114,7 @@ class ProductRequestService
     {
         $data = [
             'to' => $detail['shelter_id'],
-            'detail' => $detail,
+            'detail' =>  array_merge($detail, $pdt->toArray()),
             'type' => $type,
             'name' => $pdt['name'],
             'category_id' => $pdt['category_id'],
