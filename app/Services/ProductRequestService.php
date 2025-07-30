@@ -34,7 +34,8 @@ class ProductRequestService
             ->where('product_requests.shelter_id', ProductUtility::getShelter())
             ->leftJoin('products', 'products.id', 'product_requests.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
-            ->leftJoin('categories', 'categories.id', 'products.category_id');
+            ->leftJoin('categories', 'categories.id', 'products.category_id')
+            ->with('product.image');
 
         if (isset($f['id'])) {
             return $q->where('product_requests.id', $f['id'])->first();

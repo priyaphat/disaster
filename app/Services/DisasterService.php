@@ -49,10 +49,21 @@ class DisasterService
                 Carbon::parse($req->start_date)->startOfDay(),
                 Carbon::parse($req->end_date)->endOfDay()
             ]))
-            ->when($req->district, fn($q) =>
-            $q->where('address', 'like', "%$req->district%"))
-            ->when($id, fn($q) =>
-            $q->where('id', $id))
+            ->when($req->start_date, fn($q) =>
+            $q->whereDate(
+                'created_at',
+                Carbon::parse($req->start_date),
+            ))
+            ->when(
+                $req->district,
+                fn($q) =>
+                $q->where('address', 'like', "%$req->district%")
+            )
+            ->when(
+                $id,
+                fn($q) =>
+                $q->where('id', $id)
+            )
             ->when(
                 $req->subdistrict,
                 fn($q) =>

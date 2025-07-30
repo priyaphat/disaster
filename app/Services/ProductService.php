@@ -44,7 +44,7 @@ class ProductService
             )
             ->with('image')
             ->filter($filters);
-        if (isset($filters['paginate']) && $filters['paginate']) {
+        if (isset($filters['paginate']) && $filters['paginate'] && !$inside) {
             $data = $data->paginate($filters['per_page'] ?? 10);
         } else {
             return $data->get();

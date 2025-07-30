@@ -16,7 +16,7 @@ class UpdateProductReqRequest extends FormRequest
     {
         return [
             'status' => 'nullable|in:0,1',
-            'request' => 'required|min:-1',
+            'request' => 'required_if:status,1|nullable|min:-1',
             'quantity' => 'nullable|min:0'
         ];
     }

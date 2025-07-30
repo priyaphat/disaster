@@ -10,6 +10,7 @@ use App\Models\ShelterProduct;
 use Illuminate\Http\Request;
 use App\Services\ProductService;
 use App\Http\Requests\ProductTransferRequest;
+use App\Http\Utility\PaginateUtility;
 use App\Models\Product;
 use App\Services\SearchService;
 
@@ -21,6 +22,7 @@ class ShelterProductController extends Controller
     public function index(Request $filter)
     {
         $q = (new ProductService)->getList($filter->all(), true);
+        if ($filter['paginate']) $q = PaginateUtility::Paginate($q, $filter['paginate'] ?? 10);
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
@@ -72,6 +74,7 @@ class ShelterProductController extends Controller
     {
         $r = $r->all();
         $r['shelter_id'] = ProductUtility::getShelter();
+        if (ShelterProduct::where('product_id', $r['product_id'])->where('shelter_id', $r['shelter_id'])->first()) return ApiResponse::errorResponse(__('error.product_required.add_unique'));
         $q = ShelterProduct::create($r);
         return ApiResponse::successResponse(__('success.shelter_product.created'), $q);
     }

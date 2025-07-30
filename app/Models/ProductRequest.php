@@ -22,6 +22,8 @@ class ProductRequest extends Model
         'quantity',
         'request',
     ];
+    protected $appends = ['image_path'];
+    protected $hidden = ['product'];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -29,5 +31,19 @@ class ProductRequest extends Model
             ->useLogName('product_requests')
             ->logOnly(['*'])
             ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'parentable');
+    }
+
+    public function getImagePathAttribute()
+    {
+        return $this->product?->image?->image_path ?? null;
     }
 }

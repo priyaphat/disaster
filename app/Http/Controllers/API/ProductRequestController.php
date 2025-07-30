@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest\CreateProductReqRequest;
 use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\PaginateUtility;
 use App\Http\Utility\ProductUtility;
 use App\Models\Product;
 use App\Models\ProductLogs;
@@ -51,11 +52,12 @@ class ProductRequestController extends Controller
      */
     public function update(UpdateProductReqRequest $request, ProductRequest $productReq)
     {
-
+        if ($productReq['status'] == ProductRequest::STOP) return ApiResponse::errorResponse(__('error.product_required.canNotDelete'));
         if (isset($request['status']) && $request['status'] != $productReq['status'] && $request['status'] == ProductRequest::STOP) {  //ยุติ ส่ง 0 มา 
             $productReq->update(['status' => $request['status']]);
             $pdt = Product::find($productReq['product_id']);
-            $this->productRequestService->log($productReq, $pdt, ProductLogs::STOP); //แต่ log ส่ง 3 
+
+            $this->productRequestService->log($productReq->toArray(), $pdt, ProductLogs::STOP); //แต่ log ส่ง 3 
             return ApiResponse::successResponse(__('success.product_required.stop'), $productReq);
         }
         return $this->productRequestService->update($request->all(), $productReq);

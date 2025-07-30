@@ -40,14 +40,16 @@ class CreateProductReqRequest extends FormRequest
                             ->where('status', ProductRequest::ACTIVE);
                     })
             ],
-            '*.request' => 'nullable|numeric|min:-1',
+            '*.required' => 'nullable|numeric|min:-1',
+            '0' => ['required'],
         ];
     }
 
     public function messages()
     {
         return [
-            '*.product_id.unique' => __('error.product_required.add_unique')
+            '*.product_id.unique' => __('error.product_required.add_unique'),
+            '0.required' => __('error.product_required.null'),
         ];
     }
 }
