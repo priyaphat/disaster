@@ -37,7 +37,7 @@ class ProductTransferController extends Controller
     /**
      * Get product for tranfer , your shelter
      */
-    public function productList(Request $filter)
+    public function productList(Request $filter, $unit_type = true)
     {
         $q = ShelterProduct::select(
             'shelter_products.*',
@@ -47,11 +47,15 @@ class ProductTransferController extends Controller
         )
             ->leftJoin('products', 'products.id', 'shelter_products.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
-            ->where('shelter_products.shelter_id', 1)
+            ->where('shelter_products.shelter_id', ProductUtility::getShelter())
             ->where('shelter_products.quantity', '>', 0)
-            ->where('products.unit_type', Product::Is_unit)
+            ->when(
+                $unit_type,
+                fn($q) =>
+                $q->where('products.unit_type', Product::Is_unit)
+            )
             ->get();
-
+        if (!$unit_type) return $q;
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
