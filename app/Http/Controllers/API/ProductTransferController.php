@@ -107,7 +107,7 @@ class ProductTransferController extends Controller
     {
         $shelter = ProductUtility::getShelter();
         $to = $request['shelter_id'];
-        foreach ($request['tranfer'] as $item) {
+        foreach ($request['transfer'] as $item) {
             //sender
             $pdt = ShelterProduct::select(
                 'shelter_products.*',

@@ -18,7 +18,7 @@ class UpdateProductRequest extends FormRequest
     {
         return [
             'name' => [
-                'required',
+                'required_if:status,1',
                 'max:255',
                 Rule::unique('products')->where(function ($query) {
                     return $query

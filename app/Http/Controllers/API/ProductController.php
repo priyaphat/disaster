@@ -108,7 +108,7 @@ class ProductController extends Controller
     {
         $shelter = ProductUtility::getShelter();
         if ($shelter == 0) {
-            $shelter = ['shelter_name' => 'ศูนย์กลาง'];
+            $shelter = 'ศูนย์กลาง';
         } else {
             $shelter = Shelter::find($shelter)->value('name');
         }

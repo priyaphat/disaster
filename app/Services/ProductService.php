@@ -23,6 +23,7 @@ class ProductService
             DB::raw('COALESCE(shelter_products.quantity, 0.00) as quantity'),
             'shelter_products.shelter_id as shelter_id'
         )
+            ->where('products.status', Product::Active)
             ->leftJoin('units', 'products.unit_id', 'units.id')
             ->leftJoin('categories', 'products.category_id', 'categories.id')
             ->leftJoin('shelter_products', function ($join) use ($shelter) {
@@ -34,16 +35,27 @@ class ProductService
                 fn($q) =>
                 $q->where('shelter_products.shelter_id', $shelter)
                     ->addSelect(DB::raw("(
-                        SELECT r.status
-                        FROM product_requests r
-                        WHERE r.product_id = products.id
-                        AND r.shelter_id = $shelter
-                        ORDER BY r.created_at DESC
-                        LIMIT 1
-                    ) as product_request"))
+                    SELECT r.status
+                    FROM product_requests r
+                    WHERE r.product_id = products.id
+                    AND r.shelter_id = $shelter
+                    ORDER BY r.created_at DESC
+                    LIMIT 1
+                ) as product_request"))
             )
             ->with('image')
             ->filter($filters);
+        if (!empty($filters['request'])) {
+            $data = $data->whereExists(function ($query) use ($filters, $shelter) {
+                $query->select(DB::raw(1))
+                    ->from('product_requests as r')
+                    ->whereColumn('r.product_id', 'products.id')
+                    ->where('r.shelter_id', $shelter)
+                    ->orderByDesc('r.created_at')
+                    ->limit(1)
+                    ->where('r.status', $filters['request']);
+            });
+        }
         if (isset($filters['paginate']) && $filters['paginate'] && !$inside) {
             $data = $data->paginate($filters['per_page'] ?? 10);
         } else {

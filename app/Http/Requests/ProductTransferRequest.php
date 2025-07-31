@@ -17,9 +17,9 @@ class ProductTransferRequest extends FormRequest
     {
         return [
             'shelter_id' => 'required|exists:shelters,id',
-            'tranfer' => 'required|array',
-            'tranfer.*.product_id' => 'required|exists:products,id',
-            'tranfer.*.quantity' => 'required|numeric|min:1',
+            'transfer' => 'required|array',
+            'transfer.*.product_id' => 'required|exists:products,id',
+            'transfer.*.quantity' => 'required|numeric|min:1',
         ];
     }
 
@@ -28,7 +28,7 @@ class ProductTransferRequest extends FormRequest
         $validator->after(function ($validator) {
             $shelter = ProductUtility::getShelter();
 
-            foreach ($this->input('tranfer', []) as $index => $item) {
+            foreach ($this->input('transfer', []) as $index => $item) {
                 $product = ShelterProduct::where('product_id', $item['product_id'])
                     ->where('shelter_id', $shelter)
                     ->first();
@@ -37,7 +37,7 @@ class ProductTransferRequest extends FormRequest
                 $requested = $item['quantity'] ?? 0;
 
                 if ($requested > $available) {
-                    $validator->errors()->add("tranfer.$index.quantity", "จำนวนมากกว่าที่มีในคลัง ($available)");
+                    $validator->errors()->add("transfer.$index.quantity", "จำนวนมากกว่าที่มีในคลัง ($available)");
                 }
             }
         });

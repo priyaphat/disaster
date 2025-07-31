@@ -73,7 +73,12 @@ class ProductRequestController extends Controller
             'categories.name as category_name',
             DB::raw("concat(users.firstname, ' ', users.lastname) as user_name"),
         )
-            ->where('product_logs.type', $f['type'])
+            ->when(
+                $f['type'],
+                function ($q) use ($f) {
+                    $q->where('product_logs.type', $f['type']);
+                }
+            )
             ->where('to', ProductUtility::getShelter())
             ->leftJoin('units', 'units.id', 'product_logs.unit_id')
             ->leftJoin('categories', 'categories.id', 'product_logs.category_id')
@@ -93,6 +98,7 @@ class ProductRequestController extends Controller
                 ])
             );
         $q = app(SearchService::class)->search($q, $f, 'get', [2, 7]);
+        
         return $q;
     }
 }

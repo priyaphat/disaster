@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductLogs as EnumsProductLogs;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Traits\CreatedUpdatedBy;
 
@@ -17,6 +18,7 @@ class ProductLogs extends Model
 
     protected $casts = [
         'detail' => "array",
+        'type' => EnumsProductLogs::class,
     ];
 
     protected $fillable = [
