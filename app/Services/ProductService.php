@@ -20,7 +20,7 @@ class ProductService
             'products.*',
             'units.name as unit_name',
             'categories.name as category_name',
-            DB::raw('COALESCE(shelter_products.quantity, 0.00) as quantity'),
+            DB::raw('COALESCE(shelter_products.quantity, 0) as quantity'),
             'shelter_products.shelter_id as shelter_id'
         )
             ->where('products.status', Product::Active)

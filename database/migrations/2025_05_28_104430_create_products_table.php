@@ -28,7 +28,7 @@ return new class extends Migration
         Schema::create('shelter_products', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id');
-            $table->decimal('quantity', 10, 2)->default(0);
+            $table->integer('quantity')->default(0);
             $table->unsignedBigInteger('shelter_id')->comment('0 center');
             $table->timestamps();
 
