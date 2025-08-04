@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Product;
 
-use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -24,7 +26,7 @@ class UpdateProductRequest extends FormRequest
                     return $query
                         ->where('unit_id', $this->unit_id)
                         ->where('category_id', $this->category_id);
-                }),
+                })->ignore($this->product->id),
             ],
             'unit_id' => 'nullable|exists:units,id',
             'no_unit' => 'nullable',
@@ -41,5 +43,18 @@ class UpdateProductRequest extends FormRequest
         return [
             'name.unique' => __('validation.custom.product.name'),
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        $failed = $validator->failed();
+        $badRequest = isset($failed['name']['Unique']);
+
+        if ($badRequest) {
+            $message = collect($validator->errors())->flatten()->first();
+            throw new BadRequestHttpException($message);
+        }
+
+        throw new ValidationException($validator);
     }
 }
