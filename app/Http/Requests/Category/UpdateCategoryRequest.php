@@ -4,6 +4,9 @@ namespace App\Http\Requests\Category;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class UpdateCategoryRequest extends FormRequest
 {
@@ -32,5 +35,18 @@ class UpdateCategoryRequest extends FormRequest
         return [
             'name.unique' => __('validation.custom.categories.name'),
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        $failed = $validator->failed();
+        $badRequest = isset($failed['name']['Unique']);
+
+        if ($badRequest) {
+            $message = collect($validator->errors())->flatten()->first();
+            throw new BadRequestHttpException($message);
+        }
+
+        throw new ValidationException($validator);
     }
 }

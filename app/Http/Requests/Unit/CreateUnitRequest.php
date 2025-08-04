@@ -5,6 +5,8 @@ namespace App\Http\Requests\Unit;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CreateUnitRequest extends FormRequest
 {
@@ -35,5 +37,16 @@ class CreateUnitRequest extends FormRequest
         ];
     }
 
-    
+    protected function failedValidation(Validator $validator)
+    {
+        $failed = $validator->failed();
+        $badRequest = isset($failed['name']['Unique']);
+
+        if ($badRequest) {
+            $message = collect($validator->errors())->flatten()->first();
+            throw new BadRequestHttpException($message);
+        }
+
+        throw new ValidationException($validator);
+    }
 }
