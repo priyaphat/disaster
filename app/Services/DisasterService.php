@@ -147,7 +147,7 @@ class DisasterService
     {
         $file_name = DisasterLandslide::where('file_id', $file)->firstOrFail()->file_name;
         $path = DisasterLandslide::FILE . '/' . $file;
-        if (!Auth()->check()) abort(403);
+        // if (!Auth()->user()) abort(403);
         if (!Storage::exists($path)) abort(404);
         return Storage::download($path, $file_name);
     }

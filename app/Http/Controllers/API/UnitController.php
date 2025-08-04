@@ -41,7 +41,7 @@ class UnitController extends Controller
 
     public function destroy(Unit $unit)
     {
-        if (Product::where('unit_id', $unit->id)->first()) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
+        if (Product::where('unit_id', $unit->id)->first()) throw new BadRequestHttpException(__('error.sql.fk-constraint2'));
         $unit->delete();
         return ApiResponse::successResponse(__('success.unit.deleted'));
     }

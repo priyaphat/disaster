@@ -43,7 +43,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         if (Product::where('category_id', $category->id)->first()) {
-            throw new BadRequestHttpException(__('error.sql.fk-constraint'));
+            throw new BadRequestHttpException(__('error.sql.fk-constraint2'));
         }
         $category->delete();
         return ApiResponse::successResponse(__('success.categories.deleted'));

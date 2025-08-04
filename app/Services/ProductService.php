@@ -67,7 +67,7 @@ class ProductService
     public function create(array $data): Product
     {
         $Product = Product::create($data);
-        if (isset($data['quantity'])) {
+        if (isset($data['quantity']) && $data['quantity'] > 0) {
             $product = new ShelterProduct();
             $product['shelter_id'] = ShelterProduct::Shelter_center;
             $product['quantity'] = $data['quantity'];
