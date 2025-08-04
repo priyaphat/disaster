@@ -16,7 +16,14 @@ class UnitService
     }
     public function index(array $filters = [])
     {
-        $query = Unit::query();
+        $query = Unit::select('units.*')
+            ->selectSub(function ($q) {
+                $q->from('products')
+                    ->select('id')
+                    ->whereColumn('products.unit_id', 'units.id')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(1);
+            }, 'used');
         return $this->search->search($query, $filters, 'get');
     }
 

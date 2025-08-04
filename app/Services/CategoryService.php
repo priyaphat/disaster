@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Category;
 use App\Services\SearchService;
+use Illuminate\Support\Facades\DB;
 
 class CategoryService
 {
@@ -16,7 +17,14 @@ class CategoryService
 
     public function index($filter)
     {
-        $query = Category::query();
+        $query = Category::select('categories.*')
+            ->selectSub(function ($q) {
+                $q->from('products')
+                    ->select('id')
+                    ->whereColumn('products.category_id', 'categories.id')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(1);
+            }, 'used');
         return $this->search->search($query, $filter, 'get');
     }
 
