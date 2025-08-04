@@ -36,6 +36,9 @@ class Image extends Model
                         case Shelter::class:
                             $url = Storage::disk('public')->url('shelter_default.png');
                             break;
+                        case Product::class:
+                            $url = Storage::disk('public')->url('product_default.png');
+                            break;
                         default:
                             $url = Storage::disk('public')->url('user_default.png');
                     }
