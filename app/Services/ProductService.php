@@ -46,7 +46,7 @@ class ProductService
             ->with('image')
             ->filter($filters);
         if (!empty($filters['request'])) {
-            $data = $data->whereExists(function ($query) use ($filters, $shelter) {
+            $data = $data->whereNotExists(function ($query) use ($filters, $shelter) {
                 $query->select(DB::raw(1))
                     ->from('product_requests as r')
                     ->whereColumn('r.product_id', 'products.id')

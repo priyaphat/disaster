@@ -16,7 +16,7 @@ class ProductTransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'shelter_id' => 'required|exists:shelters,id',
+            'shelter_id' => 'nullable|exists:shelters,id',
             'transfer' => 'required|array',
             'transfer.*.product_id' => 'required|exists:products,id',
             'transfer.*.quantity' => 'required|numeric|min:1',

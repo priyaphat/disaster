@@ -34,7 +34,7 @@ class SearchService
             ]);
         }
 
-        if (!empty($f['paginate'])) {
+        if (!empty($f['paginate']) && !in_array(8, $skip)) {
             return $q->paginate($f['paginate'] ?? 10);
         } else {
             if ($queryby == 'first') return $q->first();

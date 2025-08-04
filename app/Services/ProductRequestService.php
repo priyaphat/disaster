@@ -105,8 +105,10 @@ class ProductRequestService
             self::log($productReq, $pdt, ProductLogs::RECEIVE, $r['quantity']);
             $stop = new UpdateProductReqRequest();
             if ($log_stop) app(ProductRequestController::class)->update($stop->merge(['status' => 0]), $productReq);
+            $productReq->update();
+        } else {
+            $productReq->update($r);
         }
-        $productReq->update();
         return ApiResponse::successResponse(__('success.product_required.updated'));
     }
 

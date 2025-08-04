@@ -106,7 +106,7 @@ class ProductTransferController extends Controller
     public function store(ProductTransferRequest $request)
     {
         $shelter = ProductUtility::getShelter();
-        $to = $request['shelter_id'];
+        $to = $request['shelter_id'] ?? '0';
         foreach ($request['transfer'] as $item) {
             //sender
             $pdt = ShelterProduct::select(
@@ -141,7 +141,7 @@ class ProductTransferController extends Controller
         $i['product']['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
         $data = [
             'from' => $pdt['shelter_id'],
-            'to' => $r['shelter_id'],
+            'to' => $r['shelter_id'] ?? 0,
             'detail' => $i,
             'type' => ProductLogs::PRODUCT,
             'name' => $pdt['name'],

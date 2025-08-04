@@ -8,8 +8,8 @@ enum ProductLogs: int
     case REQUEST = 2;
     case STOP = 3;
     case RECEIVE = 4;
-   
-    public function label(?string $model): string
+
+    public function label(): string
     {
         return match ($this) {
             self::TRANSFER => 'โอนย้าย',

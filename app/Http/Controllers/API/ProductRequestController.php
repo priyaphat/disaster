@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\ProductLogs as EnumsProductLogs;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest\CreateProductReqRequest;
 use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
@@ -97,8 +98,16 @@ class ProductRequestController extends Controller
                     Carbon::parse($f['end_date'])->endOfDay()
                 ])
             );
-        $q = app(SearchService::class)->search($q, $f, 'get', [2, 7]);
-        
-        return $q;
+        $q = app(SearchService::class)->search($q, $f, 'get', [2, 7, 8]);
+
+        $q = $q->toArray();
+        $add_type = array_map(function ($i) {
+            $enum = EnumsProductLogs::tryFrom($i['type']);
+            $i['type_name'] = $enum?->label(); // null-safe: ถ้าไม่มีค่า จะได้ null
+            return $i;
+        }, $q);
+
+        if ($f['paginate']) return PaginateUtility::Paginate($add_type, $f['paginate'] ?? 10);
+        return $add_type;
     }
 }
