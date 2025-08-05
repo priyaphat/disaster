@@ -35,4 +35,17 @@ class CreateCategoryRequest extends FormRequest
             'name.unique' => __('validation.custom.categories.name'),
         ];
     }
+
+    protected function failedValidation(Validator $validator)
+    {
+        $failed = $validator->failed();
+        $badRequest = isset($failed['name']['Unique']);
+
+        if ($badRequest) {
+            $message = collect($validator->errors())->flatten()->first();
+            throw new BadRequestHttpException($message);
+        }
+
+        throw new ValidationException($validator);
+    }
 }
