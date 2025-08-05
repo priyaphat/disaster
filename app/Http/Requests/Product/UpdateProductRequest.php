@@ -31,10 +31,10 @@ class UpdateProductRequest extends FormRequest
             'unit_id' => 'nullable|exists:units,id',
             'no_unit' => 'nullable',
             // 'category_id' => 'exists:categories,id',
-            // 'detail' => 'nullable|string',
+            'detail' => 'nullable|string|max:255',
             'unit_type' => 'nullable|in:1,2',
             'status' => 'integer|in:0,1',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024'
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif'
         ];
     }
 
