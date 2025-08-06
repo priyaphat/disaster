@@ -29,31 +29,31 @@ class ShelterProductController extends Controller
     /**
      * Delete shelter all-product | ภายใน ศูนย์
      */
-    public function delete($shelter)
+    public function delete($shelter = null)
     {
-        $q = app(ProductTransferController::class)->productList(new Request(), false);
+        $q = app(ProductTransferController::class)->productList(new Request(), false, $shelter);
         if (count($q) > 0) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
-        ShelterProduct::where('shelter_id', ProductUtility::getShelter())->delete();
+        $shelter = $shelter ?? ProductUtility::getShelter();
+        ShelterProduct::where('shelter_id', $shelter)->delete();
         return ApiResponse::successResponse(__('success.shelter_product.deleted_all'));
     }
 
     /**
      * transfer shelter all-product | ภายใน ศูนย์
      */
-    public function transfer($shelter)
+    public function transfer($shelter = null)
     {
-        $q = (new ProductService)->getList([], true);
-
+        $q = (new ProductService)->getList([], true, $shelter);
         $r = new ProductTransferRequest();
         $item['shelter_id'] = ShelterProduct::Shelter_center;
         foreach ($q as $i) {
-            $item['tranfer'][] = [
+            $item['transfer'][] = [
                 'product_id' => $i['id'],
                 'quantity' => $i['quantity']
             ];
         }
         $r->merge($item);
-        return app(ProductTransferController::class)->store($r);
+        return app(ProductTransferController::class)->store($r, $shelter);
     }
 
     /**
