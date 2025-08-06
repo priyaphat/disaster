@@ -52,7 +52,7 @@ class ProductController extends Controller
     {
         $data = $this->productService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
-        return self::show($data['id']);
+        return ApiResponse::successResponse(__('success.product.created'), self::show($data['id'], true));
     }
 
     /**
@@ -67,10 +67,14 @@ class ProductController extends Controller
             'categories.name as category_name',
             'units.name as unit_name'
         )->where('products.id', $product)
-            ->leftJoin('shelter_products', 'shelter_products.product_id', 'products.id')
+            // ->leftJoin('shelter_products', 'shelter_products.product_id', 'products.id')
             ->leftJoin('categories', 'products.category_id', 'categories.id')
             ->leftJoin('units', 'products.unit_id', 'units.id')
-            ->where('shelter_products.shelter_id', ProductUtility::getShelter())
+            // ->where('shelter_products.shelter_id', ProductUtility::getShelter())
+            ->leftJoin('shelter_products', function ($join) {
+                $join->on('shelter_products.product_id', '=', 'products.id')
+                    ->where('shelter_products.shelter_id', ProductUtility::getShelter());
+            })
             ->first();
         $image = $this->imageService->getByTableAndId(Product::class, $q->id);
         $q->image = $image ? $image['image_path'] : null;
@@ -84,12 +88,14 @@ class ProductController extends Controller
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function update(UpdateProductRequest $request, Product $product)
     {
-        if ($request['status'] != $product['status']) { // status
-            if ($request['status'] == Product::Inactive) {
-                if (ShelterProduct::where('product_id', $product->id)->first()) throw new BadRequestHttpException(__('error.product.delete'));
+        if (isset($request['status'])) {
+            if ($request['status'] != $product['status']) { // status
+                if ($request['status'] == Product::Inactive) {
+                    if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.product.delete'));
+                }
+                $product->update($request->all());
+                return ApiResponse::successResponse($product->status == Product::Active ? __('success.product.toggle_open') : __('success.product.toggle_close'), $product);
             }
-            $product->update($request->all());
-            return ApiResponse::successResponse($product->status == Product::Active ? __('success.product.toggle_open') : __('success.product.toggle_close'), $product);
         }
         $data = $this->productService->update($product, $request->all());
         $data->image = $this->imageService->updateImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
@@ -101,8 +107,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // return self::checkDalete($product->id);
-        if (ShelterProduct::where('product_id', $product->id)->first()) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
+        if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
+        ShelterProduct::where('product_id', $product->id)->delete();
         $product->delete();
         $image = $this->imageService->getByTableAndId(Product::class, $product->id);
         if ($image) {
@@ -114,11 +120,15 @@ class ProductController extends Controller
     private function checkDalete($productId)
     {
         $q = ShelterProduct::where('product_id', $productId)->get();
-        // return $q;
-        if($q->isNotEmpty()){
-            return 1;
+        if ($q->isNotEmpty()) {
+            if (count($q) > 1) return true;
+            if ($q[0]['shelter_id'] == ShelterProduct::Shelter_center) {
+                if ($q[0]['quantity'] <= 0) return false;
+            } else {
+                return true;
+            }
         }
-        return 2;
+        return false;
     }
 
     /**
