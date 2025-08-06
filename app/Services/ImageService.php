@@ -239,10 +239,10 @@ class ImageService
      */
     public function handleImageUpdate($data, $folder, $table, $id, $diskName = Image::PUBLIC)
     {
-        if (isset($data['image'])) {
+        if (array_key_exists('image', $data)) {
             return $this->updateImage($data['image'], $folder, $table, $id, $diskName);
         }
-
+    
         return $this->updateToDefault($folder, $table, $id);
     }
 }
