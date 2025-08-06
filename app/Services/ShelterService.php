@@ -80,8 +80,7 @@ class ShelterService
         }
 
         if ($updateImage) {
-            $shelter->image = app(ImageService::class)->updateImage($data['image'] ?? null, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
-            // $shelter->image = app(ImageService::class)->handleImageUpdate($data['image'] ?? null, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
+            $shelter->image = app(ImageService::class)->handleImageUpdate($data, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
         }
 
         return $shelter;
