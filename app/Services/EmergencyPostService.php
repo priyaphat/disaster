@@ -23,7 +23,6 @@ class EmergencyPostService
 
     public function show($post)
     {
-
         $data = $this->baseQuery()
             ->where('emergency_posts.status', EmergencyPost::active);
         if ($post->disaster_id) $data = $data->where('emergency_posts.disaster_id', $post->disaster_id);
@@ -42,6 +41,7 @@ class EmergencyPostService
         return EmergencyPost::select(
             'emergency_posts.*',
             'disasters.name as disaster_name',
+            'disasters.image as image',
             'provinces.province_name_th as province_name'
         )
             ->with('areas')

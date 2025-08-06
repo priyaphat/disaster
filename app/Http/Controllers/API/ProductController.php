@@ -9,6 +9,7 @@ use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\ProductUtility;
 use App\Models\Product;
+use App\Models\ProductRequest;
 use App\Models\Shelter;
 use App\Models\ShelterProduct;
 use App\Services\ImageService;
@@ -110,12 +111,18 @@ class ProductController extends Controller
     {
         if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
         ShelterProduct::where('product_id', $product->id)->delete();
+        ProductRequest::where('prduct_id', $product->id)->delete();
         $product->delete();
         $image = $this->imageService->getByTableAndId(Product::class, $product->id);
         if ($image) {
             $image->delete();
         }
         return ApiResponse::successResponse(__('success.product.deleted'));
+    }
+
+    public function chekdel($productId) //true ลบได้ , false ลบไม่ได้
+    {
+        return ApiResponse::successResponse(__('success.data'), !(self::checkDalete($productId)));
     }
 
     private function checkDalete($productId)

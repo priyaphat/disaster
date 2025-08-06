@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
 use App\Http\Requests\ShelterProductRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\LinePostUtility;
 use App\Http\Utility\ProductUtility;
 use App\Models\Product;
 use App\Models\ProductLogs;
@@ -60,6 +62,7 @@ class ProductRequestService
                 self::create_request($i, $shelter);
             }
         }
+        // LinePostUtility::LineMakeInformation(LineController::Resource,$r);
     }
 
     public function create_request($r, $shelter)

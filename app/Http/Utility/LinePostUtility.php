@@ -9,6 +9,7 @@ use App\Http\Controllers\API\LineController;
 use App\Models\EmergencyRequestLog;
 use App\Models\LineUser;
 use App\Models\Prefix;
+use App\Models\Product;
 use App\Models\Shelter;
 use App\Models\Team;
 use App\Models\User;
@@ -185,6 +186,18 @@ class LinePostUtility
             return (new LineController)->LineNotification([
                 'team' => $team
             ], $form, $recepint);
+        } else if ($form == LineController::Resource) {
+            // $data = [
+            //     'shelter' => 'test',
+            //     'product' => [
+            //         'x1',
+            //         'x2',
+            //         'x3',
+            //         'x4',
+            //     ],
+            // ];
+            $data['shelter']= Shelter::where('id',ProductUtility::getShelter())->value('name');
+            
         }
 
         return (new LineController)->LineNotification($data, $form, self::$user);

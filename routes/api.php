@@ -250,6 +250,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/product', [ProductController::class, 'store']);
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
+    Route::get('/product-check-del/{productId}', [ProductController::class, 'chekdel']);
 
     /*
     |--------------------------------------------------------------------------
