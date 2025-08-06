@@ -73,7 +73,6 @@ class ProductRequestService
 
     public function update($r, ProductRequest $productReq)
     {
-
         //การ เปลี่ยน type ขอจำนวน ไม่สามารถ ถ้า quantity (ได้รับ) > 0
         if ($r['request'] != $productReq['request'] && $r['request'] == ProductRequest::NOT_QUANTITY && $productReq['quantity'] > 0) {
             // throw new BadRequestHttpException(__('error.product_required.not_change_type_receive'));

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\ShelterUtilities;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\CreateProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
@@ -51,21 +52,33 @@ class ProductController extends Controller
     {
         $data = $this->productService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
-        return ApiResponse::successResponse(__('success.product.created'), $data);
+        return ApiResponse::successResponse(__('success.product.created'), self::show($data['id'], true));
     }
 
     /**
      * Show specified product| แสดงทรัพยากร
      */
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
-    public function show($product)
+    public function show($product, $val = false)
     {
-        $q = Product::select('products.*', 'shelter_products.quantity')->where('products.id', $product)
-            ->leftJoin('shelter_products', 'shelter_products.product_id', 'products.id')
-            ->where('shelter_products.shelter_id', ProductUtility::getShelter())
+        $q = Product::select(
+            'products.*',
+            'shelter_products.quantity',
+            'categories.name as category_name',
+            'units.name as unit_name'
+        )->where('products.id', $product)
+            // ->leftJoin('shelter_products', 'shelter_products.product_id', 'products.id')
+            ->leftJoin('categories', 'products.category_id', 'categories.id')
+            ->leftJoin('units', 'products.unit_id', 'units.id')
+            // ->where('shelter_products.shelter_id', ProductUtility::getShelter())
+            ->leftJoin('shelter_products', function ($join) {
+                $join->on('shelter_products.product_id', '=', 'products.id')
+                    ->where('shelter_products.shelter_id', ProductUtility::getShelter());
+            })
             ->first();
         $image = $this->imageService->getByTableAndId(Product::class, $q->id);
         $q->image = $image ? $image['image_path'] : null;
+        if ($val) return $q;
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
@@ -75,16 +88,18 @@ class ProductController extends Controller
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function update(UpdateProductRequest $request, Product $product)
     {
-        if ($request['status'] != $product['status']) { // status
-            if ($request['status'] == Product::Inactive) {
-                if (ShelterProduct::where('product_id', $product->id)->first()) throw new BadRequestHttpException(__('error.product.delete'));
+        if (isset($request['status'])) {
+            if ($request['status'] != $product['status']) { // status
+                if ($request['status'] == Product::Inactive) {
+                    if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.product.delete'));
+                }
+                $product->update($request->all());
+                return ApiResponse::successResponse($product->status == Product::Active ? __('success.product.toggle_open') : __('success.product.toggle_close'), $product);
             }
-            $product->update($request->all());
-            return ApiResponse::successResponse($product->status == Product::Active ? __('success.product.toggle_open') : __('success.product.toggle_close'), $product);
         }
         $data = $this->productService->update($product, $request->all());
         $data->image = $this->imageService->updateImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
-        return ApiResponse::successResponse(__('success.product.updated'), $data);
+        return ApiResponse::successResponse(__('success.product.updated'), self::show($data['id'], true));
     }
 
     /**
@@ -92,13 +107,28 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        if (ShelterProduct::where('product_id', $product->id)->first()) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
+        if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
+        ShelterProduct::where('product_id', $product->id)->delete();
         $product->delete();
         $image = $this->imageService->getByTableAndId(Product::class, $product->id);
         if ($image) {
             $image->delete();
         }
         return ApiResponse::successResponse(__('success.product.deleted'));
+    }
+
+    private function checkDalete($productId)
+    {
+        $q = ShelterProduct::where('product_id', $productId)->get();
+        if ($q->isNotEmpty()) {
+            if (count($q) > 1) return true;
+            if ($q[0]['shelter_id'] == ShelterProduct::Shelter_center) {
+                if ($q[0]['quantity'] <= 0) return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

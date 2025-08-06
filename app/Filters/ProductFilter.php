@@ -21,7 +21,10 @@ class ProductFilter extends QueryFilter
 
     public function category_id($value)
     {
-        if ($value)  return $this->builder->where('products.category_id', $value);
+        if ($value) {
+            if ($value == -1) return $this->builder->WhereNull('products.category_id');
+            return $this->builder->where('products.category_id', $value);
+        }
     }
 
     public function sort($value)

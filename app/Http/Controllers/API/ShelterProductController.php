@@ -29,7 +29,7 @@ class ShelterProductController extends Controller
     /**
      * Delete shelter all-product | ภายใน ศูนย์
      */
-    public function delete()
+    public function delete($shelter)
     {
         $q = app(ProductTransferController::class)->productList(new Request(), false);
         if (count($q) > 0) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
@@ -40,7 +40,7 @@ class ShelterProductController extends Controller
     /**
      * transfer shelter all-product | ภายใน ศูนย์
      */
-    public function transfer()
+    public function transfer($shelter)
     {
         $q = (new ProductService)->getList([], true);
 
