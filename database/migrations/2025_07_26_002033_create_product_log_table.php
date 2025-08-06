@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('detail')->nullable();
             $table->tinyInteger('type')->default(1)->comment('1 transfer 2 request 3 stop 4 receive');
             $table->string('name');
-            $table->foreignId('category_id')->constrained('categories');
+            $table->foreignId('category_id')->nullable()->constrained('categories');
             $table->foreignId('unit_id')->nullable()->constrained('units');
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();

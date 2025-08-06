@@ -23,16 +23,21 @@ class UpdateProductRequest extends FormRequest
                 'required_if:status,1',
                 'max:255',
                 Rule::unique('products')->where(function ($query) {
-                    return $query
-                        ->where('unit_id', $this->unit_id)
-                        ->where('category_id', $this->category_id);
+                    $unitId = $this->unit_id ?? null;
+                    return $query->when($unitId === null, function ($q) { //เช็คหน่วยที่ว่างด้วย
+                        return $q->whereNull('unit_id');
+                    }, function ($q) use ($unitId) {
+                        return $q->where('unit_id', $unitId);
+                    });
                 })->ignore($this->product->id),
+
             ],
             'unit_id' => 'nullable|exists:units,id',
             'no_unit' => 'nullable',
             // 'category_id' => 'exists:categories,id',
             'detail' => 'nullable|string|max:255',
             'unit_type' => 'nullable|in:1,2',
+            'unit_id' => 'required_if:unit_type,2|nullable|exists:units,id|',
             'status' => 'integer|in:0,1',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif'
         ];

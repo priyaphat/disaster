@@ -98,7 +98,8 @@ class ProductController extends Controller
             }
         }
         $data = $this->productService->update($product, $request->all());
-        $data->image = $this->imageService->updateImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
+        // $data->image = $this->imageService->updateImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
+        $data->image = $this->imageService->handleImageUpdate($request->all(), Product::IMAGE_FOLDER, Product::class, $data->id);
         return ApiResponse::successResponse(__('success.product.updated'), self::show($data['id'], true));
     }
 

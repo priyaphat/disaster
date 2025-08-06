@@ -12,6 +12,7 @@ use App\Http\Utility\ProductUtility;
 use App\Models\Product;
 use App\Models\ProductLogs;
 use App\Models\ProductRequest;
+use App\Models\ShelterProduct;
 use App\Services\ProductRequestService;
 use App\Services\SearchService;
 use Carbon\Carbon;
@@ -20,6 +21,7 @@ use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PDO;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ProductRequestController extends Controller
 {
@@ -44,6 +46,7 @@ class ProductRequestController extends Controller
      */
     public function store(CreateProductReqRequest $request)
     {
+        if (ProductUtility::getShelter() == ShelterProduct::Shelter_center) throw new BadRequestHttpException('ผู้ใช้งานดังกล่าว ยังไม่ได้สังกัดในศูนย์พักพิงใด');
         $data = $this->productRequestService->create($request->all());
         return ApiResponse::successResponse(__('success.product_required.created'));
     }
