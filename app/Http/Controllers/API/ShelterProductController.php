@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
 use App\Http\Requests\ShelterProductRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\ProductUtility;
@@ -12,6 +13,7 @@ use App\Services\ProductService;
 use App\Http\Requests\ProductTransferRequest;
 use App\Http\Utility\PaginateUtility;
 use App\Models\Product;
+use App\Models\ProductRequest;
 use App\Services\SearchService;
 
 class ShelterProductController extends Controller
@@ -19,9 +21,10 @@ class ShelterProductController extends Controller
     /**
      * Get shelter product | ภายใน ศูนย์
      */
-    public function index(Request $filter)
+    public function index(Request $filter, $shelter = null)
     {
-        $q = (new ProductService)->getList($filter->all(), true);
+        $shelter = $shelter ?? ProductUtility::getShelter();
+        $q = (new ProductService)->getList($filter->all(), true, $shelter);
         if ($filter['paginate']) $q = PaginateUtility::Paginate($q, $filter['paginate'] ?? 10);
         return ApiResponse::successResponse(__('success.data'), $q);
     }
@@ -34,9 +37,50 @@ class ShelterProductController extends Controller
         $q = app(ProductTransferController::class)->productList(new Request(), false, $shelter);
         if (count($q) > 0) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         $shelter = $shelter ?? ProductUtility::getShelter();
+
+        //ส่งยุติ product req เก็บ log ถ้ามี 
+        $pr = ProductRequest::where('shelter_id', $shelter)->where('status', Product::Active)->get();
+        if ($pr->isNotEmpty()) {
+            $r = new UpdateProductReqRequest();
+            $r->merge(['status' => ProductRequest::STOP]);
+            foreach ($pr as $i) {
+                app(ProductRequestController::class)->update($r, $i);
+            }
+        }
+        ProductRequest::where('shelter_id', $shelter)->delete();
         ShelterProduct::where('shelter_id', $shelter)->delete();
+
         return ApiResponse::successResponse(__('success.shelter_product.deleted_all'));
     }
+
+    /**
+     * Delete onec product on shelter | ลบ ทรัพยากรภายในศูนย์
+     */
+    public function deleteOne(Request $p, $productId)
+    {
+        $shelter = ProductUtility::getShelter();
+        $q = ShelterProduct::where('product_id', $productId)->where('shelter_id', $shelter)
+            ->where('quantity', '>', 0)->first();
+        if ($p['check']) { //true ลบได้ , false ลบไม่ได้ || ส่ง check = 1 for check can delete data
+            if ($q) return ApiResponse::successResponse(__('success.data'), false);
+            return ApiResponse::successResponse(__('success.data'), true);
+        }
+
+        //ดักพวกลองดี
+        if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
+
+        //ยุติ ถ้ามี ร้องขอ
+        $ph = ProductRequest::where('product_id', $productId)->where('shelter_id', $shelter)
+            ->where('status', Product::Active)->first();
+        $r = new UpdateProductReqRequest();
+        if ($ph) {
+            app(ProductRequestController::class)->update($r->merge(['status' => ProductRequest::STOP]), $ph);
+            $ph->delete();
+        }
+        ShelterProduct::where('product_id', $productId)->where('shelter_id', $shelter)->delete();
+        return ApiResponse::successResponse(__('success.shelter_product.deleted_all'));
+    }
+
 
     /**
      * transfer shelter all-product | ภายใน ศูนย์

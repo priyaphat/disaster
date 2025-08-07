@@ -38,12 +38,32 @@ class ProductRequestService
             ->leftJoin('products', 'products.id', 'product_requests.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->leftJoin('categories', 'categories.id', 'products.category_id')
-            ->with('product.image');
+            ->with('product.image')
+            ->when(
+                $f['search'],
+                function ($q) use ($f) {
+                    $q->where('products.name', 'like', '%' . $f['search'] . '%');
+                }
+            )->when(
+                $f['category_id'],
+                function ($q) use ($f) {
+                    $s = $f['category_id'];
+                    if ($s == -1) $q->whereNull('products.category_id');
+                    else $q->where('products.category_id', $s);
+                }
+            )->when(
+                $f['unit_id'],
+                function ($q) use ($f) {
+                    $s = $f['unit_id'];
+                    if ($s == -1) $q->whereNull('products.unit_id');
+                    else $q->where('products.unit_id', $s);
+                }
+            );
 
         if (isset($f['id'])) {
             return $q->where('product_requests.id', $f['id'])->first();
         }
-        return (new SearchService)->search($q, $f, 'get', [3]);
+        return (new SearchService)->search($q, $f, 'get', [1, 2, 3, 4, 5]);
     }
 
 
@@ -62,7 +82,7 @@ class ProductRequestService
                 self::create_request($i, $shelter);
             }
         }
-        // LinePostUtility::LineMakeInformation(LineController::Resource,$r);
+        LinePostUtility::LineMakeInformation(LineController::Resource, $r);
     }
 
     public function create_request($r, $shelter)

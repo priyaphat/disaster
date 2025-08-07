@@ -29,7 +29,7 @@ class LineController extends Controller
     public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง success
     public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย ok
     public const Damaged_utility_end = 6; // ok 
-    public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
+    public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร ok
     public const News_post = 8; // hotline ok
     public const News_update = 9; // hotline ok
     public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ req id  ok

@@ -187,17 +187,11 @@ class LinePostUtility
                 'team' => $team
             ], $form, $recepint);
         } else if ($form == LineController::Resource) {
-            // $data = [
-            //     'shelter' => 'test',
-            //     'product' => [
-            //         'x1',
-            //         'x2',
-            //         'x3',
-            //         'x4',
-            //     ],
-            // ];
-            $data['shelter']= Shelter::where('id',ProductUtility::getShelter())->value('name');
-            
+            $q['shelter'] = Shelter::where('id', ProductUtility::getShelter())->value('name');
+            foreach ($data as $i) {
+                $q['product'][]  = Product::where('id', $i['product_id'])->value('name');
+            }
+            $data = $q;
         }
 
         return (new LineController)->LineNotification($data, $form, self::$user);
