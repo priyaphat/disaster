@@ -152,7 +152,7 @@ class EmergencyPostService
             ->join('users', 'emergency_post_logs.created_by', '=', 'users.id')
             ->join('disasters', 'emergency_post_logs.disaster_id', '=', 'disasters.id');
 
-        if ($request->name) $query = $query->where(DB::raw('concat_ws(" ", users.firstname, users.lastname)'), 'like', '%' . $request->name . '%');
+        if ($request->search) $query = $query->where(DB::raw('concat_ws(" ", users.firstname, users.lastname)'), 'like', '%' . $request->search . '%');
         if ($request->start_date && $request->end_date) {
             $start = Carbon::parse($request->start_date)->startOfDay();
             $end = Carbon::parse($request->end_date)->endOfDay();
@@ -161,6 +161,9 @@ class EmergencyPostService
         if ($request->disaster_id) $query = $query->where('emergency_post_logs.disaster_id', $request->disaster_id);
         if ($request->district) $query = $query->whereJsonContains('emergency_post_logs.district', (int)$request->district);
         if ($request->action) $query = $query->where('emergency_post_logs.action', $request->action); //1,2,3 c,u,d
+        if($request->paginate){
+            return $query->paginate(10);
+        }
         return $query->get();
     }
 }

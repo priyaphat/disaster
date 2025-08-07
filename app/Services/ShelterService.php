@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Enums\DamagedUtility;
 use App\Enums\ShelterUtilities;
 use App\Http\Controllers\API\LineController;
+use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Resources\ShelterResource;
 use App\Http\Utility\PaginateUtility;
 use App\Models\DamagedUtility as ModelsDamagedUtility;
@@ -65,6 +67,8 @@ class ShelterService
             if ($shelter->status === Shelter::CLOSED) {
                 app(PopulationService::class)->updateByShelter(['shelter_id' => $shelter->id]);
                 app(AppointmentService::class)->deleteUpcomingAppointment(['shelter_id' => $shelter->id]);
+                (new ShelterProductController)->transfer($shelter->id);
+                (new ShelterProductController)->delete($shelter->id);
                 // Send a closed shelter notification
                 $notification = $notificationService->createNotification('shelter.closed', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
                 $notificationService->sendToAllUsers($notification);

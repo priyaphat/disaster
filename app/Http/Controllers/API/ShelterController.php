@@ -97,7 +97,8 @@ class ShelterController extends Controller
 
     public function dashboard(Request $request)
     {
-        return $this->shelterService->dashboard($request->all());
+        $data = $this->shelterService->dashboard($request->all());
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 
     /**
