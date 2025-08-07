@@ -62,13 +62,11 @@ class ShelterProductController extends Controller
         $q = ShelterProduct::where('product_id', $productId)->where('shelter_id', $shelter)
             ->where('quantity', '>', 0)->first();
         if ($p['check']) { //true ลบได้ , false ลบไม่ได้ || ส่ง check = 1 for check can delete data
-            if ($q) return ApiResponse::successResponse(__('success.data'), false);
+            if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'), false);
             return ApiResponse::successResponse(__('success.data'), true);
         }
 
-        //ดักพวกลองดี
         if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
-
         //ยุติ ถ้ามี ร้องขอ
         $ph = ProductRequest::where('product_id', $productId)->where('shelter_id', $shelter)
             ->where('status', Product::Active)->first();
