@@ -30,7 +30,8 @@ class ProductTransferController extends Controller
      */
     public function shelterList(Request $filter)
     {
-        $q = Shelter::select('id', 'name')->where('id', '!=', ProductUtility::getShelter());
+        $q = Shelter::select('id', 'name')->where('id', '!=', ProductUtility::getShelter())
+            ->where('status', Shelter::OPEN);
         $q = $this->search->search($q, $filter, 'get');
         return ApiResponse::successResponse(__('success.data'), $q);
     }
@@ -38,8 +39,9 @@ class ProductTransferController extends Controller
     /**
      * Get product for tranfer , your shelter
      */
-    public function productList(Request $filter, $unit_type = true)
+    public function productList(Request $filter, $unit_type = true, $shelter = null) //shelter from (all delete)
     {
+        $shelter = $shelter ?? ProductUtility::getShelter();
         $q = ShelterProduct::select(
             'shelter_products.*',
             'products.unit_type',
@@ -48,7 +50,7 @@ class ProductTransferController extends Controller
         )
             ->leftJoin('products', 'products.id', 'shelter_products.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
-            ->where('shelter_products.shelter_id', ProductUtility::getShelter())
+            ->where('shelter_products.shelter_id', $shelter)
             ->where('shelter_products.quantity', '>', 0)
             ->when(
                 $unit_type,
@@ -73,39 +75,69 @@ class ProductTransferController extends Controller
             DB::raw("concat(users.firstname, ' ', users.lastname) as created_name")
         )
             ->where('product_logs.type', ProductLogs::PRODUCT)
-            ->where('product_logs.from', $shelter)
-            ->orWhere('product_logs.to', $shelter)
+            // ->where('product_logs.from', $shelter)
+            // ->orWhere('product_logs.to', $shelter)
+            ->where(function ($q) use ($shelter) {
+                $q->where('from', $shelter)
+                    ->orWhere('to', $shelter);
+            })
             ->leftJoin('shelters as from', 'from.id', '=', 'product_logs.from')
             ->leftJoin('shelters as to', 'to.id', '=', 'product_logs.to')
-            ->leftJoin('users', 'product_logs.created_by', 'users.id');
-
-        $e = $e->when(
-            $filter['search'],
-            function ($q) use ($filter) {
+            ->leftJoin('users', 'product_logs.created_by', 'users.id')
+            // ->when(
+            //     $filter['search'],
+            //     function ($q) use ($filter) {
+            //         $keyword = $filter['search'];
+            //         $q->where(function ($q) use ($keyword) {
+            //             $q->orWhere('product_logs.name', 'like', "%$keyword%")
+            //                 ->orWhere(DB::raw("COALESCE(from.name, 'ศูนย์กลาง')"), 'like', "%$keyword%")
+            //                 ->orWhere(DB::raw("COALESCE(to.name, 'ศูนย์กลาง')"), 'like', "%$keyword%")
+            //                 ->orWhere(DB::raw("concat(users.firstname, ' ', users.lastname)"), 'like', "%$keyword%");
+            //         });
+            //     }
+            // )
+            ->when($filter['search'], function ($q) use ($filter) {
                 $keyword = $filter['search'];
-                $q->where(function ($q) use ($keyword) {
-                    $q->orWhere('product_logs.name', 'like', "%$keyword%")
-                        ->orWhere('from.name', 'like', "%$keyword%")
-                        ->orWhere('to.name', 'like', "%$keyword%")
+                $q->where(function ($query) use ($keyword) {
+                    $query->where('product_logs.name', 'like', "%$keyword%")
+                        ->orWhere(DB::raw("COALESCE(`from`.name, 'ศูนย์กลาง')"), 'like', "%$keyword%")
+                        ->orWhere(DB::raw("COALESCE(`to`.name, 'ศูนย์กลาง')"), 'like', "%$keyword%")
                         ->orWhere(DB::raw("concat(users.firstname, ' ', users.lastname)"), 'like', "%$keyword%");
                 });
-            }
-        )->when($filter['start_date'] && $filter['end_date'], fn($q) =>
-        $q->whereBetween('product_logs.created_at', [
-            Carbon::parse($filter['start_date'])->startOfDay(),
-            Carbon::parse($filter['end_date'])->endOfDay()
-        ]));
+            })
+            ->when($filter['start_date'] && $filter['end_date'], fn($q) =>
+            $q->whereBetween('product_logs.created_at', [
+                Carbon::parse($filter['start_date'])->startOfDay(),
+                Carbon::parse($filter['end_date'])->endOfDay()
+            ]))
+            ->when(
+                $filter['unit_id'],
+                function ($q) use ($filter) {
+                    $keyword = $filter['unit_id'];
+                    if ($keyword == -1) $q->whereNull('product_logs.unit_id');
+                    else $q->where('product_logs.unit_id', $keyword);
+                }
+            )
+            ->when(
+                $filter['category_id'],
+                function ($q) use ($filter) {
+                    $keyword = $filter['category_id'];
+                    if ($keyword == -1) $q->whereNull('product_logs.category_id');
+                    else $q->where('product_logs.category_id', $keyword);
+                }
+            );
 
-        $e = $this->search->search($e, $filter, 'get', [2, 7]);
+
+        $e = $this->search->search($e, $filter, 'get', [2, 4, 5, 7]);
         return ApiResponse::successResponse(__('success.data'), $e);
     }
 
     /**
      * Created Product Transfer.
      */
-    public function store(ProductTransferRequest $request)
+    public function store(ProductTransferRequest $request, $shelter = null) //shelter from (all trasfer)
     {
-        $shelter = ProductUtility::getShelter();
+        $shelter = $shelter ?? ProductUtility::getShelter();
         $to = $request['shelter_id'] ?? '0';
         foreach ($request['transfer'] as $item) {
             //sender

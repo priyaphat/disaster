@@ -9,6 +9,7 @@ use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\ProductUtility;
 use App\Models\Product;
+use App\Models\ProductRequest;
 use App\Models\Shelter;
 use App\Models\ShelterProduct;
 use App\Services\ImageService;
@@ -63,7 +64,8 @@ class ProductController extends Controller
     {
         $q = Product::select(
             'products.*',
-            'shelter_products.quantity',
+            // 'shelter_products.quantity',
+            DB::raw('COALESCE(shelter_products.quantity, 0) as quantity'),
             'categories.name as category_name',
             'units.name as unit_name'
         )->where('products.id', $product)
@@ -110,6 +112,7 @@ class ProductController extends Controller
     {
         if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
         ShelterProduct::where('product_id', $product->id)->delete();
+        ProductRequest::where('product_id', $product->id)->delete();
         $product->delete();
         $image = $this->imageService->getByTableAndId(Product::class, $product->id);
         if ($image) {
@@ -118,16 +121,21 @@ class ProductController extends Controller
         return ApiResponse::successResponse(__('success.product.deleted'));
     }
 
+    public function chekdel($productId) //true ลบได้ , false ลบไม่ได้
+    {
+        return ApiResponse::successResponse(__('success.data'), (self::checkDalete($productId)));
+    }
+
     private function checkDalete($productId)
     {
         $q = ShelterProduct::where('product_id', $productId)->get();
+
         if ($q->isNotEmpty()) {
             if (count($q) > 1) return true;
             if ($q[0]['shelter_id'] == ShelterProduct::Shelter_center) {
                 if ($q[0]['quantity'] <= 0) return false;
-            } else {
-                return true;
             }
+            return true;
         }
         return false;
     }

@@ -250,6 +250,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/product', [ProductController::class, 'store']);
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
+    Route::get('/product-check-del/{productId}', [ProductController::class, 'chekdel']);
 
     /*
     |--------------------------------------------------------------------------
@@ -257,8 +258,8 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/shelter-product', [ShelterProductController::class, 'index']);
-    Route::get('/shelter-all-transfer', [ShelterProductController::class, 'transfer']);
-    Route::get('/shelter-all-delete', [ShelterProductController::class, 'delete']);
+    Route::get('/shelter-all-transfer/{shelter?}', [ShelterProductController::class, 'transfer']);
+    Route::get('/shelter-all-delete/{shelter?}', [ShelterProductController::class, 'delete']);
     Route::get('/shelter-product-excep', [ShelterProductController::class, 'productException']);
     Route::post('/shelter-product', [ShelterProductController::class, 'store']);
 

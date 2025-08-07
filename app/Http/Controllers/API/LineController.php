@@ -251,18 +251,9 @@ class LineController extends Controller
             $text = $text . "\n" . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Resource) {
-            // $data = [
-            //     'product' => 'น้ำ 600 มล.(แพ็ก)',
-            //     'shelter' => [
-            //         'ศูนย์พักพิงบ้านดอยสะเก็ด',
-            //         'ศูนย์พักพิงแม่ฟ้าหลวง',
-            //         'ศูนย์พักพิงบ้านห้วยทราย',
-            //         'ศูนย์พักพิงดอยหลวงเชียงราย',
-            //     ],
-            // ];
             $text = __('line.resource', [
-                'product' => $data['product'],
-                'shelter' => "• " . implode("\n• ", $data['shelter'])
+                'shelter' => $data['shelter'],
+                'product' => "• " . implode("\n• ", $data['product'])
             ]) . __('line.close_follow');
             $text = self::flex_box_link($text, self::Resource, __('line.see_more'), $type);
         } else if ($form == self::News_post) {

@@ -12,10 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
-    public function getList(array $filters = [], $inside = false)
+    public function getList(array $filters = [], $inside = false, $shelter = null) // inside from shelter list , shelter from (all transfer)
     {
-        $shelter =  ProductUtility::getShelter();
-
+        $shelter =  $shelter ?? ProductUtility::getShelter();
         $data = Product::select(
             'products.*',
             'units.name as unit_name',

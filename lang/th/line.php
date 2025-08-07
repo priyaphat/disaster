@@ -38,10 +38,9 @@ return [
 
     'damaged_utilities_detail_end' => "ขณะนี้ :utility เปิดทำการเป็น ปกติแล้ว\n",
 
-    'resource' =>  "🚨 คำร้องขอทรัพยากร\n"
-        . "ขณะนี้ มีคำร้องขอ :product\n\n"
-        . "รายชื่อศูนย์พักพิงที่ต้องการมีดังนี้\n"
-        . ":shelter \n\n",
+    'resource' =>  "🚨 คำร้องขอทรัพยากร\n\n"
+        . "ศูนย์พักพิง:shelter\n"
+        . ":product \n\n",
 
     'news_post' => "📰 ประกาศข่าวประชาสัมพันธ์\n\n"
         . " :name",
