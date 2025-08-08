@@ -128,7 +128,9 @@ class ProductRequestService
             $stop = new UpdateProductReqRequest();
             if ($log_stop) app(ProductRequestController::class)->update($stop->merge(['status' => 0]), $productReq);
             $productReq->update();
+            return ApiResponse::successResponse(__('success.product_required.recevie'));
         } else {
+            if ($r['request'] == ProductRequest::NOT_QUANTITY) $r['quantity'] = 0;
             $productReq->update($r);
         }
         return ApiResponse::successResponse(__('success.product_required.updated'));

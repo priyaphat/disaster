@@ -121,7 +121,7 @@ class ProductController extends Controller
         return ApiResponse::successResponse(__('success.product.deleted'));
     }
 
-    public function chekdel($productId) //true ลบได้ , false ลบไม่ได้
+    public function chekdel($productId) //true ลบไม่ได้ , false ลบได้
     {
         return ApiResponse::successResponse(__('success.data'), (self::checkDalete($productId)));
     }

@@ -61,11 +61,11 @@ class ShelterProductController extends Controller
         $shelter = ProductUtility::getShelter();
         $q = ShelterProduct::where('product_id', $productId)->where('shelter_id', $shelter)
             ->where('quantity', '>', 0)->first();
-        if ($p['check']) { //true ลบได้ , false ลบไม่ได้ || ส่ง check = 1 for check can delete data
-            if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'), false);
-            return ApiResponse::successResponse(__('success.data'), true);
+        if ($p['check']) { //true ลบไม่ได้ , false ลบได้ || ส่ง check = 1 for check can delete data
+            if ($q) return ApiResponse::successResponse(__('error.product_transfer.please_transfer'), true);
+            return ApiResponse::successResponse(__('success.data'), false);
+            // return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         }
-
         if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         //ยุติ ถ้ามี ร้องขอ
         $ph = ProductRequest::where('product_id', $productId)->where('shelter_id', $shelter)
@@ -104,8 +104,9 @@ class ShelterProductController extends Controller
     public function productException(Request $r)
     {
         $already = ShelterProduct::where('shelter_id', ProductUtility::getShelter())->get()->pluck('product_id');
-        $q = Product::whereNotIn('id', $already);
-        $q = (new SearchService)->search($q, $r, 'get');
+        $q = Product::whereNotIn('id', $already)
+            ->orderBy('name', $r['sort'] ?? 'asc');
+        $q = (new SearchService)->search($q, $r, 'get', [6]);
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
