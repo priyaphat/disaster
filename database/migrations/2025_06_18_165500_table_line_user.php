@@ -12,10 +12,9 @@ return new class extends Migration
         Schema::create('line_users', function (Blueprint $table) {
             $table->id();
             $table->string('token_id')->unique();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->integer('user_id')->nullable();
+            $table->tinyInteger('role')->nullable()->comment('1 user , 2 poppulation');
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

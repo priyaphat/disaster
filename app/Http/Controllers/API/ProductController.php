@@ -173,6 +173,6 @@ class ProductController extends Controller
             $id->quantity -= $r['quantity'];
         }
         $id->update();
-        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), $id);
+        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($id['id'], true));
     }
 }

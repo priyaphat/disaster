@@ -53,7 +53,11 @@ Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
     return view('line-login');
 });
+Route::get('/line-login', function () {
+    return view('line-login-poppulation');
+});
 Route::post('/line-login', [LoginController::class, 'line']);
+Route::post('/line-login-population', [LoginController::class, 'line_poppulation_match']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 Route::get('/line-test', [LineController::class, 'test']); //test
 
