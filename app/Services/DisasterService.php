@@ -171,6 +171,11 @@ class DisasterService
             if ($data->model) {
                 $array = array_merge($array, $data->model);
             }
+
+            if ($type == 1) {
+                $array['model'] = [$array['modis'] ?? null, $array['viirs'] ?? null];
+                // unset($array['viirs'], $array['modis']);
+            }
         }
         return $array ?? null;
     }
