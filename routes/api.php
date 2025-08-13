@@ -80,7 +80,6 @@ Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
 Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
-Route::get('/product-requests', [ProductRequestController::class, 'index_pubilc']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -256,6 +255,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
     Route::get('/product-check-del/{productId}', [ProductController::class, 'chekdel']);
+    Route::get('/product-requests', [ProductRequestController::class, 'index_pubilc']);
+
 
     /*
     |--------------------------------------------------------------------------
