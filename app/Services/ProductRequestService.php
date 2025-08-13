@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ProductRequestService
 {
-    public function index($f)
+    public function index($f, $dashboard = true) //db for db page, show all shelter, send false not where shelter
     {
         $q = ProductRequest::select(
             'product_requests.*',
@@ -34,25 +34,29 @@ class ProductRequestService
             'categories.name as category_name'
         )
             ->where('product_requests.status', ProductRequest::ACTIVE)
-            ->where('product_requests.shelter_id', ProductUtility::getShelter())
+            ->when(
+                $dashboard,
+                fn($q) =>
+                $q->where('product_requests.shelter_id', ProductUtility::getShelter())
+            )
             ->leftJoin('products', 'products.id', 'product_requests.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->leftJoin('categories', 'categories.id', 'products.category_id')
             ->with('product.image')
             ->when(
-                $f['search'],
+                isset($f['search']),
                 function ($q) use ($f) {
                     $q->where('products.name', 'like', '%' . $f['search'] . '%');
                 }
             )->when(
-                $f['category_id'],
+                isset($f['category_id']),
                 function ($q) use ($f) {
                     $s = $f['category_id'];
                     if ($s == -1) $q->whereNull('products.category_id');
                     else $q->where('products.category_id', $s);
                 }
             )->when(
-                $f['unit_id'],
+                isset($f['unit_id']),
                 function ($q) use ($f) {
                     $s = $f['unit_id'];
                     if ($s == -1) $q->whereNull('products.unit_id');

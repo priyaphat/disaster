@@ -186,9 +186,6 @@
                 <img src="{{ asset(env('APP_URL')) }}./Logo/4.png" width="40" height="40" />
             </footer>
         </div>
-        {{-- <p class="text-center">
-            <strong>LINE User ID:</strong> <span id="userId">กำลังโหลด...</span>
-        </p> --}}
     </form>
 </body>
 
@@ -199,8 +196,7 @@
     alertBox.style.display = "none";
 
     liff.init({
-            // liffId: "2007547242-Rmgq4X9x",
-            liffId: "2007553661-G93edr6l",
+            liffId: "2007553661-9a0VMwxr",
         })
         .then(() => {
             if (!liff.isLoggedIn()) {
@@ -209,12 +205,9 @@
                 liff.getProfile()
                     .then((profile) => {
                         userId = profile.userId;
-                        // document.getElementById("userId").innerText = userId;
                     })
                     .catch((err) => {
                         console.error("getProfile error", err);
-                        // document.getElementById("userId").innerText =
-                        //     "Error loading user ID";
                     });
             }
         });

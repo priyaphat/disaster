@@ -41,6 +41,12 @@ class ProductRequestController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    public function index_pubilc(Request $request)
+    {
+        $data = $this->productRequestService->index($request->all(), false);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
     /**
      * Create product request| สร้างการร้องขอทรัพยากรศูนย์พักพิง
      */

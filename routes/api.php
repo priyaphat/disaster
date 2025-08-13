@@ -53,11 +53,11 @@ Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
     return view('line-login');
 });
-Route::get('/line-login', function () {
-    return view('line-login-poppulation');
+Route::get('/line-login-population', function () {
+    return view('line-login-population');
 });
 Route::post('/line-login', [LoginController::class, 'line']);
-Route::post('/line-login-population', [LoginController::class, 'line_poppulation_match']);
+Route::post('/line-login-population', [LoginController::class, 'line_population_match']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 Route::get('/line-test', [LineController::class, 'test']); //test
 
@@ -80,6 +80,7 @@ Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
 Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
+Route::get('/product-requests', [ProductRequestController::class, 'index_pubilc']);
 
 Route::middleware('auth:api')->group(function () {
 

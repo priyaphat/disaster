@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class LineUser extends Model
 {
     public const User = 1;
-    public const Poppulation = 2;
+    public const Population = 2;
 
     protected $fillable = [
         'user_id',

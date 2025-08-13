@@ -80,7 +80,7 @@ class LoginController extends Controller
         return ApiResponse::errorResponse(__('auth.failed'), Response::HTTP_BAD_REQUEST);
     }
 
-    public function line_poppulation_match(Request $request)
+    public function line_population_match(Request $request)
     {
         $request->validate([
             'phone' => 'required|digits:10'
@@ -94,7 +94,7 @@ class LoginController extends Controller
                 LineUser::create([
                     'token_id' => $request->userId,
                     'user_id' => $user->id,
-                    'role' => LineUser::Poppulation,
+                    'role' => LineUser::Population,
                 ]);
             }
             return ApiResponse::customSuccessResponse('Login Successful');
