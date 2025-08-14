@@ -144,10 +144,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/role', [PermissionController::class, 'createRole']);
 
     Route::group(['middleware' => ['permission:team.view']], function () {
-        Route::get('/roles', [PermissionController::class, 'showRoles']);
-        Route::get('/permissions', [PermissionController::class, 'showPermissions']);
+
     });
 
+    Route::get('/roles', [PermissionController::class, 'showRoles']);
+    Route::get('/permissions', [PermissionController::class, 'showPermissions']);
     /*
     |--------------------------------------------------------------------------
     | Routes for display shelters
@@ -330,7 +331,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
-    Route::post('/emc-requests', [EmergencyRequestController::class, 'show']);
+    Route::get('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
     Route::post('/emc-requests-history', [EmergencyRequestController::class, 'show_history']);
     Route::post('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'update']);
