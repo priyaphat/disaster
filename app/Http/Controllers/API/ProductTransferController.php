@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductTransferRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\PaginateUtility;
 use App\Http\Utility\ProductUtility;
 use App\Models\Product;
 use App\Models\ProductLogs;
@@ -127,8 +128,8 @@ class ProductTransferController extends Controller
                 }
             );
 
-
-        $e = $this->search->search($e, $filter, 'get', [2, 4, 5, 7]);
+        $e = $this->search->search($e, $filter, 'get', [2, 4, 5, 7, 8]);
+        $e = PaginateUtility::Paginate($e, $filter['paginate'] ?? 10);
         return ApiResponse::successResponse(__('success.data'), $e);
     }
 

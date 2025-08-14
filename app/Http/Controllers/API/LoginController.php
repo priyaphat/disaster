@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\LineUser;
+use App\Models\Population;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,7 +51,7 @@ class LoginController extends Controller
 
     public function line(LoginRequest $request)
     {
-        $user = User::select('users.*','user_approvals.is_approved')
+        $user = User::select('users.*', 'user_approvals.is_approved')
             ->where('username', Str::lower($request->username))
             ->join('user_approvals', 'users.id', 'user_approvals.user_id')
             ->first();
@@ -69,13 +70,36 @@ class LoginController extends Controller
             } else {
                 LineUser::create([
                     'token_id' => $request->userId,
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
+                    'role' => LineUser::User,
                 ]);
             }
             (new LineController)->user_login($request->userId, __('line.welcome'));
             return ApiResponse::customSuccessResponse('Login Successful');
         }
         return ApiResponse::errorResponse(__('auth.failed'), Response::HTTP_BAD_REQUEST);
+    }
+
+    public function line_population_match(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|digits:10'
+        ]);
+        $user = Population::select('id', 'phone')->where('phone', $request['phone'])->first();
+        if ($user) {
+            $lineUser = LineUser::where('token_id', $request->userId)->first();
+            if ($lineUser) {
+                $lineUser->update(['user_id' => $user->id]);
+            } else {
+                LineUser::create([
+                    'token_id' => $request->userId,
+                    'user_id' => $user->id,
+                    'role' => LineUser::Population,
+                ]);
+            }
+            return ApiResponse::customSuccessResponse('Login Successful');
+        }
+        return ApiResponse::errorResponse(__('error.model_not_found'), Response::HTTP_BAD_REQUEST);
     }
 
     /**

@@ -15,6 +15,7 @@ use App\Http\Utility\PaginateUtility;
 use App\Models\Product;
 use App\Models\ProductRequest;
 use App\Services\SearchService;
+use Illuminate\Support\Facades\Response;
 
 class ShelterProductController extends Controller
 {
@@ -25,8 +26,10 @@ class ShelterProductController extends Controller
     {
         $shelter = $shelter ?? ProductUtility::getShelter();
         $q = (new ProductService)->getList($filter->all(), true, $shelter);
+        $quantity =  $q->sum('quantity');
         if ($filter['paginate']) $q = PaginateUtility::Paginate($q, $filter['paginate'] ?? 10);
-        return ApiResponse::successResponse(__('success.data'), $q);
+        return Response()->json(['success' => true, "code" => 200, 'message' => __('success.data'), 'data' => $q, 'quantity' => $quantity]);
+        // return ApiResponse::successResponse(__('success.data'), $q);
     }
 
     /**
@@ -89,10 +92,12 @@ class ShelterProductController extends Controller
         $r = new ProductTransferRequest();
         $item['shelter_id'] = ShelterProduct::Shelter_center;
         foreach ($q as $i) {
-            $item['transfer'][] = [
-                'product_id' => $i['id'],
-                'quantity' => $i['quantity']
-            ];
+            if ($i['quantity'] > 0) {
+                $item['transfer'][] = [
+                    'product_id' => $i['id'],
+                    'quantity' => $i['quantity']
+                ];
+            }
         }
         $r->merge($item);
         return app(ProductTransferController::class)->store($r, $shelter);

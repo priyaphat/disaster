@@ -149,7 +149,7 @@ class ProductController extends Controller
         if ($shelter == 0) {
             $shelter = 'ศูนย์กลาง';
         } else {
-            $shelter = Shelter::find($shelter)->value('name');
+            $shelter = Shelter::where('id', $shelter)->value('name');
         }
 
         if ($res) return ApiResponse::successResponse(__('success.data'), $shelter);
@@ -173,6 +173,6 @@ class ProductController extends Controller
             $id->quantity -= $r['quantity'];
         }
         $id->update();
-        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), $id);
+        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($id['product_id'], true));
     }
 }

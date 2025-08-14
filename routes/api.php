@@ -53,7 +53,11 @@ Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
     return view('line-login');
 });
+Route::get('/line-login-population', function () {
+    return view('line-login-population');
+});
 Route::post('/line-login', [LoginController::class, 'line']);
+Route::post('/line-login-population', [LoginController::class, 'line_population_match']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 Route::get('/line-test', [LineController::class, 'test']); //test
 
@@ -252,6 +256,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
     Route::get('/product-check-del/{productId}', [ProductController::class, 'chekdel']);
+    Route::get('/product-requests', [ProductRequestController::class, 'index_pubilc']);
+
 
     /*
     |--------------------------------------------------------------------------
