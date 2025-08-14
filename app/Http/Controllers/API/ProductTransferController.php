@@ -76,8 +76,6 @@ class ProductTransferController extends Controller
             DB::raw("concat(users.firstname, ' ', users.lastname) as created_name")
         )
             ->where('product_logs.type', ProductLogs::PRODUCT)
-            // ->where('product_logs.from', $shelter)
-            // ->orWhere('product_logs.to', $shelter)
             ->where(function ($q) use ($shelter) {
                 $q->where('from', $shelter)
                     ->orWhere('to', $shelter);
@@ -85,18 +83,6 @@ class ProductTransferController extends Controller
             ->leftJoin('shelters as from', 'from.id', '=', 'product_logs.from')
             ->leftJoin('shelters as to', 'to.id', '=', 'product_logs.to')
             ->leftJoin('users', 'product_logs.created_by', 'users.id')
-            // ->when(
-            //     $filter['search'],
-            //     function ($q) use ($filter) {
-            //         $keyword = $filter['search'];
-            //         $q->where(function ($q) use ($keyword) {
-            //             $q->orWhere('product_logs.name', 'like', "%$keyword%")
-            //                 ->orWhere(DB::raw("COALESCE(from.name, 'ศูนย์กลาง')"), 'like', "%$keyword%")
-            //                 ->orWhere(DB::raw("COALESCE(to.name, 'ศูนย์กลาง')"), 'like', "%$keyword%")
-            //                 ->orWhere(DB::raw("concat(users.firstname, ' ', users.lastname)"), 'like', "%$keyword%");
-            //         });
-            //     }
-            // )
             ->when($filter['search'], function ($q) use ($filter) {
                 $keyword = $filter['search'];
                 $q->where(function ($query) use ($keyword) {
