@@ -126,6 +126,7 @@ class ProductTransferController extends Controller
     {
         $shelter = $shelter ?? ProductUtility::getShelter();
         $to = $request['shelter_id'] ?? '0';
+        if ($shelter == $to) return ApiResponse::errorResponse(__('auth.unauthenicated')); 
         foreach ($request['transfer'] as $item) {
             //sender
             $pdt = ShelterProduct::select(

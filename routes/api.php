@@ -147,9 +147,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/role', [PermissionController::class, 'createRole']);
 
-    Route::group(['middleware' => ['permission:team.view']], function () {
-
-    });
+    Route::group(['middleware' => ['permission:team.view']], function () {});
 
     Route::get('/roles', [PermissionController::class, 'showRoles']);
     Route::get('/permissions', [PermissionController::class, 'showPermissions']);
@@ -255,7 +253,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/product', [ProductController::class, 'store']);
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
-    Route::get('/product-check-del/{productId}', [ProductController::class, 'chekdel']);
+    Route::get('/product-check-del/{productId}', [ProductController::class, 'checkDel']);
 
     /*
     |--------------------------------------------------------------------------
@@ -268,7 +266,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-one-delete/{productId}', [ShelterProductController::class, 'deleteOne']);
     Route::get('/shelter-product-excep', [ShelterProductController::class, 'productException']);
     Route::post('/shelter-product', [ShelterProductController::class, 'store']);
-    Route::get('/shelter-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublicDetail']);
+    Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
 
 
     /*
@@ -403,4 +401,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notification', [NotificationController::class, 'notification']);
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
+    Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
 });

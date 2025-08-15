@@ -84,6 +84,10 @@ class ProductRequestController extends Controller
                 $f['sort'],
                 fn($q) =>
                 $q->orderByRaw('MAX(product_requests.created_at) ' . ($f['sort'] == 'asc' ? 'asc' : 'desc'))
+            )->when(
+                $f['search'],
+                fn($q) =>
+                $q->where('products.name', 'like', '%' . $f['search'] . '%')
             );
 
         if ($RequsetId) {
@@ -101,8 +105,10 @@ class ProductRequestController extends Controller
     public function indexPublicDetail(Request $f, $RequsetId)
     {
         $q = ProductRequest::select(
+            'product_requests.id',
             'product_requests.created_at',
             'product_requests.shelter_id',
+            'product_requests.request',
             'shelters.name',
             'shelters.phone',
             DB::raw('(product_requests.request - product_requests.quantity) as needed'),
