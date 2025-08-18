@@ -58,22 +58,14 @@ class UserService
         $filters['approve'] = 'success';
         $filters['available_staff'] = true;
         $filters['available_member'] = true;
-        $query = $this->baseQuery($filters);
 
         // Team log
-        if (isset($filters['team_log_id']) && $filters['team_log_id']) {
-            $log = AppointmentLog::find($filters['team_log_id']);
-            if ($log) {
-                $teamDescription = $log->description;
-                $teamId = $teamDescription['id'];
-                $userIds = collect($teamDescription['all_members'])->pluck('id');
-                
-                $query->orWhereHas('member', function ($query) use ($teamId, $userIds) {
-                    $query->where('team_id', $teamId)
-                        ->whereNotIn('user_id', $userIds);
-                });
-            }
+        if (isset($filters['appointment_history']) && $filters['appointment_history']) {
+            unset($filters['available_staff']);
+            unset($filters['available_member']);
         }
+        
+        $query = $this->baseQuery($filters);
 
         // Team page
         if (isset($filters['team_id']) && $filters['team_id']) {
