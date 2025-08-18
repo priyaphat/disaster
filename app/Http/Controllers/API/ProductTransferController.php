@@ -146,9 +146,11 @@ class ProductTransferController extends Controller
             if ($product) {
                 $product['quantity'] = $item['quantity'] + $product['quantity'];
                 $product->update();
+                //โอน 1
             } else {
                 $item['shelter_id'] = $to;
                 ShelterProduct::create($item);
+                //โอน 2
             }
             self::log($request, $item, $pdt);
         }
