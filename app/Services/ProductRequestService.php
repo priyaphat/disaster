@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ProductRequestService
 {
-    public function index($f, $dashboard = true) //db for db page, show all shelter, send false not where shelter
+    public function index($f)
     {
         $q = ProductRequest::select(
             'product_requests.*',
@@ -34,11 +34,7 @@ class ProductRequestService
             'categories.name as category_name'
         )
             ->where('product_requests.status', ProductRequest::ACTIVE)
-            ->when(
-                $dashboard,
-                fn($q) =>
-                $q->where('product_requests.shelter_id', ProductUtility::getShelter())
-            )
+            ->where('product_requests.shelter_id', ProductUtility::getShelter())
             ->leftJoin('products', 'products.id', 'product_requests.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->leftJoin('categories', 'categories.id', 'products.category_id')
@@ -67,6 +63,7 @@ class ProductRequestService
         if (isset($f['id'])) {
             return $q->where('product_requests.id', $f['id'])->first();
         }
+
         return (new SearchService)->search($q, $f, 'get', [1, 2, 3, 4, 5]);
     }
 

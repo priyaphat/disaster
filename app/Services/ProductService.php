@@ -22,7 +22,7 @@ class ProductService
             DB::raw('COALESCE(shelter_products.quantity, 0) as quantity'),
             'shelter_products.shelter_id as shelter_id'
         )
-            ->where('products.status', Product::Active)
+            // ->where('products.status', Product::Active) //center shelter all show all status
             ->leftJoin('units', 'products.unit_id', 'units.id')
             ->leftJoin('categories', 'products.category_id', 'categories.id')
             ->leftJoin('shelter_products', function ($join) use ($shelter) {
@@ -31,7 +31,7 @@ class ProductService
             })
             ->when(
                 $inside,
-                fn($q) =>
+                fn($q) => 
                 $q->where('shelter_products.shelter_id', $shelter)
                     ->addSelect(DB::raw("(
                     SELECT r.status
@@ -41,6 +41,8 @@ class ProductService
                     ORDER BY r.created_at DESC
                     LIMIT 1
                 ) as product_request"))
+                    ->where('products.status', Product::Active) //center shelter active show status
+
             )
             ->with('image')
             ->filter($filters);
