@@ -166,6 +166,12 @@ class ProductRequestController extends Controller
                     $q->where('product_logs.type', $f['type']);
                 }
             )
+            ->when(
+                !$f['type'],
+                function ($q) use ($f) {
+                    $q->whereIn('product_logs.type', [ProductLogs::REQUEST, ProductLogs::STOP]);
+                }
+            )
             ->where('to', ProductUtility::getShelter())
             ->leftJoin('units', 'units.id', 'product_logs.unit_id')
             ->leftJoin('categories', 'categories.id', 'product_logs.category_id')
@@ -185,7 +191,6 @@ class ProductRequestController extends Controller
                 ])
             );
         $q = app(SearchService::class)->search($q, $f, 'get', [2, 7, 8]);
-
         $q = $q->toArray();
         $add_type = array_map(function ($i) {
             $enum = EnumsProductLogs::tryFrom($i['type']);

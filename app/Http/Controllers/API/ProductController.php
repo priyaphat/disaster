@@ -200,6 +200,7 @@ class ProductController extends Controller
             $data->quantity -= $r['quantity'];
         }
         $data->update();
+        //noti อัปเดต ทรัพยากรภายในศูนย์ shelter == 0 ทรัพยากรกลาง 
         return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($data['product_id'], true));
     }
 }
