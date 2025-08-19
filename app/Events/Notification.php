@@ -44,7 +44,7 @@ class Notification implements ShouldBroadcast
 
     public function broadcastWith()
     {
-        Log::info('[NotifyUser] broadcastWith called for: ' . $this->message);
+        Log::info('[NotifyUser] broadcastWith called for: ' . $this->userId);
         // return ['count' => 1];
         return [
             'count' => 1,

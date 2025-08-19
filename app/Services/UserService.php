@@ -97,7 +97,7 @@ class UserService
         (new LineController)->LineNotification(null, LineController::User_register);
         // Send a register notification
         $notificationService = app(NotificationService::class);
-        $notification = $notificationService->createNotification('user.register', ['name' => $user->fullname], $user->id, User::class, true);
+        $notification = $notificationService->createNotification('user.registered', ['name' => $user->fullname], $user->id, User::class, true);
         $notificationService->sendToCenterStaff($notification);
         return $user;
     }

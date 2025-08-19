@@ -335,6 +335,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
+    Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
     Route::get('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
@@ -398,8 +399,22 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-history', [TransferHistoryController::class, 'shelterLog']);
     Route::get('/action-type', [TransferHistoryController::class, 'actionType']);
 
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display notifications
+    |--------------------------------------------------------------------------
+    */
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notification', [NotificationController::class, 'notification']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAsRead']);
+    Route::delete('/notifications', [NotificationController::class, 'deleteAll']);
+    Route::delete('/notifications/bulk', [NotificationController::class, 'bulkDelete']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for manage another data
+    |--------------------------------------------------------------------------
+    */
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
-    Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
 });

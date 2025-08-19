@@ -10,6 +10,7 @@ use App\Models\TeamMember;
 use App\Models\User;
 use App\Services\NotificationService;
 use App\Services\TransferHistoryService;
+use Illuminate\Support\Facades\Log;
 
 class TeamMemberObserver
 {
@@ -27,10 +28,11 @@ class TeamMemberObserver
     public function created(TeamMember $teamMember): void
     {
         //
+        Log::info('Creating member for: ' . $teamMember->user_id);
         $this->logService->createLog(ActionType::JOIN_TEAM->value, User::class, $teamMember->user_id, Team::class, $teamMember->team_id);
         LinePostUtility::LineMakeInformation(LineController::User_join, $teamMember);
 
-        $notification = $this->notificationService->createNotification('team.join', ['name' => $teamMember->team->name,], $teamMember->id, TeamMember::class, false);
+        $notification = $this->notificationService->createNotification('team.joined', ['name' => $teamMember->team->name,], $teamMember->id, TeamMember::class, false);
         $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
     }
 
@@ -48,10 +50,10 @@ class TeamMemberObserver
             $this->logService->createLog(ActionType::JOIN_TEAM->value, User::class, $newData['user_id'], Team::class, $newData['team_id']);
             LinePostUtility::LineMakeInformation(LineController::User_join, $newData);
 
-            $notification = $this->notificationService->createNotification('team.leave', ['name' => 'ทีมเก่า'], $teamMember->id, TeamMember::class, false);
-            $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
+            // $notification = $this->notificationService->createNotification('team.leaved', ['name' => $oldData['team']['name'] ?? 'ไม่มีทีม'], $teamMember->id, TeamMember::class, false);
+            // $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
 
-            $notification = $this->notificationService->createNotification('team.leave', ['name' => $teamMember->team->name], $teamMember->id, TeamMember::class, false);
+            $notification = $this->notificationService->createNotification('team.joined', ['name' => $teamMember->team->name], $teamMember->id, TeamMember::class, false);
             $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
         }
     }
@@ -61,10 +63,11 @@ class TeamMemberObserver
      */
     public function deleted(TeamMember $teamMember): void
     {
+        Log::info('Deleting member for: ' . $teamMember->user_id);
         $this->logService->createLog(ActionType::EXIT_TEAM->value, User::class, $teamMember->user_id, Team::class, $teamMember->team_id);
         LinePostUtility::LineMakeInformation(LineController::User_leave, $teamMember);
 
-        $notification = $this->notificationService->createNotification('team.leave', ['name' => $teamMember->team->name], $teamMember->id, TeamMember::class, false);
+        $notification = $this->notificationService->createNotification('team.leaved', ['name' => $teamMember->team->name], $teamMember->id, TeamMember::class, false);
         $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
     }
 }

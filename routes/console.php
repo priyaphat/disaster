@@ -10,5 +10,5 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('app:weather-task')->everySixHours();
 Schedule::command('app:appointment-task')->everyMinute();
-Schedule::command('app:notification-task')->everyMinute();
+Schedule::command('app:notification-task')->dailyAt('23:59');
 // Schedule::command('app:appointment-task')->timezone('Asia/Bangkok')->dailyAt('23:59');

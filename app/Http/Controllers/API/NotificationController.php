@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\API;
 
 use App\Events\Notification as EventsNotification;
+use App\Events\Notify;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Geography\AddressRequest;
 use App\Http\Requests\Geography\DistrictRequest;
 use App\Http\Requests\Geography\SubDistrictRequest;
+use App\Http\Requests\NotificationRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\NotificationUtility;
 use App\Jobs\BroadcastNotification;
+use App\Models\Appointment;
 use App\Models\DamagedUtility;
 use App\Models\EmergencyPost;
 use App\Models\EmergencyRequest;
@@ -40,9 +43,77 @@ class NotificationController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+    public function markAllAsRead()
+    {
+        $this->notificationService->markAllAsRead();
+        return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+    public function bulkDelete(NotificationRequest $request)
+    {
+        $this->notificationService->bulkDelte($request->only('notification_id'));
+        return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+    public function deleteAll()
+    {
+        $this->notificationService->deleteAll();
+        return ApiResponse::successResponse(__('success.deleted'));
+    }
+
     public function notification(Request $request)
     {
-        $notification = [];
+
+        // ศูนย์พักพิงมีนัดหมายใหม่
+        // $appointment = Appointment::find(121);
+        // $data = [
+        //     'shelter' => $appointment->shelter->name,
+        //     'date' => $appointment->appointment_date,
+        //     'time' => $appointment->shift->value,
+        //     'team' => $appointment->team->name,
+        // ];
+        // $userIds = ['Ua145e851bc8552be58724a47507fbd7b'];
+        // (new LineController)->LineNotification($data, LineController::Shelter_appointment, $userIds);
+
+
+        // ศูนย์พักพิงยกเลิกนัดหมาย
+        // $appointment = Appointment::find(121);
+        // $data = [
+        //     'shelter' => $appointment->shelter->name,
+        //     'date' => $appointment->appointment_date,
+        //     'time' => $appointment->shift->value,
+        //     'team' => $appointment->team->name,
+        // ];
+
+        // $userIds = ['Ua145e851bc8552be58724a47507fbd7b'];
+        // (new LineController)->LineNotification($data, LineController::Shelter_appointment_canceled, $userIds);
+
+        // ทีม : นัดหมายใหม่
+        // $appointment = Appointment::find(121);
+        // $data = [
+        //     'shelter' => $appointment->shelter->name,
+        //     'date' => $appointment->appointment_date,
+        //     'time' => $appointment->shift->value,
+        //     'team' => $appointment->team->name,
+        // ];
+
+        // $userIds = ['Ua145e851bc8552be58724a47507fbd7b'];
+        // (new LineController)->LineNotification($data, LineController::Team_appointment, $userIds);
+
+        // ทีม : ยกเลิกนัดหมาย
+        // $appointment = Appointment::find(121);
+        // $data = [
+        //     'shelter' => $appointment->shelter->name,
+        //     'date' => $appointment->appointment_date,
+        //     'time' => $appointment->shift->value,
+        //     'team' => $appointment->team->name,
+        // ];
+
+        // $userIds = ['Ua145e851bc8552be58724a47507fbd7b'];
+        // (new LineController)->LineNotification($data, LineController::Team_appointment_canceled, $userIds);
+
+        // $notification = Notification::first();
+        // event(new EventsNotification('test', Auth::user()->id));
         // ลบ Appointment
         // $user->notify(new SendNotification($data['notification']));
         // $data = Notification::first();
@@ -51,15 +122,8 @@ class NotificationController extends Controller
         // $data = Auth::user();
 
         // Create a news notification
-        $data = News::first();
-        $notification = $this->notificationService->createNotification(
-            'news.created',
-            ['title' => $data->title],
-            $data->id,
-            User::class,
-            false
-        );
-        $this->notificationService->sendToAllUsers($notification);
+        // $data = News::first();
+        // $this->notificationService->sendToSelfUser($notification, Auth::user()->id);
 
 
         // // Update a news notification
@@ -306,34 +370,34 @@ class NotificationController extends Controller
         // );
         // $this->notificationService->sendToUser($notification);
 
-        $user = Auth::user();
+        // $user = Auth::user();
         // $user->notify(new SendNotification($data['notification']));
         // $data = Notification::first();
 
         // Send an damage notification
-        $data = DamagedUtility::where('type', 2)->first();
-        $total = DamagedUtility::where('type', 2)->count();
-        $notification = $this->notificationService->createNotification(
-            'damaged.updated',
-            [
-                'name' => $data->type->label(),
-                'total' => $total
-            ],
-            $data->id,
-            DamagedUtility::class,
-            true
-        );
+        // $data = DamagedUtility::where('type', 2)->first();
+        // $total = DamagedUtility::where('type', 2)->count();
+        // $notification = $this->notificationService->createNotification(
+        //     'damaged.updated',
+        //     [
+        //         'name' => $data->type->label(),
+        //         'total' => $total
+        //     ],
+        //     $data->id,
+        //     DamagedUtility::class,
+        //     true
+        // );
 
-        // $data = EmergencyRequest::latest()->first();
-        $notification = $this->notificationService->createNotification(
-            'emergency_request.failed',
-            [
-                'name' => $data->prefix?->name.' '.$data->first_name.' '.$data->last_name
-            ],
-            $data->id,
-            EmergencyRequest::class,
-            false
-        );
+        // // $data = EmergencyRequest::latest()->first();
+        // $notification = $this->notificationService->createNotification(
+        //     'emergency_request.failed',
+        //     [
+        //         'name' => $data->prefix?->name.' '.$data->first_name.' '.$data->last_name
+        //     ],
+        //     $data->id,
+        //     EmergencyRequest::class,
+        //     false
+        // );
 
 
         // $notification = $this->notificationService->createNotification(
@@ -367,6 +431,6 @@ class NotificationController extends Controller
         //     false
         // );
 
-        return ApiResponse::successResponse(__('success.data'), $notification);
+        // return ApiResponse::successResponse(__('success.data'), $notification);
     }
 }

@@ -14,4 +14,29 @@ class LineUser extends Model
         'token_id',
         'role'
     ];
+
+    public function staff()
+    {
+        return $this->hasOneThrough(
+            ShelterStaff::class,   // Final model
+            User::class,   // Intermediate model
+            'id',  // Foreign key on first model
+            'user_id',    // Foreign key on Intermediate model
+            'user_id',          // Local key on Final model
+            'id'           // Local key on Intermediate model
+        );
+    }
+
+
+    public function team()
+    {
+        return $this->hasOneThrough(
+            TeamMember::class,   // Final model
+            User::class,   // Intermediate model
+            'id',  // Foreign key on first model
+            'user_id',    // Foreign key on Intermediate model
+            'user_id',          // Local key on Final model
+            'id'           // Local key on Intermediate model
+        );
+    }
 }

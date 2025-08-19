@@ -59,6 +59,22 @@ return [
             ]
         ]
     ],
+    'product' => [
+        'received' => [
+            'title' => 'ได้รับทรัพยากรระหว่างศูนย์',
+            'message' => [
+                ['type' => 'text', 'content' => 'ขณะนี้'],
+                ['type' => 'text', 'content' => 'ศูนย์กลาง'],
+                ['type' => 'text', 'content' => 'ได้รับ'],
+                ['type' => 'bold', 'content' => '#{product} (#{unit})'],
+                ['type' => 'text', 'content' => 'จำนวน'],
+                ['type' => 'bold', 'content' => '#{amount}'],
+                ['type' => 'text', 'content' => 'จาก'],
+                ['type' => 'bold', 'content' => 'ศูนย์พักพิง#{shelter}'],
+                
+            ]
+        ]
+    ],
     'shelter_product' => [
         'updated' => [
             'title' => 'อัปเดต ทรัพยากรภายในศูนย์',
@@ -67,17 +83,30 @@ return [
                 ['type' => 'text', 'content' => 'คงเหลือ'],
                 ['type' => 'text', 'content' => '#{total}'],
             ]
+        ],
+        'received' => [
+            'title' => 'ได้รับทรัพยากรระหว่างศูนย์',
+            'message' => [
+                ['type' => 'text', 'content' => 'ขณะนี้'],
+                ['type' => 'text', 'content' => 'ศูนย์พักพิง#{shelter}'],
+                ['type' => 'text', 'content' => 'ได้รับ'],
+                ['type' => 'bold', 'content' => '#{product} (#{unit})'],
+                ['type' => 'text', 'content' => 'จำนวน'],
+                ['type' => 'bold', 'content' => '#{amount}'],
+                ['type' => 'text', 'content' => 'จาก'],
+                ['type' => 'bold', 'content' => 'ศูนย์กลาง'],
+            ]
         ]
     ],
     'shelter_staff' => [
-        'tranfer' => [
+        'transfered' => [
             'title' => 'ถูกย้ายเข้าสู่ศูนย์พักพิง',
             'message' => [
                 ['type' => 'text', 'content' => 'คุณถูกย้ายเข้าสู่ศูนย์พักพิง'],
                 ['type' => 'bold', 'content' => '#{name}'],
             ]
         ],
-        'leave' => [
+        'leaved' => [
             'title' => 'ถูกนำออกจากศูนย์พักพิง',
             'message' => [
                 ['type' => 'text', 'content' => 'คุณถูกนำออกจากศูนย์พักพิง'],
@@ -114,30 +143,58 @@ return [
         ]
     ],
     'appointment' => [
-        'created' => [
-            'title' => 'นัดหมายตรวจเยี่ยม ใหม่',
-            'message' => [
-                ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{appointment_date} #{shift} กับ ทีมเจ้าหน้าที่'],
-                ['type' => 'bold', 'content' => '#{team}'],
-            ]
+        'shelter' => [
+            'created' => [
+                'title' => 'นัดหมายตรวจเยี่ยม ใหม่',
+                'message' => [
+                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{date} เวลา #{time} กับ ทีมเจ้าหน้าที่'],
+                    ['type' => 'bold', 'content' => '#{team}'],
+                ]
+            ],
+            'updated' => [
+                'title' => 'นัดหมายตรวจเยี่ยม ถูกอัปเดต',
+                'message' => [
+                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{old_date} เวลา #{old_time} กับ ทีมเจ้าหน้าที่'],
+                    ['type' => 'bold', 'content' => '#{old_team}'],
+                    ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น #{new_date} เวลา #{new_time} กับ ทีมเจ้าหน้าที่'],
+                    ['type' => 'bold', 'content' => '#{new_team}'],
+                ]
+            ],
+            'deleted' => [
+                'title' => 'นัดหมายตรวจเยี่ยม ถูกยกเลิก',
+                'message' => [
+                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{date} เวลา #{time} กับ ทีมเจ้าหน้าที่'],
+                    ['type' => 'bold', 'content' => '#{team}'],
+                    ['type' => 'text', 'content' => 'ถูกยกเลิก'],
+                ]
+            ],
         ],
-        'updated' => [
-            'title' => 'นัดหมายตรวจเยี่ยม ถูกอัปเดต',
-            'message' => [
-                ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{old_date} #{old_shift} กับ ทีมเจ้าหน้าที่'],
-                ['type' => 'bold', 'content' => '#{old_team}'],
-                ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น #{new_date} #{new_shift} กับ ทีมเจ้าหน้าที่ '],
-                ['type' => 'bold', 'content' => '#{new_team}'],
-            ]
-        ],
-        'deleted' => [
-            'title' => 'นัดหมายตรวจเยี่ยม ถูกยกเลิก',
-            'message' => [
-                ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{appointment_date} #{shift} กับ ทีมเจ้าหน้าที่'],
-                ['type' => 'bold', 'content' => '#{team}'],
-                ['type' => 'text', 'content' => 'ถูกยกเลิก'],
-            ]
-        ],
+        'team' => [
+            'created' => [
+                'title' => 'นัดหมายตรวจเยี่ยม',
+                'message' => [
+                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{date} เวลา #{time} ที่ ศูนย์พักพิง'],
+                    ['type' => 'bold', 'content' => '#{shelter}'],
+                ]
+            ],
+            'updated' => [
+                'title' => 'นัดหมายตรวจเยี่ยม ถูกอัปเดต',
+                'message' => [
+                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{old_date} เวลา #{old_time} ที่ ศูนย์พักพิง'],
+                    ['type' => 'bold', 'content' => '#{old_shelter}'],
+                    ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น #{new_date} เวลา #{new_time} ที่ ศูนย์พักพิง'],
+                    ['type' => 'bold', 'content' => '#{new_shelter}'],
+                ]
+            ],
+            'deleted' => [
+                'title' => 'นัดหมายตรวจเยี่ยม ถูกยกเลิก',
+                'message' => [
+                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{date} เวลา #{time} ที่ ศูนย์พักพิง'],
+                    ['type' => 'bold', 'content' => '#{shelter}'],
+                    ['type' => 'text', 'content' => 'ถูกยกเลิก'],
+                ]
+            ],
+        ]
     ],
     'product_request' => [
         'created' => [
@@ -222,7 +279,7 @@ return [
         ],
     ],
     'user' => [
-        'register' => [
+        'registered' => [
             'title' => 'รายการรอลงทะเบียนเจ้าหน้าที่',
             'message' => [
                 ['type' => 'text', 'content' => 'มีรายการลงทะเบียนเจ้าหน้าที่จาก'],
@@ -231,14 +288,14 @@ return [
         ],
     ],
     'team' => [
-        'join' => [
+        'joined' => [
             'title' => 'ถูกย้ายเข้าทีมเจ้าหน้าที่',
             'message' => [
                 ['type' => 'text', 'content' => 'คุณถูกย้ายเข้าทีมเจ้าหน้าที่'],
                 ['type' => 'bold', 'content' => '#{name}'],
             ]
         ],
-        'leave' => [
+        'leaved' => [
             'title' => 'ถูกนำออกจากทีมเจ้าหน้าที่',
             'message' => [
                 ['type' => 'text', 'content' => 'คุณถูกนำออกจากทีมเจ้าหน้าที่'],

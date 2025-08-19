@@ -107,44 +107,32 @@ class Team extends Model
         // Get user_id and position from database and new request
         $oldMembers = $this->team_members()->orderBy('sequence')->get();
 
-        $existingMembers = $oldMembers->pluck('user_id', 'sequence');
+        $existingMembers = $oldMembers->pluck('user_id');
         $newMembers = collect($members);
 
         // Get Keys from two collections
         // $newKeys = $newMembers->keys()->values();
         // $existingKeys = $existingMembers->keys()->values();
 
-        $oldMemberIds = $oldMembers->keyBy('user_id')->keys();
-        $newMemberIds = $newMembers->keyBy('user_id')->keys();
-
+        // $oldMemberIds = $oldMembers->keyBy('user_id')->keys();
+        $newMemberIds = $newMembers->pluck('user_id')->values()->all();
 
         // สมาชิกที่ถูกลบ
-        $leaveMembers = $oldMemberIds->diffKeys($newMemberIds);
+        $leaveMembers = $existingMembers->diff($newMemberIds);
         if ($leaveMembers->isNotEmpty()) {
             $this->team_members->whereIn('user_id', $leaveMembers)->each->delete();
         }
 
-        // Check members was changed
-        if ($existingMembers != $newMembers) {
-
-            // Loop over input to preserve order and create or update
-            foreach ($newMembers as $member) {
-                // Check if the position exists. If it does, update the user_id; otherwise, create a new team member with the given user_id and position
-                $checkExist = $this->team_members()->where(['sequence' => $member['sequence']])->exists();
-                if ($checkExist) {
-                    $this->team_members()
-                        ->where('sequence', $member['sequence'])
-                        ->cursor()
-                        ->each(function ($teamMember) use ($member) {
-                            $teamMember->fill([
-                                'user_id' => $member['user_id'],
-                                'team_position' => $member['team_position'],
-                            ]);
-                            $teamMember->save();
-                        });
-                } else {
-                    $this->team_members()->create(['user_id' => $member['user_id'], 'sequence' => $member['sequence'], 'team_position' => $member['team_position']]);
-                }
+        // Loop over input to preserve order and create or update
+        foreach ($newMembers as $member) {
+            // Check if the position exists. If it does, update the user_id; otherwise, create a new team member with the given user_id and position
+            $teamMember = $this->team_members()->where(['user_id' => $member['user_id']])->first();
+            if ($teamMember) {
+                $teamMember->sequence = $member['sequence'];
+                $teamMember->team_position = $member['team_position'];
+                $teamMember->save();
+            } else {
+                $this->team_members()->create(['user_id' => $member['user_id'], 'sequence' => $member['sequence'], 'team_position' => $member['team_position']]);
             }
         }
     }
