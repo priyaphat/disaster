@@ -6,7 +6,7 @@ use App\Enums\ProductLogs as EnumsProductLogs;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Traits\CreatedUpdatedBy;
 
-class ProductLogs extends Model
+class   ProductLogs extends Model
 {
 
     use CreatedUpdatedBy;

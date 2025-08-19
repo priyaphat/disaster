@@ -24,7 +24,11 @@ class ShelterProductController extends Controller
      */
     public function index(Request $filter, $shelter = null)
     {
-        $shelter = $shelter ?? ProductUtility::getShelter();
+        //ดัก เข้าไปดู shelter ที่ไม่ใช่ของตัวเอง
+        $shelterSelf = ProductUtility::getShelter();
+        if ($shelterSelf != $shelter) return Response()->json(['success' => true, "code" => 200, 'message' => __('success.data'), 'quantity' => 0]);
+
+        $shelter = $shelter ?? $shelterSelf;
         $q = (new ProductService)->getList($filter->all(), true, $shelter);
         $quantity =  $q->sum('quantity');
         if ($filter['paginate']) $q = PaginateUtility::Paginate($q, $filter['paginate'] ?? 10);
@@ -65,11 +69,11 @@ class ShelterProductController extends Controller
         $q = ShelterProduct::where('product_id', $productId)->where('shelter_id', $shelter)
             ->where('quantity', '>', 0)->first();
         if ($p['check']) { //true ลบไม่ได้ , false ลบได้ || ส่ง check = 1 for check can delete data
-            if ($q) return ApiResponse::successResponse(__('error.product_transfer.please_transfer'), true);
+            if ($q) return ApiResponse::successResponse(__('error.product_transfer.please_transfer_one'), true);
             return ApiResponse::successResponse(__('success.data'), false);
             // return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         }
-        if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
+        if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer_one'));
         //ยุติ ถ้ามี ร้องขอ
         $ph = ProductRequest::where('product_id', $productId)->where('shelter_id', $shelter)
             ->where('status', Product::Active)->first();

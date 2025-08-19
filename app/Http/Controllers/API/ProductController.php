@@ -182,14 +182,24 @@ class ProductController extends Controller
             'condition' => 'required|in:-1,1',
             'shelter_id' => 'required'
         ]);
-        $id = ShelterProduct::where('product_id', $id)->where('shelter_id', ProductUtility::getShelter())->first();
-        if ($id['quantity'] == ShelterProduct::MINUS) throw new BadRequestHttpException(__('error.shelter_product.IsNotUnit_error'));
-        if ($r['condition'] == ShelterProduct::PLUS) $id['quantity'] += $r['quantity'];
-        if ($r['condition'] == ShelterProduct::MINUS) {
-            if ($r['quantity'] > $id['quantity']) throw new BadRequestHttpException(__('error.shelter_product.minus_error') . '(' . $id['quantity'] . ')');
-            $id->quantity -= $r['quantity'];
+        $shelter = ProductUtility::getShelter();
+        $data = ShelterProduct::where('product_id', $id)->where('shelter_id', $shelter)->first();
+        if (!$data && $shelter == ShelterProduct::Shelter_center) {
+            $data = ShelterProduct::create([
+                'product_id' => $id,
+                'shelter_id' => $shelter
+            ]);
+        } else if (!$data) {
+            return ApiResponse::errorResponse(__('error.model_not_found'));
         }
-        $id->update();
-        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($id['product_id'], true));
+
+        if ($data['quantity'] == ShelterProduct::MINUS) throw new BadRequestHttpException(__('error.shelter_product.IsNotUnit_error'));
+        if ($r['condition'] == ShelterProduct::PLUS) $data['quantity'] += $r['quantity'];
+        if ($r['condition'] == ShelterProduct::MINUS) {
+            if ($r['quantity'] > $data['quantity']) throw new BadRequestHttpException(__('error.shelter_product.minus_error') . '(' . $data['quantity'] . ')');
+            $data->quantity -= $r['quantity'];
+        }
+        $data->update();
+        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($data['product_id'], true));
     }
 }
