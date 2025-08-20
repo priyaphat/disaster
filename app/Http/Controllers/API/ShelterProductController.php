@@ -114,6 +114,7 @@ class ShelterProductController extends Controller
     {
         $already = ShelterProduct::where('shelter_id', ProductUtility::getShelter())->get()->pluck('product_id');
         $q = Product::whereNotIn('id', $already)
+            ->where('status', Product::Active)
             ->orderBy('name', $r['sort'] ?? 'asc');
         $q = (new SearchService)->search($q, $r, 'get', [6]);
         return ApiResponse::successResponse(__('success.data'), $q);

@@ -67,7 +67,7 @@ class EmergencyRequestService
                 return $item;
             });
 
-        if ($request->paginate) return PaginateUtility::Paginate($items);
+        if ($request->paginate) return PaginateUtility::Paginate($items, $request->paginate ?? 10);
 
         if (!Auth::check() && $id) {
             $items[0]['phone'] != $search;
@@ -128,7 +128,7 @@ class EmergencyRequestService
                 $item->victim_name = $victimName;
                 return $item;
             });
-        return PaginateUtility::Paginate($items);
+        return PaginateUtility::Paginate($items, $request->paginate ?? 10);
     }
 
     public function create(array $data): EmergencyRequest

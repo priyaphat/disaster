@@ -53,6 +53,7 @@ class ProductTransferController extends Controller
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->where('shelter_products.shelter_id', $shelter)
             ->where('shelter_products.quantity', '>', 0)
+            ->where('products.status', Product::Active)
             ->when(
                 $unit_type,
                 fn($q) =>
@@ -126,7 +127,7 @@ class ProductTransferController extends Controller
     {
         $shelter = $shelter ?? ProductUtility::getShelter();
         $to = $request['shelter_id'] ?? '0';
-        if ($shelter == $to) return ApiResponse::errorResponse(__('auth.unauthenicated'));
+        if ($shelter == $to) return ApiResponse::errorResponse(__('auth.unauthenicated_transfer'));
         foreach ($request['transfer'] as $item) {
             //sender
             $pdt = ShelterProduct::select(
