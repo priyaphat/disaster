@@ -68,7 +68,7 @@ class ShelterController extends Controller
         }
 
         // Update all data;
-        if ($request->max_capacity < $shelter->population->count()) {
+        if ($request->max_capacity < $shelter->populations->count()) {
             return ApiResponse::errorResponse(__('error.shelter.limit'));
         }
 

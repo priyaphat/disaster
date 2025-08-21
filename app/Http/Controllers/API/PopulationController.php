@@ -82,51 +82,17 @@ class PopulationController extends Controller
     {
         $prevShelter = $population->shelter_id;
         $data = $this->populationService->update($population, $request->all());
-            // $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
-        $data->image = $this->imageService->handleImageUpdate($request->all(), Population::IMAGE_FOLDER, Population::class, $data->id);
+        // $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
 
+        if(!$request->shelter_id){
+            $data->image = $this->imageService->handleImageUpdate($request->all(), Population::IMAGE_FOLDER, Population::class, $data->id);
+        }
+        
         if ($prevShelter == $data->shelter_id) {
             return ApiResponse::successResponse(__('success.updated'), $data);
         }
+    
         return ApiResponse::successResponse(__('success.created'), $data);
-    }
-
-    /**
-     * Transfer population | ย้ายศูนย์พักพิงประชากรรายบุคคล
-     */
-    #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
-    public function transfer(TransferPopulationRequest $request, Population $population)
-    {
-        $oldShelter = $population->shelter_id;
-        $newShelter = $request->shelter_id;
-
-        if ($newShelter == $oldShelter) {
-            return ApiResponse::successResponse(__('success.updated'));
-        }
-
-        $shelter = $this->shelterService->getShelter($newShelter);
-        $data = $this->populationService->transfer($population, $request->all(), $shelter->max_capacity);
-        return ApiResponse::successResponse(__('success.population.tranfered'), $data);
-    }
-
-    /**
-     * Exit population | นำประชากรออกจากศูนย์พักพิงรายบุคคล
-     */
-    #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
-    public function exit(Population $population)
-    {
-        $request = ['shelter_id' => Population::exit];
-        $data = $this->populationService->update($population, $request);
-        return ApiResponse::successResponse(__('success.population.leaved'), $data);
-    }
-
-    /**
-     * Exit all population | นำประชากรออกจากศูนย์พักพิงทั้งหมด
-     */
-    public function exitAll(ExitAllPopulationRequest $request)
-    {
-        $this->populationService->updateByShelter($request->all());
-        return ApiResponse::successResponse(__('success.population.leaved'));
     }
 
     /**

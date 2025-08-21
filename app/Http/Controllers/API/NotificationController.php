@@ -63,7 +63,6 @@ class NotificationController extends Controller
 
     public function notification(Request $request)
     {
-
         // ศูนย์พักพิงมีนัดหมายใหม่
         // $appointment = Appointment::find(121);
         // $data = [

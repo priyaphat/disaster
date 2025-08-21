@@ -28,6 +28,7 @@ use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ProductTransferController;
+use App\Http\Controllers\API\ShelterPopulationController;
 use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Controllers\API\ShelterStaffController;
@@ -215,9 +216,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/population/{population}', [PopulationController::class, 'show']);
     Route::post('/population', [PopulationController::class, 'store']);
     Route::post('/population/{population}', [PopulationController::class, 'update']);
-    Route::post('/population/transfer/{population}', [PopulationController::class, 'transfer']);
-    Route::post('/population/exit/{population}', [PopulationController::class, 'exit']);
-    Route::post('/population-exit-all', [PopulationController::class, 'exitAll']);
+    Route::post('/population/transfer/{population}', [ShelterPopulationController::class, 'transfer']);
+    Route::post('/population/exit/{population}', [ShelterPopulationController::class, 'exit']);
+    Route::post('/population-exit-all', [ShelterPopulationController::class, 'exitAll']);
     Route::post('/population-check', [PopulationController::class, 'checkPopulation']);
     Route::post('/population-add', [PopulationController::class, 'addExternalPop']);
 

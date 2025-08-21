@@ -33,18 +33,20 @@ class PopulationFilter extends QueryFilter
     public function shelter($value)
     {
         if ($value === 'true') {
-            return $this->builder->whereNotNull('shelter_id');
+            return $this->builder->whereHas('shelterPopulation');
         }
 
         if ($value === 'false') {
-            return $this->builder->whereNull('shelter_id');
+            return $this->builder->whereDoesntHave('shelterPopulation');
         }
     }
 
     public function shelter_id($value)
     {
         if ($value) {
-            return $this->builder->where('shelter_id', $value);
+            return $this->builder->whereHas('shelterPopulation', function ($query) use ($value) {
+                $query->where('shelter_id', $value);
+            });
         }
     }
 

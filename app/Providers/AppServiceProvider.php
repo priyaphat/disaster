@@ -9,10 +9,13 @@ use App\Listeners\SendPasswordEmail;
 use App\Listeners\SendWelcomeEmail;
 use App\Listeners\UserEventSubscriber;
 use App\Models\Population;
+use App\Models\Shelter;
+use App\Models\ShelterPopulation;
 use App\Models\ShelterStaff;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Observers\PopulationObserver;
+use App\Observers\ShelterPopulationObserver;
 use App\Observers\ShelterStaffObserver;
 use App\Observers\TeamMemberObserver;
 use App\Observers\TeamObserver;
@@ -54,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
         Event::subscribe(UserEventSubscriber::class);
         JsonResource::withoutWrapping();
 
-        Population::observe(PopulationObserver::class);
+        ShelterPopulation::observe(ShelterPopulationObserver::class);
         TeamMember::observe(TeamMemberObserver::class);
         ShelterStaff::observe(ShelterStaffObserver::class);
         Team::observe(TeamObserver::class);
