@@ -9,6 +9,7 @@ use App\Http\Resources\PopulationResource;
 use App\Http\Resources\PopulationShowResource;
 use App\Models\Population;
 use App\Models\Shelter;
+use App\Models\ShelterPopulation;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Support\Arr;
@@ -34,7 +35,7 @@ class PopulationService
         $query = Population::filter($filters);
         $total = $query->count();
         $group = $query->get()->countBy('status');
-        $lastUpdated = $query->max('updated_at');
+        $lastUpdated = ShelterPopulation::max('updated_at');
         return [
             'total_victims' => $total,
             'total_injuries' => $group[PopulationStatus::INJURED->value] ?? 0,
@@ -73,16 +74,14 @@ class PopulationService
             'created_date' => $data['created_date'],
         ]);
 
-        if (isset($data['shelter_id']) && $data['shelter_id']) {
-            app(ShelterPopulationService::class)->updateOrCreate(['population_id' => $population->id, 'shelter_id' => $data['shelter_id']]);
-        }
+        app(ShelterPopulationService::class)->updateOrCreate(['population_id' => $population->id, 'shelter_id' => $data['shelter_id'] ?? NULL]);
 
         return $population;
     }
 
     public function update(Population $population, array $data): Population
     {
-        if (isset($data['shelter_id']) && $data['shelter_id']) {
+        if (isset($data['shelter_id'])) {
             app(ShelterPopulationService::class)->update($population, Arr::only($data, ['shelter_id']));
         }
         $population->update($data);

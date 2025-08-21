@@ -52,11 +52,11 @@ class ShelterPopulationService
      */
     public function delete(Population $population)
     {
-        return $population->shelterPopulation->delete();
+        return $population->shelterPopulation->update(['shelter_id' => NULL]);
     }
 
     public function deleteByShelter(array $data)
     {
-        return ShelterPopulation::where('shelter_id', $data['shelter_id'])->each->delete();
+        return ShelterPopulation::where('shelter_id', $data['shelter_id'])->get()->each->update(['shelter_id' => NULL]);
     }
 }

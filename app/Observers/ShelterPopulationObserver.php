@@ -22,7 +22,9 @@ class ShelterPopulationObserver
      */
     public function created(ShelterPopulation $shelterPop): void
     {
-        $this->logService->createLog(ActionType::ENTER->value, Population::class, $shelterPop->population_id, Shelter::class, $shelterPop->shelter_id);;
+        if ($shelterPop->shelter_id) {
+            $this->logService->createLog(ActionType::ENTER->value, Population::class, $shelterPop->population_id, Shelter::class, $shelterPop->shelter_id);
+        }
     }
 
     /**
@@ -30,16 +32,19 @@ class ShelterPopulationObserver
      */
     public function updated(ShelterPopulation $shelterPop): void
     {
-        if ($shelterPop->wasChanged('shelter_id')) {
-            $this->logService->createLog(ActionType::TRANSFER->value, Population::class, $shelterPop->population_id, Shelter::class, $shelterPop->shelter_id);
-        }
-    }
+        $oldData = $shelterPop->getOriginal();
+        $newData = $shelterPop->getAttributes();
 
-    /**
-     * Handle the Shelter Population "created" event.
-     */
-    public function deleted(ShelterPopulation $shelterPop): void
-    {
-        $this->logService->createLog(ActionType::EXIT->value, Population::class, $shelterPop->population_id, Shelter::class, $shelterPop->shelter_id);;
+        if ($shelterPop->wasChanged('shelter_id') && !$oldData['shelter_id'] && $newData['shelter_id']) {
+            $this->logService->createLog(ActionType::ENTER->value, Population::class, $shelterPop->population_id, Shelter::class, $newData['shelter_id']);
+        }
+
+        if ($shelterPop->wasChanged('shelter_id') && $oldData['shelter_id'] && $newData['shelter_id']) {
+            $this->logService->createLog(ActionType::TRANSFER->value, Population::class, $shelterPop->population_id, Shelter::class, $newData['shelter_id']);
+        }
+
+        if ($shelterPop->wasChanged('shelter_id') && !$newData['shelter_id']) {
+            $this->logService->createLog(ActionType::EXIT->value, Population::class, $shelterPop->population_id, Shelter::class, $oldData['shelter_id']);
+        }
     }
 }

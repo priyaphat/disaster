@@ -30,6 +30,15 @@ class PopulationFilter extends QueryFilter
         }
     }
 
+    public function district($value)
+    {
+        if ($value) {
+            return $this->builder->whereHas('currentAddress', function ($query) use ($value) {
+                $query->where('district_code', $value);
+            });
+        }
+    }
+
     public function shelter($value)
     {
         if ($value === 'true') {

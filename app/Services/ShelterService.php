@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\DamagedUtility;
+use App\Enums\PopulationStatus;
 use App\Enums\ShelterUtilities;
 use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\ProductController;
@@ -104,14 +105,14 @@ class ShelterService
         //     return $data;
         // }
 
-        $data = $shelter->load('image', 'population', 'leader', 'staff', 'geography');
+        $data = $shelter->load('image', 'populations', 'leader', 'staff', 'geography');
         return new ShelterResource($data);
     }
 
     public function dashboard(array $filters = [])
     {
         $total_shelter = Shelter::where('status', Shelter::OPEN)->count();
-        $total_population = Population::whereNotNull('shelter_id')->count();
+        $total_population = ShelterPopulation::count();
         $updated_at = ShelterPopulation::max('updated_at');;
 
         $shelter_id = $filters['shelter_id'] ?? null;
@@ -121,9 +122,9 @@ class ShelterService
             $query = $query->where('shelter_id', $shelter_id);
         }
 
-        $total_injured = (clone $query)->where('status', Population::injure)->count();
-        $total_healthy = (clone $query)->where('status', Population::healthy)->count();
-        $total_dead = (clone $query)->where('status', Population::dead)->count();
+        $total_injured = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::INJURED->value)->count();
+        $total_healthy = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::NORMAL->value)->count();
+        $total_dead = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::DECREASE->value)->count();
 
         return $dashboard = [
             'total_shelter' => $total_shelter,
