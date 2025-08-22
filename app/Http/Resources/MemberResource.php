@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\TeamPosition;
+use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -50,7 +51,7 @@ class MemberResource extends JsonResource
             'team_position_name' =>  $this->when($this->team_position, $this->team_position ? TeamPosition::from($this->team_position)->label() : null),
             'position_name' => $this->position->name,
             'image' => $this->image?->image_path,
-            'default_image' => $this->image?->image_name === 'default.png' ? true : false,
+            'default_image' => $this->image?->image_name === Image::DEFAULT ? true : false,
         ];
     }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
+            $table->string('original_name')->nullable();
             $table->string('image_name');
             $table->string('image_url');
             $table->string('image_type')->default('public')->comment('public, local');

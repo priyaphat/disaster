@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,9 +19,10 @@ class NewsResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
-            'image_name' => $this->when($this->image, $this->image?->image_name),
+            'image_name' => $this->when($this->image, $this->image?->original_name ?? $this->image?->image_name),
             'image_url' => $this->when($this->image, $this->image?->image_url),
             'image' => $this->when($this->image, $this->image?->image_path),
+            'default_image' => $this->image?->image_name === Image::DEFAULT ? true : false,
             'line_oa' => $this->line_oa,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -5,9 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use App\Models\Image;
-use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log as FacadesLog;
 use Intervention\Image\Drivers\Gd\Driver;
 
 class ImageService
@@ -89,13 +87,14 @@ class ImageService
         $folderPath = 'image/' . $folder . '/';
         $image = $this->getByTableAndId($table, $id);
 
-        if ($image->image_name !== 'default.png') {
+        if ($image->image_name !== Image::DEFAULT) {
             self::removeFile($image->image_url, $image->image_type);
         }
 
         $image->update([
-            'image_name' => 'default.png',
-            'image_url' => $folderPath . 'default.png',
+            'original_name' => Image::DEFAULT,
+            'image_name' => Image::DEFAULT,
+            'image_url' => $folderPath . Image::DEFAULT,
         ]);
 
         return $image->refresh();
@@ -116,7 +115,7 @@ class ImageService
             return false;
         }
 
-        if ($image->image_name !== 'default.png') {
+        if ($image->image_name !== Image::DEFAULT) {
             self::removeFile($image->image_url, $image->image_type);
         }
 
@@ -151,11 +150,13 @@ class ImageService
             // Resize the image after saving
             self::resizeImage($location);
 
+            $data['original_name'] = $file->getClientOriginalName();
             $data['image_name'] = $filename;
             $data['image_url'] = $folderPath . $filename;
         } else {
-            $data['image_name'] = 'default.png';
-            $data['image_url'] = $folderPath . 'default.png';
+            $data['original_name'] = Image::DEFAULT;
+            $data['image_name'] = Image::DEFAULT;
+            $data['image_url'] = $folderPath . Image::DEFAULT;
         }
 
         return $data;
@@ -242,7 +243,7 @@ class ImageService
         if (array_key_exists('image', $data)) {
             return $this->updateImage($data['image'], $folder, $table, $id, $diskName);
         }
-    
+
         return $this->updateToDefault($folder, $table, $id);
     }
 }
