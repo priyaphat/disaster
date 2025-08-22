@@ -102,7 +102,8 @@ class EmergencyRequestService
         if ($emc->status) {
             $items = $items->where('status', $emc->status);
         } else {
-            if ($type == 'waiting') {
+            if ($type == 'waiting') { // ถ้ามีทีม แสดงแค่ทีม ตัวเอง ถ้าไม่ใช่ จนท สก. รอ role
+                
                 $items = $items->whereIn('status', [
                     EmergencyRequest::approve,
                     EmergencyRequest::helping

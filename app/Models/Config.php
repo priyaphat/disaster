@@ -14,6 +14,7 @@ class Config extends Model
     public const line = 1;
     public const line_id = 2;
     public const weather = 3;
+    public const chart = 4;
 
     protected $casts = [
         'description' => "array"

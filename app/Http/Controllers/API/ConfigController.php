@@ -144,4 +144,26 @@ class ConfigController extends Controller
         }
         return ApiResponse::successResponse(__('success.data'), $data);
     }
+
+    public function indexChart($id = null)
+    {
+        $q = Config::where('type', Config::chart)->first();
+        return ApiResponse::successResponse(__('success.data') , $q->description);
+    }
+
+    public function storeChart(Request $request)
+    {
+        $q = Config::where('type', Config::chart)->first();
+        if ($q) {
+            $q->description = ($request->all());
+            $q->save();
+        } else {
+            $q = new Config();
+            $q->name = 'chart';
+            $q->type = Config::chart;
+            $q->description = ($request->all());
+            $q->save();
+        }
+        return ApiResponse::successResponse(__('success.data'), $q);
+    }
 }

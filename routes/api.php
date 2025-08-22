@@ -62,7 +62,6 @@ Route::post('/line-login-population', [LoginController::class, 'line_population_
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 Route::get('/line-test', [LineController::class, 'test']); //test
 
-
 Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
@@ -81,6 +80,8 @@ Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
 Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
+Route::get('/chart/{id?}', [ConfigController::class, 'indexChart']);
+
 
 Route::middleware('auth:api')->group(function () {
 
@@ -354,6 +355,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/config/{config}', [ConfigController::class, 'update']);
     Route::post('/config-reset', [ConfigController::class, 'reset']);
     // Route::delete('/config/{config}', [ConfigController::class, 'destroy']);
+    Route::post('/chart', [ConfigController::class, 'storeChart']);
 
     /*
     |--------------------------------------------------------------------------
@@ -400,7 +402,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-history', [TransferHistoryController::class, 'shelterLog']);
     Route::get('/action-type', [TransferHistoryController::class, 'actionType']);
 
-    
+
     /*
     |--------------------------------------------------------------------------
     | Routes for display notifications
