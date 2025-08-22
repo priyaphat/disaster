@@ -17,7 +17,7 @@ class Image extends Model
     protected $appends = ['image_path'];
 
     protected $fillable = [
-        'system_name',
+        'original_name',
         'image_name',
         'image_url',
         'image_type',

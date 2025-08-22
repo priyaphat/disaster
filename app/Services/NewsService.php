@@ -6,6 +6,7 @@ use App\Http\Controllers\API\LineController;
 use App\Http\Resources\NewsCollection;
 use App\Http\Resources\NewsResource;
 use App\Http\Utility\LinePostUtility;
+use App\Models\Image;
 use App\Models\News;
 use Illuminate\Support\Arr;
 
@@ -68,7 +69,7 @@ class NewsService
     {
         $news->update($data);
         $news->refresh();
-        $this->imageService->updateImage($data['image'] ?? null, News::IMAGE_FOLDER, News::class, $news->id);
+        $news->image = $this->imageService->handleImageUpdate($data, News::IMAGE_FOLDER, News::class, $news->id, Image::PUBLIC);
         // LinePostUtility::line_oa_call(LineController::News_update, $news->toArray());
         $this->notify($news, 'updated');
         return $news;
@@ -79,7 +80,7 @@ class NewsService
      */
     public function delete(News $news): bool
     {
-        $this->imageService->deleteImage(News::IMAGE_FOLDER, News::class, $news->id);
+        $this->imageService->deleteImage(News::class, $news->id);
         return $news->delete();
     }
 
