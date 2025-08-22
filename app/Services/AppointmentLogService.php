@@ -31,7 +31,7 @@ class AppointmentLogService
             $teamMember->push($userLog);
         }
 
-        $teamDescription['all_members'] = $teamMember;
+        $teamDescription['all_members'] = $teamMember->values()->all();
         $teamDescription['total_members'] = $teamMember->count();
 
         // Save new members to team log

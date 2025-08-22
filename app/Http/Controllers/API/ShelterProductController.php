@@ -24,7 +24,11 @@ class ShelterProductController extends Controller
      */
     public function index(Request $filter, $shelter = null)
     {
-        $shelter = $shelter ?? ProductUtility::getShelter();
+        //ดัก เข้าไปดู shelter ที่ไม่ใช่ของตัวเอง
+        $shelterSelf = ProductUtility::getShelter();
+        if ($shelterSelf != $shelter) return Response()->json(['success' => true, "code" => 200, 'message' => __('success.data'), 'quantity' => 0]);
+
+        $shelter = $shelter ?? $shelterSelf;
         $q = (new ProductService)->getList($filter->all(), true, $shelter);
         $quantity =  $q->sum('quantity');
         if ($filter['paginate']) $q = PaginateUtility::Paginate($q, $filter['paginate'] ?? 10);
@@ -65,11 +69,11 @@ class ShelterProductController extends Controller
         $q = ShelterProduct::where('product_id', $productId)->where('shelter_id', $shelter)
             ->where('quantity', '>', 0)->first();
         if ($p['check']) { //true ลบไม่ได้ , false ลบได้ || ส่ง check = 1 for check can delete data
-            if ($q) return ApiResponse::successResponse(__('error.product_transfer.please_transfer'), true);
+            if ($q) return ApiResponse::successResponse(__('error.product_transfer.please_transfer_one'), true);
             return ApiResponse::successResponse(__('success.data'), false);
             // return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         }
-        if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
+        if ($q) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer_one'));
         //ยุติ ถ้ามี ร้องขอ
         $ph = ProductRequest::where('product_id', $productId)->where('shelter_id', $shelter)
             ->where('status', Product::Active)->first();
@@ -82,7 +86,6 @@ class ShelterProductController extends Controller
         return ApiResponse::successResponse(__('success.shelter_product.deleted_all'));
     }
 
-
     /**
      * transfer shelter all-product | ภายใน ศูนย์
      */
@@ -91,6 +94,7 @@ class ShelterProductController extends Controller
         $q = (new ProductService)->getList([], true, $shelter);
         $r = new ProductTransferRequest();
         $item['shelter_id'] = ShelterProduct::Shelter_center;
+        $item['transfer'] = [];
         foreach ($q as $i) {
             if ($i['quantity'] > 0) {
                 $item['transfer'][] = [
@@ -110,6 +114,7 @@ class ShelterProductController extends Controller
     {
         $already = ShelterProduct::where('shelter_id', ProductUtility::getShelter())->get()->pluck('product_id');
         $q = Product::whereNotIn('id', $already)
+            ->where('status', Product::Active)
             ->orderBy('name', $r['sort'] ?? 'asc');
         $q = (new SearchService)->search($q, $r, 'get', [6]);
         return ApiResponse::successResponse(__('success.data'), $q);

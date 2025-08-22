@@ -67,7 +67,7 @@ class EmergencyRequestService
                 return $item;
             });
 
-        if ($request->paginate) return PaginateUtility::Paginate($items);
+        if ($request->paginate) return PaginateUtility::Paginate($items, $request->paginate ?? 10);
 
         if (!Auth::check() && $id) {
             $items[0]['phone'] != $search;
@@ -102,7 +102,8 @@ class EmergencyRequestService
         if ($emc->status) {
             $items = $items->where('status', $emc->status);
         } else {
-            if ($type == 'waiting') {
+            if ($type == 'waiting') { // ถ้ามีทีม แสดงแค่ทีม ตัวเอง ถ้าไม่ใช่ จนท สก. รอ role
+                
                 $items = $items->whereIn('status', [
                     EmergencyRequest::approve,
                     EmergencyRequest::helping
@@ -128,7 +129,7 @@ class EmergencyRequestService
                 $item->victim_name = $victimName;
                 return $item;
             });
-        return PaginateUtility::Paginate($items);
+        return PaginateUtility::Paginate($items, $request->paginate ?? 10);
     }
 
     public function create(array $data): EmergencyRequest

@@ -14,7 +14,7 @@ class NotificationService
 {
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
-        $query = NotificationUser::with('notification')->where('user_id', Auth::user()->id);
+        $query = NotificationUser::with('notification')->where('user_id', Auth::user()->id)->latest('id');
         if (!$paginate) {
             return NotificationResource::collection($query->get());
         }
@@ -30,9 +30,9 @@ class NotificationService
         return $data;
     }
 
-    public function bulkDelte(array $notiArr)
+    public function bulkDelte(array $data)
     {
-        $data = NotificationUser::whereIn('id', $notiArr)->delete();
+        $data = NotificationUser::whereIn('id', $data['notification_id'])->delete();
         return $data;
     }
 
@@ -155,6 +155,4 @@ class NotificationService
             BroadcastNotification::dispatch($users, $notification);
         });
     }
-
-
 }

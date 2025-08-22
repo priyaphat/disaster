@@ -9,19 +9,15 @@ use App\Http\Resources\PopulationResource;
 use App\Http\Resources\PopulationShowResource;
 use App\Models\Population;
 use App\Models\Shelter;
+use App\Models\ShelterPopulation;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PopulationService
 {
-    protected $shelterService;
-    public function __construct(ShelterService $shelterService)
-    {
-        $this->shelterService = $shelterService;
-    }
-
     #[QueryParameter('per_page', description: 'ส่งจำนวนข้อมูลที่ต้องการต่อหน้า', type: 'string', example: '3')]
     #[QueryParameter('search', description: 'ค้นหาชื่อ', type: 'string', example: "มาม่า")]
     #[QueryParameter('unit_id', description: 'ค้นหาตามหน่วย ดึงหน่วยจาก api unit.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/unit.index', type: 'string', example: "1")]
@@ -30,7 +26,7 @@ class PopulationService
     public function getList(array $filters = [])
     {
         $query = Population::filter($filters);
-        $data = $query->with('permanentAddress', 'currentAddress', 'prefix')->latest()->paginate(10);
+        $data = $query->with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image')->latest()->paginate(10);
         return $data->setCollection(PopulationResource::collection($data->items())->collection);
     }
 
@@ -39,7 +35,7 @@ class PopulationService
         $query = Population::filter($filters);
         $total = $query->count();
         $group = $query->get()->countBy('status');
-        $lastUpdated = $query->select('updated_at')->latest('updated_at')->value('updated_at');
+        $lastUpdated = ShelterPopulation::max('updated_at');
         return [
             'total_victims' => $total,
             'total_injuries' => $group[PopulationStatus::INJURED->value] ?? 0,
@@ -51,11 +47,13 @@ class PopulationService
     public function create(array $data): Population
     {
         if (isset($data['shelter_id']) && $data['shelter_id']) {
-            if ($this->shelterService->isShelterMax($data['shelter_id'])) {
+            $shelterService = app(ShelterService::class);
+
+            if ($shelterService->isShelterMax($data['shelter_id'])) {
                 throw new BadRequestHttpException(__('error.shelter.full'));
             }
 
-            if (!$this->shelterService->isShelterOpen($data['shelter_id'])) {
+            if (!$shelterService->isShelterOpen($data['shelter_id'])) {
                 throw new BadRequestHttpException(__('error.shelter.closed'));
             }
         }
@@ -73,59 +71,27 @@ class PopulationService
             'c_geography_id' => $data['c_geography_id'],
             'same_address' => $data['same_address'],
             'status' => $data['status'],
-            // 'tracking' => $data['tracking'],
-            'shelter_id' => $data['shelter_id'] ?? null,
             'created_date' => $data['created_date'],
         ]);
+
+        app(ShelterPopulationService::class)->updateOrCreate(['population_id' => $population->id, 'shelter_id' => $data['shelter_id'] ?? NULL]);
 
         return $population;
     }
 
     public function update(Population $population, array $data): Population
     {
-        if (isset($data['shelter_id']) && $data['shelter_id']) {
-            if ($this->shelterService->isShelterMax($data['shelter_id'], $population->id)) {
-                throw new BadRequestHttpException(__('error.shelter.full'));
-            }
-
-            // Check if the shelter is open. If it is not, the data cannot be updated
-            if (!$this->shelterService->isShelterOpen($data['shelter_id'])) {
-                throw new BadRequestHttpException(__('error.shelter.closed'));
-            }
+        if (isset($data['shelter_id'])) {
+            app(ShelterPopulationService::class)->update($population, Arr::only($data, ['shelter_id']));
         }
-
         $population->update($data);
         return $population;
-    }
-
-    public function updateByShelter(array $data)
-    {
-        $data['new_shelter'] = isset($data['new_shelter']) ? $data['new_shelter'] : null;
-        return Population::where('shelter_id', $data['shelter_id'])
-            ->cursor()
-            ->each(function ($population) use ($data) {
-                $population->fill(['shelter_id' => $data['new_shelter']]);
-                $population->save();
-            });
     }
 
     public function show(Population $population)
     {
         $data = Population::with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image')->findOrFail($population->id);
         return new PopulationShowResource($data);
-    }
-
-    public function transfer(Population $population, array $data, $maxcap): Population
-    {
-        $populations = Population::where('shelter_id', $data['shelter_id'])->count();
-        if ($populations >= $maxcap) {
-            throw new BadRequestHttpException(__('error.shelter.full'));
-        } else {
-            $population->update([
-                'shelter_id' => $data['shelter_id'],
-            ]);
-        }
-        return $population;
     }
 
     public function checkPopulation(array $data)
@@ -183,7 +149,6 @@ class PopulationService
                             'c_address' => null,
                             'c_geography_id' => null,
                             'sequence_id' => $sequence_id,
-                            'shelter_id' => null,
                             'created_date' => Carbon::now(),
                         ]);
                     }

@@ -128,6 +128,7 @@ class EmergencyRequestController extends Controller
             $this->notificationService->sendToTeamLeader($notification, $request['emergency_team_id']);
         }
 
+        if ($emergencyRequest['status'] == EmergencyRequest::approve)  $request['assigner'] = Auth::user()->id;
         $data = $this->emergencyRequestService->update($emergencyRequest, $request->all());
         $data->load('team');
         if ($request->status != $old['status']) {

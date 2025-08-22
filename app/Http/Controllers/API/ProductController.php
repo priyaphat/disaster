@@ -6,6 +6,7 @@ use App\Enums\ShelterUtilities;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\CreateProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\ProductUtility;
 use App\Models\Product;
@@ -93,7 +94,7 @@ class ProductController extends Controller
         if (isset($request['status'])) {
             if ($request['status'] != $product['status']) { // status
                 if ($request['status'] == Product::Inactive) {
-                    if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.product.delete'));
+                    if (self::checkDalete($product->id, true)) throw new BadRequestHttpException(__('error.product.delete'));
                 }
                 $product->update($request->all());
                 return ApiResponse::successResponse($product->status == Product::Active ? __('success.product.toggle_open') : __('success.product.toggle_close'), $product);
@@ -112,7 +113,16 @@ class ProductController extends Controller
     {
         if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
         ShelterProduct::where('product_id', $product->id)->delete();
-        ProductRequest::where('product_id', $product->id)->delete();
+
+        //ยุติ ถ้ามี ร้องขอ
+        // ProductRequest::where('product_id', $product->id)->delete();
+        $ph = ProductRequest::where('product_id', $product->id)->where('status', Product::Active)->first();
+        $r = new UpdateProductReqRequest();
+        if ($ph) {
+            app(ProductRequestController::class)->update($r->merge(['status' => ProductRequest::STOP]), $ph);
+            $ph->delete();
+        }
+
         $product->delete();
         $image = $this->imageService->getByTableAndId(Product::class, $product->id);
         if ($image) {
@@ -121,14 +131,20 @@ class ProductController extends Controller
         return ApiResponse::successResponse(__('success.product.deleted'));
     }
 
-    public function chekdel($productId) //true ลบไม่ได้ , false ลบได้
+    public function checkDel($productId) //true ลบไม่ได้ , false ลบได้
     {
         return ApiResponse::successResponse(__('success.data'), (self::checkDalete($productId)));
     }
 
-    private function checkDalete($productId)
+    private function checkDalete($productId, $excepShelter = false)
     {
-        $q = ShelterProduct::where('product_id', $productId)->get();
+        $q = ShelterProduct::where('product_id', $productId)
+            ->when(
+                $excepShelter,
+                fn($q) =>
+                $q->whereNot('shelter_id', ShelterProduct::Shelter_center)
+            )
+            ->get();
 
         if ($q->isNotEmpty()) {
             if (count($q) > 1) return true;
@@ -164,15 +180,27 @@ class ProductController extends Controller
         $r->validate([
             'quantity' => 'required|numeric',
             'condition' => 'required|in:-1,1',
+            'shelter_id' => 'required'
         ]);
-        $id = ShelterProduct::where('product_id', $id)->where('shelter_id', ProductUtility::getShelter())->first();
-        if ($id['quantity'] == ShelterProduct::MINUS) throw new BadRequestHttpException(__('error.shelter_product.IsNotUnit_error'));
-        if ($r['condition'] == ShelterProduct::PLUS) $id['quantity'] += $r['quantity'];
-        if ($r['condition'] == ShelterProduct::MINUS) {
-            if ($r['quantity'] > $id['quantity']) throw new BadRequestHttpException(__('error.shelter_product.minus_error') . '(' . $id['quantity'] . ')');
-            $id->quantity -= $r['quantity'];
+        $shelter = ProductUtility::getShelter();
+        $data = ShelterProduct::where('product_id', $id)->where('shelter_id', $shelter)->first();
+        if (!$data && $shelter == ShelterProduct::Shelter_center) {
+            $data = ShelterProduct::create([
+                'product_id' => $id,
+                'shelter_id' => $shelter
+            ]);
+        } else if (!$data) {
+            return ApiResponse::errorResponse(__('error.model_not_found'));
         }
-        $id->update();
-        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($id['product_id'], true));
+
+        if ($data['quantity'] == ShelterProduct::MINUS) throw new BadRequestHttpException(__('error.shelter_product.IsNotUnit_error'));
+        if ($r['condition'] == ShelterProduct::PLUS) $data['quantity'] += $r['quantity'];
+        if ($r['condition'] == ShelterProduct::MINUS) {
+            if ($r['quantity'] > $data['quantity']) throw new BadRequestHttpException(__('error.shelter_product.minus_error') . '(' . $data['quantity'] . ')');
+            $data->quantity -= $r['quantity'];
+        }
+        $data->update();
+        //noti อัปเดต ทรัพยากรภายในศูนย์ shelter == 0 ทรัพยากรกลาง 
+        return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($data['product_id'], true));
     }
 }

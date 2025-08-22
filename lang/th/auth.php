@@ -18,5 +18,6 @@ return [
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
     'unauthenicated' => 'ไม่มีสิทธิ์ใช้งาน',
+    'unauthenicated_transfer' => 'ไม่มีสิทธิ์โอนย้ายทรัพยากรระหว่างศูนย์',
     'unauthorized' => 'การเข้าถึงถูกปฏิเสธ',
 ];

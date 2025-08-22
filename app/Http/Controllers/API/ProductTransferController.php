@@ -53,6 +53,7 @@ class ProductTransferController extends Controller
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->where('shelter_products.shelter_id', $shelter)
             ->where('shelter_products.quantity', '>', 0)
+            ->where('products.status', Product::Active)
             ->when(
                 $unit_type,
                 fn($q) =>
@@ -126,6 +127,7 @@ class ProductTransferController extends Controller
     {
         $shelter = $shelter ?? ProductUtility::getShelter();
         $to = $request['shelter_id'] ?? '0';
+        if ($shelter == $to) return ApiResponse::errorResponse(__('auth.unauthenicated_transfer'));
         foreach ($request['transfer'] as $item) {
             //sender
             $pdt = ShelterProduct::select(
@@ -156,7 +158,15 @@ class ProductTransferController extends Controller
 
     private function log($r, $i, $pdt)
     {
-        $i['product'] = Product::find($i['product_id']);
+        $i['product'] = Product::select(
+            'products.*',
+            'categories.name as category_name',
+            'units.name as unit_name'
+        )
+            ->where('products.id', $i['product_id'])
+            ->leftJoin('categories', 'products.category_id', 'categories.id')
+            ->leftJoin('units', 'products.unit_id', 'units.id')->first();
+        $i['to_shelter_name'] = Shelter::find($r['shelter_id'])->name ?? 'ศูยน์กลาง';
         $i['product']['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
         $data = [
             'from' => $pdt['shelter_id'],
@@ -167,6 +177,7 @@ class ProductTransferController extends Controller
             'category_id' => $pdt['category_id'],
             'unit_id' => $pdt['unit_id']
         ];
+        //noti ใช้ $i['product']
         ProductLogs::create($data);
     }
 }

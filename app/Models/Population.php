@@ -7,6 +7,7 @@ use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -40,10 +41,8 @@ class Population extends Model
         'c_geography_id',
         'same_address',
         'status',
-        'shelter_id',
         'tracking',
         'sequence_id',
-        // 'line_token',
         'created_date',
         'created_by',
         'updated_by',
@@ -119,7 +118,19 @@ class Population extends Model
 
     public function shelter()
     {
-        return $this->belongsTo(Shelter::class, 'shelter_id')->select('id', 'name');
+        return $this->hasOneThrough(
+            Shelter::class, // Final model
+            ShelterPopulation::class, // Intermediate model
+            'population_id', // Foreign key on first model
+            'id', // Foreign key on Intermediate model
+            'id', // Local key on Final model
+            'shelter_id' // Local key on Intermediate model
+        );
+    }
+
+    public function shelterPopulation(): HasOne
+    {
+        return $this->hasOne(ShelterPopulation::class, 'population_id', 'id');
     }
 
     public function prefix()

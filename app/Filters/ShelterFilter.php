@@ -19,8 +19,8 @@ class ShelterFilter extends QueryFilter
     public function max_capacity($value)
     {
         if ($value === 'false') {
-            return $this->builder->withCount('population')
-                ->havingRaw('population_count < max_capacity');
+            return $this->builder->withCount('populations')
+                ->havingRaw('populations_count < max_capacity');
         }
     }
 

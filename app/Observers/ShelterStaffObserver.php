@@ -28,7 +28,7 @@ class ShelterStaffObserver
     {
         $this->logService->createLog(ActionType::ENTER->value, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
         // Send a notification
-        $notification = $this->notificationService->createNotification('shelter_staff.tranfer', ['name' => $shelterStaff->shelter->name], $shelterStaff->id, ShelterStaff::class, false);
+        $notification = $this->notificationService->createNotification('shelter_staff.tranfered', ['name' => $shelterStaff->shelter->name], $shelterStaff->id, ShelterStaff::class, false);
         $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
 
         if ($shelterStaff->shelter_position_id) {
@@ -46,7 +46,7 @@ class ShelterStaffObserver
     {
         if ($shelterStaff->wasChanged('shelter_id')) {
             $this->logService->createLog(ActionType::TRANSFER->value, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
-            $notification = $this->notificationService->createNotification('shelter_staff.tranfer', ['name' => $shelterStaff->shelter->name], $shelterStaff->id, ShelterStaff::class, false);
+            $notification = $this->notificationService->createNotification('shelter_staff.tranfered', ['name' => $shelterStaff->shelter->name], $shelterStaff->id, ShelterStaff::class, false);
             $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
         }
 
@@ -65,7 +65,7 @@ class ShelterStaffObserver
     {
         $this->logService->createLog(ActionType::EXIT->value, User::class, $shelterStaff->user_id, Shelter::class, $shelterStaff->shelter_id);
         // Send a notification
-        $notification = $this->notificationService->createNotification('shelter_staff.leave', ['name' => $shelterStaff->shelter->name], $shelterStaff->id, ShelterStaff::class, false);
+        $notification = $this->notificationService->createNotification('shelter_staff.leaved', ['name' => $shelterStaff->shelter->name], $shelterStaff->id, ShelterStaff::class, false);
         $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
     }
 }

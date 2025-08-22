@@ -34,7 +34,7 @@ class ShelterResource extends JsonResource
             'subdistrict_name' => $this->geography->subdistrict_name_th,
             'postal_code' => $this->geography->postal_code,
             'staff_count' => $this->staff->count(),
-            'current_capacity' => $this->population->count(),
+            'current_capacity' => $this->populations->count(),
             'max_capacity' => $this->max_capacity,
             'utilities' => is_array($this->utilities)
                 ? collect($this->utilities)->map(fn($u) => [

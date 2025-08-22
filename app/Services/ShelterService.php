@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\DamagedUtility;
+use App\Enums\PopulationStatus;
 use App\Enums\ShelterUtilities;
 use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\ProductController;
@@ -12,14 +13,14 @@ use App\Http\Utility\PaginateUtility;
 use App\Models\DamagedUtility as ModelsDamagedUtility;
 use App\Models\Population;
 use App\Models\Shelter;
-use Carbon\Carbon;
+use App\Models\ShelterPopulation;
 use Illuminate\Support\Facades\DB;
 
 class ShelterService
 {
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
-        $query = Shelter::filter($filters)->with('fullAddress', 'population');
+        $query = Shelter::filter($filters)->with('fullAddress', 'populations');
         /** ShelterResource response time x 10 */
         if (!$paginate) {
             return ShelterResource::collection($query->get());
@@ -51,7 +52,6 @@ class ShelterService
         ]);
 
         app(ImageService::class)->uploadImage($data['image'] ?? null, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
-        
         return $shelter;
     }
 
@@ -65,7 +65,7 @@ class ShelterService
 
         if ($shelter->wasChanged('status')) {
             if ($shelter->status === Shelter::CLOSED) {
-                app(PopulationService::class)->updateByShelter(['shelter_id' => $shelter->id]);
+                app(ShelterPopulationService::class)->deleteByShelter(['shelter_id' => $shelter->id]);
                 app(AppointmentService::class)->deleteUpcomingAppointment(['shelter_id' => $shelter->id]);
                 (new ShelterProductController)->transfer($shelter->id);
                 (new ShelterProductController)->delete($shelter->id);
@@ -105,27 +105,26 @@ class ShelterService
         //     return $data;
         // }
 
-        $data = $shelter->load('image', 'population', 'leader', 'staff', 'geography');
+        $data = $shelter->load('image', 'populations', 'leader', 'staff', 'geography');
         return new ShelterResource($data);
     }
 
     public function dashboard(array $filters = [])
     {
         $total_shelter = Shelter::where('status', Shelter::OPEN)->count();
-        $total_population = Population::whereNotNull('shelter_id')->count();
-        $updated_at = Carbon::now()->format('Y-m-d H:i:s');
+        $total_population = ShelterPopulation::count();
+        $updated_at = ShelterPopulation::max('updated_at');;
 
         $shelter_id = $filters['shelter_id'] ?? null;
-
         $query = Population::query();
 
         if ($shelter_id != null) {
             $query = $query->where('shelter_id', $shelter_id);
         }
 
-        $total_injured = (clone $query)->where('status', Population::injure)->count();
-        $total_healthy = (clone $query)->where('status', Population::healthy)->count();
-        $total_dead = (clone $query)->where('status', Population::dead)->count();
+        $total_injured = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::INJURED->value)->count();
+        $total_healthy = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::NORMAL->value)->count();
+        $total_dead = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::DECREASE->value)->count();
 
         return $dashboard = [
             'total_shelter' => $total_shelter,
@@ -180,9 +179,9 @@ class ShelterService
     public function isShelterMax($id, $populationId = null): bool
     {
         $shelter = Shelter::find($id);
-        $populationQuery = Population::where('shelter_id', $id);
+        $populationQuery = ShelterPopulation::where('shelter_id', $id);
         if ($populationId) {
-            $populationQuery->where('id', '!=', $populationId);
+            $populationQuery->where('population_id', '!=', $populationId);
         }
         $populationCount = $populationQuery->count();
         return $populationCount >= $shelter->max_capacity;

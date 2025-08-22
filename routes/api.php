@@ -28,6 +28,7 @@ use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ProductTransferController;
+use App\Http\Controllers\API\ShelterPopulationController;
 use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Controllers\API\ShelterStaffController;
@@ -61,7 +62,6 @@ Route::post('/line-login-population', [LoginController::class, 'line_population_
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 Route::get('/line-test', [LineController::class, 'test']); //test
 
-
 Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
@@ -80,6 +80,8 @@ Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
 Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
+Route::get('/chart/{id?}', [ConfigController::class, 'indexChart']);
+
 
 Route::middleware('auth:api')->group(function () {
 
@@ -147,9 +149,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/role', [PermissionController::class, 'createRole']);
 
-    Route::group(['middleware' => ['permission:team.view']], function () {
-
-    });
+    Route::group(['middleware' => ['permission:team.view']], function () {});
 
     Route::get('/roles', [PermissionController::class, 'showRoles']);
     Route::get('/permissions', [PermissionController::class, 'showPermissions']);
@@ -217,9 +217,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/population/{population}', [PopulationController::class, 'show']);
     Route::post('/population', [PopulationController::class, 'store']);
     Route::post('/population/{population}', [PopulationController::class, 'update']);
-    Route::post('/population/transfer/{population}', [PopulationController::class, 'transfer']);
-    Route::post('/population/exit/{population}', [PopulationController::class, 'exit']);
-    Route::post('/population-exit-all', [PopulationController::class, 'exitAll']);
+    Route::post('/population/transfer/{population}', [ShelterPopulationController::class, 'transfer']);
+    Route::post('/population/exit/{population}', [ShelterPopulationController::class, 'exit']);
+    Route::post('/population-exit-all', [ShelterPopulationController::class, 'exitAll']);
     Route::post('/population-check', [PopulationController::class, 'checkPopulation']);
     Route::post('/population-add', [PopulationController::class, 'addExternalPop']);
 
@@ -255,7 +255,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/product', [ProductController::class, 'store']);
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
-    Route::get('/product-check-del/{productId}', [ProductController::class, 'chekdel']);
+    Route::get('/product-check-del/{productId}', [ProductController::class, 'checkDel']);
 
     /*
     |--------------------------------------------------------------------------
@@ -268,7 +268,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-one-delete/{productId}', [ShelterProductController::class, 'deleteOne']);
     Route::get('/shelter-product-excep', [ShelterProductController::class, 'productException']);
     Route::post('/shelter-product', [ShelterProductController::class, 'store']);
-    Route::get('/shelter-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublicDetail']);
+    Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
 
 
     /*
@@ -337,6 +337,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
+    Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
     Route::get('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
@@ -354,6 +355,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/config/{config}', [ConfigController::class, 'update']);
     Route::post('/config-reset', [ConfigController::class, 'reset']);
     // Route::delete('/config/{config}', [ConfigController::class, 'destroy']);
+    Route::post('/chart', [ConfigController::class, 'storeChart']);
 
     /*
     |--------------------------------------------------------------------------
@@ -400,7 +402,22 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-history', [TransferHistoryController::class, 'shelterLog']);
     Route::get('/action-type', [TransferHistoryController::class, 'actionType']);
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display notifications
+    |--------------------------------------------------------------------------
+    */
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notification', [NotificationController::class, 'notification']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAsRead']);
+    Route::delete('/notifications', [NotificationController::class, 'deleteAll']);
+    Route::delete('/notifications/bulk', [NotificationController::class, 'bulkDelete']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for manage another data
+    |--------------------------------------------------------------------------
+    */
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
 });

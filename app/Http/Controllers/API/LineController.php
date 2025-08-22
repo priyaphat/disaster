@@ -350,10 +350,10 @@ class LineController extends Controller
             //     'time' => 1,
             //     'team' => '55',
             // ];
-            $text = __('line.appointment', [
+            $text = __('line.shelter_appointment', [
                 'shelter' => $data['shelter'],
-                'date' => DateUtility::th_time($data['date']),
-                'time' => ShiftType::from($data['time'])->label(),
+                'date' =>$data['date'],
+                'time' => $data['time'],
                 'team' => $data['team'],
             ]);
             $text = self::flex_box($text);
@@ -367,13 +367,13 @@ class LineController extends Controller
             //     'new_time' => 1,
             //     'new_team' => '5xxxx25',
             // ];
-            $text = __('line.appointment_update', [
+            $text = __('line.shelter_appointment_update', [
                 'shelter' => $data['shelter'],
-                'old_date' => DateUtility::th_time($data['old_date']),
-                'old_time' => ShiftType::from($data['old_time'])->label(),
+                'old_date' =>$data['old_date'],
+                'old_time' => $data['old_time'],
                 'old_team' => $data['old_team'],
-                'new_date' => DateUtility::th_time($data['new_date']),
-                'new_time' => ShiftType::from($data['new_time'])->label(),
+                'new_date' =>$data['new_date'],
+                'new_time' => $data['new_time'],
                 'new_team' => $data['new_team'],
             ]);
             $text = self::flex_box($text);
@@ -384,10 +384,10 @@ class LineController extends Controller
             //     'time' => 1,
             //     'team' => 'xxxx',
             // ];
-            $text = __('line.appointment_canceled', [
+            $text = __('line.shelter_appointment_canceled', [
                 'shelter' => $data['shelter'],
-                'date' => DateUtility::th_time($data['date']),
-                'time' => ShiftType::from($data['time'])->label(),
+                'date' => $data['date'],
+                'time' => $data['time'],
                 'team' => $data['team'],
             ]);
             $text = self::flex_box($text);
@@ -398,10 +398,10 @@ class LineController extends Controller
             //     'time' => 1,
             //     'team' => '55',
             // ];
-            $text = __('line.appointment', [
+            $text = __('line.team_appointment', [
                 'shelter' => $data['shelter'],
-                'date' => DateUtility::th_time($data['date']),
-                'time' => ShiftType::from($data['time'])->label(),
+                'date' =>$data['date'],
+                'time' => $data['time'],
                 'team' => $data['team'],
             ]);
             $text = self::flex_box($text);
@@ -415,14 +415,14 @@ class LineController extends Controller
             //     'new_time' => 1,
             //     'new_shelter' => '5xxxx25',
             // ];
-            $text = __('line.appointment_update', [
-                'shelter' => $data['shelter'],
-                'old_date' => DateUtility::th_time($data['old_date']),
-                'old_time' => ShiftType::from($data['old_time'])->label(),
-                'old_team' => $data['old_team'],
-                'new_date' => DateUtility::th_time($data['new_date']),
-                'new_time' => ShiftType::from($data['new_time'])->label(),
-                'new_team' => $data['new_team'],
+            $text = __('line.team_appointment_update', [
+                'team' => $data['team'],
+                'old_date' =>$data['old_date'],
+                'old_time' => $data['old_time'],
+                'old_shelter' => $data['old_shelter'],
+                'new_date' =>$data['new_date'],
+                'new_time' => $data['new_time'],
+                'new_shelter' => $data['new_shelter'],
             ]);
             $text = self::flex_box($text);
         } else if ($form == self::Team_appointment_canceled) {
@@ -432,10 +432,10 @@ class LineController extends Controller
             //     'time' => 1,
             //     'team' => 'xxxx',
             // ];
-            $text = __('line.appointment_canceled', [
+            $text = __('line.team_appointment_canceled', [
                 'shelter' => $data['shelter'],
-                'date' => DateUtility::th_time($data['date']),
-                'time' => ShiftType::from($data['time'])->label(),
+                'date' => $data['date'],
+                'time' => $data['time'],
                 'team' => $data['team'],
             ]);
             $text = self::flex_box($text);
@@ -648,5 +648,21 @@ class LineController extends Controller
         } else if ($chanel == self::Emc_unsuccess) {
         } else if ($chanel == self::Disaster_landslide) {
         }
+    }
+
+    public function getStaffLineIds($shelterId): array
+    {
+        return LineUser::whereHas('staff', function ($query) use ($shelterId) {
+            $query->where('shelter_id', $shelterId);
+        })->pluck('token_id')->toArray();
+        // return LineUser::with('staff')->get()->toArray();
+    }
+
+    public function getTeamLineIds($teamId): array
+    {
+        return LineUser::whereHas('team', function ($query) use ($teamId) {
+            $query->where('team_id', $teamId);
+        })->pluck('token_id')->toArray();
+        // return LineUser::with('team')->get()->toArray();
     }
 }

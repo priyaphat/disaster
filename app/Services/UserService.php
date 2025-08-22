@@ -58,22 +58,14 @@ class UserService
         $filters['approve'] = 'success';
         $filters['available_staff'] = true;
         $filters['available_member'] = true;
-        $query = $this->baseQuery($filters);
 
         // Team log
-        if (isset($filters['team_log_id']) && $filters['team_log_id']) {
-            $log = AppointmentLog::find($filters['team_log_id']);
-            if ($log) {
-                $teamDescription = $log->description;
-                $teamId = $teamDescription['id'];
-                $userIds = collect($teamDescription['all_members'])->pluck('id');
-                
-                $query->orWhereHas('member', function ($query) use ($teamId, $userIds) {
-                    $query->where('team_id', $teamId)
-                        ->whereNotIn('user_id', $userIds);
-                });
-            }
+        if (isset($filters['appointment_history']) && $filters['appointment_history']) {
+            unset($filters['available_staff']);
+            unset($filters['available_member']);
         }
+        
+        $query = $this->baseQuery($filters);
 
         // Team page
         if (isset($filters['team_id']) && $filters['team_id']) {
@@ -105,7 +97,7 @@ class UserService
         (new LineController)->LineNotification(null, LineController::User_register);
         // Send a register notification
         $notificationService = app(NotificationService::class);
-        $notification = $notificationService->createNotification('user.register', ['name' => $user->fullname], $user->id, User::class, true);
+        $notification = $notificationService->createNotification('user.registered', ['name' => $user->fullname], $user->id, User::class, true);
         $notificationService->sendToCenterStaff($notification);
         return $user;
     }
