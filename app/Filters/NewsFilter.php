@@ -25,7 +25,7 @@ class NewsFilter extends QueryFilter
     {
         if ($value) {
             $startDate = Carbon::parse($value)->format('Y-m-d');
-            return $this->builder->whereDate('created_at', '>=', $startDate);
+            return $this->builder->whereDate('updated_at', '>=', $startDate);
         }
     }
 
@@ -33,7 +33,7 @@ class NewsFilter extends QueryFilter
     {
         if ($value) {
             $endDate = Carbon::parse($value)->format('Y-m-d');
-            return $this->builder->whereDate('created_at', '<=', $endDate);
+            return $this->builder->whereDate('updated_at', '<=', $endDate);
         }
     }
 

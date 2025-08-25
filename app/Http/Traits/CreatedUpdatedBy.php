@@ -16,14 +16,10 @@ trait CreatedUpdatedBy
             if (Auth::check() && Schema::hasColumn($model->getTable(), 'created_by')) {
                 $model->created_by = Auth::id();
             }
-
-            if (Auth::check() && Schema::hasColumn($model->getTable(), 'updated_by')) {
-                $model->updated_by = Auth::id();
-            }
         });
 
-        // Optionally, you can also listen to the 'updating' event
-        static::updating(function ($model) {
+        // Optionally, you can also listen to the 'saving' event
+        static::saving(function ($model) {
             // Automatically set updated_by when updating{
             if (Auth::check() && Schema::hasColumn($model->getTable(), 'updated_by')) {
                 $model->updated_by = Auth::id();
