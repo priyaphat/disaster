@@ -48,12 +48,12 @@ class NewsFilter extends QueryFilter
         return $this->builder->whereNull('shelter_id');
     }
 
-    public function type($value)
-    {
-        if ($value === 'self') {
-            return $this->builder->where('created_by', Auth::user()->id);
-        }
-    }
+    // public function type($value)
+    // {
+    //     if ($value === 'self') {
+    //         return $this->builder->where('created_by', Auth::user()->id);
+    //     }
+    // }
 
     public function sort($value)
     {

@@ -20,9 +20,13 @@ trait CreatedUpdatedBy
 
         // Optionally, you can also listen to the 'saving' event
         static::saving(function ($model) {
-            // Automatically set updated_by when updating{
+            // Automatically set updated_by when updating
             if (Auth::check() && Schema::hasColumn($model->getTable(), 'updated_by')) {
                 $model->updated_by = Auth::id();
+            }
+            // Automatically set updated_at when updating
+            if (Schema::hasColumn($model->getTable(), 'updated_at')) {
+                $model->updated_at = now();
             }
         });
     }
