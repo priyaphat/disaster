@@ -343,6 +343,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
     Route::post('/emc-requests-history', [EmergencyRequestController::class, 'show_history']);
     Route::post('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'update']);
+    Route::post('/emc-request-shelter', [EmergencyRequestController::class, 'requestShelter']);
     Route::delete('/emc-request/{emergencyRequest}', [EmergencyRequestController::class, 'destroy']);
 
     /*

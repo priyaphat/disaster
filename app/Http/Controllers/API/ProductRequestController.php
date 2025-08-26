@@ -51,7 +51,7 @@ class ProductRequestController extends Controller
             DB::raw('SUM(product_requests.quantity) as total_quantity'),
             DB::raw('SUM(product_requests.request) as total_request'),
             //  DB::raw('SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) as total_request'),
-            DB::raw('MAX(product_requests.created_at) as created_at'),
+            DB::raw('MAX(product_requests.updated_at) as updated_at'),
             DB::raw('MAX(product_requests.id) as id'),
             DB::raw('(SUM(product_requests.request) - SUM(product_requests.quantity)) as needed'),
             //         DB::raw('(
@@ -83,7 +83,7 @@ class ProductRequestController extends Controller
             )->when(
                 $f['sort'],
                 fn($q) =>
-                $q->orderByRaw('MAX(product_requests.created_at) ' . ($f['sort'] == 'asc' ? 'asc' : 'desc'))
+                $q->orderByRaw('MAX(product_requests.updated_at) ' . ($f['sort'] == 'asc' ? 'asc' : 'desc'))
             )->when(
                 $f['search'],
                 fn($q) =>

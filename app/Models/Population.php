@@ -27,6 +27,11 @@ class Population extends Model
     public const injure = 1;
     public const healthy = 2;
 
+    //emergency to shelter population
+    public const new_population = 1;
+    public const old_not_has_shelter = 2;
+    public const old_has_shelter = 3;
+
     protected $fillable = [
         // 'user_id',
         'prefix_id',

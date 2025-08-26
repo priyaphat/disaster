@@ -106,7 +106,7 @@ class ShelterController extends Controller
      */
     public function dmgs(Request $request, $type = null)
     {
-        $data = $this->shelterService->damaged_utilities($request, $type);
+        $data = $this->shelterService->damaged_utilities($request->all(), $type);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
