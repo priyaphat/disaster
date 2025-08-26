@@ -159,21 +159,28 @@ class ShelterService
 
     public function damaged_utilities($request, $type = null)
     {
-
         $data = ModelsDamagedUtility::query()->when(
             $type,
             fn($q) =>
             $q->where('type', $type)
         )->when(
-            $request->name,
+            isset($request['search']),
             fn($q) =>
-            $q->where('name', 'like', '%' . $request->name . '%')
+            $q->where('name', 'like', '%' . $request['search'] . '%')
         );
 
-        if ($type) return PaginateUtility::Paginate($data->get(), $request->paginate ?? 10);
+        if ($type) return PaginateUtility::Paginate($data->get(), $request['paginate'] ?? 10);
 
-        $data = $data->select('type', DB::raw('count(id) as total'))->groupBy('type')->get();
-        return $data;
+        $data = $data->select('type', DB::raw('count(id) as total'))
+            ->groupBy('type')
+            ->pluck('total', 'type');
+
+        $utilities = collect($this->utilities())->map(function ($u) use ($data) {
+            $u['total'] = $data[$u['id']] ?? 0;
+            return $u;
+        });
+
+        return $utilities->values();
     }
 
     public function isShelterMax($id, $populationId = null): bool

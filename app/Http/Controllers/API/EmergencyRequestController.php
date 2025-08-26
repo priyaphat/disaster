@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\PopulationStatus;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
@@ -9,10 +10,15 @@ use App\Models\EmergencyRequest;
 use App\Services\EmergencyRequestService;
 use App\Http\Requests\EmergencyRequestRequest;
 use App\Http\Utility\LinePostUtility;
+use App\Models\Population;
 use App\Models\Prefix;
 use App\Services\NotificationService;
+use App\Services\PopulationService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+
+use function PHPUnit\Framework\isNull;
 
 class EmergencyRequestController extends Controller
 {
@@ -209,5 +215,80 @@ class EmergencyRequestController extends Controller
     {
         $data = $this->emergencyRequestService->emcRequestBy($request, $phone, $id); //phone & id
         return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function requestShelter(Request $request)
+    {
+
+        if ($request->check == true) {
+            if ($request->victim_name) {
+                $victims = $request->victim_name;
+                foreach ($victims as &$i) {
+                    $q = Population::select(
+                        'populations.*',
+                        'shelter_populations.shelter_id',
+                        'prefixes.name as prefix_name'
+                    )
+                        ->where('first_name', $i['fname'])
+                        ->where('last_name', $i['lname'])
+                        ->leftJoin('prefixes', 'prefixes.id', 'populations.prefix_id')
+                        ->leftJoin('shelter_populations', 'populations.id', 'shelter_populations.population_id')
+                        ->first();
+                    if ($q) {
+                        if ($q->shelter_id) {
+                            $i['trans_status'] = Population::old_has_shelter;
+                            $i['prefix_name'] = $q->prefix_name;
+                            $i['shelter_id'] = $q->shelter_id;
+                            $i['first_name'] = $i['fname'];
+                            $i['lname_name'] = $i['lname'];
+                            unset($i['fname'], $i['lname']);
+                            $ar[] = $i;
+                            $i = array_merge($i, $q->toArray());
+                        } else {
+                            $i = array_merge($i, $q->toArray());
+                            unset($i['fname'], $i['lname']);
+                            $i['trans_status'] = Population::old_not_has_shelter;
+                        }
+                    } else {
+                        $i['first_name'] = $i['fname'];
+                        $i['last_name'] = $i['lname'];
+                        $i['prefix_id'] = $i['prefix'];
+                        unset($i['fname'], $i['lname'], $i['prefix']);
+                        $i['trans_status'] = Population::new_population;
+                    }
+                }
+                return ApiResponse::successResponse(__('success.data'), ['data' => $victims, 'has_shelter' => $ar ?? []]);
+            }
+        } else {
+            $request->validate(
+                [
+                    'shelter_id' => 'required|exists:shelters,id',
+                    'victim_name' => 'array|required',
+                    'victim_name.*.prefix_id' => 'required|integer|exists:prefixes,id',
+                    'victim_name.*.first_name' => 'required|string|max:100',
+                    'victim_name.*.last_name' => 'required|string|max:100',
+                    'victim_name.*.birth_date' => 'required|date',
+                    'victim_name.*.gender' => 'required|in:0,1,2',
+                    'victim_name.*.phone' => 'required|string|size:10',
+                    'victim_name.*.p_address' => 'required|string|max:100',
+                    'victim_name.*.p_geography_id' => 'required|exists:geography,id',
+                    'victim_name.*.c_address' => 'required|string|max:100',
+                    'victim_name.*.c_geography_id' => 'required|exists:geography,id',
+                    'victim_name.*.same_address' => 'required',
+                    'victim_name.*.status' => ['required', Rule::enum(PopulationStatus::class)],
+                    'victim_name.*.created_date' => 'required|date',
+                ]
+            );
+            foreach ($request['victim_name'] as $i) {
+                $i['shelter_id'] = $request['shelter_id'];
+                if ($i['trans_status'] == Population::new_population) {
+                    (new PopulationService)->create($i);
+                } else {
+                    $q = Population::find($i['id']);
+                    (new populationService)->update($q, $i);
+                }
+            }
+        }
+        return ApiResponse::successResponse(__('success.emc_request.trans'));
     }
 }
