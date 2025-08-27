@@ -95,7 +95,7 @@ class DisasterController extends Controller
     public function dst_eq_update(DisasterRequest $request, DisasterEarthquake $earthquake)
     {
         $earthquake->update($request->all());
-        // LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
+        LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $earthquake);
     }
 
@@ -128,7 +128,7 @@ class DisasterController extends Controller
     public function dst_fl_update(DisasterRequest $request, DisasterFlood $flood)
     {
         $flood->update($request->all());
-        // LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
+        LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $flood);
     }
 
@@ -149,7 +149,7 @@ class DisasterController extends Controller
     public function dst_ls_create(DisasterRequest $request)
     {
         $data = $this->disasterService->ls_create($request);
-        // LinePostUtility::line_oa_call(LineController::Disaster_land slide, $data->toArray()); 
+        LinePostUtility::line_oa_call(LineController::Disaster_landslide, $data->toArray()); 
         return ApiResponse::successResponse(__('success.sys_created'), $data);
     }
 
@@ -222,7 +222,7 @@ class DisasterController extends Controller
     public function dst_sm_update(DisasterRequest $request, DisasterSmog $smog)
     {
         $smog->update($request->all());
-        // LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog);
+        LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog);
         return  ApiResponse::successResponse(__('success.data'), $smog);
     }
 }

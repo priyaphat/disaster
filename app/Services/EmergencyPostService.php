@@ -78,7 +78,7 @@ class EmergencyPostService
             }
         }
         $this->emergencylog_save($data, $district, $district_id);
-        // LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data));
+        LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data));
         return $data;
     }
 
@@ -97,9 +97,9 @@ class EmergencyPostService
             }
         }
         $this->emergencylog_save($post, $district, $district_id);
-        // $type['type'] = Disaster::where('id', $post['disaster_id'])->value('name');
+        $type['type'] = Disaster::where('id', $post['disaster_id'])->value('name');
         if ($post['status'] == EmergencyPost::inactive){
-            // (new LineController)->LineNotification($type, LineController::Disaster_end);
+            (new LineController)->LineNotification($type, LineController::Disaster_end);
         }
         return $post;
     }

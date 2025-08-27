@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Shelter\CreateShelterRequest;
 use App\Http\Requests\Shelter\UpdateShelterRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\LinePostUtility;
 use App\Models\DamagedUtility;
 use App\Models\Shelter;
 use App\Services\ShelterService;
@@ -133,7 +134,7 @@ class ShelterController extends Controller
         $type = $data['data'][0]['type'];
         self::dmg_delete($type);
         if (DamagedUtility::insert($data['data'])) {
-            // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_post, $data);
+            LinePostUtility::LineMakeInformation(LineController::Damaged_utility_post, $data);
             return ApiResponse::successResponse(__('success.damaged_utility.created'), $data['data']);
         }
     }
@@ -144,7 +145,7 @@ class ShelterController extends Controller
     public function dmg_delete($damaged)
     {
         DamagedUtility::where('type', $damaged)->delete();
-        // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_end, $damaged);
+        LinePostUtility::LineMakeInformation(LineController::Damaged_utility_end, $damaged);
         return ApiResponse::successResponse(__('success.damaged_utility.deleted'));
     }
 }

@@ -55,7 +55,7 @@ Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
     return view('line-login');
 });
-Route::get('/line-login-population', function () {
+Route::get('/population-line', function () {
     return view('line-login-population');
 });
 Route::post('/line-login', [LoginController::class, 'line']);

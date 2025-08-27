@@ -139,13 +139,12 @@ class LineController extends Controller
 
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
-            // return self::areaFind('เชียงราย'); //$recipint =
+            $recipint = self::areaFind('เชียงราย');
 
             $message = self::form_box($form, $data, self::Population);
             self::broadcast_multi($recipint, $message);
             return response()->json(["success" => true, "message" => 'Send Line OK.', 'data' => $message]);
         }
-        // return 'x'; //interapt
 
         $config = Config::WhereJsonContains('description->line_type', $form)
             ->where('type', 1)
@@ -164,7 +163,7 @@ class LineController extends Controller
             if ($config) { // check config
                 if ($config->description['user']) {
                     $hasUser = $line
-                        ->filter(fn($item) => !is_null($item->user_id))
+                        ->filter(fn($item) => $item->role === LineUser::User)
                         ->pluck('token_id');
 
                     if ($hasUser->isNotEmpty()) { // check user empty
@@ -175,7 +174,7 @@ class LineController extends Controller
                 if (isset($config->description['population'])) {
                     if ($config->description['population']) {
                         $noUser = $line->filter(fn($item) =>
-                        is_null($item->user_id))->pluck('token_id');
+                        $item->role === LineUser::Population)->pluck('token_id');
 
                         if ($noUser->isNotEmpty()) {
                             $message = self::form_box($form, $data, self::Population);
@@ -190,24 +189,35 @@ class LineController extends Controller
 
     private function areaFind($province, $select = 'all') //select : 1 : user , 2 : pop , null : all
     {
-        $recipint = [];
+        $recipint = collect();
 
         if ($select == 1 || $select == 'all') {
-            $recipint = User::select(
-                // 'users.*', 'geography.province_name_th', 
-                'line_users.token_id as token'
-            )
+            $userTokens = User::select('line_users.token_id as token')
                 ->leftJoin('geography', 'users.district_id', 'geography.district_code')
                 ->leftJoin('line_users', 'users.id', 'line_users.user_id')
+                ->where('line_users.role', LineUser::User)
                 ->where('geography.province_name_th', $province)
                 ->whereNotNull('line_users.token_id')
-                ->distinct()->get()->keyBy('token')->keys();
-        }
-        if ($select == 2 || $select == 'all') {
-            // $population = Population::get(); // ไม่สามารถหาที่อยู่ของประชาชนได้ ไม่ได้จับคู่
+                ->distinct()
+                ->pluck('token'); // เอาแค่ค่า ไม่ต้อง get()->keyBy()->keys()
+
+            $recipint = $recipint->merge($userTokens);
         }
 
-        return $recipint;
+        if ($select == 2 || $select == 'all') {
+            $populationTokens = Population::select('line_users.token_id as token')
+                ->leftJoin('geography', 'populations.p_geography_id', 'geography.id')
+                ->leftJoin('line_users', 'populations.id', 'line_users.user_id')
+                ->where('line_users.role', LineUser::Population)
+                ->where('geography.province_name_th', $province)
+                ->whereNotNull('line_users.token_id')
+                ->distinct()
+                ->pluck('token');
+
+            $recipint = $recipint->merge($populationTokens);
+        }
+
+        return $recipint->unique()->values();
     }
 
     private function form_box($form, $data = null, $type = null)
@@ -352,7 +362,7 @@ class LineController extends Controller
             // ];
             $text = __('line.shelter_appointment', [
                 'shelter' => $data['shelter'],
-                'date' =>$data['date'],
+                'date' => $data['date'],
                 'time' => $data['time'],
                 'team' => $data['team'],
             ]);
@@ -369,10 +379,10 @@ class LineController extends Controller
             // ];
             $text = __('line.shelter_appointment_update', [
                 'shelter' => $data['shelter'],
-                'old_date' =>$data['old_date'],
+                'old_date' => $data['old_date'],
                 'old_time' => $data['old_time'],
                 'old_team' => $data['old_team'],
-                'new_date' =>$data['new_date'],
+                'new_date' => $data['new_date'],
                 'new_time' => $data['new_time'],
                 'new_team' => $data['new_team'],
             ]);
@@ -400,7 +410,7 @@ class LineController extends Controller
             // ];
             $text = __('line.team_appointment', [
                 'shelter' => $data['shelter'],
-                'date' =>$data['date'],
+                'date' => $data['date'],
                 'time' => $data['time'],
                 'team' => $data['team'],
             ]);
@@ -417,10 +427,10 @@ class LineController extends Controller
             // ];
             $text = __('line.team_appointment_update', [
                 'team' => $data['team'],
-                'old_date' =>$data['old_date'],
+                'old_date' => $data['old_date'],
                 'old_time' => $data['old_time'],
                 'old_shelter' => $data['old_shelter'],
-                'new_date' =>$data['new_date'],
+                'new_date' => $data['new_date'],
                 'new_time' => $data['new_time'],
                 'new_shelter' => $data['new_shelter'],
             ]);
@@ -623,6 +633,7 @@ class LineController extends Controller
         self::broadcast_push($userId, $text);
         $this->rich_change($userId, env('RICHMENU_AUTH'));
     }
+
 
     private function rich_change($userId, $richId)
     {
