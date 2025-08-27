@@ -227,7 +227,7 @@ class EmergencyRequestController extends Controller
                     $q = Population::select(
                         'populations.*',
                         'shelter_populations.shelter_id',
-                        'prefixes.name as prefix_name'
+                        'prefixes.name as prefix_name',
                     )
                         ->where('first_name', $i['fname'])
                         ->where('last_name', $i['lname'])
@@ -252,8 +252,8 @@ class EmergencyRequestController extends Controller
                     } else {
                         $i['first_name'] = $i['fname'];
                         $i['last_name'] = $i['lname'];
-                        $i['prefix_id'] = $i['prefix'];
-                        unset($i['fname'], $i['lname'], $i['prefix']);
+                        $i['prefix_id'] = $i['prefix'] ?? null;
+                        unset($i['fname'], $i['lname']);
                         $i['trans_status'] = Population::new_population;
                     }
                 }

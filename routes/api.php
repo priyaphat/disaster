@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\AppointmentLogController;
+use App\Http\Controllers\API\AssessmentController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\LoginController;
@@ -81,6 +82,7 @@ Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
 Route::get('/chart/{id?}', [ConfigController::class, 'indexChart']);
+Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
 
 
 Route::middleware('auth:api')->group(function () {
@@ -421,4 +423,15 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for Assessments
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/assessment/{id?}', [AssessmentController::class, 'index']);
+    Route::get('/assessment-list', [AssessmentController::class, 'list']);
+    // Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
+    Route::post('/assessment', [AssessmentController::class, 'store']);
+    Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
 });

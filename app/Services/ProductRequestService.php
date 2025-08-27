@@ -34,7 +34,7 @@ class ProductRequestService
             'categories.name as category_name'
         )
             ->where('product_requests.status', ProductRequest::ACTIVE)
-            ->where('product_requests.shelter_id', ProductUtility::getShelter())
+            ->where('product_requests.shelter_id', $f['shelter_id'] ?? ProductUtility::getShelter())
             ->leftJoin('products', 'products.id', 'product_requests.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->leftJoin('categories', 'categories.id', 'products.category_id')

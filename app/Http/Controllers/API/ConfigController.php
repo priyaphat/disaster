@@ -81,8 +81,8 @@ class ConfigController extends Controller
         // $config->update($request->all());
 
         $description = $config->description ?? [];
-        if (isset($request->population)) $description['population'] = $request->population;
-        if (isset($request->user)) $description['user'] = $request->user;
+        if (isset($request->population)) $description['population'] = (int)$request->population;
+        if (isset($request->user)) $description['user'] = (int)$request->user;
         $config->description = $description;
         $config->save();
 
@@ -148,7 +148,7 @@ class ConfigController extends Controller
     public function indexChart($id = null)
     {
         $q = Config::where('type', Config::chart)->first();
-        return ApiResponse::successResponse(__('success.data') , $q->description);
+        return ApiResponse::successResponse(__('success.data'), $q->description);
     }
 
     public function storeChart(Request $request)
