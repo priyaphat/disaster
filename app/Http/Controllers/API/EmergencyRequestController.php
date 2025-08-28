@@ -228,9 +228,21 @@ class EmergencyRequestController extends Controller
                         'populations.*',
                         'shelter_populations.shelter_id',
                         'prefixes.name as prefix_name',
+
+                        'pg.subdistrict_code as p_subdistrict_code',
+                        'pg.district_code as p_district_code',
+                        'pg.province_code as p_province_code',
+                        'pg.postal_code as p_postal_code',
+
+                        'cg.subdistrict_code as c_subdistrict_code',
+                        'cg.district_code as c_district_code',
+                        'cg.province_code as c_province_code',
+                        'cg.postal_code as c_postal_code',
                     )
                         ->where('first_name', $i['fname'])
                         ->where('last_name', $i['lname'])
+                        ->leftJoin('geography as pg', 'pg.id', 'populations.p_geography_id')
+                        ->leftJoin('geography as cg', 'cg.id', 'populations.c_geography_id')
                         ->leftJoin('prefixes', 'prefixes.id', 'populations.prefix_id')
                         ->leftJoin('shelter_populations', 'populations.id', 'shelter_populations.population_id')
                         ->first();

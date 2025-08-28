@@ -148,6 +148,7 @@ class ConfigController extends Controller
     public function indexChart($id = null)
     {
         $q = Config::where('type', Config::chart)->first();
+        if (!$q) return ApiResponse::errorResponse(__('error.model_not_found'));
         return ApiResponse::successResponse(__('success.data'), $q->description);
     }
 

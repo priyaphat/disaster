@@ -658,6 +658,7 @@ class LineController extends Controller
         } else if ($chanel == self::Emc_success) {
         } else if ($chanel == self::Emc_unsuccess) {
         } else if ($chanel == self::Disaster_landslide) {
+             return redirect('/landslide');
         }
     }
 
