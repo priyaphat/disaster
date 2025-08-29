@@ -84,6 +84,16 @@ Route::get('/weather', [ConfigController::class, 'weather']);
 Route::get('/chart/{id?}', [ConfigController::class, 'indexChart']);
 Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
 
+Route::get('/damaged-utilities/{type?}', [ShelterController::class, 'dmgs']);
+Route::get('/posts', [PostController::class, 'show']);
+Route::get('/category', [CategoryController::class, 'index']);
+Route::get('/shelter', [ShelterController::class, 'index'])->middleware('check_auth_shelters_list');
+Route::get('/shelter/{shelter}', [ShelterController::class, 'show'])->middleware('check_auth_shelters');
+Route::get('/shelter-dashboard', [ShelterController::class, 'dashboard']);
+Route::get('/news', [NewsController::class, 'index'])->middleware('check_auth_news_list');
+Route::get('/new/{news}', [NewsController::class, 'show'])->middleware('check_auth_news');
+Route::get('/product-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublic']);
+Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -142,9 +152,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display news
     |--------------------------------------------------------------------------
     */
-    Route::get('/news', [NewsController::class, 'index']);
-    Route::post('/news', [NewsController::class, 'get_all']);
-    Route::get('/new/{news}', [NewsController::class, 'show']);
     Route::post('/new', [NewsController::class, 'store']);
     Route::post('/new/{news}', [NewsController::class, 'update']);
     Route::delete('/new/{news}', [NewsController::class, 'destroy']);
@@ -160,19 +167,15 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display shelters
     |--------------------------------------------------------------------------
     */
-    Route::get('/shelter', [ShelterController::class, 'index']);
     Route::post('/shelter', [ShelterController::class, 'store']);
-    Route::get('/shelter/{shelter}', [ShelterController::class, 'show']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
-    Route::get('/shelter-dashboard', [ShelterController::class, 'dashboard']);
 
     /*
     |--------------------------------------------------------------------------
     | Routes for display damaged utility
     |--------------------------------------------------------------------------
     */
-    Route::get('/damaged-utilities/{type?}', [ShelterController::class, 'dmgs']);
     Route::get('/damaged-utility-name', [ShelterController::class, 'dmg_name']);
     Route::post('/damaged-utility', [ShelterController::class, 'dmg_stroe']);
     Route::delete('/damaged-utility/{damaged}', [ShelterController::class, 'dmg_delete']);
@@ -235,12 +238,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/unit/{unit}', [UnitController::class, 'update']);
     Route::delete('/unit/{unit}', [UnitController::class, 'destroy']);
 
-    /* 
+    /*
     |--------------------------------------------------------------------------
     | Routes for display categories
     |--------------------------------------------------------------------------
     */
-    Route::get('/category', [CategoryController::class, 'index']);
     Route::post('/category', [CategoryController::class, 'store']);
     Route::post('/category/{category}', [CategoryController::class, 'update']);
     Route::delete('/category/{category}', [CategoryController::class, 'destroy']);
@@ -270,7 +272,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-one-delete/{productId}', [ShelterProductController::class, 'deleteOne']);
     Route::get('/shelter-product-excep', [ShelterProductController::class, 'productException']);
     Route::post('/shelter-product', [ShelterProductController::class, 'store']);
-    Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
 
 
     /*
@@ -292,7 +293,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/product-request-log', [ProductRequestController::class, 'requestLog']);
     Route::post('/product-request', [ProductRequestController::class, 'store']);
     Route::post('/product-request/{productReq}', [ProductRequestController::class, 'update']);
-    Route::get('/product-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublic']);
 
     /*
     |--------------------------------------------------------------------------
@@ -322,7 +322,6 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/post/{post}', [PostController::class, 'index']);
-    Route::get('/posts', [PostController::class, 'show']);
     Route::post('/post', [PostController::class, 'store']);
     Route::post('/post/{post}', [PostController::class, 'update']);
     // Route::delete('/post/{post}', [PostController::class, 'destroy']);
