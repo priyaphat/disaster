@@ -12,6 +12,7 @@ use App\Models\ProductLogs;
 use App\Models\Shelter;
 use App\Models\ShelterProduct;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\SearchService;
@@ -166,7 +167,7 @@ class ProductTransferController extends Controller
             ->where('products.id', $i['product_id'])
             ->leftJoin('categories', 'products.category_id', 'categories.id')
             ->leftJoin('units', 'products.unit_id', 'units.id')->first();
-        $i['to_shelter_name'] = Shelter::find($r['shelter_id'])->name ?? 'ศูยน์กลาง';
+        $i['to_shelter_name'] = Shelter::find($r['shelter_id'])->name ?? 'ศูนย์กลาง';
         $i['product']['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
         $data = [
             'from' => $pdt['shelter_id'],
@@ -177,7 +178,40 @@ class ProductTransferController extends Controller
             'category_id' => $pdt['category_id'],
             'unit_id' => $pdt['unit_id']
         ];
+
+        $log = ProductLogs::create($data);
+
         //noti ใช้ $i['product']
-        ProductLogs::create($data);
+        $notificationService = app(NotificationService::class);
+        if ($log->to) {
+            $notify = $notificationService->createNotification(
+                'shelter_product.received',
+                [
+                    'shelter' => $i['to_shelter_name'],
+                    'product' => $i['product']['name'],
+                    'unit' => $i['product']['unit_name'],
+                    'amount' => $log['detail']['quantity'],
+                ],
+                $log->id,
+                ProductLogs::class,
+                true
+            );
+            $notificationService->sendToStaff($notify, $log->to);
+        } else {
+            $shelterName = Shelter::find($pdt['shelter_id'])->name ?? 'ศูนย์กลาง';
+            $notify = $notificationService->createNotification(
+                'product.received',
+                [
+                    'shelter' => $shelterName,
+                    'product' => $i['product']['name'],
+                    'unit' => $i['product']['unit_name'],
+                    'amount' => $log['detail']['quantity'],
+                ],
+                $log->id,
+                ProductLogs::class,
+                true
+            );
+            $notificationService->sendToCenterStaff($notify);
+        }
     }
 }

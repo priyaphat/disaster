@@ -14,6 +14,7 @@ use App\Models\ProductRequest;
 use App\Models\Shelter;
 use App\Models\ShelterProduct;
 use App\Services\ImageService;
+use App\Services\NotificationService;
 use App\Services\ProductService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
@@ -200,7 +201,22 @@ class ProductController extends Controller
             $data->quantity -= $r['quantity'];
         }
         $data->update();
-        //noti อัปเดต ทรัพยากรภายในศูนย์ shelter == 0 ทรัพยากรกลาง 
+        //noti อัปเดต ทรัพยากรภายในศูนย์ shelter == 0 ทรัพยากรกลาง
+        if ($data->shelter_id) {
+            $notificationService = app(NotificationService::class);
+            $notify = $notificationService->createNotification(
+                'shelter_product.updated',
+                [
+                    'product' => $data->product?->name,
+                    'unit' => $data->product?->unit?->name,
+                    'total' => $data->quantity,
+                ],
+                $data->id,
+                ShelterProduct::class,
+                false
+            );
+            $notificationService->sendToStaff($notify, $data->shelter_id);
+        }
         return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($data['product_id'], true));
     }
 }
