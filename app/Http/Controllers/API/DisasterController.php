@@ -222,7 +222,7 @@ class DisasterController extends Controller
     public function dst_sm_update(DisasterRequest $request, DisasterSmog $smog)
     {
         $smog->update($request->all());
-        LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog);
+        LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog->toArray());
         return  ApiResponse::successResponse(__('success.data'), $smog);
     }
 }

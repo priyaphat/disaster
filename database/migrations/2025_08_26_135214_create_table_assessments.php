@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('name', 255);
             $table->tinyInteger('type')->default(1)->comment('1 - assessment, 2 - inspection visit,  3- inspection child');
             $table->unsignedBigInteger('district_id')->nullable();
-            $table->array('detail')->nullable();
+            $table->json('detail')->nullable();
             $table->dateTime('datetime');
-            $table->foreignId('team_id')->nullable()->constrained('teams');
+            $table->unsignedBigInteger('team_id')->nullable();
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();

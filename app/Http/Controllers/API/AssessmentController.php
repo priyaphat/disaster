@@ -47,13 +47,21 @@ class AssessmentController extends Controller
                         ) as name_of_assessment
                     ")
             )
-            ->leftJoin('users', 'assessments.created_by', 'users.id')
-            ->when($r->type, fn($q) => $q->where('assessments.type', $r->type))
-            ->where('assessments.population_id', $r->population_id)
-            ->orderBy('assessments.datetime', $r->sort ?? 'desc');
+            ->leftJoin('users', 'assessments.created_by', 'users.id');
         if ($id) {
             $q = $q->where('assessments.id', $id)->first();
         } else {
+            $q = $q->where('assessments.population_id', $r->population_id)
+                ->orderBy('assessments.datetime', $r->sort ?? 'desc')
+                ->when(
+                    $r->type == 23,
+                    fn($q) =>
+                    $q->whereIn('assessments.type', [Assessments::InspectionVisit, Assessments::InspectionChild])
+                )->when(
+                    $r->type == 1,
+                    fn($q) =>
+                    $q->where('assessments.type', Assessments::Assessment)
+                );
             $q = $q->paginate($r->paginate ?? 10);
         }
 
