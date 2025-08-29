@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Models\Population;
+use App\Models\Shelter;
 
 enum ActionType: int
 {
@@ -33,6 +34,9 @@ enum ActionType: int
             self::ASSIGN => 'รับตำแหน่งหน้าที่',
             self::JOIN_TEAM => 'ย้ายเข้าทีมเจ้าหน้าที่',
             self::EXIT_TEAM => 'ออกจากทีมเจ้าหน้าที่',
+            self::CREATE_SHELTER => 'สร้างศูนย์พักพิง',
+            self::OPEN => 'เปิดทำการ',
+            self::CLOSE => 'ปิดทำการ',
         };
     }
 }

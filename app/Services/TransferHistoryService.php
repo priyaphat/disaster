@@ -43,7 +43,7 @@ class TransferHistoryService
     public function getShelterlog(array $filters = [])
     {
         $data = TransferHistory::filter($filters)->where('parentable_type', Shelter::class)->with('created_by_name', 'shelter')->paginate(10);
-        return $data = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
+        return $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
     }
 
     public function getActiontype($model)

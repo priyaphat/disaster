@@ -112,7 +112,7 @@ class ShelterService
     public function dashboard(array $filters = [])
     {
         $total_shelter = Shelter::where('status', Shelter::OPEN)->count();
-        $total_population = ShelterPopulation::count();
+        $total_population = ShelterPopulation::whereNotNull('shelter_id')->count();
         $updated_at = ShelterPopulation::max('updated_at');;
 
         $shelter_id = $filters['shelter_id'] ?? null;

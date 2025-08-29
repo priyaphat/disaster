@@ -15,6 +15,7 @@ use App\Models\ShelterStaff;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Observers\PopulationObserver;
+use App\Observers\ShelterObserver;
 use App\Observers\ShelterPopulationObserver;
 use App\Observers\ShelterStaffObserver;
 use App\Observers\TeamMemberObserver;
@@ -60,6 +61,7 @@ class AppServiceProvider extends ServiceProvider
         ShelterPopulation::observe(ShelterPopulationObserver::class);
         TeamMember::observe(TeamMemberObserver::class);
         ShelterStaff::observe(ShelterStaffObserver::class);
+        Shelter::observe(ShelterObserver::class);
         Team::observe(TeamObserver::class);
         // API Document
         Scramble::configure()

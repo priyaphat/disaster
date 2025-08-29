@@ -29,14 +29,16 @@ class TransferHistoryFilter extends QueryFilter
 
     public function sort($value)
     {
-        return $this->builder->orderBy('created_at', $value === 'asc' ? 'asc' : 'desc');
+        return $this->builder->orderBy('created_at', $value === 'DESC' ? 'ASC' : 'DESC');
     }
 
     public function district_code($value)
     {
-        return $this->builder->whereHas('shelter', function ($query) use ($value) {
-            $query->where('district_code', $value);
-        });
+        if ($value) {
+            return $this->builder->whereHas('shelter', function ($query) use ($value) {
+                $query->where('district_code', $value);
+            });
+        }
     }
 
     public function start_date($value)

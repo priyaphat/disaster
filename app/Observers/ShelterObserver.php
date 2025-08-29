@@ -19,7 +19,7 @@ class ShelterObserver
      */
     public function created(Shelter $shelter): void
     {
-       $this->logService->createLog(ActionType::CREATE_SHELTER->value, Shelter::class, $shelter->id, Shelter::class, $shelter->id);
+       $this->logService->createLog($shelter->status == Shelter::OPEN ? ActionType::OPEN->value : ActionType::CLOSE->value, Shelter::class, $shelter->id, Shelter::class, $shelter->id);
     }
 
     /**
@@ -29,7 +29,7 @@ class ShelterObserver
     {
         $newData = $shelter->getAttributes();
         if ($shelter->wasChanged('status')) {
-            $this->logService->createLog($newData == Shelter::OPEN ? ActionType::OPEN->value : ActionType::CLOSE->value, Shelter::class, $shelter->id, Shelter::class, $shelter->id);
+            $this->logService->createLog($newData['status'] == Shelter::OPEN ? ActionType::OPEN->value : ActionType::CLOSE->value, Shelter::class, $shelter->id, Shelter::class, $shelter->id);
         }
     }
 }
