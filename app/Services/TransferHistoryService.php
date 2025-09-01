@@ -40,10 +40,16 @@ class TransferHistoryService
         return $data = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
     }
 
-    public function getShelterlog(array $filters = [])
+    public function getShelterlog(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
-        $data = TransferHistory::filter($filters)->where('parentable_type', Shelter::class)->with('created_by_name', 'shelter')->paginate(10);
-        return $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
+        $query = TransferHistory::filter($filters)->where('parentable_type', Shelter::class)->with('created_by_name', 'shelter');
+        if (!$paginate) {
+            return TransferHistoryResource::collection($query->get());
+        } else {
+            $data = $query->paginate($perPage);
+            $paginate = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
+            return $paginate;
+        }
     }
 
     public function getActiontype($model)
