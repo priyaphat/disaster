@@ -20,9 +20,11 @@ use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PopulationController extends Controller
 {
+    use AuthorizesRequests;
     protected $populationService, $shelterService, $transferLogService, $imageService;
 
     public function __construct(PopulationService $populationService, ShelterService $shelterService, TransferHistoryService $transferLogService, ImageService $imageService)
@@ -46,6 +48,8 @@ class PopulationController extends Controller
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Population::class);
+
         $data = $this->populationService->getList($request->all());
         $summary = $this->populationService->summary($request->except('sort'));
         return ApiResponse::customSuccessResponse(__('success.data'), [
@@ -59,6 +63,8 @@ class PopulationController extends Controller
      */
     public function store(CreatePopulationRequest $request)
     {
+        $this->authorize('create', Population::class);
+
         $data = $this->populationService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
         return ApiResponse::createdResponse(__('success.created'), $data);
@@ -70,6 +76,8 @@ class PopulationController extends Controller
     #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function show(Population $population)
     {
+        $this->authorize('view', $population);
+
         $data = $this->populationService->show($population);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -80,6 +88,8 @@ class PopulationController extends Controller
     #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function update(UpdatePopulationRequest $request, Population $population)
     {
+        $this->authorize('update', $population);
+
         $prevShelter = $population->shelter_id;
         $data = $this->populationService->update($population, $request->all());
         // $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);

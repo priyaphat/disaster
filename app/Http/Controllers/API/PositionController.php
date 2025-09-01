@@ -9,9 +9,11 @@ use App\Http\Requests\Position\UpdatePositionRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Position;
 use App\Services\PositionService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PositionController extends Controller
 {
+    use AuthorizesRequests;
     protected $positionService;
 
     public function __construct(PositionService $positionService)
@@ -24,6 +26,7 @@ class PositionController extends Controller
     public function index(FilterPositionRequest $request)
     {
         //
+        $this->authorize('viewAny', Position::class);
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->positionService->getList($request->all(), $paginate, $perPage);
@@ -36,6 +39,7 @@ class PositionController extends Controller
     public function store(StorePositionRequest $request)
     {
         //
+        $this->authorize('create', Position::class);
         $data = $this->positionService->create($request->all());
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
@@ -45,6 +49,7 @@ class PositionController extends Controller
      */
     public function show(Position $position)
     {
+        $this->authorize('view', Position::class);
         return ApiResponse::successResponse(__('success.data'), $position);
     }
 
@@ -54,6 +59,7 @@ class PositionController extends Controller
     public function update(UpdatePositionRequest $request, Position $position)
     {
         //
+        $this->authorize('update', Position::class);
         $data = $this->positionService->update($position, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
@@ -64,6 +70,7 @@ class PositionController extends Controller
     public function destroy(Position $position)
     {
         //
+        $this->authorize('delete', Position::class);
         $this->positionService->delete($position);
         return ApiResponse::successResponse(__('success.deleted'));
     }

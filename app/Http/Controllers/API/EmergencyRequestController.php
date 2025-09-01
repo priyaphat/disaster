@@ -15,6 +15,7 @@ use App\Models\Prefix;
 use App\Services\NotificationService;
 use App\Services\PopulationService;
 use Dedoc\Scramble\Attributes\PathParameter;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
@@ -22,6 +23,7 @@ use function PHPUnit\Framework\isNull;
 
 class EmergencyRequestController extends Controller
 {
+    use AuthorizesRequests;
     protected $emergencyRequestService, $notificationService;
 
     public function __construct(EmergencyRequestService $emergencyRequestService, NotificationService $notificationService)
@@ -35,6 +37,7 @@ class EmergencyRequestController extends Controller
      */
     public function index()
     {
+        $this->authorize('isAdmin', EmergencyRequest::class);
         $emergencyRequest = $this->emergencyRequestService->index();
         return ApiResponse::successResponse(__('success.data'), $emergencyRequest);
     }
@@ -45,6 +48,7 @@ class EmergencyRequestController extends Controller
     public function show(Request $emergencyRequest)
     {
         // approve
+        $this->authorize('view', EmergencyRequest::class);
         $data = $this->emergencyRequestService->show($emergencyRequest, null);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -55,6 +59,7 @@ class EmergencyRequestController extends Controller
     public function show_wait(Request $emergencyRequest)
     {
         // waiting , helping
+        $this->authorize('viewAny', EmergencyRequest::class);
         $data = $this->emergencyRequestService->show($emergencyRequest, 'waiting');
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -65,6 +70,7 @@ class EmergencyRequestController extends Controller
     public function show_history(Request $emergencyRequest)
     {
         // complete , disapprove , incomplete
+        $this->authorize('viewAny', EmergencyRequest::class);
         $data = $this->emergencyRequestService->show($emergencyRequest, 'history');
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -83,6 +89,7 @@ class EmergencyRequestController extends Controller
      */
     public function store(EmergencyRequestRequest $request)
     {
+        $this->authorize('create', EmergencyRequest::class);
         $data = $this->emergencyRequestService->create($request->all());
         $name = ['name' => Prefix::where('id', $data['prefix_id'])->value('name') . ' ' . $data['first_name'] . ' ' . $data['last_name']];
         (new LineController)->LineNotification($name, LineController::Emc_request_post);
@@ -96,7 +103,8 @@ class EmergencyRequestController extends Controller
      * Emergency request | อัพเดตรายการแจ้งเหตุฉุกเฉิน  ตัวแปร / ปุ้ย .
      */
     public function update(EmergencyRequestRequest $request, EmergencyRequest $emergencyRequest)
-    {
+    {   
+        $this->authorize('update', EmergencyRequest::class);
         if ($edit = self::canEdit($emergencyRequest)) return $edit;
 
         $old = clone $emergencyRequest;
@@ -189,6 +197,7 @@ class EmergencyRequestController extends Controller
      */
     public function destroy(EmergencyRequest $emergencyRequest)
     {
+        $this->authorize('delete', EmergencyRequest::class);
         $emergencyRequest->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }
@@ -198,6 +207,7 @@ class EmergencyRequestController extends Controller
      */
     public function reason()
     {
+        $this->authorize('isAdmin', EmergencyRequest::class);
         $data = $this->emergencyRequestService->reason();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -219,7 +229,7 @@ class EmergencyRequestController extends Controller
 
     public function requestShelter(Request $request)
     {
-
+        $this->authorize('isAdmin', EmergencyRequest::class);
         if ($request->check == true) {
             if ($request->victim_name) {
                 $victims = $request->victim_name;

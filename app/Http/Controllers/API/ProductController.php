@@ -20,10 +20,12 @@ use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use App\Services\SearchService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
+    use AuthorizesRequests;
     protected $productService, $imageService, $search;
 
     public function __construct(ProductService $productService, ImageService $imageService, SearchService $search)
@@ -43,6 +45,8 @@ class ProductController extends Controller
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Product::class);
+
         $products = $this->productService->getList($request->all());
         return ApiResponse::successResponse(__('success.data'), $products);
     }
@@ -52,6 +56,8 @@ class ProductController extends Controller
      */
     public function store(CreateProductRequest $request)
     {
+        $this->authorize('create', Product::class);
+
         $data = $this->productService->create($request->all());
         $data->image = $this->imageService->uploadImage($request->image, Product::IMAGE_FOLDER, Product::class, $data->id);
         return ApiResponse::successResponse(__('success.product.created'), self::show($data['id'], true));
@@ -63,6 +69,8 @@ class ProductController extends Controller
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function show($product, $val = false)
     {
+        $this->authorize('view', Product::class);
+
         $q = Product::select(
             'products.*',
             // 'shelter_products.quantity',
@@ -91,6 +99,8 @@ class ProductController extends Controller
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function update(UpdateProductRequest $request, Product $product)
     {
+        $this->authorize('update', Product::class);
+
         if (isset($request['status'])) {
             if ($request['status'] != $product['status']) { // status
                 if ($request['status'] == Product::Inactive) {
@@ -111,6 +121,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $this->authorize('delete', Product::class);
+
         if (self::checkDalete($product->id)) throw new BadRequestHttpException(__('error.sql.fk-constraint'));
         ShelterProduct::where('product_id', $product->id)->delete();
 
@@ -133,11 +145,15 @@ class ProductController extends Controller
 
     public function checkDel($productId) //true ลบไม่ได้ , false ลบได้
     {
+        $this->authorize('delete', Product::class);
+
         return ApiResponse::successResponse(__('success.data'), (self::checkDalete($productId)));
     }
 
     private function checkDalete($productId, $excepShelter = false)
     {
+        $this->authorize('delete', Product::class);
+
         $q = ShelterProduct::where('product_id', $productId)
             ->when(
                 $excepShelter,
@@ -177,6 +193,8 @@ class ProductController extends Controller
      */
     public function quantity(Request $r, $id)
     {
+        $this->authorize('update', Product::class);
+
         $r->validate([
             'quantity' => 'required|numeric',
             'condition' => 'required|in:-1,1',

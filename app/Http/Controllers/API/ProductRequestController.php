@@ -18,6 +18,7 @@ use App\Services\SearchService;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PDO;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ProductRequestController extends Controller
 {
+    use AuthorizesRequests;
     protected $productRequestService;
 
     public function __construct(ProductRequestService $productRequestService)
@@ -37,6 +39,7 @@ class ProductRequestController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', ProductRequest::class);
         $data = $this->productRequestService->index($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -129,6 +132,8 @@ class ProductRequestController extends Controller
      */
     public function store(CreateProductReqRequest $request)
     {
+        $this->authorize('create', ProductRequest::class);
+
         if (ProductUtility::getShelter() == ShelterProduct::Shelter_center) throw new BadRequestHttpException('ผู้ใช้งานดังกล่าว ยังไม่ได้สังกัดในศูนย์พักพิงใด');
         $data = $this->productRequestService->create($request->all());
         return ApiResponse::successResponse(__('success.product_required.created'));
@@ -139,6 +144,8 @@ class ProductRequestController extends Controller
      */
     public function update(UpdateProductReqRequest $request, ProductRequest $productReq)
     {
+        $this->authorize('update', ProductRequest::class);
+
         if ($productReq['status'] == ProductRequest::STOP) return ApiResponse::errorResponse(__('error.product_required.canNotDelete'));
         if (isset($request['status']) && $request['status'] != $productReq['status'] && $request['status'] == ProductRequest::STOP) {  //ยุติ ส่ง 0 มา 
             $productReq->update(['status' => $request['status']]);
@@ -154,6 +161,8 @@ class ProductRequestController extends Controller
      */
     public function requestLog(Request $f)
     {
+        $this->authorize('viewAnyLog', ProductRequest::class);
+
         $q = ProductLogs::select(
             'product_logs.*',
             'units.name as unit_name',

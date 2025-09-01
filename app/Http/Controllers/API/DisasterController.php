@@ -10,19 +10,17 @@ use App\Http\Requests\DisasterRequest;
 use App\Models\DisasterFlood;
 use App\Enums\FloodStatus;
 use App\Enums\SmogStatus;
-use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterEarthquake;
 use App\Models\DisasterLandslide;
 use App\Models\DisasterSmog;
 use App\Models\DisasterWildfire;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use PDO;
 
 class DisasterController extends Controller
 {
+    use AuthorizesRequests;
     protected $disasterService;
 
     public function __construct(DisasterService $disasterService)
@@ -53,6 +51,7 @@ class DisasterController extends Controller
      */
     public function store(DisasterRequest $request)
     {
+        $this->authorize('create', DisasterWildfire::class);
         $data = $this->disasterService->create($request->all());
         return ApiResponse::createdResponse(__('success.data'), $data);
     }
@@ -62,6 +61,7 @@ class DisasterController extends Controller
      */
     public function update(DisasterRequest $request, Disaster $disaster)
     {
+        $this->authorize('update', DisasterWildfire::class);
         $data = $this->disasterService->update($disaster, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
@@ -71,6 +71,7 @@ class DisasterController extends Controller
      */
     public function destroy(Disaster $disaster)
     {
+        $this->authorize('delete', DisasterWildfire::class);
         $disaster->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }
@@ -94,6 +95,7 @@ class DisasterController extends Controller
      */
     public function dst_eq_update(DisasterRequest $request, DisasterEarthquake $earthquake)
     {
+        $this->authorize('update', DisasterWildfire::class);
         $earthquake->update($request->all());
         // LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $earthquake);
@@ -127,6 +129,7 @@ class DisasterController extends Controller
      */
     public function dst_fl_update(DisasterRequest $request, DisasterFlood $flood)
     {
+        $this->authorize('update', DisasterWildfire::class);
         $flood->update($request->all());
         // LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $flood);
@@ -148,6 +151,7 @@ class DisasterController extends Controller
      */
     public function dst_ls_create(DisasterRequest $request)
     {
+        $this->authorize('create', DisasterWildfire::class);
         $data = $this->disasterService->ls_create($request);
         // LinePostUtility::line_oa_call(LineController::Disaster_land slide, $data->toArray()); 
         return ApiResponse::successResponse(__('success.sys_created'), $data);
@@ -166,6 +170,7 @@ class DisasterController extends Controller
      */
     public function dst_ls_delete(DisasterLandslide $id)
     {
+        $this->authorize('delete', DisasterWildfire::class);
         $file = DisasterLandslide::FILE . '/' . $id->file_id;
         if (Storage::exists($file)) Storage::delete($file);
         $id->delete();
@@ -188,6 +193,7 @@ class DisasterController extends Controller
      */
     public function dst_wf_create(DisasterRequest $request)
     {
+        $this->authorize('create', DisasterWildfire::class);
         $data = $this->disasterService->dst_wf_create($request);
         return ApiResponse::successResponse(__('success.sys_updated'), $data);
     }
@@ -221,6 +227,7 @@ class DisasterController extends Controller
      */
     public function dst_sm_update(DisasterRequest $request, DisasterSmog $smog)
     {
+        $this->authorize('update', DisasterWildfire::class);
         $smog->update($request->all());
         // LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog);
         return  ApiResponse::successResponse(__('success.data'), $smog);

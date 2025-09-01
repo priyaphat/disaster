@@ -14,6 +14,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -54,6 +55,10 @@ return Application::configure(basePath: dirname(__DIR__))
             return ApiResponse::customErrorResponse(__('auth.unauthorized'), [], $exception = null, Response::HTTP_FORBIDDEN);
         });
 
+        $exceptions->render(function (AccessDeniedHttpException $exception) {
+            return ApiResponse::customErrorResponse(__('auth.unauthorized'), [], $exception = null, Response::HTTP_FORBIDDEN);
+        });
+
         $exceptions->render(function (AuthenticationException $exception) {
             return ApiResponse::customErrorResponse(__('auth.unauthenicated'), [], $exception = null, Response::HTTP_UNAUTHORIZED);
         });
@@ -82,7 +87,6 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (HttpException $exception) {
-            //  dd(get_class($exception));
             return ApiResponse::customErrorResponse($exception->getMessage(), [], $exception);
         });
     })->create();

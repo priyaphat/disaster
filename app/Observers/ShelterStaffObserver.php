@@ -37,6 +37,9 @@ class ShelterStaffObserver
             $notification = $this->notificationService->createNotification('shelter_position.updated', [], $shelterStaff->id, ShelterStaff::class, false);
             $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
         }
+
+        // Add staff role to user
+        $shelterStaff->user->assignRole('staff');
     }
 
     /**
@@ -67,5 +70,8 @@ class ShelterStaffObserver
         // Send a notification
         $notification = $this->notificationService->createNotification('shelter_staff.leaved', ['name' => $shelterStaff->shelter->name], $shelterStaff->id, ShelterStaff::class, false);
         $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
+
+        // Remove all roles from user
+        $shelterStaff->user->syncRoles([]);
     }
 }

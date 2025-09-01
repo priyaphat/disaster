@@ -148,6 +148,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/new/{news}', [NewsController::class, 'destroy']);
 
     Route::post('/role', [PermissionController::class, 'createRole']);
+    Route::post('/permission', [PermissionController::class, 'createPermission']);
 
     Route::group(['middleware' => ['permission:team.view']], function () {});
 

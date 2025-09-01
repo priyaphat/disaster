@@ -9,10 +9,13 @@ use App\Http\Requests\Appointment\StoreAppointmentRequest;
 use App\Http\Requests\Appointment\UpdateAppointmentRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Appointment;
+use App\Models\User;
 use App\Services\AppointmentService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AppointmentController extends Controller
 {
+    use AuthorizesRequests;
     protected $appointmentService;
 
     public function __construct(AppointmentService $appointmentService)
@@ -25,6 +28,7 @@ class AppointmentController extends Controller
      */
     public function index(SearchAppointmentRequest $request)
     {
+        $this->authorize('viewAny', Appointment::class);
         $data = $this->appointmentService->index($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -34,6 +38,7 @@ class AppointmentController extends Controller
      */
     public function store(StoreAppointmentRequest $request)
     {
+        $this->authorize('create', Appointment::class);
         $data = $this->appointmentService->create($request->all());
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
@@ -43,6 +48,7 @@ class AppointmentController extends Controller
      */
     public function show(Appointment $appointment)
     {
+        $this->authorize('view', Appointment::class);
         return ApiResponse::successResponse(__('success.data'), $appointment);
     }
 
@@ -51,6 +57,7 @@ class AppointmentController extends Controller
      */
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
+        $this->authorize('update', Appointment::class);
         $data = $this->appointmentService->update($appointment, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
@@ -61,6 +68,7 @@ class AppointmentController extends Controller
     public function destroy(Appointment $appointment)
     {
         //
+        $this->authorize('delete', Appointment::class);
         $this->appointmentService->delete($appointment);
         return ApiResponse::successResponse(__('success.deleted'));
     }
@@ -77,6 +85,7 @@ class AppointmentController extends Controller
     public function getDailySchedule(SearchCalendarRequest $request)
     {
         //
+        $this->authorize('viewAny', Appointment::class);
         $data = $this->appointmentService->getDailySchedule($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -92,6 +101,7 @@ class AppointmentController extends Controller
      */
     public function getMonthSchedule(SearchAppointmentRequest $request)
     {
+        $this->authorize('viewAny', Appointment::class);
         $data = $this->appointmentService->getMonthSchedule($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }

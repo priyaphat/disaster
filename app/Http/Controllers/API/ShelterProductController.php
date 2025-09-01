@@ -15,16 +15,21 @@ use App\Http\Utility\PaginateUtility;
 use App\Models\Product;
 use App\Models\ProductRequest;
 use App\Services\SearchService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Response;
 
 class ShelterProductController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Get shelter product | ภายใน ศูนย์
      */
     public function index(Request $filter, $shelter = null)
     {
-        //ดัก เข้าไปดู shelter ที่ไม่ใช่ของตัวเอง
+        
+        $this->authorize('viewAny', ShelterProduct::class);
+
+        // ดัก เข้าไปดู shelter ที่ไม่ใช่ของตัวเอง
         $shelterSelf = ProductUtility::getShelter();
         if ($shelterSelf != $shelter) return Response()->json(['success' => true, "code" => 200, 'message' => __('success.data'), 'quantity' => 0]);
 
@@ -41,6 +46,8 @@ class ShelterProductController extends Controller
      */
     public function delete($shelter = null)
     {
+        $this->authorize('delete', ShelterProduct::class);
+
         $q = app(ProductTransferController::class)->productList(new Request(), false, $shelter);
         if (count($q) > 0) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         $shelter = $shelter ?? ProductUtility::getShelter();
@@ -65,6 +72,8 @@ class ShelterProductController extends Controller
      */
     public function deleteOne(Request $p, $productId)
     {
+        $this->authorize('delete', ShelterProduct::class);
+
         $shelter = ProductUtility::getShelter();
         $q = ShelterProduct::where('product_id', $productId)->where('shelter_id', $shelter)
             ->where('quantity', '>', 0)->first();
@@ -91,6 +100,8 @@ class ShelterProductController extends Controller
      */
     public function transfer($shelter = null)
     {
+        $this->authorize('update', ShelterProduct::class);
+
         $q = (new ProductService)->getList([], true, $shelter);
         $r = new ProductTransferRequest();
         $item['shelter_id'] = ShelterProduct::Shelter_center;
@@ -125,6 +136,7 @@ class ShelterProductController extends Controller
      */
     public function store(ShelterProductRequest $r)
     {
+        $this->authorize('create', ShelterProduct::class);
         $r = $r->all();
         $r['shelter_id'] = ProductUtility::getShelter();
         if (ShelterProduct::where('product_id', $r['product_id'])->where('shelter_id', $r['shelter_id'])->first()) return ApiResponse::errorResponse(__('error.product_required.add_unique'));

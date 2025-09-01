@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PermissionRequest;
 use App\Http\Responses\ApiResponse;
 use App\Services\PermissionService;
+use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
@@ -16,22 +17,32 @@ class PermissionController extends Controller
         $this->permissionService = $permissionService;
     }
 
-    public function createRole(PermissionRequest $request)
+    public function create(PermissionRequest $request)
     {
-
-        $role = $this->permissionService->createRole($request->all());
-        return ApiResponse::createdResponse('Success', ['role' => $role]);
+        $data = $this->permissionService->create($request->all());
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
+    // public function createPermission(Request $request)
+    // {
+    //     $role = $this->permissionService->createPermission($request->all());
+    //     return ApiResponse::createdResponse('Success', ['data' => $role]);
+    // }
 
-    public function showRoles()
-    {
-        $roles = $this->permissionService->getRoles();
-        return ApiResponse::successResponse('Success', ['roles' => $roles]);
-    }
+    // public function updateRole()
+    // {
+    //     $roles = $this->permissionService->getRoles();
+    //     return ApiResponse::successResponse('Success', ['roles' => $roles]);
+    // }
 
-    public function showPermissions()
-    {
-        $permissions = $this->permissionService->getPermissions();
-        return ApiResponse::successResponse('Success', ['permissions' => $permissions]);
-    }
+    // public function showRoles()
+    // {
+    //     $roles = $this->permissionService->getRoles();
+    //     return ApiResponse::successResponse('Success', ['roles' => $roles]);
+    // }
+
+    // public function showPermissions()
+    // {
+    //     $permissions = $this->permissionService->getPermissions();
+    //     return ApiResponse::successResponse('Success', ['permissions' => $permissions]);
+    // }
 }

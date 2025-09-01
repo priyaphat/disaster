@@ -2,23 +2,69 @@
 
 namespace App\Providers;
 
+use App\Enums\ProductLogs;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
 use App\Listeners\CreateUserApproval;
 use App\Listeners\SendPasswordEmail;
 use App\Listeners\SendWelcomeEmail;
 use App\Listeners\UserEventSubscriber;
+use App\Models\Appointment;
+use App\Models\AppointmentLog;
+use App\Models\Category;
+use App\Models\Config;
+use App\Models\Department;
+use App\Models\Disaster;
+use App\Models\DisasterEarthquake;
+use App\Models\DisasterLandslide;
+use App\Models\DisasterSmog;
+use App\Models\DisasterWildfire;
+use App\Models\EmergencyPost;
+use App\Models\EmergencyRequest;
 use App\Models\Population;
 use App\Models\Shelter;
 use App\Models\ShelterPopulation;
 use App\Models\ShelterStaff;
 use App\Models\Team;
 use App\Models\TeamMember;
+use App\Models\User;
+use App\Models\News;
+use App\Models\Position;
+use App\Models\Prefix;
+use App\Models\Product;
+use App\Models\ProductRequest;
+use App\Models\ShelterPosition;
+use App\Models\ShelterProduct;
+use App\Models\Unit;
 use App\Observers\PopulationObserver;
 use App\Observers\ShelterPopulationObserver;
 use App\Observers\ShelterStaffObserver;
 use App\Observers\TeamMemberObserver;
 use App\Observers\TeamObserver;
+use App\Policies\AppointmenLogPolicy;
+use App\Policies\AppointmentPolicy;
+use App\Policies\CategoryPolicy;
+use App\Policies\ConfigPolicy;
+use App\Policies\DepartmentPolicy;
+use App\Policies\DisasterPolicy;
+use App\Policies\EmergencyPostPolicy;
+use App\Policies\EmergencyRequestPolicy;
+use App\Policies\NewsPolicy;
+use App\Policies\PopulationPolicy;
+use App\Policies\PositionPolicy;
+use App\Policies\PrefixPolicy;
+use App\Policies\ProductLogPolicy;
+use App\Policies\ProductPolicy;
+use App\Policies\ProductRequestPolicy;
+use App\Policies\ShelterPolicy;
+use App\Policies\ShelterPopulationPolicy;
+use App\Policies\ShelterPositionPolicy;
+use App\Policies\ShelterProductPolicy;
+use App\Policies\ShelterStaffPolicy;
+use App\Policies\TeamMemberPolicy;
+use App\Policies\TeamPolicy;
+use App\Policies\UnitPolicy;
+use App\Policies\UserPolicy;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -30,6 +76,7 @@ use Dedoc\Scramble\Scramble;
 use Illuminate\Routing\Route;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
@@ -61,6 +108,45 @@ class AppServiceProvider extends ServiceProvider
         TeamMember::observe(TeamMemberObserver::class);
         ShelterStaff::observe(ShelterStaffObserver::class);
         Team::observe(TeamObserver::class);
+
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(News::class, NewsPolicy::class);
+        Gate::policy(Disaster::class, DisasterPolicy::class);
+        Gate::policy(DisasterSmog::class, DisasterPolicy::class);
+        Gate::policy(DisasterWildfire::class, DisasterPolicy::class);
+        Gate::policy(DisasterEarthquake::class, DisasterPolicy::class);
+        Gate::policy(DisasterLandslide::class, DisasterPolicy::class);
+        
+        Gate::policy(Appointment::class, AppointmentPolicy::class);
+        Gate::policy(AppointmentLog::class, AppointmenLogPolicy::class);
+
+        Gate::policy(Team::class, TeamPolicy::class);
+        Gate::policy(TeamMember::class, TeamMemberPolicy::class);
+
+        Gate::policy(Shelter::class, ShelterPolicy::class);
+        Gate::policy(ShelterStaff::class, ShelterStaffPolicy::class);
+        Gate::policy(ShelterPosition::class, ShelterPositionPolicy::class);
+
+        Gate::policy(Population::class, ShelterPopulationPolicy::class);
+        Gate::policy(Population::class, PopulationPolicy::class);
+
+        Gate::policy(Config::class, ConfigPolicy::class);
+
+        Gate::policy(Category::class, CategoryPolicy::class);
+        Gate::policy(Unit::class, UnitPolicy::class);
+        Gate::policy(Product::class, ProductPolicy::class);
+
+        Gate::policy(Department::class, DepartmentPolicy::class);
+        Gate::policy(Prefix::class, PrefixPolicy::class);
+        Gate::policy(Position::class, PositionPolicy::class);
+
+        Gate::policy(ShelterProduct::class, ShelterProductPolicy::class);
+        Gate::policy(ProductRequest::class, ProductRequestPolicy::class);
+        Gate::policy(ProductLogs::class, ProductLogPolicy::class);
+
+        Gate::policy(EmergencyPost::class, EmergencyPostPolicy::class);
+        Gate::policy(EmergencyRequest::class, EmergencyRequestPolicy::class);
+
         // API Document
         Scramble::configure()
             ->expose(

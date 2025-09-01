@@ -12,10 +12,12 @@ use App\Models\Shelter;
 use App\Services\ShelterService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class ShelterController extends Controller
 {
+    use AuthorizesRequests;
     protected $shelterService;
 
     public function __construct(
@@ -33,6 +35,8 @@ class ShelterController extends Controller
     #[QueryParameter('district_code', description: 'ค้นหาตามอำเภอ', type: 'string', example: "5701")]
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Shelter::class);
+
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->shelterService->getList($request->all(), $paginate, $perPage);
@@ -44,6 +48,8 @@ class ShelterController extends Controller
      */
     public function store(CreateShelterRequest $request)
     {
+        $this->authorize('viewAny', Shelter::class);
+
         $data = $this->shelterService->create($request->all());
         (new LineController)->LineNotification($data->toArray(), LineController::Shelter_post);
         return ApiResponse::createdResponse(__('success.created'), $data);
@@ -55,6 +61,8 @@ class ShelterController extends Controller
     #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
     public function update(UpdateShelterRequest $request, Shelter $shelter)
     {
+        $this->authorize('update', $shelter);
+
         // Update only status
         if ($request->has('status') && count($request->all()) === 1) {
             $data = $this->shelterService->update($shelter, $request->only('status'));
@@ -82,6 +90,8 @@ class ShelterController extends Controller
     #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
     public function show(Request $request, Shelter $shelter)
     {
+        $this->authorize('view', $shelter);
+
         $data = $this->shelterService->show($shelter, $request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }

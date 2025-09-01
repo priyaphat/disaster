@@ -9,12 +9,15 @@ use App\Http\Resources\NewsResource;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\LinePostUtility;
 use App\Models\News;
+use App\Models\User;
 use App\Services\ImageService;
 use App\Services\NewsService;
 use App\Services\NotificationService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class NewsController extends Controller
 {
+    use AuthorizesRequests;
     protected $newsService;
 
     public function __construct(NewsService $newsService)
@@ -27,6 +30,7 @@ class NewsController extends Controller
      */
     public function index(FilterNewsRequest $request)
     {
+        $this->authorize('viewAny', News::class);
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $shelter = $request->has('shelter_id');
@@ -39,6 +43,7 @@ class NewsController extends Controller
      */
     public function store(NewsRequest $request)
     {
+        $this->authorize('create', News::class);
         $data = $this->newsService->create($request->all());
         return ApiResponse::createdResponse(__('success.new.created'), new NewsResource($data));
     }
@@ -48,6 +53,7 @@ class NewsController extends Controller
      */
     public function show(News $news)
     {
+        $this->authorize('view', $news);
         $news->load(['creator', 'editor', 'image']);
         return ApiResponse::successResponse(__('success.data'), new NewsResource($news));
     }
@@ -57,6 +63,7 @@ class NewsController extends Controller
      */
     public function update(NewsRequest $request, News $news)
     {
+        $this->authorize('update', $news);
         $data = $this->newsService->update($news, $request->except('shelter_id'));
         return ApiResponse::successResponse(__('success.new.updated'), new NewsResource($data));
     }
@@ -66,6 +73,7 @@ class NewsController extends Controller
      */
     public function destroy(News $news)
     {
+        $this->authorize('delete', $news);
         $this->newsService->delete($news);
         return ApiResponse::successResponse(__('success.new.deleted'));
     }
