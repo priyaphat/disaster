@@ -29,7 +29,7 @@ class TransferHistoryFilter extends QueryFilter
 
     public function sort($value)
     {
-        return $this->builder->orderBy('created_at', $value === 'DESC' ? 'ASC' : 'DESC');
+        return $this->builder->orderBy('created_at', $value === 'desc' ? 'DESC' : 'ASC');
     }
 
     public function district_code($value)

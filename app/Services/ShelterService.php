@@ -115,12 +115,7 @@ class ShelterService
         $total_population = ShelterPopulation::whereNotNull('shelter_id')->count();
         $updated_at = ShelterPopulation::max('updated_at');;
 
-        $shelter_id = $filters['shelter_id'] ?? null;
-        $query = Population::query();
-
-        if ($shelter_id != null) {
-            $query = $query->where('shelter_id', $shelter_id);
-        }
+        $query = Population::whereHas('shelter')->filter($filters);
 
         $total_injured = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::INJURED->value)->count();
         $total_healthy = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::NORMAL->value)->count();
