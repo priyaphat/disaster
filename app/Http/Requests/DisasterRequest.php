@@ -19,11 +19,13 @@ class DisasterRequest extends FormRequest
             'store' => $this->storeRules(),
             'update' => $this->updateRules(),
             'dst_eq_update' => $this->earthquakeUpdate(),
+            'dst_eq_create' => $this->earthquakeCreate(),
             'dst_fl_create' => $this->floodCreate(),
             'dst_fl_update' => $this->floodUpdate(),
             'dst_sl_create' => $this->landsildeCreate(),
             'dst_wf_create' => $this->wildfireCreate(),
             'dst_sm_update' => $this->smogUpdate(),
+            'dst_sm_create' => $this->smogCreate(),
             default => [],
         };
     }
@@ -44,6 +46,20 @@ class DisasterRequest extends FormRequest
     }
 
     protected function earthquakeUpdate(): array
+    {
+        return [
+            'address' => 'required|string|max:255',
+            'latitude' => ['required', 'regex:/^-?\d{1,4}(\.\d{1,6})?$/'],
+            'longitude' => ['required', 'regex:/^-?\d{1,4}(\.\d{1,6})?$/'],
+            'depth' => 'required',
+            'magnitude' => 'required',
+            'occurrence_time' => 'required',
+            'geography_id' => 'required',
+            'line_oa' => 'required|in:0,1',
+        ];
+    }
+
+    protected function earthquakeCreate(): array
     {
         return [
             'latitude' => ['required', 'regex:/^-?\d{1,4}(\.\d{1,6})?$/'],
@@ -116,6 +132,18 @@ class DisasterRequest extends FormRequest
     protected function smogUpdate(): array
     {
         return [
+            "status" => 'required|integer|in:1,2,3',
+            "smog_value" => 'required|numeric',
+            "line_oa" => 'required|in:0,1'
+        ];
+    }
+
+    protected function smogCreate(): array
+    {
+        return [
+            "source" => 'required|string|max:255',
+            "address" => 'required|string|max:255',
+            'geography_id' => 'required',
             "status" => 'required|integer|in:1,2,3',
             "smog_value" => 'required|numeric',
             "line_oa" => 'required|in:0,1'

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->json('detail')->nullable();
             $table->dateTime('datetime');
             $table->unsignedBigInteger('team_id')->nullable();
+            $table->Integer('count')->nullable()->default(1)->comment('นับการแก้ไข');
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamps();

@@ -103,7 +103,9 @@ class AssessmentController extends Controller
         ]);
 
         $request['name'] = AssessmentType::tryFrom($request->type)->label();
-        $assessment->fill($request->all());
+        // $assessment->fill($request->all());
+        $assessment->fill($request->except('count'));
+        $assessment->count += 1;
         $assessment->save();
 
         return ApiResponse::successResponse(__('success.updated'), self::index(request(), $assessment->id, 'frist'));

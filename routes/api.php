@@ -77,6 +77,7 @@ Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_s
 Route::get('/dst-wildfires', [DisasterController::class, 'dst_wf_show']);
 Route::get('/dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
 Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
+Route::get('/dst-flood-source', [DisasterController::class, 'dst_fl_source']);
 Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
 Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
@@ -309,15 +310,17 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display disaster menu
     |-------------------------------------------------------- ------------------
     */
-    Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
+    // Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']); //เก็บไว้
     Route::post('/dst-earthquake', [DisasterController::class, 'dst_eq_create']);
-    Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
+    // Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']); //เก็บไว้ก่อน
     Route::post('/dst-flood', [DisasterController::class, 'dst_fl_create']);
+    Route::delete('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_delete']);
     Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
     Route::delete('/dst-landslide/{id}', [DisasterController::class, 'dst_ls_delete']);
     Route::post('/dst-wildfire', [DisasterController::class, 'dst_wf_create']);
-    Route::post('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
+    // Route::post('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']); //เก็บไว้ก่อน
     Route::post('/dst-smog', [DisasterController::class, 'dst_sm_create']);
+    Route::delete('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_delete']);
 
     /*
     |--------------------------------------------------------------------------
@@ -361,6 +364,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/config-reset', [ConfigController::class, 'reset']);
     // Route::delete('/config/{config}', [ConfigController::class, 'destroy']);
     Route::post('/chart', [ConfigController::class, 'storeChart']);
+    Route::get('/config-disaster', [ConfigController::class, 'indexDisaster']);
+    Route::post('/config-disaster', [ConfigController::class, 'storeDisaster']);
 
     /*
     |--------------------------------------------------------------------------
@@ -437,3 +442,4 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
 });
+ 

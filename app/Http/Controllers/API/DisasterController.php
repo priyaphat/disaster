@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\FloodSourceType;
 use App\Http\Controllers\Controller;
 use App\Services\DisasterService;
 use App\Http\Responses\ApiResponse;
@@ -81,6 +82,16 @@ class DisasterController extends Controller
     //earthquake - eq
 
     /**
+     * Disaster | สร้าง earthquake
+     */
+    public function dst_eq_create(DisasterRequest $r)
+    {
+        $earthquake = DisasterEarthquake::create($r->all());
+        LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
+        return ApiResponse::successResponse(__('success.created'), $earthquake);
+    }
+
+    /**
      * Disaster | ดึง earthquake
      */
     public function dst_eq_show(Request $request, $earthquake = null)
@@ -106,8 +117,9 @@ class DisasterController extends Controller
      */
     public function dst_fl_create(DisasterRequest $request)
     {
-        $data = DisasterFlood::create($request->all());
-        return ApiResponse::successResponse(__('success.created'), $data);
+        $flood = DisasterFlood::create($request->all());
+        LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
+        return ApiResponse::successResponse(__('success.created'), $flood);
     }
 
     /**
@@ -132,6 +144,18 @@ class DisasterController extends Controller
     }
 
     /**
+     * Disaster | ดึง flood source type
+     */
+    public function dst_fl_source()
+    {
+        $data = array_map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label(),
+        ], FloodSourceType::cases());
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    /**
      * Disaster | อัพเดต flood
      */
     public function dst_fl_update(DisasterRequest $request, DisasterFlood $flood)
@@ -139,6 +163,15 @@ class DisasterController extends Controller
         $flood->update($request->all());
         LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $flood);
+    }
+
+    /**
+     * Disaster | ลบ flood
+     */
+    public function dst_fl_delete(DisasterFlood $flood)
+    {
+        $flood->delete();
+        return ApiResponse::successResponse(__('success.deleted'));
     }
 
     //landslide
@@ -206,6 +239,16 @@ class DisasterController extends Controller
     /**
      * Disaster | สร้าง smog ตัวแปร / ปุ้ย
      */
+    public function dst_sm_create(Request $request)
+    {
+        $smog = DisasterSmog::create($request->all());
+        LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog->toArray());
+        return ApiResponse::successResponse(__('success.created'), $smog);
+    }
+
+    /**
+     * Disaster | smog show data / ปุ้ย
+     */
     public function dst_sm_show(Request $request, $smog = null)
     {
         $data = $this->disasterService->dst_sm_show($request, $smog);
@@ -233,5 +276,14 @@ class DisasterController extends Controller
         $smog->update($request->all());
         LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog->toArray());
         return  ApiResponse::successResponse(__('success.data'), $smog);
+    }
+
+    /**
+     * Disaster | ลบ smog
+     */
+    public function dst_sm_delete(DisasterSmog $smog)
+    {
+        $smog->delete();
+        return ApiResponse::successResponse(__('success.deleted'));
     }
 }

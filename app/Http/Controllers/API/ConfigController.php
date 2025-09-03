@@ -167,4 +167,27 @@ class ConfigController extends Controller
         }
         return ApiResponse::successResponse(__('success.data'), $q);
     }
+
+    /**
+     * Config disaster ส่ง ตัวแปร disaster = smog/flood/earthquake
+     */
+    public function indexDisaster(Request $r)
+    {
+        $q = Config::where('type', Config::disaster)->value('description');
+        return ApiResponse::successResponse(__('success.data'), [$r->disaster => $q[$r->disaster]]);
+    }
+
+    /**
+     * Config disaster update ส่งตัวแปร smog = 1 , 0 | flood = 0 , 1 
+     */
+    public function storeDisaster(Request $r)
+    {
+        $index =  array_keys($r->all());
+        $config = Config::where('type', Config::disaster)->firstOrFail();
+        $d = $config->description;
+        $d[$index[0]] = (int)$r[$index[0]];
+        $config->description = $d;
+        $config->update();
+        return ApiResponse::successResponse($r[$index[0]] ? __('success.config.disaster_user') : __('success.config.disaster_api'), [$index[0] => $r[$index[0]]]);
+    }
 }
