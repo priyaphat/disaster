@@ -38,9 +38,10 @@ class PopulationService
         $lastUpdated = ShelterPopulation::max('updated_at');
         return [
             'total_victims' => $total,
+            'total_healthy' =>  $group[PopulationStatus::NORMAL->value] ?? 0,
             'total_injuries' => $group[PopulationStatus::INJURED->value] ?? 0,
             'total_deaths' => $group[PopulationStatus::DECREASE->value] ?? 0,
-            'last_updated' =>  $lastUpdated,
+            'updated_at' =>  $lastUpdated,
         ];
     }
 

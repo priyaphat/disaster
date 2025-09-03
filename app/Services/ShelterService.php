@@ -111,23 +111,17 @@ class ShelterService
 
     public function dashboard(array $filters = [])
     {
-        $total_shelter = Shelter::where('status', Shelter::OPEN)->count();
-        $total_population = ShelterPopulation::whereNotNull('shelter_id')->count();
-        $updated_at = ShelterPopulation::max('updated_at');;
-
-        $query = Population::whereHas('shelter')->filter($filters);
-
-        $total_injured = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::INJURED->value)->count();
-        $total_healthy = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::NORMAL->value)->count();
-        $total_dead = (clone $query)->whereHas('shelter')->where('status', PopulationStatus::DECREASE->value)->count();
+        $totalShelter = Shelter::where('status', Shelter::OPEN)->count();
+        $totalPopulation = ShelterPopulation::whereNotNull('shelter_id')->count();
+        $summary = app(PopulationService::class)->summary($filters);
 
         return $dashboard = [
-            'total_shelter' => $total_shelter,
-            'total_population' => $total_population,
-            'updated_at' => $updated_at,
-            'total_injured' => $total_injured,
-            'total_healthy' => $total_healthy,
-            'total_dead' => $total_dead,
+            'total_shelter' => $totalShelter,
+            'total_population' => $totalPopulation,
+            'total_injuries' => $summary['total_injuries'],
+            'total_healthy' => $summary['total_healthy'],
+            'total_deaths' => $summary['total_deaths'],
+            'updated_at' => $summary['updated_at'],
         ];
     }
 
