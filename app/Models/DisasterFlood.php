@@ -16,7 +16,12 @@ class DisasterFlood extends Model
         'water_source_type',
         'status',
         'water_value',
+        'geography_id',
         'line_oa',
+    ];
+
+    protected $hidden = [
+        'geography_id',
     ];
 
     public function getActivitylogOptions(): LogOptions

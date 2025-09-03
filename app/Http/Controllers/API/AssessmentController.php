@@ -27,15 +27,16 @@ class AssessmentController extends Controller
         $assessment->name = AssessmentType::tryFrom($request->type)->label();
         $assessment->fill($request->all());
         $assessment->save();
-        return ApiResponse::successResponse(__('success.saved'));
+        return ApiResponse::successResponse(__('success.saved'), self::index(request(), $assessment->id, 'frist'));
     }
 
-    public function index(Request $r, $id = null)
+    public function index(Request $r, $id = null, $methed = null)
     {
         $q = Assessments::query()
             ->select(
                 'assessments.*',
                 DB::raw('concat(users.firstname, " ", users.lastname) as created_name'),
+                DB::raw('concat(ud.firstname, " ", ud.lastname) as updated_name'),
                 DB::raw("
                         IF(
                             assessments.type = 3, 
@@ -47,9 +48,11 @@ class AssessmentController extends Controller
                         ) as name_of_assessment
                     ")
             )
-            ->leftJoin('users', 'assessments.created_by', 'users.id');
+            ->leftJoin('users', 'assessments.created_by', 'users.id')
+            ->leftJoin('users as ud', 'assessments.updated_by', 'users.id');
         if ($id) {
             $q = $q->where('assessments.id', $id)->first();
+            if ($methed) return $q;
         } else {
             $q = $q->where('assessments.population_id', $r->population_id)
                 ->orderBy('assessments.datetime', $r->sort ?? 'desc')
@@ -103,7 +106,7 @@ class AssessmentController extends Controller
         $assessment->fill($request->all());
         $assessment->save();
 
-        return ApiResponse::successResponse(__('success.updated'), $assessment);
+        return ApiResponse::successResponse(__('success.updated'), self::index(request(), $assessment->id, 'frist'));
     }
 
     public function assessment_summary()

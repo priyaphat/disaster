@@ -13,14 +13,22 @@ use App\Models\DisasterFlood;
 use App\Models\DisasterLandslide;
 use App\Models\DisasterSmog;
 use App\Models\DisasterWildfire;
+use App\Models\EmergencyPost;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class DisasterService
 {
     public function index()
     {
-        return Disaster::all();
+        //check disaster name use
+        return Disaster::select(
+            'disasters.*',
+            DB::raw('IF(emergency_posts.id IS NOT NULL, TRUE, FALSE) as disable')
+        )
+            ->leftJoin('emergency_posts', 'disasters.id', '=', 'emergency_posts.disaster_id')
+            ->get();
     }
 
     public function show(Disaster $disaster): Disaster

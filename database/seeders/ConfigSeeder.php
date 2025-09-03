@@ -10,6 +10,7 @@ class ConfigSeeder extends Seeder
 {
     /**
      * php artisan db:seed --class=ConfigSeeder
+     * type 1 line , 2 line id , 3 weather , 4 chart , 5 disasterCornjob
      */
 
     public function run(): void
@@ -98,6 +99,11 @@ class ConfigSeeder extends Seeder
             ['name' => 'แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่ (ส่งให้เจ้าหน้าที่ที่ถูกย้าย / นำเข้า / นำออก)', 'type' => 1, 'description' => [
                 "line_type" => [LineController::User_join, LineController::User_leave],
                 "user" => 0,
+            ]],
+            ['name' => 'แสดงภัยพิบัต', 'type' => 5, 'description' => [
+                "flood" => 0,
+                "smog" => 0,
+                "earthquake" => 0
             ]]
         ];
 

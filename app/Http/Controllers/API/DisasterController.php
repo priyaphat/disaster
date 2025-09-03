@@ -104,6 +104,15 @@ class DisasterController extends Controller
     /**
      * Disaster | ดึง flood
      */
+    public function dst_fl_create(DisasterRequest $request)
+    {
+        $data = DisasterFlood::create($request->all());
+        return ApiResponse::successResponse(__('success.created'), $data);
+    }
+
+    /**
+     * Disaster | ดึง flood
+     */
     public function dst_fl_show(Request $request, $flood = null)
     {
         $data = $this->disasterService->fl_show($request, $flood);
@@ -149,7 +158,7 @@ class DisasterController extends Controller
     public function dst_ls_create(DisasterRequest $request)
     {
         $data = $this->disasterService->ls_create($request);
-        LinePostUtility::line_oa_call(LineController::Disaster_landslide, $data->toArray()); 
+        LinePostUtility::line_oa_call(LineController::Disaster_landslide, $data->toArray());
         return ApiResponse::successResponse(__('success.sys_created'), $data);
     }
 
