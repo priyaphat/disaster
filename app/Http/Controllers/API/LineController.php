@@ -656,9 +656,11 @@ class LineController extends Controller
         } else if ($chanel == self::Emc_request_post_team || $chanel == self::Emc_assigned) {
             return redirect('/emergency-requests/waiting-lists-for-help');
         } else if ($chanel == self::Emc_success) {
+            return redirect('/emergency-requests/waiting-lists-for-help');
         } else if ($chanel == self::Emc_unsuccess) {
+            return redirect('/emergency-requests/waiting-lists-for-help');
         } else if ($chanel == self::Disaster_landslide) {
-             return redirect('/landslide');
+            return redirect('/landslide');
         }
     }
 

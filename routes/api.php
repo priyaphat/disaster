@@ -310,11 +310,14 @@ Route::middleware('auth:api')->group(function () {
     |-------------------------------------------------------- ------------------
     */
     Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
+    Route::post('/dst-earthquake', [DisasterController::class, 'dst_eq_create']);
     Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
+    Route::post('/dst-flood', [DisasterController::class, 'dst_fl_create']);
     Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
     Route::delete('/dst-landslide/{id}', [DisasterController::class, 'dst_ls_delete']);
     Route::post('/dst-wildfire', [DisasterController::class, 'dst_wf_create']);
     Route::post('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
+    Route::post('/dst-smog', [DisasterController::class, 'dst_sm_create']);
 
     /*
     |--------------------------------------------------------------------------

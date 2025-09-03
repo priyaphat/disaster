@@ -19,6 +19,7 @@ class DisasterRequest extends FormRequest
             'store' => $this->storeRules(),
             'update' => $this->updateRules(),
             'dst_eq_update' => $this->earthquakeUpdate(),
+            'dst_fl_create' => $this->floodCreate(),
             'dst_fl_update' => $this->floodUpdate(),
             'dst_sl_create' => $this->landsildeCreate(),
             'dst_wf_create' => $this->wildfireCreate(),
@@ -49,6 +50,19 @@ class DisasterRequest extends FormRequest
             'longitude' => ['required', 'regex:/^-?\d{1,4}(\.\d{1,6})?$/'],
             'depth' => 'required',
             'magnitude' => 'required',
+            'line_oa' => 'required|in:0,1',
+        ];
+    }
+
+    protected function floodCreate(): array
+    {
+        return [
+            'address' => 'required|string|max:255',
+            'water_source' => 'required|string|max:255',
+            'water_source_type' => 'required|string|max:255',
+            'geography_id' => 'required',
+            'status' => 'required|in:0,1,2,3,4,5',
+            'water_value' => 'required|integer',
             'line_oa' => 'required|in:0,1',
         ];
     }

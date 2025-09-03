@@ -264,7 +264,7 @@ class EmergencyRequestController extends Controller
                     } else {
                         $i['first_name'] = $i['fname'];
                         $i['last_name'] = $i['lname'];
-                        $i['prefix_id'] = $i['prefix'] ?? null;
+                        $i['prefix_id'] = $i['prefix_id'] ?? null;
                         unset($i['fname'], $i['lname']);
                         $i['trans_status'] = Population::new_population;
                     }

@@ -16,6 +16,7 @@ class DisasterSmog extends Model
         "address",
         "status",
         "smog_value",
+        "geography_id",
         "line_oa"
     ];
 

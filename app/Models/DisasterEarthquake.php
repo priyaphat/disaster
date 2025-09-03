@@ -17,6 +17,7 @@ class DisasterEarthquake extends Model
         'depth',
         'magnitude',
         'occurrence_time',
+        'geography_id',
         'line_oa',
         'created_by',
         'updated_by'
