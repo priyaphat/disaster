@@ -117,7 +117,7 @@ class DisasterRequest extends FormRequest
         }
         if ($type == 2) {
             $rules['model'] = 'required|array';
-            $rules['model.*.district_id'] = 'required|string';
+            $rules['model.*.district_id'] = 'required';
             $rules['model.*.district_name'] = 'required|string';
             $rules['model.*.modis'] = 'required|numeric';
             $rules['model.*.viirs'] = 'required|numeric';

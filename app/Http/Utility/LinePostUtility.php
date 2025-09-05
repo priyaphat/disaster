@@ -27,7 +27,7 @@ class LinePostUtility
                 $data = [
                     'type' => $data['disaster_name'],
                     'level' => $data['level'],
-                    'areas' => $data['areas']
+                    'areas' => $data['area']
                         ->filter(fn($item) => !empty($item['district_name']))
                         ->pluck('district_name'),
                 ];

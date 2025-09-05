@@ -83,7 +83,6 @@ Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
 Route::get('/chart/{id?}', [ConfigController::class, 'indexChart']);
-Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
 
 Route::get('/damaged-utilities/{type?}', [ShelterController::class, 'dmgs']);
 Route::get('/posts', [PostController::class, 'show']);
@@ -95,6 +94,7 @@ Route::get('/news', [NewsController::class, 'index'])->middleware('check_auth_ne
 Route::get('/new/{news}', [NewsController::class, 'show'])->middleware('check_auth_news');
 Route::get('/product-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublic']);
 Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
+Route::get('/export-disaster', [DisasterController::class, 'exp']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -321,6 +321,8 @@ Route::middleware('auth:api')->group(function () {
     // Route::post('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']); //เก็บไว้ก่อน
     Route::post('/dst-smog', [DisasterController::class, 'dst_sm_create']);
     Route::delete('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_delete']);
+    // Route::get('export', [DisasterController::class, 'exp']);
+
 
     /*
     |--------------------------------------------------------------------------
@@ -438,8 +440,7 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/assessment/{id?}', [AssessmentController::class, 'index']);
     Route::get('/assessment-list', [AssessmentController::class, 'list']);
-    // Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
+    Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
 });
- 

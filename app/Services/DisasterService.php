@@ -51,7 +51,7 @@ class DisasterService
 
     /* Disaster menu */
 
-    public function eq_show($req, $id = null)
+    public function eq_show($req, $id = null, $method = null)
     {
         if ($req->groupBy) {
             $gb = DisasterEarthquake::select('latitude', 'longitude', DB::raw('MAX(id) as id'))
@@ -101,11 +101,14 @@ class DisasterService
                 $q->select('disaster_earthquakes.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
             );
         $query = $query->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        if ($method) {
+            return $query->get();
+        }
         if ($id) $query->with('area')->first();
         return $query->paginate($req->paginate ?? 10);
     }
 
-    public function fl_show($req, $id = null)
+    public function fl_show($req, $id = null, $method = null)
     {
         if ($req->groupBy) {
             $gb = DisasterFlood::select('water_source', DB::raw('MAX(id) as id'))
@@ -159,12 +162,12 @@ class DisasterService
             );
 
         $q = $q->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc');
-
+        if ($method) return $q->get();
         if ($id) return  $q->with('area')->first();
         return $q->paginate($req->paginate ?? 10);
     }
 
-    public function ls_show($req, $id = null)
+    public function ls_show($req, $id = null, $method = null)
     {
         if ($req->groupBy) {
             $gb = DisasterLandslide::select('name', DB::raw('MAX(id) as id'))
@@ -196,6 +199,7 @@ class DisasterService
                 $q->select('disaster_landslides.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
             );
         $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        if ($method) $q->get();
         if ($id) $q->first();
         return $q->paginate($req->paginate ?? 10);
     }
@@ -268,7 +272,7 @@ class DisasterService
         return $model;
     }
 
-    public function dst_sm_show($req, $id = null)
+    public function dst_sm_show($req, $id = null, $method = null)
     {
         if ($req->groupBy) {
             $gb = DisasterSmog::select('source', DB::raw('MAX(id) as id'))
@@ -323,6 +327,7 @@ class DisasterService
             $item->status_name = SmogStatus::tryFrom($item->status)?->label();
             return $item;
         });
+        if ($method) return $data;
         if ($id) return $data[0];
         return PaginateUtility::Paginate($data, $req->paginate ?? 10);
     }

@@ -11,15 +11,15 @@ use App\Http\Requests\DisasterRequest;
 use App\Models\DisasterFlood;
 use App\Enums\FloodStatus;
 use App\Enums\SmogStatus;
+use App\Exports\DisasterExport;
 use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterEarthquake;
 use App\Models\DisasterLandslide;
 use App\Models\DisasterSmog;
-use App\Models\DisasterWildfire;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+
 use PDO;
 
 class DisasterController extends Controller
@@ -285,5 +285,85 @@ class DisasterController extends Controller
     {
         $smog->delete();
         return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+    public function exp(Request $r)
+    {
+        $case = $r->disaster;
+        if (!$case) return ApiResponse::errorResponse(__('error.model_not_found'));
+        $rows = [];
+        $columns = [];
+        if ($case == 'flood') {
+            $q = $this->disasterService->fl_show(request(), null, 'get');
+            $rows = $q->map(function ($i) {
+                return [
+                    $i['created_at'],
+                    $i['water_source'],
+                    $i['address'],
+                    FloodSourceType::tryFrom($i['water_source_type'])?->label() ?? '',
+                    FloodStatus::tryFrom($i['status'])->label() ?? '',
+                    $i['water_value'],
+                    $i['Resources'],
+                ];
+            })->toArray();
+            $columns = ['อัปเดตเมื่อ', 'ชื่อแหล่งน้ำ', 'ตำแหน่งเครื่องวัด', 'ประเภทแหล่งน้ำ', 'สถานะ', 'ปริมาณน้ำในแหล่งน้ำ', 'แหล่งข้อมูล'];
+        } else if ($case == 'landslide') {
+            $q = $this->disasterService->ls_show(request(), null, 'get');
+            $rows = $q->map(function ($i) {
+                return [
+                    $i['created_at'],
+                    $i['name'],
+                    $i['link'],
+                ];
+            })->toArray();
+            $columns = ['อัปเดตเมื่อ', 'รายละเอียด', 'ไฟล์แนบ'];
+        } else if ($case == 'wildfire') {
+            $q = $this->disasterService->dst_wf_show(request(), null, 'get');
+            for ($i = 0; $i <= 5; $i++) {
+                $row = [];
+                if ($i == '0') {
+                    $row[] = ($q['first_graph']['viirs'] ?? '') . ', ' . ($q['first_graph']['modis'] ?? '');
+                } else {
+                    $row[] = null;
+                }
+                if ($i <= 4) {
+                    $row[] = ($q['second_graph']['model'][$i]['district_name'] ?? '') . ': ' . ($q['second_graph']['model'][$i]['viirs'] ?? '') . ', ' . ($q['second_graph']['model'][$i]['modis'] ?? '');
+                } else {
+                    $row[] = null;
+                }
+                $row[] = ($q['third_graph']['labels'][$i] ?? '') . ': ' . ($q['third_graph']['model'][$i] ?? '');
+                $row[] = ($q['fourth_graph']['labels'][$i] ?? '') . ': ' . ($q['third_graph']['model'][$i] ?? '');
+                $rows[] = $row;
+            }
+            $columns = ['จุดความร้อน VIIRS,MODIS ', '5 อันดับ พื้นที่ที่มีจุดความร้อน VIIRS และ MODIS', 'จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน MODIS', 'จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน VIIRS'];
+        } else if ($case == 'smog') {
+            $q = $this->disasterService->dst_sm_show(request(), null, 'get');
+            $rows = $q->map(function ($i) {
+                return [
+                    $i['created_at'],
+                    $i['source'],
+                    $i['address'],
+                    $i['status_name'],
+                    $i['smog_value'],
+                    $i['Resources'],
+                ];
+            })->toArray();
+            $columns = ['อัปเดตเมื่อ', 'ชื่อจุดตรวจวัด', 'ตำแหน่งจุดตรวจวัด', 'สถานะ', 'ค่ามลพิษ', 'แหล่งข้อมูล'];
+        } else if ($case == 'earthquake') {
+            $q = $this->disasterService->eq_show(request(), null, 'get');
+            $rows = $q->map(function ($i) {
+                return [
+                    $i['created_at'],
+                    $i['address'],
+                    $i['latitude'] . ',' . $i['longitude'],
+                    $i['depth'],
+                    $i['magnitude'],
+                    $i['occurrence_time'],
+                    $i['Resources'],
+                ];
+            })->toArray();
+            $columns = ['อัปเดตเมื่อ', 'จุดศูนย์กลาง', 'ละติจูด,ลองติจูด', 'ลึกจากผิวดิน', 'ระดับความลึกรุนแรง', 'วัน-เวลา ที่เกิดเหตุ', 'แหล่งข้อมูล'];
+        }
+        return Excel::download(new DisasterExport($columns, $rows), $case . '-Export.xlsx');
     }
 }

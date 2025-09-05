@@ -47,6 +47,7 @@ class PostController extends Controller
      */
     public function update(EmergencyPostRequest $request, EmergencyPost $post)
     {
+        
         $post = $this->emergencyPostService->update($post, $request->all());
         if ($post['status'] == EmergencyPost::inactive) return ApiResponse::successResponse(__('success.post.deleted'), $post);
         return ApiResponse::successResponse(__('success.post.updated'), $post);
