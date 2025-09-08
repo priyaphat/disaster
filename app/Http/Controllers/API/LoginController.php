@@ -66,7 +66,7 @@ class LoginController extends Controller
                 if ($lineUser->user_id) {
                     return ApiResponse::errorResponse('ready', Response::HTTP_BAD_REQUEST);
                 }
-                $lineUser->update(['user_id' => $user->id]);
+                $lineUser->update(['user_id' => $user->id, 'role' => LineUser::User]);
             } else {
                 LineUser::create([
                     'token_id' => $request->userId,
@@ -85,11 +85,11 @@ class LoginController extends Controller
         $request->validate([
             'phone' => 'required|digits:10'
         ]);
-        $user = Population::select('id', 'phone')->where('phone', $request['phone'])->first();
+        $user = Population::select('id', 'phone', 'first_name', 'last_name')->where('phone', $request['phone'])->first();
         if ($user) {
             $lineUser = LineUser::where('token_id', $request->userId)->first();
             if ($lineUser) {
-                $lineUser->update(['user_id' => $user->id]);
+                $lineUser->update(['user_id' => $user->id, 'role' => LineUser::Population]);
             } else {
                 LineUser::create([
                     'token_id' => $request->userId,
@@ -97,6 +97,7 @@ class LoginController extends Controller
                     'role' => LineUser::Population,
                 ]);
             }
+            (new LineController)->user_login($request->userId, __('line.welcome_population', ['name' => $user->first_name . ' ' . $user->last_name]));
             return ApiResponse::customSuccessResponse('Login Successful');
         }
         return ApiResponse::errorResponse(__('error.model_not_found'), Response::HTTP_BAD_REQUEST);

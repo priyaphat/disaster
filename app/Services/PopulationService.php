@@ -26,21 +26,22 @@ class PopulationService
     public function getList(array $filters = [])
     {
         $query = Population::filter($filters);
-        $data = $query->with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image')->latest()->paginate(10);
+        $data = $query->with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image', 'shelterpopulation')->latest()->paginate(10);
         return $data->setCollection(PopulationResource::collection($data->items())->collection);
     }
 
     public function summary(array $filters = [])
     {
-        $query = Population::filter($filters);
+        $query = Population::whereHas('shelter')->filter($filters);
         $total = $query->count();
         $group = $query->get()->countBy('status');
         $lastUpdated = ShelterPopulation::max('updated_at');
         return [
             'total_victims' => $total,
+            'total_healthy' =>  $group[PopulationStatus::NORMAL->value] ?? 0,
             'total_injuries' => $group[PopulationStatus::INJURED->value] ?? 0,
             'total_deaths' => $group[PopulationStatus::DECREASE->value] ?? 0,
-            'last_updated' =>  $lastUpdated,
+            'updated_at' =>  $lastUpdated,
         ];
     }
 

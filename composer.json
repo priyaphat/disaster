@@ -16,6 +16,7 @@
         "laravel/passport": "^13.0",
         "laravel/reverb": "^1.0",
         "laravel/tinker": "^2.10.1",
+        "maatwebsite/excel": "^3.1",
         "phattarachai/thaidate": "^12.1",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-permission": "^6.18"

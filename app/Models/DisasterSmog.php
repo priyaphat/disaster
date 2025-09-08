@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Traits\CreatedUpdatedBy;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -16,6 +17,7 @@ class DisasterSmog extends Model
         "address",
         "status",
         "smog_value",
+        "geography_id",
         "line_oa"
     ];
 
@@ -25,6 +27,11 @@ class DisasterSmog extends Model
             ->useLogName('DisasterSmog')
             ->logOnly(['*'])
             ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
+    }
+
+    public function area(): HasOne
+    {
+        return $this->hasOne(Geography::class, 'id', 'geography_id');
     }
 }
 

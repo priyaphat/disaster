@@ -38,12 +38,13 @@ class EmergencyPost extends Model
             ->select('id', 'name');
     }
 
-    public function areas()
+    public function area()
     {
         return $this->hasMany(RefArea::class, 'post_id')
             ->join('geography', 'ref_areas.district_id', '=', 'geography.district_code')
             ->distinct()
-            ->select('ref_areas.*', 'geography.district_name_th as district_name');
+            ->select('ref_areas.*', 'geography.district_name_th as district_name')
+            ->orderBy('ref_areas.district_id', 'asc');
     }
 
     public function getActivitylogOptions(): LogOptions

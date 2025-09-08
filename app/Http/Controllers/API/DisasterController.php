@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\FloodSourceType;
 use App\Http\Controllers\Controller;
 use App\Services\DisasterService;
 use App\Http\Responses\ApiResponse;
@@ -10,13 +11,18 @@ use App\Http\Requests\DisasterRequest;
 use App\Models\DisasterFlood;
 use App\Enums\FloodStatus;
 use App\Enums\SmogStatus;
+use App\Models\DisasterWildfire;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Exports\DisasterExport;
+use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterEarthquake;
 use App\Models\DisasterLandslide;
 use App\Models\DisasterSmog;
-use App\Models\DisasterWildfire;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+
+use PDO;
 
 class DisasterController extends Controller
 {
@@ -82,6 +88,16 @@ class DisasterController extends Controller
     //earthquake - eq
 
     /**
+     * Disaster | สร้าง earthquake
+     */
+    public function dst_eq_create(DisasterRequest $r)
+    {
+        $earthquake = DisasterEarthquake::create($r->all());
+        LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
+        return ApiResponse::successResponse(__('success.created'), $earthquake);
+    }
+
+    /**
      * Disaster | ดึง earthquake
      */
     public function dst_eq_show(Request $request, $earthquake = null)
@@ -97,11 +113,21 @@ class DisasterController extends Controller
     {
         $this->authorize('update', DisasterWildfire::class);
         $earthquake->update($request->all());
-        // LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
+        LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $earthquake);
     }
 
     //flood - fl
+
+    /**
+     * Disaster | ดึง flood
+     */
+    public function dst_fl_create(DisasterRequest $request)
+    {
+        $flood = DisasterFlood::create($request->all());
+        LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
+        return ApiResponse::successResponse(__('success.created'), $flood);
+    }
 
     /**
      * Disaster | ดึง flood
@@ -125,14 +151,35 @@ class DisasterController extends Controller
     }
 
     /**
+     * Disaster | ดึง flood source type
+     */
+    public function dst_fl_source()
+    {
+        $data = array_map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label(),
+        ], FloodSourceType::cases());
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    /**
      * Disaster | อัพเดต flood
      */
     public function dst_fl_update(DisasterRequest $request, DisasterFlood $flood)
     {
         $this->authorize('update', DisasterWildfire::class);
         $flood->update($request->all());
-        // LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
+        LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
         return ApiResponse::successResponse(__('success.sys_updated'), $flood);
+    }
+
+    /**
+     * Disaster | ลบ flood
+     */
+    public function dst_fl_delete(DisasterFlood $flood)
+    {
+        $flood->delete();
+        return ApiResponse::successResponse(__('success.deleted'));
     }
 
     //landslide
@@ -153,7 +200,7 @@ class DisasterController extends Controller
     {
         $this->authorize('create', DisasterWildfire::class);
         $data = $this->disasterService->ls_create($request);
-        // LinePostUtility::line_oa_call(LineController::Disaster_land slide, $data->toArray()); 
+        LinePostUtility::line_oa_call(LineController::Disaster_landslide, $data->toArray());
         return ApiResponse::successResponse(__('success.sys_created'), $data);
     }
 
@@ -203,6 +250,16 @@ class DisasterController extends Controller
     /**
      * Disaster | สร้าง smog ตัวแปร / ปุ้ย
      */
+    public function dst_sm_create(Request $request)
+    {
+        $smog = DisasterSmog::create($request->all());
+        LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog->toArray());
+        return ApiResponse::successResponse(__('success.created'), $smog);
+    }
+
+    /**
+     * Disaster | smog show data / ปุ้ย
+     */
     public function dst_sm_show(Request $request, $smog = null)
     {
         $data = $this->disasterService->dst_sm_show($request, $smog);
@@ -229,7 +286,96 @@ class DisasterController extends Controller
     {
         $this->authorize('update', DisasterWildfire::class);
         $smog->update($request->all());
-        // LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog);
+        LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog->toArray());
         return  ApiResponse::successResponse(__('success.data'), $smog);
+    }
+
+    /**
+     * Disaster | ลบ smog
+     */
+    public function dst_sm_delete(DisasterSmog $smog)
+    {
+        $smog->delete();
+        return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+    public function exp(Request $r)
+    {
+        $case = $r->disaster;
+        if (!$case) return ApiResponse::errorResponse(__('error.model_not_found'));
+        $rows = [];
+        $columns = [];
+        if ($case == 'flood') {
+            $q = $this->disasterService->fl_show(request(), null, 'get');
+            $rows = $q->map(function ($i) {
+                return [
+                    $i['created_at'],
+                    $i['water_source'],
+                    $i['address'],
+                    FloodSourceType::tryFrom($i['water_source_type'])?->label() ?? '',
+                    FloodStatus::tryFrom($i['status'])->label() ?? '',
+                    $i['water_value'],
+                    $i['Resources'],
+                ];
+            })->toArray();
+            $columns = ['อัปเดตเมื่อ', 'ชื่อแหล่งน้ำ', 'ตำแหน่งเครื่องวัด', 'ประเภทแหล่งน้ำ', 'สถานะ', 'ปริมาณน้ำในแหล่งน้ำ', 'แหล่งข้อมูล'];
+        } else if ($case == 'landslide') {
+            $q = $this->disasterService->ls_show(request(), null, 'get');
+            $rows = $q->map(function ($i) {
+                return [
+                    $i['created_at'],
+                    $i['name'],
+                    $i['link'],
+                ];
+            })->toArray();
+            $columns = ['อัปเดตเมื่อ', 'รายละเอียด', 'ไฟล์แนบ'];
+        } else if ($case == 'wildfire') {
+            $q = $this->disasterService->dst_wf_show(request(), null, 'get');
+            for ($i = 0; $i <= 5; $i++) {
+                $row = [];
+                if ($i == '0') {
+                    $row[] = ($q['first_graph']['viirs'] ?? '') . ', ' . ($q['first_graph']['modis'] ?? '');
+                } else {
+                    $row[] = null;
+                }
+                if ($i <= 4) {
+                    $row[] = ($q['second_graph']['model'][$i]['district_name'] ?? '') . ': ' . ($q['second_graph']['model'][$i]['viirs'] ?? '') . ', ' . ($q['second_graph']['model'][$i]['modis'] ?? '');
+                } else {
+                    $row[] = null;
+                }
+                $row[] = ($q['third_graph']['labels'][$i] ?? '') . ': ' . ($q['third_graph']['model'][$i] ?? '');
+                $row[] = ($q['fourth_graph']['labels'][$i] ?? '') . ': ' . ($q['third_graph']['model'][$i] ?? '');
+                $rows[] = $row;
+            }
+            $columns = ['จุดความร้อน VIIRS,MODIS ', '5 อันดับ พื้นที่ที่มีจุดความร้อน VIIRS และ MODIS', 'จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน MODIS', 'จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน VIIRS'];
+        } else if ($case == 'smog') {
+            $q = $this->disasterService->dst_sm_show(request(), null, 'get');
+            $rows = $q->map(function ($i) {
+                return [
+                    $i['created_at'],
+                    $i['source'],
+                    $i['address'],
+                    $i['status_name'],
+                    $i['smog_value'],
+                    $i['Resources'],
+                ];
+            })->toArray();
+            $columns = ['อัปเดตเมื่อ', 'ชื่อจุดตรวจวัด', 'ตำแหน่งจุดตรวจวัด', 'สถานะ', 'ค่ามลพิษ', 'แหล่งข้อมูล'];
+        } else if ($case == 'earthquake') {
+            $q = $this->disasterService->eq_show(request(), null, 'get');
+            $rows = $q->map(function ($i) {
+                return [
+                    $i['created_at'],
+                    $i['address'],
+                    $i['latitude'] . ',' . $i['longitude'],
+                    $i['depth'],
+                    $i['magnitude'],
+                    $i['occurrence_time'],
+                    $i['Resources'],
+                ];
+            })->toArray();
+            $columns = ['อัปเดตเมื่อ', 'จุดศูนย์กลาง', 'ละติจูด,ลองติจูด', 'ลึกจากผิวดิน', 'ระดับความลึกรุนแรง', 'วัน-เวลา ที่เกิดเหตุ', 'แหล่งข้อมูล'];
+        }
+        return Excel::download(new DisasterExport($columns, $rows), $case . '-Export.xlsx');
     }
 }

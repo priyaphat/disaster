@@ -48,7 +48,9 @@ class TransferHistoryController extends Controller
     #[QueryParameter('end_date', description: 'ค้นหาวัน (ระยะ)', type: 'datetime', example: "2025-6-20 00:00:00")]
     public function shelterLog(Request $request)
     {
-        $data = $this->transferLogService->getShelterlog($request->all());
+        $paginate = $request->has('paginate');
+        $perPage = $request->input('paginate') ?? 10;
+        $data = $this->transferLogService->getShelterlog($request->all(), $paginate, $perPage);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 

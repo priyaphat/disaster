@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Traits\CreatedUpdatedBy;
 use Spatie\Activitylog\LogOptions;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class DisasterEarthquake extends Model
@@ -17,6 +18,7 @@ class DisasterEarthquake extends Model
         'depth',
         'magnitude',
         'occurrence_time',
+        'geography_id',
         'line_oa',
         'created_by',
         'updated_by'
@@ -28,6 +30,11 @@ class DisasterEarthquake extends Model
             ->useLogName('DisasterEarthquake')
             ->logOnly(['*'])
             ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
+    }
+
+    public function area(): HasOne
+    {
+        return $this->hasOne(Geography::class, 'id', 'geography_id');
     }
 }
 

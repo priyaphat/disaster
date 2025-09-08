@@ -3,24 +3,34 @@
 namespace App\Services;
 
 use App\Enums\SmogStatus;
+use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\LineController;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\LinePostUtility;
 use App\Http\Utility\PaginateUtility;
+use App\Models\Config;
 use App\Models\Disaster;
 use App\Models\DisasterEarthquake;
 use App\Models\DisasterFlood;
 use App\Models\DisasterLandslide;
 use App\Models\DisasterSmog;
 use App\Models\DisasterWildfire;
+use App\Models\EmergencyPost;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class DisasterService
 {
     public function index()
     {
-        return Disaster::all();
+        //check disaster name use
+        return Disaster::select(
+            'disasters.*',
+            DB::raw('IF(emergency_posts.id IS NOT NULL, TRUE, FALSE) as disable')
+        )
+            ->leftJoin('emergency_posts', 'disasters.id', '=', 'emergency_posts.disaster_id')
+            ->get();
     }
 
     public function show(Disaster $disaster): Disaster
@@ -41,8 +51,17 @@ class DisasterService
 
     /* Disaster menu */
 
-    public function eq_show($req, $id = null)
+    public function eq_show($req, $id = null, $method = null)
     {
+        if ($req->groupBy) {
+            $gb = DisasterEarthquake::select('latitude', 'longitude', DB::raw('MAX(id) as id'))
+                ->groupBy('latitude', 'longitude')
+                ->pluck('id');
+
+            $create = Config::where('type', Config::disaster)->value('description');
+            $create = $create['earthquake'];
+        }
+
         $query = DisasterEarthquake::query()
             ->when($req->start_date && $req->end_date, fn($q) =>
             $q->whereBetween('created_at', [
@@ -68,14 +87,38 @@ class DisasterService
                 $req->subdistrict,
                 fn($q) =>
                 $q->where('address', 'like', "%$req->subdistrict%")
+            )
+            ->when(
+                $req->groupBy,
+                fn($q) =>
+                $q->whereIn('id', $gb)
+                    ->when(
+                        $create,
+                        fn($q) => $q->whereNotNull('created_by'),
+                        fn($q) => $q->whereNull('created_by')
+                    ),
+                fn($q) =>
+                $q->select('disaster_earthquakes.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
             );
-        $data = $query->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
-        if ($id) return $data[0];
-        return PaginateUtility::Paginate($data, $req->paginate ?? 10);
+        $query = $query->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        if ($method) {
+            return $query->get();
+        }
+        if ($id) $query->with('area')->first();
+        return $query->paginate($req->paginate ?? 10);
     }
 
-    public function fl_show($req, $id = null)
+    public function fl_show($req, $id = null, $method = null)
     {
+        if ($req->groupBy) {
+            $gb = DisasterFlood::select('water_source', DB::raw('MAX(id) as id'))
+                ->groupBy('water_source')
+                ->pluck('id');
+
+            $create = Config::where('type', Config::disaster)->value('description');
+            $create = $create['flood'];
+        }
+
         $q = DisasterFlood::query()
             ->when(
                 $req->district,
@@ -100,15 +143,38 @@ class DisasterService
             ->when(
                 $req->search,
                 fn($q) =>
-                $q->whereAny(['water_source', 'water_source_type'], $req->search)
+                $q->where(function ($query) use ($req, $create) {
+                    $query->where('water_source', 'like', "%{$req->search}%")
+                        ->orWhere('water_source_type', 'like', "%{$req->search}%");
+                })
+            )
+            ->when(
+                $req->groupBy,
+                fn($q) =>
+                $q->whereIn('id', $gb)
+                    ->when(
+                        $create,
+                        fn($q) => $q->whereNotNull('created_by'),
+                        fn($q) => $q->whereNull('created_by')
+                    ),
+                fn($q) =>
+                $q->select('disaster_floods.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
             );
-        $data = $q->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
-        if ($id) return $data[0];
-        return PaginateUtility::Paginate($data, $req->paginate ?? 10);
+
+        $q = $q->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        if ($method) return $q->get();
+        if ($id) return  $q->with('area')->first();
+        return $q->paginate($req->paginate ?? 10);
     }
 
-    public function ls_show($req, $id = null)
+    public function ls_show($req, $id = null, $method = null)
     {
+        if ($req->groupBy) {
+            $gb = DisasterLandslide::select('name', DB::raw('MAX(id) as id'))
+                ->groupBy('name')
+                ->pluck('id');
+        }
+
         $q = DisasterLandslide::query()
             ->when($req->start_date && $req->end_date, fn($q) =>
             $q->whereBetween('created_at', [
@@ -124,10 +190,18 @@ class DisasterService
                 $id,
                 fn($q) =>
                 $q->where('id', $id)
+            )
+            ->when(
+                $req->groupBy,
+                fn($q) =>
+                $q->whereIn('id', $gb),
+                fn($q) =>
+                $q->select('disaster_landslides.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
             );
-        $q = $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
-        if ($id) return $q[0];
-        return PaginateUtility::Paginate($q, $req->paginate ?? 10);
+        $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        if ($method) $q->get();
+        if ($id) $q->first();
+        return $q->paginate($req->paginate ?? 10);
     }
 
     public function ls_create($r)
@@ -190,16 +264,25 @@ class DisasterService
         $model->model = $other;
         $model->save();
 
-        // if ($model->type == 1) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m1, $data);
-        // else if ($model->type == 2) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m2, $data);
-        // else if ($model->type == 3) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m3, $data);
-        // else if ($model->type == 4) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m4, $data);
+        if ($model->type == 1) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m1, $data);
+        else if ($model->type == 2) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m2, $data);
+        else if ($model->type == 3) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m3, $data);
+        else if ($model->type == 4) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m4, $data);
 
         return $model;
     }
 
-    public function dst_sm_show($req, $id = null)
+    public function dst_sm_show($req, $id = null, $method = null)
     {
+        if ($req->groupBy) {
+            $gb = DisasterSmog::select('source', DB::raw('MAX(id) as id'))
+                ->groupBy('source')
+                ->pluck('id');
+
+            $create = Config::where('type', Config::disaster)->value('description');
+            $create = $create['smog'];
+        }
+
         $q = DisasterSmog::query()
             ->when(
                 $req->district,
@@ -220,17 +303,31 @@ class DisasterService
                 $id,
                 fn($q) =>
                 $q->where('id', $id)
+                    ->with('area')
             )
             ->when(
                 $req->search,
                 fn($q) =>
                 $q->where('source', 'like', "%$req->search%")
+            )
+            ->when(
+                $req->groupBy,
+                fn($q) =>
+                $q->whereIn('id', $gb)
+                    ->when(
+                        $create,
+                        fn($q) => $q->whereNotNull('created_by'),
+                        fn($q) => $q->whereNull('created_by')
+                    ),
+                fn($q) =>
+                $q->select('disaster_smogs.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
             );
         $data = $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
         $data->transform(function ($item) {
             $item->status_name = SmogStatus::tryFrom($item->status)?->label();
             return $item;
         });
+        if ($method) return $data;
         if ($id) return $data[0];
         return PaginateUtility::Paginate($data, $req->paginate ?? 10);
     }

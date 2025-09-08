@@ -89,8 +89,8 @@ class ConfigController extends Controller
         // $config->update($request->all());
 
         $description = $config->description ?? [];
-        if (isset($request->population)) $description['population'] = $request->population;
-        if (isset($request->user)) $description['user'] = $request->user;
+        if (isset($request->population)) $description['population'] = (int)$request->population;
+        if (isset($request->user)) $description['user'] = (int)$request->user;
         $config->description = $description;
         $config->save();
 
@@ -158,7 +158,8 @@ class ConfigController extends Controller
     public function indexChart($id = null)
     {
         $q = Config::where('type', Config::chart)->first();
-        return ApiResponse::successResponse(__('success.data') , $q->description);
+        if (!$q) return ApiResponse::errorResponse(__('error.model_not_found'));
+        return ApiResponse::successResponse(__('success.data'), $q->description);
     }
 
     public function storeChart(Request $request)
@@ -175,5 +176,28 @@ class ConfigController extends Controller
             $q->save();
         }
         return ApiResponse::successResponse(__('success.data'), $q);
+    }
+
+    /**
+     * Config disaster ส่ง ตัวแปร disaster = smog/flood/earthquake
+     */
+    public function indexDisaster(Request $r)
+    {
+        $q = Config::where('type', Config::disaster)->value('description');
+        return ApiResponse::successResponse(__('success.data'), [$r->disaster => $q[$r->disaster]]);
+    }
+
+    /**
+     * Config disaster update ส่งตัวแปร smog = 1 , 0 | flood = 0 , 1 
+     */
+    public function storeDisaster(Request $r)
+    {
+        $index =  array_keys($r->all());
+        $config = Config::where('type', Config::disaster)->firstOrFail();
+        $d = $config->description;
+        $d[$index[0]] = (int)$r[$index[0]];
+        $config->description = $d;
+        $config->update();
+        return ApiResponse::successResponse($r[$index[0]] ? __('success.config.disaster_user') : __('success.config.disaster_api'), [$index[0] => $r[$index[0]]]);
     }
 }

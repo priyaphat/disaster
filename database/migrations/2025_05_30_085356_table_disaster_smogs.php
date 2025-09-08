@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('address')->comment('ที่อยู่');
             $table->integer('status')->default(0)->comment('รอข้อมูลอยู่');
             $table->float('smog_value')->comment('ค่าหมอกควัน');
+            $table->unsignedBigInteger('geography_id')->nullable();
             $table->tinyInteger('line_oa')->default(0)->comment('0 - inactive, 1 - active');
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');

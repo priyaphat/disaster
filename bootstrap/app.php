@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\AuthForNews;
+use App\Http\Middleware\AuthForNewsList;
+use App\Http\Middleware\AuthForShelters;
+use App\Http\Middleware\AuthForSheltersList;
 use App\Http\Middleware\Language;
 use App\Http\Responses\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -36,6 +40,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'check_auth_news_list' => AuthForNewsList::class,
+            'check_auth_news' => AuthForNews::class,
+            'check_auth_shelters_list' => AuthForSheltersList::class,
+            'check_auth_shelters' => AuthForShelters::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

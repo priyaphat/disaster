@@ -27,11 +27,11 @@ class EmergencyPostService
             ->where('emergency_posts.status', EmergencyPost::active);
         if ($post->disaster_id) $data = $data->where('emergency_posts.disaster_id', $post->disaster_id);
         if ($post->district_id) {
-            $data = $data->whereHas('areas', function ($query) use ($post) {
+            $data = $data->whereHas('area', function ($query) use ($post) {
                 $query->where('district_id', $post->district_id);
             });
         }
-        if ($post->sort) $data = $data->orderBy('emergency_posts.created_at', $post->sort === 'asc' ? 'asc' : 'desc');
+        if ($post->sort) $data = $data->orderBy('emergency_posts.created_at', $post->sort === 'asc' ? 'desc' : 'asc');
 
         return $data->get();
     }
@@ -44,7 +44,7 @@ class EmergencyPostService
             'disasters.image as image',
             'provinces.province_name_th as province_name'
         )
-            ->with('areas')
+            ->with('area')
             ->leftJoin('disasters', 'emergency_posts.disaster_id', '=', 'disasters.id')
             ->leftJoin(
                 DB::raw('(SELECT DISTINCT province_code, province_name_th FROM geography) as provinces'),
@@ -69,37 +69,51 @@ class EmergencyPostService
         // ประกาศ
         $data = EmergencyPost::create($post);
         if (isset($post['area'])) {
+            // usort($data['area'], function ($a, $b) {
+            //     return $b['district_id'] <=> $a['district_id'];
+            // });
+
+            $post['area'] = collect($post['area'])
+                ->sortBy('district_id')
+                ->values()
+                ->toArray();
+
             foreach ($post['area'] as $area) {
                 $district[] = Geography::where('district_code', $area['district_id'])->pluck('district_name_th')->first();
                 $district_id[] = $area['district_id'];
-                $data->areas()->create([
+                $data->area()->create([
                     'district_id' => $area['district_id'],
                 ]);
             }
         }
         $this->emergencylog_save($data, $district, $district_id);
-        // LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data));
+        LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data));
         return $data;
     }
 
-    public function update($post, $data): EmergencyPost
+    public function update($post, $data)
     {
         $post->update($data);
         $post->refresh();
         if (isset($data['area'])) {
-            $post->areas()->delete();
+            $post->area()->delete();
+
+            usort($data['area'], function ($a, $b) {
+                return $a['district_id'] <=> $b['district_id'];
+            });
+
             foreach ($data['area'] as $area) {
                 $district[] = Geography::where('district_code', $area['district_id'])->pluck('district_name_th')->first();
                 $district_id[] = $area['district_id'];
-                $post->areas()->create([
+                $post->area()->create([
                     'district_id' => $area['district_id'],
                 ]);
             }
         }
         $this->emergencylog_save($post, $district, $district_id);
-        // $type['type'] = Disaster::where('id', $post['disaster_id'])->value('name');
-        if ($post['status'] == EmergencyPost::inactive){
-            // (new LineController)->LineNotification($type, LineController::Disaster_end);
+        $type['type'] = Disaster::where('id', $post['disaster_id'])->value('name');
+        if ($post['status'] == EmergencyPost::inactive) {
+            (new LineController)->LineNotification($type, LineController::Disaster_end);
         }
         return $post;
     }
@@ -108,8 +122,8 @@ class EmergencyPostService
     {
         $post->status = EmergencyPost::inactive;
         $post->save();
-        $post->areas()->delete();
-        $this->emergencylog_save($post);
+        $post->area()->delete();
+        // $this->emergencylog_save($post);
         return $post;
     }
 
@@ -125,15 +139,20 @@ class EmergencyPostService
             $log->action = EmergencyPost::create;
             $description = __('data.post.post');
         } elseif ($action === 'update') {
-            $log->action = EmergencyPost::update;
-            $description = __('data.post.update');
+            if ($post->status == EmergencyPost::active) {
+                $log->action = EmergencyPost::update;
+                $description = __('data.post.update');
+            } else {
+                $log->action = EmergencyPost::delete;
+                $description = __('data.post.end');
+            }
         } else {
             $log->action = EmergencyPost::delete;
             $description = __('data.post.end');
         }
         $description .= Disaster::where('id', $post->disaster_id)->pluck('name')->first();
 
-        if ($action === 'store' || $action === 'update') $description .= ' ระดับ ' . $post->level . ' พื้นที่ ' . implode(' ', $district);
+        if ($action === 'store' || $action === 'update') $description .= ' ระดับ ' . $post->level . ' พื้นที่ ' . implode(', ', $district);
 
         $log->description = $description;
         $log->district = json_encode($district_id);
@@ -150,7 +169,8 @@ class EmergencyPostService
             'disasters.name as disaster_name'
         )
             ->join('users', 'emergency_post_logs.created_by', '=', 'users.id')
-            ->join('disasters', 'emergency_post_logs.disaster_id', '=', 'disasters.id');
+            ->join('disasters', 'emergency_post_logs.disaster_id', '=', 'disasters.id')
+            ->orderBy('created_at', 'desc');
 
         if ($request->search) $query = $query->where(DB::raw('concat_ws(" ", users.firstname, users.lastname)'), 'like', '%' . $request->search . '%');
         if ($request->start_date && $request->end_date) {
@@ -161,8 +181,8 @@ class EmergencyPostService
         if ($request->disaster_id) $query = $query->where('emergency_post_logs.disaster_id', $request->disaster_id);
         if ($request->district) $query = $query->whereJsonContains('emergency_post_logs.district', (int)$request->district);
         if ($request->action) $query = $query->where('emergency_post_logs.action', $request->action); //1,2,3 c,u,d
-        if($request->paginate){
-            return $query->paginate(10);
+        if ($request->paginate) {
+            return $query->paginate($request->paginate ?? 10);
         }
         return $query->get();
     }

@@ -61,7 +61,7 @@ class Population extends Model
         'create_date' => 'datetime',
     ];
 
-    protected $hidden = ['p_geography_id', 'c_geography_id', 'sequence_id'];
+    protected $hidden = ['sequence_id'];
 
     public function getActivitylogOptions(): LogOptions
     {

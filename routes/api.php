@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\AppointmentLogController;
+use App\Http\Controllers\API\AssessmentController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\LoginController;
@@ -54,7 +55,7 @@ Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
     return view('line-login');
 });
-Route::get('/line-login-population', function () {
+Route::get('/population-line', function () {
     return view('line-login-population');
 });
 Route::post('/line-login', [LoginController::class, 'line']);
@@ -76,12 +77,24 @@ Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_s
 Route::get('/dst-wildfires', [DisasterController::class, 'dst_wf_show']);
 Route::get('/dst-smogs/{smog?}', [DisasterController::class, 'dst_sm_show']);
 Route::get('/dst-flood-status', [DisasterController::class, 'dst_fl_status']);
+Route::get('/dst-flood-source', [DisasterController::class, 'dst_fl_source']);
 Route::get('/dst-smog-status', [DisasterController::class, 'dst_sm_status']);
 Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq_show']);
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
 Route::get('/chart/{id?}', [ConfigController::class, 'indexChart']);
 
+Route::get('/damaged-utilities/{type?}', [ShelterController::class, 'dmgs']);
+Route::get('/posts', [PostController::class, 'show']);
+Route::get('/category', [CategoryController::class, 'index']);
+Route::get('/shelter', [ShelterController::class, 'index'])->middleware('check_auth_shelters_list');
+Route::get('/shelter/{shelter}', [ShelterController::class, 'show'])->middleware('check_auth_shelters');
+Route::get('/shelter-dashboard', [ShelterController::class, 'dashboard']);
+Route::get('/news', [NewsController::class, 'index'])->middleware('check_auth_news_list');
+Route::get('/new/{news}', [NewsController::class, 'show'])->middleware('check_auth_news');
+Route::get('/product-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublic']);
+Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
+Route::get('/export-disaster', [DisasterController::class, 'exp']);
 
 Route::middleware('auth:api')->group(function () {
 
@@ -140,9 +153,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display news
     |--------------------------------------------------------------------------
     */
-    Route::get('/news', [NewsController::class, 'index']);
-    Route::post('/news', [NewsController::class, 'get_all']);
-    Route::get('/new/{news}', [NewsController::class, 'show']);
     Route::post('/new', [NewsController::class, 'store']);
     Route::post('/new/{news}', [NewsController::class, 'update']);
     Route::delete('/new/{news}', [NewsController::class, 'destroy']);
@@ -159,19 +169,15 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display shelters
     |--------------------------------------------------------------------------
     */
-    Route::get('/shelter', [ShelterController::class, 'index']);
     Route::post('/shelter', [ShelterController::class, 'store']);
-    Route::get('/shelter/{shelter}', [ShelterController::class, 'show']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
-    Route::get('/shelter-dashboard', [ShelterController::class, 'dashboard']);
 
     /*
     |--------------------------------------------------------------------------
     | Routes for display damaged utility
     |--------------------------------------------------------------------------
     */
-    Route::get('/damaged-utilities/{type?}', [ShelterController::class, 'dmgs']);
     Route::get('/damaged-utility-name', [ShelterController::class, 'dmg_name']);
     Route::post('/damaged-utility', [ShelterController::class, 'dmg_stroe']);
     Route::delete('/damaged-utility/{damaged}', [ShelterController::class, 'dmg_delete']);
@@ -234,12 +240,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/unit/{unit}', [UnitController::class, 'update']);
     Route::delete('/unit/{unit}', [UnitController::class, 'destroy']);
 
-    /* 
+    /*
     |--------------------------------------------------------------------------
     | Routes for display categories
     |--------------------------------------------------------------------------
     */
-    Route::get('/category', [CategoryController::class, 'index']);
     Route::post('/category', [CategoryController::class, 'store']);
     Route::post('/category/{category}', [CategoryController::class, 'update']);
     Route::delete('/category/{category}', [CategoryController::class, 'destroy']);
@@ -269,7 +274,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-one-delete/{productId}', [ShelterProductController::class, 'deleteOne']);
     Route::get('/shelter-product-excep', [ShelterProductController::class, 'productException']);
     Route::post('/shelter-product', [ShelterProductController::class, 'store']);
-    Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
 
 
     /*
@@ -291,7 +295,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/product-request-log', [ProductRequestController::class, 'requestLog']);
     Route::post('/product-request', [ProductRequestController::class, 'store']);
     Route::post('/product-request/{productReq}', [ProductRequestController::class, 'update']);
-    Route::get('/product-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublic']);
 
     /*
     |--------------------------------------------------------------------------
@@ -308,12 +311,19 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display disaster menu
     |-------------------------------------------------------- ------------------
     */
-    Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']);
-    Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']);
+    // Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']); //เก็บไว้
+    Route::post('/dst-earthquake', [DisasterController::class, 'dst_eq_create']);
+    // Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']); //เก็บไว้ก่อน
+    Route::post('/dst-flood', [DisasterController::class, 'dst_fl_create']);
+    Route::delete('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_delete']);
     Route::post('/dst-landslide', [DisasterController::class, 'dst_ls_create']);
     Route::delete('/dst-landslide/{id}', [DisasterController::class, 'dst_ls_delete']);
     Route::post('/dst-wildfire', [DisasterController::class, 'dst_wf_create']);
-    Route::post('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']);
+    // Route::post('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_update']); //เก็บไว้ก่อน
+    Route::post('/dst-smog', [DisasterController::class, 'dst_sm_create']);
+    Route::delete('/dst-smog/{smog}', [DisasterController::class, 'dst_sm_delete']);
+    // Route::get('export', [DisasterController::class, 'exp']);
+
 
     /*
     |--------------------------------------------------------------------------
@@ -321,7 +331,6 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/post/{post}', [PostController::class, 'index']);
-    Route::get('/posts', [PostController::class, 'show']);
     Route::post('/post', [PostController::class, 'store']);
     Route::post('/post/{post}', [PostController::class, 'update']);
     // Route::delete('/post/{post}', [PostController::class, 'destroy']);
@@ -358,6 +367,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/config-reset', [ConfigController::class, 'reset']);
     // Route::delete('/config/{config}', [ConfigController::class, 'destroy']);
     Route::post('/chart', [ConfigController::class, 'storeChart']);
+    Route::get('/config-disaster', [ConfigController::class, 'indexDisaster']);
+    Route::post('/config-disaster', [ConfigController::class, 'storeDisaster']);
 
     /*
     |--------------------------------------------------------------------------
@@ -422,4 +433,15 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/add-all-images', [UserController::class, 'updateImage']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for Assessments
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/assessment/{id?}', [AssessmentController::class, 'index']);
+    Route::get('/assessment-list', [AssessmentController::class, 'list']);
+    Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
+    Route::post('/assessment', [AssessmentController::class, 'store']);
+    Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
 });

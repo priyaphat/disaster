@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\Log;
 
 class LinePostUtility
 {
-    protected static $user = ['Uaa3e2b17e373580b16101b64937e4a39']; //user test id line
-
     public static function line_oa_call($form, $data)  //hotline use line checkbox
     {
         $data['line_oa'] = $data['line_oa'] ?? 0;
@@ -29,7 +27,7 @@ class LinePostUtility
                 $data = [
                     'type' => $data['disaster_name'],
                     'level' => $data['level'],
-                    'areas' => $data['areas']
+                    'areas' => $data['area']
                         ->filter(fn($item) => !empty($item['district_name']))
                         ->pluck('district_name'),
                 ];
@@ -43,7 +41,7 @@ class LinePostUtility
                 $data = $data['model'];
             }
 
-            return (new LineController)->LineNotification($data, $form, self::$user);
+            return (new LineController)->LineNotification($data, $form);
         }
     }
 
@@ -88,7 +86,7 @@ class LinePostUtility
                 'assigner' => $assigner ?? '-'
             ];
             return (new LineController)->LineNotification($data, $form, [$team->token_id]);
-        } else if ($form == LineController::Emc_request_unaccept) {
+        } else if ($form == LineController::Emc_request_unaccept) { //ส่งให้เจ้าหน้าที่ส่วนกลาง
             $prefix = Prefix::all()->keyBy('id');
             $team = Team::select(
                 'teams.*',
@@ -173,14 +171,16 @@ class LinePostUtility
                 'note' => $form == LineController::Emc_success ? '-' : (CancellationReason::tryFrom($note) ? CancellationReason::tryFrom($note)->label() : '-'),
             ];
         } else if ($form == LineController::User_on || $form == LineController::User_off) {
-            $recepint = LineUser::whereIn('user_id', $data['user_id'])->pluck('token_id');
+            $recepint = LineUser::whereIn('user_id', $data['user_id'])
+                ->where('role', LineUser::User)->pluck('token_id');
             $shelter = Shelter::where('id', $data['shelter_id'])->value('name');
             if ($recepint->isEmpty()) return;
             return (new LineController)->LineNotification([
                 'shelter' => $shelter
             ], $form, $recepint);
         } else if ($form == LineController::User_join || $form == LineController::User_leave) {
-            $recepint = LineUser::where('user_id', $data['user_id'])->pluck('token_id');
+            $recepint = LineUser::where('user_id', $data['user_id'])
+                ->where('role', LineUser::User)->pluck('token_id');
             $team = Team::where('id', $data['team_id'])->value('name');
             if ($recepint->isEmpty()) return;
             return (new LineController)->LineNotification([
@@ -194,6 +194,6 @@ class LinePostUtility
             $data = $q;
         }
 
-        return (new LineController)->LineNotification($data, $form, self::$user);
+        return (new LineController)->LineNotification($data, $form);
     }
 }
