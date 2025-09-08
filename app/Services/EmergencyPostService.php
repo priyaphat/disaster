@@ -61,6 +61,7 @@ class EmergencyPostService
             ->where('status', EmergencyPost::inactive)
             ->first();
         if ($repetitive) {
+            $post['created_at'] = $post['updated_at'] = now();
             $data = self::update($repetitive, $post);
             LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data));
             return $data;

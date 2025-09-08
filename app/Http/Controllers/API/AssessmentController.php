@@ -49,7 +49,7 @@ class AssessmentController extends Controller
                     ")
             )
             ->leftJoin('users', 'assessments.created_by', 'users.id')
-            ->leftJoin('users as ud', 'assessments.updated_by', 'users.id');
+            ->leftJoin('users as ud', 'assessments.updated_by', 'ud.id');
         if ($id) {
             $q = $q->where('assessments.id', $id)->first();
             if ($methed) return $q;

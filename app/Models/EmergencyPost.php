@@ -29,6 +29,8 @@ class EmergencyPost extends Model
         'longitude',
         'status',
         'line_oa',
+        'created_at',
+        'updated_at'
         // 'history_id',
     ];
 
