@@ -27,7 +27,8 @@ class DisasterService
         //check disaster name use
         return Disaster::select(
             'disasters.*',
-            DB::raw('IF(emergency_posts.id IS NOT NULL, TRUE, FALSE) as disable')
+            // DB::raw('IF(emergency_posts.id IS NOT NULL, TRUE, FALSE) as disable')
+            DB::raw('IF(emergency_posts.id IS NOT NULL AND emergency_posts.status = 1, TRUE, FALSE) as disable')
         )
             ->leftJoin('emergency_posts', 'disasters.id', '=', 'emergency_posts.disaster_id')
             ->get();
