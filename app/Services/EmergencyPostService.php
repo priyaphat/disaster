@@ -31,7 +31,7 @@ class EmergencyPostService
                 $query->where('district_id', $post->district_id);
             });
         }
-        if ($post->sort) $data = $data->orderBy('emergency_posts.created_at', $post->sort === 'asc' ? 'desc' : 'asc');
+        if ($post->sort) $data = $data->orderBy('emergency_posts.created_at', $post->sort === 'asc' ? 'asc' : 'desc');
 
         return $data->get();
     }

@@ -443,4 +443,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
+    Route::get('/assessment-logs/{id}', [AssessmentController::class, 'logs']);
 });

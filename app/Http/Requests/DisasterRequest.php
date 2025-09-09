@@ -61,12 +61,25 @@ class DisasterRequest extends FormRequest
 
     protected function earthquakeCreate(): array
     {
+        // return [
+        //     'latitude' => ['required', 'regex:/^-?\d{1,4}(\.\d{1,6})?$/'],
+        //     'longitude' => ['required', 'regex:/^-?\d{1,4}(\.\d{1,6})?$/'],
+        //     'depth' => 'required',
+        //     'magnitude' => 'required',
+        //     'line_oa' => 'required|in:0,1',
+        // ];
         return [
+            'address' => 'required|string|max:255',
             'latitude' => ['required', 'regex:/^-?\d{1,4}(\.\d{1,6})?$/'],
             'longitude' => ['required', 'regex:/^-?\d{1,4}(\.\d{1,6})?$/'],
             'depth' => 'required',
             'magnitude' => 'required',
+            'occurrence_time' => 'required',
+            'geography_id' => 'required',
             'line_oa' => 'required|in:0,1',
+            'province_id' => 'required',
+            'district_id' => 'required',
+            'subdistrict_id' => 'required',
         ];
     }
 
@@ -80,6 +93,9 @@ class DisasterRequest extends FormRequest
             'status' => 'required|in:0,1,2,3,4,5',
             'water_value' => 'required|integer',
             'line_oa' => 'required|in:0,1',
+            'province_id' => 'required',
+            'district_id' => 'required',
+            'subdistrict_id' => 'required',
         ];
     }
 
@@ -146,7 +162,10 @@ class DisasterRequest extends FormRequest
             'geography_id' => 'required',
             "status" => 'required|integer|in:1,2,3',
             "smog_value" => 'required|numeric',
-            "line_oa" => 'required|in:0,1'
+            "line_oa" => 'required|in:0,1',
+            'province_id' => 'required',
+            'district_id' => 'required',
+            'subdistrict_id' => 'required',
         ];
     }
 }

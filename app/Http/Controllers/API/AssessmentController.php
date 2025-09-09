@@ -9,6 +9,8 @@ use App\Models\Assessments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\AssessmentSummaryExport;
+use App\Models\AssessmentLogs;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AssessmentController extends Controller
@@ -27,7 +29,9 @@ class AssessmentController extends Controller
         $assessment->name = AssessmentType::tryFrom($request->type)->label();
         $assessment->fill($request->all());
         $assessment->save();
-        return ApiResponse::successResponse(__('success.saved'), self::index(request(), $assessment->id, 'frist'));
+        $res = self::index(request(), $assessment->id, 'frist');
+        $this->logStore($res);
+        return ApiResponse::successResponse(__('success.saved'), $res);
     }
 
     public function index(Request $r, $id = null, $methed = null)
@@ -35,21 +39,27 @@ class AssessmentController extends Controller
         $q = Assessments::query()
             ->select(
                 'assessments.*',
-                DB::raw('concat(users.firstname, " ", users.lastname) as created_name'),
-                DB::raw('concat(ud.firstname, " ", ud.lastname) as updated_name'),
+                DB::raw('concat(up.name, " ",users.firstname, " ", users.lastname) as created_name'),
+                DB::raw('concat(upd.name, " ",ud.firstname, " ", ud.lastname) as updated_name'),
                 DB::raw("
                         IF(
                             assessments.type = 3, 
-                            CONCAT(
-                                JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.firstname')), ' ', 
-                                JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.lastname'))
-                            ),
-                            CONCAT(users.firstname, ' ', users.lastname)
+                                CONCAT(
+                                    JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.assessment.c_prefix_name')), ' ', 
+                                    JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.assessment.c_first_name')), ' ', 
+                                    JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.assessment.c_last_name'))
+                                ),
+                            CONCAT(prefixes.name,' ',populations.first_name, ' ', populations.last_name)
                         ) as name_of_assessment
                     ")
             )
+            ->leftJoin('populations', 'assessments.population_id', 'populations.id')
+            ->leftJoin('prefixes', 'populations.prefix_id', 'prefixes.id')
             ->leftJoin('users', 'assessments.created_by', 'users.id')
-            ->leftJoin('users as ud', 'assessments.updated_by', 'ud.id');
+            ->leftJoin('prefixes as up', 'users.prefix_id', 'up.id')
+            ->leftJoin('users as ud', 'assessments.updated_by', 'ud.id')
+            ->leftJoin('prefixes as upd', 'ud.prefix_id', 'upd.id');
+
         if ($id) {
             $q = $q->where('assessments.id', $id)->first();
             if ($methed) return $q;
@@ -80,7 +90,6 @@ class AssessmentController extends Controller
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
-
     public function destroy($id)
     {
         $assessment = Assessments::find($id);
@@ -107,8 +116,48 @@ class AssessmentController extends Controller
         $assessment->fill($request->except('count'));
         $assessment->count += 1;
         $assessment->save();
+        $res = self::index(request(), $assessment->id, 'frist');
+        $this->logStore($res);
+        return ApiResponse::successResponse(__('success.updated'), $res);
+    }
 
-        return ApiResponse::successResponse(__('success.updated'), self::index(request(), $assessment->id, 'frist'));
+    private function logStore($r)
+    {
+        $q = new AssessmentLogs();
+        $q->assessment_id = $r->id;
+        $q->name_of_assessment = $r->name_of_assessment;
+        $q->datetime = $r->datetime;
+        $q->created_by = $r->created_by;
+        $q->created_at = $r->created_at;
+        $q->save();
+    }
+
+    public function logs(Request $f, $id)
+    {
+        $q = AssessmentLogs::select(
+            'assessment_logs.*',
+            DB::raw('concat(up.name, " ",users.firstname, " ", users.lastname) as created_by_name'),
+            'a.name as name'
+        )
+            ->where('assessment_id', $id)
+            ->leftJoin('assessments as a', 'assessment_logs.assessment_id', 'a.id')
+            ->leftJoin('users', 'assessment_logs.created_by', 'users.id')
+            ->leftJoin('prefixes as up', 'users.prefix_id', 'up.id')
+            ->when($f['start_date'] && $f['end_date'], fn($q) =>
+            $q->whereBetween('assessment_logs.updated_at', [
+                Carbon::parse($f['start_date'])->startOfDay(),
+                Carbon::parse($f['end_date'])->endOfDay()
+            ]))
+            ->when($f['search'], function ($q) use ($f) {
+                $keyword = $f['search'];
+                $q->where(function ($query) use ($keyword) {
+                    $query->where('assessment_logs.name_of_assessment', 'like', "%$keyword%")
+                        ->orWhere(DB::raw('concat(up.name, " ",users.firstname, " ", users.lastname)'), 'like', "%$keyword%");
+                });
+            })
+            ->orderBy('assessment_logs.updated_at', 'desc')
+            ->paginate($f['paginate'] ?? 10);
+        return ApiResponse::successResponse(__('success.data'), $q);
     }
 
     public function assessment_summary()
