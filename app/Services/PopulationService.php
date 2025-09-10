@@ -8,12 +8,14 @@ use App\Enums\PrefixId;
 use App\Http\Resources\PopulationResource;
 use App\Http\Resources\PopulationShowResource;
 use App\Models\Population;
+use App\Models\Prefix;
 use App\Models\Shelter;
 use App\Models\ShelterPopulation;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PopulationService
@@ -59,33 +61,27 @@ class PopulationService
             }
         }
 
-        $population = Population::create([
-            'prefix_id' => $data['prefix_id'],
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'birth_date' => $data['birth_date'],
-            'gender' => $data['gender'],
-            'phone' => $data['phone'],
-            'p_address' => $data['p_address'],
-            'p_geography_id' => $data['p_geography_id'],
-            'c_address' => $data['c_address'],
-            'c_geography_id' => $data['c_geography_id'],
-            'same_address' => $data['same_address'],
-            'status' => $data['status'],
-            'created_date' => $data['created_date'],
-        ]);
-
+        $population = Population::create($data);
         app(ShelterPopulationService::class)->updateOrCreate(['population_id' => $population->id, 'shelter_id' => $data['shelter_id'] ?? NULL]);
+        app(ImageService::class)->uploadImage($data['image'] ?? null, Population::IMAGE_FOLDER, Population::class, $population->id);
 
         return $population;
     }
 
-    public function update(Population $population, array $data): Population
+    public function update(Population $population, array $data, $isFormData = false): Population
     {
-        if (isset($data['shelter_id'])) {
+        // Update population
+        $population->update($data);
+        // If request is form data, handle update image
+        if ($isFormData) {
+            app(ImageService::class)->handleImageUpdate($data, Population::IMAGE_FOLDER, Population::class, $population->id);
+        }
+
+        // Update shelter population by population
+        if (isset($data['shelter_id']) && $data['shelter_id']) {
             app(ShelterPopulationService::class)->update($population, Arr::only($data, ['shelter_id']));
         }
-        $population->update($data);
+
         return $population;
     }
 
@@ -107,60 +103,68 @@ class PopulationService
 
     public function addExternalPopulation()
     {
-        //Uncomment if timeout
-        // ini_set('max_execution_time', 600);
         $url = 'https://shingeometics.com/webgis/healthGIS/survey/sample_point.php';
-        try {
-            $response = Http::get($url);
+        $response = Http::get($url);
 
-            if ($response->successful()) {
-                $json = $response->json();
-                $datas = $json['features'];
+        if ($response->successful()) {
+            $json = $response->json();
+            $features = $json['features'];
+            collect($features)->chunk(10)->each(function ($items) {
+                foreach ($items as $item) {
+                    $data = $item['properties'];
 
-                foreach ($datas as $data) {
-                    $data = $data['properties'];
+                    $prefix = Prefix::where('name', $data['title'])->first();
+                    if (!$prefix) {
+                        $prefix = Prefix::create([
+                            'name' => $data['title']
+                        ]);
+                        $prefixId = $prefix->id;
+                    } else {
+                        $prefixId = $prefix->id;
+                    }
 
-                    $prefix_id = PrefixId::from($data['title'])->label();
                     // $name = explode(' ', $data['name']);
                     $name = preg_split('/\s+/', trim($data['name']));
-                    $first_name = $name[0] ?? '';
-                    $last_name = $name[1] ?? '';
+                    $firstName = $name[0] ?? '';
+                    $lastName = $name[1] ?? '';
 
-                    $birth_date = Carbon::parse($data['date_of_birth'])->format('Y-m-d');
-                    $gender_id = GenderId::label($prefix_id)->value;
-                    $sequence_id = $data['id'];
-                    $phone = $data['tel'] ?? '';
+                    $birthDate = Carbon::parse($data['date_of_birth'])->format('Y-m-d');
+                    $genderId = GenderId::label($prefixId)->value;
+                    $sequenceId = $data['id'];
+                    $phone = $data['tel'] ?? null;
 
-                    $isOnDB = Population::where('prefix_id', $prefix_id)
-                        ->where('first_name', $first_name)
-                        ->where('last_name', $last_name)
-                        ->whereDate('birth_date', $birth_date)
-                        ->first();
+                    $isOnDB = Population::where('sequence_id', $sequenceId)->first();
 
+                    error_log('-----------------------------');
+                    error_log('run population : ' . $data['id']);
                     if (!$isOnDB) {
-                        Population::create([
-                            'prefix_id' => $prefix_id,
-                            'first_name' => $first_name,
-                            'last_name' => $last_name,
-                            'birth_date' => $birth_date,
-                            'gender' => $gender_id,
+                        // create population
+                        error_log('create population : ' . $data['id']);
+                        $request = [
+                            'prefix_id' => $prefixId,
+                            'first_name' => $firstName,
+                            'last_name' => $lastName,
+                            'birth_date' => $birthDate,
+                            'gender' => $genderId,
                             'phone' => $phone,
                             'p_address' => null,
                             'p_geography_id' => null,
                             'c_address' => null,
                             'c_geography_id' => null,
-                            'sequence_id' => $sequence_id,
+                            'same_address' => 0,
+                            'status' => 1,
+                            'sequence_id' => $sequenceId,
                             'created_date' => Carbon::now(),
-                        ]);
-                    }
-                }
+                        ];
 
-                return $datas;
-            } else {
-                throw new \Exception('External API error: ' . $response->status());
-            }
-        } catch (\Throwable $e) {
-            throw new \Exception('Cannot fetch external population: ' . $e->getMessage());
+                        self::create($request);
+                    }
+
+                    error_log('-----------------------------');
+                }
+            });
+        } else {
+            Log::info('External API error: ' . $response->status());
         }
     }
 }
