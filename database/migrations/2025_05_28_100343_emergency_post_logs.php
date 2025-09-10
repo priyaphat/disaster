@@ -13,10 +13,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('post_id')->constrained('emergency_posts');
             $table->foreignId('disaster_id')->constrained('disasters');
-            // $table->unsignedInteger('province_id'); 
             $table->integer('action')->comment('1 - create, 2 - update, 3 - delete'); // e.g., 'created', 'updated', 'deleted'
             $table->text('description')->nullable();
-            $table->json('district')->nullable();
+            $table->unsignedBigInteger('district')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->timestamp('created_at')->useCurrent();
 

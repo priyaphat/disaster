@@ -20,11 +20,11 @@ return new class extends Migration
             $table->text('gis_map')->nullable();
             $table->decimal('latitude', 10, 6)->nullable();
             $table->decimal('longitude', 10, 6)->nullable();
+            $table->unsignedBigInteger('district_code')->nullable();
             $table->tinyInteger('status')->default(1)->comment('0 - inactive, 1 - active');
             $table->tinyInteger('line_oa')->default(0)->comment('0 - inactive, 1 - active');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
-
             $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('updated_by')->references('id')->on('users');
             $table->foreign('disaster_id')->references('id')->on('disasters');

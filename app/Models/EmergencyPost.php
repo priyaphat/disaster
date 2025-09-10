@@ -14,6 +14,7 @@ class EmergencyPost extends Model
 
     public const inactive = 0;
     public const active = 1;
+    public const gis = 'https://shingeometics.com/webgis/WebMapCRI/disasterarea/index.php?amp=';
 
     //log
     public const create = 1;
@@ -27,6 +28,7 @@ class EmergencyPost extends Model
         'gis_map',
         'latitude',
         'longitude',
+        'district_code',
         'status',
         'line_oa',
         'created_at',
@@ -40,14 +42,14 @@ class EmergencyPost extends Model
             ->select('id', 'name');
     }
 
-    public function area()
-    {
-        return $this->hasMany(RefArea::class, 'post_id')
-            ->join('geography', 'ref_areas.district_id', '=', 'geography.district_code')
-            ->distinct()
-            ->select('ref_areas.*', 'geography.district_name_th as district_name')
-            ->orderBy('ref_areas.district_id', 'asc');
-    }
+    // public function area()
+    // {
+    //     return $this->hasMany(RefArea::class, 'post_id')
+    //         ->join('geography', 'ref_areas.district_id', '=', 'geography.district_code')
+    //         ->distinct()
+    //         ->select('ref_areas.*', 'geography.district_name_th as district_name')
+    //         ->orderBy('ref_areas.district_id', 'asc');
+    // }
 
     public function getActivitylogOptions(): LogOptions
     {

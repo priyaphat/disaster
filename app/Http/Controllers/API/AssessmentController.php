@@ -67,17 +67,23 @@ class AssessmentController extends Controller
             $q = $q->where('assessments.population_id', $r->population_id)
                 ->orderBy('assessments.datetime', $r->sort ?? 'desc')
                 ->when(
-                    $r->type == 23,
+                    $r->type,
                     fn($q) =>
-                    $q->whereIn('assessments.type', [Assessments::InspectionVisit, Assessments::InspectionChild])
-                )->when(
-                    $r->type == 1,
-                    fn($q) =>
-                    $q->where('assessments.type', Assessments::Assessment)
-                );
+                    $q->whereIn('assessments.type', $r->type)
+                )->when($r['start_date'] && $r['end_date'], fn($q) =>
+                $q->whereBetween('assessments.updated_at', [
+                    Carbon::parse($r['start_date'])->startOfDay(),
+                    Carbon::parse($r['end_date'])->endOfDay()
+                ]))
+                ->when($r['search'], function ($q) use ($r) {
+                    $keyword = $r['search'];
+                    $q->having(function ($q) use ($keyword) {
+                        $q->having('name_of_assessment', 'like', "%$keyword%")
+                            ->orHaving('created_name', 'like', "%$keyword%");
+                    });
+                });
             $q = $q->paginate($r->paginate ?? 10);
         }
-
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 

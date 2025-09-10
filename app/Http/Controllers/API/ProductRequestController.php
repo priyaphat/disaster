@@ -67,6 +67,7 @@ class ProductRequestController extends Controller
             ->leftJoin('products', 'products.id', 'product_requests.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->leftJoin('categories', 'categories.id', 'products.category_id')
+            ->where('product_requests.status', ProductRequest::ACTIVE)
             ->with('product.image')
             ->groupBy('product_requests.product_id')
             ->when(
@@ -83,7 +84,7 @@ class ProductRequestController extends Controller
             )->when(
                 $f['sort'],
                 fn($q) =>
-                $q->orderByRaw('MAX(product_requests.updated_at) ' . ($f['sort'] == 'asc' ? 'asc' : 'desc'))
+                $q->orderBy('updated_at', $f['sort'] === 'asc' ? 'asc' : 'desc')
             )->when(
                 $f['search'],
                 fn($q) =>
