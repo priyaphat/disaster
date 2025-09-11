@@ -22,26 +22,21 @@ class LinePostUtility
     {
         $data['line_oa'] = $data['line_oa'] ?? 0;
         if ($data['line_oa'] == 1) {
-
-            if ($form == LineController::Disaster_post) {
-                $data = [
+            if ($form == LineController::Disaster_post || $form == LineController::Disaster_end) {
+                $_data = [
                     'type' => $data['disaster_name'],
                     'level' => $data['level'],
-                    'areas' => $data['area']
-                        ->filter(fn($item) => !empty($item['district_name']))
-                        ->pluck('district_name'),
+                    'areas' => $data['gis_map']
                 ];
             }
-
             if (in_array($form, [
                 LineController::Disaster_wildfire_m2,
                 LineController::Disaster_wildfire_m3,
                 LineController::Disaster_wildfire_m4
             ])) {
-                $data = $data['model'];
+                $_data = $data['model'];
             }
-
-            return (new LineController)->LineNotification($data, $form);
+            return (new LineController)->LineNotification($_data, $form);
         }
     }
 

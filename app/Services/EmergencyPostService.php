@@ -26,9 +26,9 @@ class EmergencyPostService
             ->where('emergency_posts.status', EmergencyPost::active);
         if ($post->disaster_id) $data = $data->where('emergency_posts.disaster_id', $post->disaster_id);
         if ($post->district_id) $data = $data->where('emergency_posts.district_code', $post->district_id);
-        if ($post->sort) $data = $data->orderBy('emergency_posts.created_at', $post->sort === 'asc' ? 'asc' : 'desc');
+        if ($post->sort) $data = $data->orderBy('emergency_posts.updated_at', $post->sort === 'asc' ? 'asc' : 'desc');
 
-        return $data->get();
+        return $data->paginate($post->paginate ?? 8);
     }
 
     public function baseQuery()
@@ -56,20 +56,19 @@ class EmergencyPostService
         $district_id = $post['district_code'];
         $data = EmergencyPost::create($post);
         $this->emergencylog_save($data, $district, $district_id);
-        // LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data));
+        LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($data)->toArray());
         return $data;
     }
 
     public function update($post, $data)
     {
+
+        $district  =  $data['gis_map'] = Geography::where('district_code', $data['district_code'])->pluck('district_name_th')->first();
+        $district_id = $data['district_code'];
         $post->update($data);
-        $post->refresh();
-        $district = Geography::where('district_code', $post['district_code'])->pluck('district_name_th')->first();
-        $district_id = $post['district_code'];
         $this->emergencylog_save($post, $district, $district_id);
-        $type['type'] = Disaster::where('id', $post['disaster_code'])->value('name');
         if ($post['status'] == EmergencyPost::inactive) {
-            // (new LineController)->LineNotification($type, LineController::Disaster_end);
+            LinePostUtility::line_oa_call(LineController::Disaster_end, self::index($post)->toArray());
         }
         return $post;
     }
