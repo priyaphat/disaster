@@ -84,8 +84,8 @@ class PopulationController extends Controller
     public function update(UpdatePopulationRequest $request, Population $population)
     {
         $prevShelter = $population->shelterPopulation->shelter_id;
-        $isFormData = $request->isFormRequest();
-        $data = $this->populationService->update($population, $request->all(), $isFormData);
+        $isJson = $request->isJson();
+        $data = $this->populationService->update($population, $request->all(), $isJson);
 
         if ($prevShelter == $data->shelterPopulation->shelter_id) {
             return ApiResponse::successResponse(__('success.updated'), $data);

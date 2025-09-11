@@ -4,6 +4,7 @@ namespace App\Http\Requests\Population;
 
 use App\Enums\PopulationStatus;
 use App\Enums\VictimStatus;
+use App\Rules\CheckPopulationNameExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,6 +25,7 @@ class UpdatePopulationRequest extends FormRequest
      */
     public function rules(): array
     {
+        $population = $this->population;
         return [
             /**
              * ID ของ prefixs ได้จาก https://disaster-backend.gentechsoft.tech/api/docs#/operations/prefix.index
@@ -36,13 +38,13 @@ class UpdatePopulationRequest extends FormRequest
              * @var string
              * @example มา
              */
-            'first_name' => 'string|max:100',
+            'first_name' => ['string', 'max:100', new CheckPopulationNameExists($this->prefix_id, $this->first_name, $this->last_name, $population->id)],
             /**
              * นามสกุล
              * @var string
              * @example รวย
              */
-            'last_name' => 'string|max:100',
+            'last_name' => ['string', 'max:100', new CheckPopulationNameExists($this->prefix_id, $this->first_name, $this->last_name, $population->id)],
             /**
              * วันเกิด
              * @var datetime

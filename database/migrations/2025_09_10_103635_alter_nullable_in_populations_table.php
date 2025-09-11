@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('shelter_populations', function (Blueprint $table) {
+        Schema::table('populations', function (Blueprint $table) {
             //
+            $table->unsignedTinyInteger('status')->default(1)->comment('1 - ปกติ, 2 - บาดเจ็บ, 3 - เสียชีวิต, 4 - เปราะบาง')->change();
+            $table->unsignedTinyInteger('tracking')->default(1)->comment('1 - ติดตาม, 2 - ไม่ติดตาม')->change();
             $table->unsignedBigInteger('created_by')->nullable()->change();
             $table->unsignedBigInteger('updated_by')->nullable()->change();
-
         });
     }
 
@@ -24,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('shelter_populations', function (Blueprint $table) {
+        Schema::table('populations', function (Blueprint $table) {
             //
         });
     }

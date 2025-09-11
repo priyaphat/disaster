@@ -68,12 +68,12 @@ class PopulationService
         return $population;
     }
 
-    public function update(Population $population, array $data, $isFormData = false): Population
+    public function update(Population $population, array $data, $isJson = false): Population
     {
         // Update population
         $population->update($data);
         // If request is form data, handle update image
-        if ($isFormData) {
+        if (!$isJson) {
             app(ImageService::class)->handleImageUpdate($data, Population::IMAGE_FOLDER, Population::class, $population->id);
         }
 
@@ -152,7 +152,7 @@ class PopulationService
                             'c_address' => null,
                             'c_geography_id' => null,
                             'same_address' => 0,
-                            'status' => 1,
+                            'status' => PopulationStatus::NORMAL->value,
                             'sequence_id' => $sequenceId,
                             'created_date' => Carbon::now(),
                         ];
