@@ -58,6 +58,10 @@ class ProductRequestService
                     if ($s == -1) $q->whereNull('products.unit_id');
                     else $q->where('products.unit_id', $s);
                 }
+            )->when(
+                isset($f['sort']),
+                fn($q) =>
+                $q->orderBy('product_requests.updated_at', $f['sort'] === 'asc' ? 'asc' : 'desc')
             );
 
         if (isset($f['id'])) {

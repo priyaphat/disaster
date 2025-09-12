@@ -6,6 +6,7 @@ use App\Filters\PopulationFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Population extends Model
 {
-    use CreatedUpdatedBy, LogsActivity;
+    use CreatedUpdatedBy, LogsActivity, HasFactory;
 
     public const IMAGE_FOLDER = 'population';
     public const not_tracking = 0;
@@ -62,6 +63,13 @@ class Population extends Model
     ];
 
     protected $hidden = ['sequence_id'];
+
+    protected function gisMap(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => $attributes['sequence_id'] ? env('GIS_POPULATION_URL').'?id='.$attributes['sequence_id'] : null,
+        );
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

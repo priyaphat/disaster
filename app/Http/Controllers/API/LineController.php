@@ -136,7 +136,6 @@ class LineController extends Controller
 
     public function LineNotification(array $data = null, $form, $recipint = null)
     {
-
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
             $recipint = self::areaFind('เชียงราย');
@@ -226,12 +225,14 @@ class LineController extends Controller
             $text = __('line.disaster_post', [
                 'type' => $data['type'],
                 'level' => $data['level'],
-                'type_areas' => "• " . implode("\n• ", $data['areas']->toArray()),
+                'type_areas' => $data['areas'],
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_end) {
-            $text = __('line.disaster_end', [
+            $text = __('line.disaster_end',  [
                 'type' => $data['type'],
+                'level' => $data['level'],
+                'type_areas' => $data['areas'],
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Shelter_post) {

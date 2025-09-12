@@ -14,6 +14,7 @@ use App\Models\Population;
 use App\Models\Prefix;
 use App\Services\NotificationService;
 use App\Services\PopulationService;
+use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
@@ -303,6 +304,8 @@ class EmergencyRequestController extends Controller
             );
             foreach ($request['victim_name'] as $i) {
                 $i['shelter_id'] = $request['shelter_id'];
+                $i['birth_date'] = Carbon::parse($request['birth_date'])->format('Y-m-d');
+                $i['created_date'] = Carbon::parse($request['created_date'])->format('Y-m-d');
                 if ($i['trans_status'] == Population::new_population) {
                     (new PopulationService)->create($i);
                 } else {

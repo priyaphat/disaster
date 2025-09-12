@@ -19,7 +19,7 @@ class PrefixService
         }
 
         // Orders by 'created_at' DESC if ASC use oldest
-        $query->latest();
+        $query->oldest();
 
         // limit the number of results
         if ($limit) {

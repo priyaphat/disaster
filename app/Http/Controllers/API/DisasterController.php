@@ -250,7 +250,7 @@ class DisasterController extends Controller
     /**
      * Disaster | สร้าง smog ตัวแปร / ปุ้ย
      */
-    public function dst_sm_create(Request $request)
+    public function dst_sm_create(DisasterRequest $request)
     {
         $smog = DisasterSmog::create($request->all());
         LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog->toArray());

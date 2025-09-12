@@ -10,9 +10,12 @@ use App\Http\Requests\Population\TransferPopulationRequest;
 use App\Http\Requests\Population\UpdatePopulationRequest;
 use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
+use App\Models\AssessmentLogs;
+use App\Models\Assessments;
 use App\Models\Image;
 use App\Models\Population;
 use App\Models\Shelter;
+use App\Models\ShelterPopulation;
 use App\Models\TransferHistory;
 use App\Services\ImageService;
 use App\Services\PopulationService;
@@ -66,7 +69,6 @@ class PopulationController extends Controller
         $this->authorize('create', Population::class);
 
         $data = $this->populationService->create($request->all());
-        $data->image = $this->imageService->uploadImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
@@ -94,14 +96,10 @@ class PopulationController extends Controller
         $data = $this->populationService->update($population, $request->all());
         // $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
 
-        if(!$request->shelter_id){
-            $data->image = $this->imageService->handleImageUpdate($request->all(), Population::IMAGE_FOLDER, Population::class, $data->id);
-        }
-        
-        if ($prevShelter == $data->shelter_id) {
+        if ($prevShelter == $data->shelterPopulation->shelter_id) {
             return ApiResponse::successResponse(__('success.updated'), $data);
         }
-    
+
         return ApiResponse::successResponse(__('success.created'), $data);
     }
 
@@ -124,5 +122,39 @@ class PopulationController extends Controller
     {
         $data = $this->populationService->addExternalPopulation();
         return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+     /**
+     * Delete all populations | ลบประชากรทั้งหมด
+     */
+    public function destroy(Population $population)
+    {
+        //
+        $population->shelterPopulation->delete();
+        $population->image->delete();
+        $population->assessments->delete();
+
+        AssessmentLogs::truncate();
+        Assessments::truncate();
+        ShelterPopulation::truncate();
+        Population::truncate();
+        Image::where('parentable_type', Population::class)->delete();
+        TransferHistory::where('parentable_type', Population::class)->delete();
+        return ApiResponse::successResponse(__('success.population.deleted'));
+    }
+
+    /**
+     * Delete all populations | ลบประชากรทั้งหมด
+     */
+    public function destroyAll()
+    {
+        //
+        AssessmentLogs::truncate();
+        Assessments::truncate();
+        ShelterPopulation::truncate();
+        Population::truncate();
+        Image::where('parentable_type', Population::class)->delete();
+        TransferHistory::where('parentable_type', Population::class)->delete();
+        return ApiResponse::successResponse(__('success.population.deleted'));
     }
 }

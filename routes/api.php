@@ -35,9 +35,8 @@ use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
-use App\Models\ShelterProduct;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Storage;
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
@@ -95,6 +94,20 @@ Route::get('/new/{news}', [NewsController::class, 'show'])->middleware('check_au
 Route::get('/product-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublic']);
 Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
 Route::get('/export-disaster', [DisasterController::class, 'exp']);
+
+#region User Manual
+Route::get('/download-user-doc/{type}', function ($type) {
+    if ($type == 'user') {
+        $path = 'guides/user';
+        $file_name = '[Gentech] คู่มือใช้งาน ระบบภัยพิบัติ - เจ้าหน้าที่.pdf';
+    } else {
+        $path = 'guides/population';
+        $file_name = '[Gentech] คู่มือใช้งาน ระบบภัยพิบัติ - ประชาชน.pdf';
+    }
+    if (!Storage::exists($path)) abort(404);
+    return Storage::download($path, $file_name);
+});
+#endregion
 
 Route::middleware('auth:api')->group(function () {
 
@@ -444,4 +457,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
+    Route::get('/assessment-logs/{id}', [AssessmentController::class, 'logs']);
 });

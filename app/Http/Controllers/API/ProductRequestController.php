@@ -52,15 +52,24 @@ class ProductRequestController extends Controller
         $q = ProductRequest::select(
             'product_requests.product_id',
             DB::raw('SUM(product_requests.quantity) as total_quantity'),
-            DB::raw('SUM(product_requests.request) as total_request'),
-            //  DB::raw('SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) as total_request'),
+            // DB::raw('SUM(product_requests.request) as total_request'),
+
+            //  DB::raw('IF != 0 SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) as total_request'),
+            DB::raw('IF(SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) != 0, 
+            SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END), 
+            "ไม่จำกัด") as total_request'),
             DB::raw('MAX(product_requests.updated_at) as updated_at'),
             DB::raw('MAX(product_requests.id) as id'),
-            DB::raw('(SUM(product_requests.request) - SUM(product_requests.quantity)) as needed'),
-            //         DB::raw('(
-            //     SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) 
+            // DB::raw('(SUM(product_requests.request) - SUM(product_requests.quantity)) as needed'),
+
+            // DB::raw('(SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) 
             //     - SUM(product_requests.quantity)
             // ) as needed'),
+            DB::raw('IF(
+                (SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - SUM(product_requests.quantity)) != 0,
+                (SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - SUM(product_requests.quantity)),
+                "ไม่จำกัด"
+            ) as needed'),
             'products.name as name',
             'products.unit_id',
             'products.category_id',
@@ -70,6 +79,7 @@ class ProductRequestController extends Controller
             ->leftJoin('products', 'products.id', 'product_requests.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->leftJoin('categories', 'categories.id', 'products.category_id')
+            ->where('product_requests.status', ProductRequest::ACTIVE)
             ->with('product.image')
             ->groupBy('product_requests.product_id')
             ->when(
@@ -86,7 +96,7 @@ class ProductRequestController extends Controller
             )->when(
                 $f['sort'],
                 fn($q) =>
-                $q->orderByRaw('MAX(product_requests.updated_at) ' . ($f['sort'] == 'asc' ? 'asc' : 'desc'))
+                $q->orderBy('updated_at', $f['sort'] === 'asc' ? 'asc' : 'desc')
             )->when(
                 $f['search'],
                 fn($q) =>
@@ -116,6 +126,7 @@ class ProductRequestController extends Controller
             'shelters.phone',
             DB::raw('(product_requests.request - product_requests.quantity) as needed'),
         )
+            ->where('product_requests.status', ProductRequest::ACTIVE)
             ->where('product_id', $RequsetId)
             ->when(
                 $f['search'],

@@ -28,8 +28,8 @@ class PopulationResource extends JsonResource
             'birth_date' => Carbon::parse($this->birth_date)->format('Y-m-d'),
             'age' => (int) $this->birth_date->diffInYears(now()),
             'phone' => $this->phone,
-            'full_p_address_th' => AddressUtility::getFullAddressTH($this->p_address, $this->permanentAddress),
-            'full_p_address_en' => AddressUtility::getFullAddressEN($this->p_address, $this->permanentAddress),
+            'full_p_address_th' => AddressUtility::getFullAddressTH($this->p_address, $this->permanentAddress) ?? '-',
+            'full_p_address_en' => AddressUtility::getFullAddressEN($this->p_address, $this->permanentAddress) ?? '-',
             'p_address' => $this->p_address ?? '',
             'p_geography_id' => $this->permanentAddress ? $this->permanentAddress->id : null,
             'p_province_code' => $this->permanentAddress ? $this->permanentAddress->province_code : null,
@@ -57,6 +57,7 @@ class PopulationResource extends JsonResource
             'gender' => $this->gender,
             'status' => $this->status,
             'tracking' => $this->tracking,
+            'gis_map' => $this->gis_map,
             'image' => $this->image?->image_path,
             'has_shelter' => $this->shelter ? 1 : 0,
         ];

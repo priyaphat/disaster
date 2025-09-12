@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Population;
 
 use App\Enums\PopulationStatus;
+use App\Rules\CheckPopulationNameExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -35,13 +36,13 @@ class CreatePopulationRequest extends FormRequest
              * @var string
              * @example มา
              */
-            'first_name' => 'required|string|max:100',
+            'first_name' => ['required', 'string', 'max:100', new CheckPopulationNameExists($this->prefix_id, $this->first_name, $this->last_name, null)],
             /**
              * นามสกุล
              * @var string
              * @example รวย
              */
-            'last_name' => 'required|string|max:100',
+            'last_name' => ['required', 'string', 'max:100', new CheckPopulationNameExists($this->prefix_id, $this->first_name, $this->last_name, null)],
             /**
              * วันเกิด
              * @var datetime

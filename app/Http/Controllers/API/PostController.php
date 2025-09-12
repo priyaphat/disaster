@@ -43,6 +43,15 @@ class PostController extends Controller
     {
         $this->authorize('create', EmergencyPost::class);
         $request['status'] = 1; //set default
+        //repetitive updated
+        $q = EmergencyPost::where('disaster_id', $request->disaster_id)
+            ->where('status', EmergencyPost::active)
+            ->where('level', $request->level)
+            ->where('district_code', $request->district_code)
+            ->first();
+        if ($q) return self::update($request, $q);
+        //end
+
         $post = $this->emergencyPostService->create($request->all());
         return ApiResponse::successResponse(__('success.post.created'), $post);
     }
@@ -53,6 +62,16 @@ class PostController extends Controller
     public function update(EmergencyPostRequest $request, EmergencyPost $post)
     {
         $this->authorize('update', EmergencyPost::class);
+        //repetitive to stop
+        $q = EmergencyPost::where('disaster_id', $request->disaster_id)
+            ->where('status', EmergencyPost::active)
+            ->where('level', $request->level)
+            ->where('id', '!=', $post->id)
+            ->where('district_code', $request->district_code)
+            ->first();
+        if ($q) $request['status'] = EmergencyPost::inactive;
+        //end
+
         $post = $this->emergencyPostService->update($post, $request->all());
         if ($post['status'] == EmergencyPost::inactive) return ApiResponse::successResponse(__('success.post.deleted'), $post);
         return ApiResponse::successResponse(__('success.post.updated'), $post);

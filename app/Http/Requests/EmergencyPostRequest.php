@@ -28,18 +28,17 @@ class EmergencyPostRequest extends FormRequest
             'disaster_id' => [
                 'required',
                 'exists:disasters,id',
-                function ($attribute, $value, $fail) {
-                    $exists = EmergencyPost::where('disaster_id', $value)
-                        ->where('status', EmergencyPost::active)
-                        ->exists();
+                // function ($attribute, $value, $fail) {
+                //     $exists = EmergencyPost::where('disaster_id', $value)
+                //         ->where('status', EmergencyPost::active)
+                //         ->exists();
 
-                    if ($exists) {
-                        $fail(__('error.post.repetitive'));
-                    }
-                },
+                //     if ($exists) {
+                //         $fail(__('error.post.repetitive'));
+                //     }
+                // },
             ],
-            'area' => 'required|array',
-            'area.*.district_id' => 'required|exists:geography,district_code',
+            'district_code' => 'required',
             'level' => 'required|in:1,2,3,4,5',
             'province_id' => 'required|exists:geography,province_code',
             'gis_map' => 'nullable|string',
@@ -54,19 +53,18 @@ class EmergencyPostRequest extends FormRequest
             'disaster_id' => [
                 'required',
                 'exists:disasters,id',
-                function ($attribute, $value, $fail) {
-                    $exists = EmergencyPost::where('disaster_id', $value)
-                        ->where('status', EmergencyPost::active)
-                        ->where('id', '!=', $this->route('post')->id)
-                        ->exists();
+                // function ($attribute, $value, $fail) {
+                //     $exists = EmergencyPost::where('disaster_id', $value)
+                //         ->where('status', EmergencyPost::active)
+                //         ->where('id', '!=', $this->route('post')->id)
+                //         ->exists();
 
-                    if ($exists) {
-                        $fail(__('error.post.repetitive'));
-                    }
-                },
+                //     if ($exists) {
+                //         $fail(__('error.post.repetitive'));
+                //     }
+                // },
             ],
-            'area' => 'required|array',
-            'area.*.district_id' => 'required|exists:geography,district_code',
+            'district_code' => 'required',
             'level' => 'required|in:1,2,3,4,5',
             'province_id' => 'required|exists:geography,province_code',
             'gis_map' => 'nullable|string',

@@ -182,6 +182,8 @@ return [
         'type' => 'ประเภทเจ้าหน้าที่',
         'department_id' => 'สังกัดภาคส่วน',
         'district_id' => 'พื้นที่ ที่สังกัด',
+        'province_id' => 'จังหวัด',
+        'subdistrict_id' => 'ตำบล ที่สังกัด',
         'position_id' => 'ตำแหน่งงาน',
         'user_id' => 'ผู้ใช้งาน',
         'team_id' => 'ทีมที่สังกัด',
@@ -193,7 +195,23 @@ return [
         'subdistrict_code' => 'ตำบล',
         'address' => 'ที่อยู่',
         'utilities' => 'สาธารณูปโภคประจำศูนย์',
-        'max_capacity' => 'ระบุความจุ'
+        'max_capacity' => 'ระบุความจุ',
+
+        //disaster
+        'latitude' => 'ละติจูด',
+        'longitude' => 'ลองติจูด',
+        'depth' => 'ความลึก',
+        'magnitude' => 'แรงสั่น',
+        'occurrence_time' => 'เวลา เหตุการณ์',
+        'line_oa' => 'ไลน์ OA',
+
+        'water_source' => 'แหล่งน้ำ',
+        'water_source_type' => 'ประเภทแหล่งน้ำ',
+        'status' => 'สถานะ',
+        'water_value' => 'ระดับน้ำ',
+
+        "source" => 'แหล่งที่มา',
+        "smog_value" => 'ค่าหมอก',
     ],
 
 ];

@@ -27,6 +27,7 @@ class Assessments extends Model
         'district_id',
         'datetime',
         'team_id',
+        'team_name',
         'count',
         'status',
     ];

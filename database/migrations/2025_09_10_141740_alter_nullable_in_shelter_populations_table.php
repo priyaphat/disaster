@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ref_areas', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('post_id')->constrained('emergency_posts')->onDelete('cascade');
-            $table->unsignedInteger('district_id');
+        Schema::table('shelter_populations', function (Blueprint $table) {
+            //
+            $table->unsignedBigInteger('created_by')->nullable()->change();
+            $table->unsignedBigInteger('updated_by')->nullable()->change();
         });
     }
 
@@ -23,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ref_areas');   
+        Schema::table('shelter_populations', function (Blueprint $table) {
+            //
+        });
     }
 };
