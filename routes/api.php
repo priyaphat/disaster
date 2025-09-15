@@ -35,8 +35,6 @@ use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
-use App\Models\User;
-use App\Notifications\ProductNotification;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -62,10 +60,6 @@ Route::get('/population-line', function () {
 Route::post('/line-login', [LoginController::class, 'line']);
 Route::post('/line-login-population', [LoginController::class, 'line_population_match']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
-Route::get('/line-test', function(){
-    $user = User::find(1);
-    $user->notify(new ProductNotification());
-}); //test
 
 Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);
