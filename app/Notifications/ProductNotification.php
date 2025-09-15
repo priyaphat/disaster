@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -34,8 +35,12 @@ class ProductNotification extends Notification implements ShouldQueue
         ];
     }
 
-    public function broadcastAs(): string
+    // public function broadcastAs(): string
+    // {
+    //     return 'page.refresh';
+    // }
+    public function broadcastOn()
     {
-        return 'page.refresh';
+        return new Channel('Product');
     }
 }
