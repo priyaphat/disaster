@@ -84,6 +84,18 @@ class UpdateShelterRequest extends FormRequest
              * @example 200
              */
             'max_capacity' => 'string',
+            /**
+             * ละติจูด
+             * @var string
+             * @example 19.997184
+             */
+            'latitude' => 'regex:/^-?[0-9]+(\.[0-9]+)?$/',
+            /**
+             * ละติจูด
+             * @var string
+             * @example 99.863721
+             */
+            'longitude' => 'regex:/^-?[0-9]+(\.[0-9]+)?$/'
         ];
     }
 }

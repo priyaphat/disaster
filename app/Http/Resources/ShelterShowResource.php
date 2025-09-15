@@ -42,6 +42,7 @@ class ShelterShowResource extends JsonResource
                 ])->toArray()
                 : [],
             'image' =>  $this->when($this->image, $this->image?->image_path),
+            'gis_map' => $this->gis_map ?? null,
         ];
     }
 }

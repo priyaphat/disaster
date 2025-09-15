@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Filters\ShelterFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\URL;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -38,6 +40,14 @@ class Shelter extends Model
         'status' => 'integer',
         'utilities' => 'array',
     ];
+
+
+    protected function gisMap(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => $attributes['latitude'] && $attributes['longitude'] ? env('GIS_SHELTER_URL') .'?'. http_build_query(['name' => $attributes['name'], 'lat' => $attributes['latitude'], 'lon' => $attributes['longitude']]) : null,
+        );
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

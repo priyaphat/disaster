@@ -83,6 +83,9 @@ class TeamController extends Controller
     public function checkUpcoming(Team $team)
     {
         //
+        if($team->inProgressEmergencyRequests()->exists()){
+           return ApiResponse::errorResponse(__('error.team.in_progress'));
+        }
         return ApiResponse::successResponse(__('error.team.appointment_warning'));
     }
 }
