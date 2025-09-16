@@ -11,6 +11,7 @@ use App\Listeners\SendWelcomeEmail;
 use App\Listeners\UserEventSubscriber;
 use App\Models\Appointment;
 use App\Models\AppointmentLog;
+use App\Models\Assessments;
 use App\Models\Category;
 use App\Models\Config;
 use App\Models\Department;
@@ -44,6 +45,7 @@ use App\Observers\TeamMemberObserver;
 use App\Observers\TeamObserver;
 use App\Policies\AppointmenLogPolicy;
 use App\Policies\AppointmentPolicy;
+use App\Policies\AssessmentPolicy;
 use App\Policies\CategoryPolicy;
 use App\Policies\ConfigPolicy;
 use App\Policies\DepartmentPolicy;
@@ -148,6 +150,8 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(EmergencyPost::class, EmergencyPostPolicy::class);
         Gate::policy(EmergencyRequest::class, EmergencyRequestPolicy::class);
+
+        Gate::policy(Assessments::class, AssessmentPolicy::class);
 
         // API Document
         Scramble::configure()

@@ -11,16 +11,6 @@ class EmergencyPostPolicy
         return $user->hasRole('admin');
     }
 
-    public function view(User $user): bool
-    {
-        return true;
-    }
-
-    public function viewAny(User $user): bool
-    {
-        return true;
-    }
-
     public function create(User $user): bool
     {
         return $this->isAdmin($user);

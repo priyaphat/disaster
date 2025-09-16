@@ -18,12 +18,12 @@ class DepartmentPolicy
 
     public function view(User $user): bool
     {
-        return $this->hasAllowedRole($user);
+        return true
     }
 
     public function viewAny(User $user): bool
     {
-        return $this->hasAllowedRole($user);
+        return true;
     }
 
     public function create(User $user): bool

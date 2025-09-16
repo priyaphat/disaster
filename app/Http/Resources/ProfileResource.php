@@ -44,6 +44,7 @@ class ProfileResource extends JsonResource
             'shelter_name' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelter?->name),
             'shelter_position_id' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelterPosition?->id),
             'shelter_position_name' =>  $this->when($this->relationLoaded('staff'), $this->staff?->shelterPosition?->name),
+            'role' =>  $this->role,
         ];
     }
 }

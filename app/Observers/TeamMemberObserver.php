@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Enums\ActionType;
 use App\Http\Controllers\API\LineController;
 use App\Http\Utility\LinePostUtility;
+use App\Models\Role;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
@@ -36,7 +37,7 @@ class TeamMemberObserver
         $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
 
         // Add leader or member role to user
-        $teamMember->user->assignRole($teamMember->team_position == 1 ? 'team_leader' : 'team_member');
+        $teamMember->user->assignRole($teamMember->team_position == 1 ? Role::TEAM_LEADER : Role::TEAM_MEMBER);
     }
 
     /**

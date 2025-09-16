@@ -14,7 +14,6 @@ use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -61,7 +60,6 @@ class UserController extends Controller
     {
         //
         $this->authorize('create', User::class);
-
         $data = $this->userService->create($request->all());
         return ApiResponse::createdResponse(__('success.user.created'), new UserResource($data));
     }
@@ -95,8 +93,10 @@ class UserController extends Controller
     public function profile()
     {
         //
+
         $user = Auth::user();
         $data = $user->load(['prefix', 'department', 'position', 'area', 'approval', 'member', 'image']);
+        $data->role = $user->getRoleNames()->first();
         return ApiResponse::successResponse(__('success.data'), new ProfileResource($data));
     }
 
@@ -141,9 +141,7 @@ class UserController extends Controller
     {
         //
         $this->authorize('approve', User::class);
-        
         $message = $this->userService->approve($request->all());
         return ApiResponse::successResponse($message);
     }
-
 }

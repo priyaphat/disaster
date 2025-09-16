@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Image;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -12,11 +13,22 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->count(20)->create()->each(function ($user) {
+        User::factory()->count(14)->create()->each(function ($user) {
             $user->approval()->create([
                 'is_approved' => 1,
                 'approved_by' => $user->id,
                 'approved_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $user->image()->create([
+                'original_name' => 'default.png',
+                'image_name' => 'default.png',
+                'image_url' => 'image/users/default.png',
+                'image_type' => Image::PRIVATE,
+                'parentable_type' => User::class,
+                'parentable_id' => $user->id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

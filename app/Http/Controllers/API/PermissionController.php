@@ -17,11 +17,12 @@ class PermissionController extends Controller
         $this->permissionService = $permissionService;
     }
 
-    public function create(PermissionRequest $request)
+    public function store(PermissionRequest $request)
     {
         $data = $this->permissionService->create($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
+
     // public function createPermission(Request $request)
     // {
     //     $role = $this->permissionService->createPermission($request->all());
@@ -34,11 +35,11 @@ class PermissionController extends Controller
     //     return ApiResponse::successResponse('Success', ['roles' => $roles]);
     // }
 
-    // public function showRoles()
-    // {
-    //     $roles = $this->permissionService->getRoles();
-    //     return ApiResponse::successResponse('Success', ['roles' => $roles]);
-    // }
+    public function show()
+    {
+        $roles = $this->permissionService->getRoles();
+        return ApiResponse::successResponse('Success', ['data' => $roles]);
+    }
 
     // public function showPermissions()
     // {

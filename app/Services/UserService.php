@@ -39,10 +39,10 @@ class UserService
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
         $filters['approve'] = isset($filters['approve']) ? $filters['approve'] : 'success';
-        if (isset($filters['available'])) {
-            $filters['available_staff'] = true;
-            $filters['available_member'] = true;
-        }
+        // if (isset($filters['available'])) {
+        //     $filters['available_staff'] = true;
+        //     $filters['available_member'] = true;
+        // }
 
         if (!$paginate) {
             return new UserCollection($this->baseQuery($filters)->latest()->get());
@@ -56,13 +56,13 @@ class UserService
     public function selectableUsers(array $filters = [])
     {
         $filters['approve'] = 'success';
-        $filters['available_staff'] = true;
-        $filters['available_member'] = true;
+        $filters['available'] = true;
+        // $filters['available_member'] = true;
 
         // Team log
         if (isset($filters['appointment_history']) && $filters['appointment_history']) {
-            unset($filters['available_staff']);
-            unset($filters['available_member']);
+            unset($filters['available']);
+            // unset($filters['available_member']);
         }
         
         $query = $this->baseQuery($filters);

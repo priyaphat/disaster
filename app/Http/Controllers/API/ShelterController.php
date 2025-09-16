@@ -36,8 +36,6 @@ class ShelterController extends Controller
     #[QueryParameter('district_code', description: 'ค้นหาตามอำเภอ', type: 'string', example: "5701")]
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Shelter::class);
-
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->shelterService->getList($request->all(), $paginate, $perPage);
@@ -49,7 +47,7 @@ class ShelterController extends Controller
      */
     public function store(CreateShelterRequest $request)
     {
-        $this->authorize('viewAny', Shelter::class);
+        $this->authorize('create', Shelter::class);
 
         $data = $this->shelterService->create($request->all());
         (new LineController)->LineNotification($data->toArray(), LineController::Shelter_post);
@@ -91,8 +89,6 @@ class ShelterController extends Controller
     #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
     public function show(Request $request, Shelter $shelter)
     {
-        $this->authorize('view', $shelter);
-
         $data = $this->shelterService->show($shelter, $request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }

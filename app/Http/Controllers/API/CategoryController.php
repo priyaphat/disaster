@@ -26,7 +26,6 @@ class CategoryController extends Controller
 
     public function index(Request $filter)
     {
-        $this->authorize('viewAny', Category::class);
         $data = $this->categoryService->index($filter);
         return ApiResponse::successResponse(__('success.data'), $data);
     }

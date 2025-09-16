@@ -46,6 +46,16 @@ class UserPolicy
         return $user->hasRole('admin');
     }
 
+    public function assignRole(User $user): bool
+    {
+        return $user->hasRole('admin');
+    }
+
+    public function deleteRole(User $user): bool
+    {
+        return $user->hasRole('admin');
+    }
+
     // public function view(User $user): bool
     // {
     //     return $user->hasPermissionTo('view-users');

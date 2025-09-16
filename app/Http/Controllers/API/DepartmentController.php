@@ -26,8 +26,6 @@ class DepartmentController extends Controller
     public function index(FilterDepartmentRequest $request)
     {
         //
-        $this->authorize('viewAny', Department::class);
-
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->departmentService->getList($request->all(), $paginate, $perPage);
@@ -41,7 +39,6 @@ class DepartmentController extends Controller
     {
         //
         $this->authorize('create', Department::class);
-
         $data = $this->departmentService->create($request->all());
         return ApiResponse::successResponse(__('success.created'), $data);
     }
@@ -52,7 +49,6 @@ class DepartmentController extends Controller
     public function show(Department $department)
     {
         $this->authorize('view', Department::class);
-
         return ApiResponse::successResponse(__('success.data'), $department);
     }
 

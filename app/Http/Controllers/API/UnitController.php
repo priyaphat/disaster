@@ -25,7 +25,6 @@ class UnitController extends Controller
 
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Unit::class);
         $data = $this->unitService->index($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }

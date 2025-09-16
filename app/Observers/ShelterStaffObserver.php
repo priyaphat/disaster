@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\ActionType;
+use App\Models\Role;
 use App\Models\Shelter;
 use App\Models\ShelterPosition;
 use App\Models\ShelterStaff;
@@ -39,7 +40,7 @@ class ShelterStaffObserver
         }
 
         // Add staff role to user
-        $shelterStaff->user->assignRole('staff');
+        $shelterStaff->user->assignRole(Role::STAFF);
     }
 
     /**

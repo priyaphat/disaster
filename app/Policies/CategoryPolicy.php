@@ -11,11 +11,6 @@ class CategoryPolicy
         return $user->hasAnyRole(['admin', 'staff']);
     }
 
-    public function viewAny(User $user): bool
-    {
-        return $user->hasAnyRole(['admin', 'staff']);
-    }
-
     public function create(User $user): bool
     {
         return $user->hasRole('admin');

@@ -12,20 +12,6 @@ class ShelterPolicy
         return $user->hasRole('admin');
     }
 
-    public function view(User $user, Shelter $shelter): bool
-    {
-        if ($shelter->status == Shelter::OPEN) {
-            return true;
-        }
-        return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
-    }
-
-    public function viewAny(User $user): bool
-    {
-        return true;
-        // return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
-    }
-
     public function create(User $user): bool
     {
         return $this->isAdmin($user);

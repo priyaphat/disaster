@@ -30,7 +30,6 @@ class NewsController extends Controller
      */
     public function index(FilterNewsRequest $request)
     {
-        $this->authorize('viewAny', News::class);
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $shelter = $request->has('shelter_id');
@@ -53,7 +52,6 @@ class NewsController extends Controller
      */
     public function show(News $news)
     {
-        $this->authorize('view', $news);
         $news->load(['creator', 'editor', 'image']);
         return ApiResponse::successResponse(__('success.data'), new NewsResource($news));
     }

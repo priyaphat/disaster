@@ -21,10 +21,10 @@ class PrefixPolicy
         return $this->hasAllowedRole($user);
     }
 
-    public function viewAny(User $user): bool
-    {
-        return $this->hasAllowedRole($user);
-    }
+    // public function viewAny(User $user): bool
+    // {
+    //     return $this->hasAllowedRole($user);
+    // }
 
     public function create(User $user): bool
     {

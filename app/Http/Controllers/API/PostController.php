@@ -21,7 +21,6 @@ class PostController extends Controller
      */
     public function index(EmergencyPost $post)
     {
-        $this->authorize('viewAny', EmergencyPost::class);
         $posts = $this->emergencyPostService->index($post);
         return ApiResponse::successResponse(__('success.data'), $posts);
     }
@@ -31,7 +30,6 @@ class PostController extends Controller
      */
     public function show(Request $post)
     {
-        $this->authorize('view', EmergencyPost::class);
         $posts = $this->emergencyPostService->show($post);
         return ApiResponse::successResponse(__('success.data'), $posts);
     }

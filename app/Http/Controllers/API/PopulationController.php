@@ -5,8 +5,6 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Population\CheckPopulationRequest;
 use App\Http\Requests\Population\CreatePopulationRequest;
-use App\Http\Requests\Population\ExitAllPopulationRequest;
-use App\Http\Requests\Population\TransferPopulationRequest;
 use App\Http\Requests\Population\UpdatePopulationRequest;
 use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
@@ -14,7 +12,6 @@ use App\Models\AssessmentLogs;
 use App\Models\Assessments;
 use App\Models\Image;
 use App\Models\Population;
-use App\Models\Shelter;
 use App\Models\ShelterPopulation;
 use App\Models\TransferHistory;
 use App\Services\ImageService;
@@ -132,14 +129,16 @@ class PopulationController extends Controller
         //
         $population->shelterPopulation->delete();
         $population->image->delete();
+        $population->assessments->log->delete();
         $population->assessments->delete();
+        $population->histories->delete();
 
-        AssessmentLogs::truncate();
-        Assessments::truncate();
-        ShelterPopulation::truncate();
-        Population::truncate();
-        Image::where('parentable_type', Population::class)->delete();
-        TransferHistory::where('parentable_type', Population::class)->delete();
+        // AssessmentLogs::truncate();
+        // Assessments::truncate();
+        // ShelterPopulation::truncate();
+        // Population::truncate();
+        // Image::where('parentable_type', Population::class)->delete();
+        // TransferHistory::where('parentable_type', Population::class)->delete();
         return ApiResponse::successResponse(__('success.population.deleted'));
     }
 

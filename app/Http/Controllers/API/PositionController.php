@@ -26,7 +26,6 @@ class PositionController extends Controller
     public function index(FilterPositionRequest $request)
     {
         //
-        $this->authorize('viewAny', Position::class);
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->positionService->getList($request->all(), $paginate, $perPage);

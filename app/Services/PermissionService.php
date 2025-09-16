@@ -7,13 +7,15 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionService
 {
-    public function create(array $data): Role
+    public function create(array $data)
     {
-        $allRoles = ['name' => Role::ADMIN, 'name' => Role::STAFF, 'name' => Role::TEAM_LEADER, 'name' => Role::TEAM_MEMBER];
-        $role = Role::insert([$allRoles]);
-        return $role;
+        $roles = [];
+        $roles[] = Role::create(['name' => Role::ADMIN]);
+        $roles[] = Role::create(['name' => Role::STAFF]);
+        $roles[] = Role::create(['name' => Role::TEAM_LEADER]);
+        $roles[] = Role::create(['name' => Role::TEAM_MEMBER]);
+        return $roles;
     }
-
     // public function createPermission(array $data)
     // {
     //     $permissionList = [

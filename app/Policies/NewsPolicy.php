@@ -7,27 +7,6 @@ use App\Models\User;
 
 class NewsPolicy
 {
-
-    public function view(User $user, News $news): bool
-    {
-        $shelterId = $news->shelter_id;
-        if ($shelterId && $user->hasRole('staff')) {
-            return $user->staff?->shelter_id == $news->shelter_id;
-        }
-
-        return $user->hasAnyRole(['admin', 'team_leader', 'team_member']);
-    }
-
-    public function viewAny(User $user): bool
-    {
-        $shelterId = request()->get('shelter_id');
-        if ($shelterId && $user->hasRole('staff')) {
-            return $user->staff?->shelter_id == $shelterId;
-        }
-
-        return $user->hasAnyRole(['admin', 'team_leader', 'team_member']);
-    }
-
     public function create(User $user): bool
     {
         $shelterId = request()->get('shelter_id');

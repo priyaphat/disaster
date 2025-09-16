@@ -25,7 +25,6 @@ class PrefixController extends Controller
     public function index()
     {
         //
-        $this->authorize('viewAny', Prefix::class);
         $data = $this->prefixService->getList([]);
         return ApiResponse::successResponse(__('success.data'), $data);
     }

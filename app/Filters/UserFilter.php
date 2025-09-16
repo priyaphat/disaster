@@ -6,6 +6,7 @@ use App\Enums\ApprovalStatus;
 use App\Enums\RegistrationType;
 use App\Enums\UserStatus;
 use App\Http\Utility\ConvertUtility;
+use App\Models\Role;
 use Illuminate\Support\Str;
 
 class UserFilter extends QueryFilter
@@ -83,13 +84,21 @@ class UserFilter extends QueryFilter
         return $this->builder->where('status', $status);
     }
 
-    public function available_staff()
+    public function available()
     {
-        return $this->builder->doesntHave('staff');
+        // Doesn't show admin role.
+        return $this->builder->whereDoesntHave('roles')->whereDoesntHave('roles', function ($query) {
+            $query->where('name', Role::ADMIN);
+        });
     }
 
-    public function available_member()
-    {
-        return $this->builder->doesntHave('member');
-    }
+    // public function available_staff()
+    // {
+    //     return $this->builder->doesntHave('staff');
+    // }
+
+    // public function available_member()
+    // {
+    //     return $this->builder->doesntHave('member');
+    // }
 }

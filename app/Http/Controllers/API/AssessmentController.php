@@ -11,12 +11,17 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\AssessmentSummaryExport;
 use App\Models\AssessmentLogs;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AssessmentController extends Controller
 {
+    use AuthorizesRequests;
+    
     public function store(Request $request)
     {
+        $this->authorize('create', Assessments::class);
+
         $request->validate([
             'datetime' => 'required',
             'population_id' => 'required|exists:populations,id',
@@ -36,6 +41,8 @@ class AssessmentController extends Controller
 
     public function index(Request $r, $id = null, $methed = null)
     {
+        $this->authorize('viewAny', Assessments::class);
+
         $q = Assessments::query()
             ->select(
                 'assessments.*',
@@ -102,12 +109,17 @@ class AssessmentController extends Controller
         if (!$assessment) {
             return ApiResponse::errorResponse(__('error.not_found'), 404);
         }
+
+        $this->authorize('delete', $assessment);
+        
         $assessment->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }
 
     public function update(Request $request, Assessments $assessment)
     {
+        $this->authorize('update', $assessment);
+
         $request->validate([
             'datetime' => 'required',
             'population_id' => 'required|exists:populations,id',
@@ -168,6 +180,8 @@ class AssessmentController extends Controller
 
     public function assessment_summary()
     {
+        $this->authorize('view', Assessments::class);
+
         $sub = Assessments::select('population_id', DB::raw('MAX(id) as latest_id'))
             ->where('type', Assessments::Assessment)
             ->groupBy('population_id');
