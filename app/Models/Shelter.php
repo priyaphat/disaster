@@ -19,6 +19,8 @@ class Shelter extends Model
     public const OPEN = 1;
     public const CLOSED = 2;
 
+    protected $appends = ['gis_map'];
+
     protected $fillable = [
         'name',
         'phone',
@@ -31,7 +33,6 @@ class Shelter extends Model
         'subdistrict_code',
         'address',
         'max_capacity',
-        'gis_map',
         'latitude',
         'longitude',
     ];
@@ -45,7 +46,7 @@ class Shelter extends Model
     protected function gisMap(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value, array $attributes) => $attributes['latitude'] && $attributes['longitude'] ? env('GIS_SHELTER_URL') .'?'. http_build_query(['name' => $attributes['name'], 'lat' => $attributes['latitude'], 'lon' => $attributes['longitude']]) : null,
+            get: fn(mixed $value, array $attributes) => env('GIS_SHELTER_URL') . '?' . http_build_query(['name' => $attributes['name']]),
         );
     }
 

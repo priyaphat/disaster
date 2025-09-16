@@ -34,6 +34,8 @@ class Population extends Model
     public const old_not_has_shelter = 2;
     public const old_has_shelter = 3;
 
+    protected $appends = ['gis_map'];
+
     protected $fillable = [
         // 'user_id',
         'prefix_id',
