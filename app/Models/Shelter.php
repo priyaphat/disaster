@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Filters\ShelterFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\URL;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -16,6 +18,8 @@ class Shelter extends Model
     public const IMAGE_FOLDER = 'shelter';
     public const OPEN = 1;
     public const CLOSED = 2;
+
+    protected $appends = ['gis_map'];
 
     protected $fillable = [
         'name',
@@ -29,7 +33,6 @@ class Shelter extends Model
         'subdistrict_code',
         'address',
         'max_capacity',
-        'gis_map',
         'latitude',
         'longitude',
     ];
@@ -38,6 +41,14 @@ class Shelter extends Model
         'status' => 'integer',
         'utilities' => 'array',
     ];
+
+
+    protected function gisMap(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => env('GIS_SHELTER_URL') . '?' . http_build_query(['name' => $attributes['name']]),
+        );
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

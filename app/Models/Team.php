@@ -137,6 +137,16 @@ class Team extends Model
         }
     }
 
+    public function emergencyRequests(): HasMany
+    {
+        return $this->hasMany(EmergencyRequest::class, 'emergency_team_id', 'id');
+    }
+
+    public function inProgressEmergencyRequests(): HasMany
+    {
+        return $this->hasMany(EmergencyRequest::class, 'emergency_team_id', 'id')->whereIn('status', [EmergencyRequest::approve, EmergencyRequest::helping]);
+    }
+
     public function upcomingAppointments(): HasMany
     {
         $now = Carbon::now()->format('Y-m-d H:i:s');

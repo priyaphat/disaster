@@ -83,6 +83,18 @@ class CreateShelterRequest extends FormRequest
              * @example 200
              */
             'max_capacity' => 'required|string',
+            //  /**
+            //  * ละติจูด
+            //  * @var string
+            //  * @example 19.997184
+            //  */
+            // 'latitude' => ['required', 'regex:/^-?[0-9]+(\.[0-9]+)?$/'],
+            // /**
+            //  * ละติจูด
+            //  * @var string
+            //  * @example 99.863721
+            //  */
+            // 'longitude' => ['required', 'regex:/^-?[0-9]+(\.[0-9]+)?$/']
         ];
     }
 }

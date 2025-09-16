@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -32,6 +33,8 @@ class Population extends Model
     public const new_population = 1;
     public const old_not_has_shelter = 2;
     public const old_has_shelter = 3;
+
+    protected $appends = ['gis_map'];
 
     protected $fillable = [
         // 'user_id',
@@ -67,7 +70,7 @@ class Population extends Model
     protected function gisMap(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value, array $attributes) => $attributes['sequence_id'] ? env('GIS_POPULATION_URL').'?id='.$attributes['sequence_id'] : null,
+            get: fn(mixed $value, array $attributes) => $attributes['sequence_id'] ? env('GIS_SHELTER_URL') .'?'. http_build_query(['id' => $attributes['sequence_id']]) : null,
         );
     }
 

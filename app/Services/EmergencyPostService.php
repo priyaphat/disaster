@@ -131,7 +131,7 @@ class EmergencyPostService
             $query = $query->whereBetween('emergency_post_logs.created_at', [$start, $end]);
         }
         if ($request->disaster_id) $query = $query->where('emergency_post_logs.disaster_id', $request->disaster_id);
-        if ($request->district) $query = $query->where('emergency_post_logs.district', $request->district);
+        if ($request->district_code) $query = $query->where('emergency_post_logs.district', $request->district_code);
         if ($request->action) $query = $query->where('emergency_post_logs.action', $request->action); //1,2,3 c,u,d
         if ($request->paginate) {
             return $query->paginate($request->paginate ?? 10);

@@ -50,7 +50,7 @@ class EmergencyRequestService
             fn($q) =>
             $q->where('id', $id)
         )
-            ->with('prefix', 'disaster', 'reason', 'geography')
+            ->with('prefix', 'disaster', 'reason', 'geography', 'team')
             ->get()
             ->map(function ($item) use ($prefix) {
                 $item->range_age = json_decode($item->range_age);
@@ -103,7 +103,7 @@ class EmergencyRequestService
             $items = $items->where('status', $emc->status);
         } else {
             if ($type == 'waiting') { // ถ้ามีทีม แสดงแค่ทีม ตัวเอง ถ้าไม่ใช่ จนท สก. รอ role
-                
+
                 $items = $items->whereIn('status', [
                     EmergencyRequest::approve,
                     EmergencyRequest::helping

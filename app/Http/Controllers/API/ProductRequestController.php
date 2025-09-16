@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\ProductLogs as EnumsProductLogs;
+use App\Events\ProductNotification;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest\CreateProductReqRequest;
 use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
@@ -147,6 +148,7 @@ class ProductRequestController extends Controller
 
         if (ProductUtility::getShelter() == ShelterProduct::Shelter_center) throw new BadRequestHttpException('ผู้ใช้งานดังกล่าว ยังไม่ได้สังกัดในศูนย์พักพิงใด');
         $data = $this->productRequestService->create($request->all());
+        ProductNotification::dispatch();
         return ApiResponse::successResponse(__('success.product_required.created'));
     }
 
@@ -164,6 +166,7 @@ class ProductRequestController extends Controller
             $this->productRequestService->log($productReq, $pdt, ProductLogs::STOP); //แต่ log ส่ง 3 
             return ApiResponse::successResponse(__('success.product_required.stop'), $productReq);
         }
+        ProductNotification::dispatch();
         return $this->productRequestService->update($request->all(), $productReq);
     }
 

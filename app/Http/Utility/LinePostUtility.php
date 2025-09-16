@@ -23,7 +23,7 @@ class LinePostUtility
         $data['line_oa'] = $data['line_oa'] ?? 0;
         if ($data['line_oa'] == 1) {
             if ($form == LineController::Disaster_post || $form == LineController::Disaster_end) {
-                $_data = [
+                $data = [
                     'type' => $data['disaster_name'],
                     'level' => $data['level'],
                     'areas' => $data['gis_map']
@@ -34,9 +34,9 @@ class LinePostUtility
                 LineController::Disaster_wildfire_m3,
                 LineController::Disaster_wildfire_m4
             ])) {
-                $_data = $data['model'];
+                $data = $data['model'];
             }
-            return (new LineController)->LineNotification($_data, $form);
+            // return (new LineController)->LineNotification($data, $form);
         }
     }
 

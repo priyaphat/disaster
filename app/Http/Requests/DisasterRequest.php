@@ -91,7 +91,7 @@ class DisasterRequest extends FormRequest
             'water_source_type' => 'required|string|max:255',
             'geography_id' => 'required',
             'status' => 'required|in:0,1,2,3,4,5',
-            'water_value' => 'required|integer',
+            'water_value' => 'required|decimal:1',
             'line_oa' => 'required|in:0,1',
             'province_id' => 'required',
             'district_id' => 'required',
@@ -106,7 +106,7 @@ class DisasterRequest extends FormRequest
             'water_source' => 'required|string|max:255',
             'water_source_type' => 'required|string|max:255',
             'status' => 'required|in:0,1,2,3,4,5',
-            'water_value' => 'required|integer',
+            'water_value' => 'required|decimal:1',
             'line_oa' => 'required|in:0,1',
         ];
     }

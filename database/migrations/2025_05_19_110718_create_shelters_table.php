@@ -28,7 +28,6 @@ return new class extends Migration
                 ->comment('วันก่อตั้ง');
             $table->json('utilities')
                 ->nullable()->comment('1 = น้ำประปา, 2 = ไฟฟ้า, 3 = บำบัดน้ำเสีย, 4 = สุขาภิบาล (ห้องน้ำ), 5 = การกำจัดขยะ, 6 = สัญญาณอินเทอร์เน็ต');
-            $table->text('gis_map')->nullable();
             $table->decimal('latitude', 10, 6)->nullable();
             $table->decimal('longitude', 10, 6)->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
