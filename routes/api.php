@@ -324,6 +324,7 @@ Route::middleware('auth:api')->group(function () {
     */
     // Route::post('/dst-earthquake/{earthquake}', [DisasterController::class, 'dst_eq_update']); //เก็บไว้
     Route::post('/dst-earthquake', [DisasterController::class, 'dst_eq_create']);
+    Route::delete('/dst-earthquake/{id}', [DisasterController::class, 'dst_eq_delete']);
     // Route::post('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_update']); //เก็บไว้ก่อน
     Route::post('/dst-flood', [DisasterController::class, 'dst_fl_create']);
     Route::delete('/dst-flood/{flood}', [DisasterController::class, 'dst_fl_delete']);

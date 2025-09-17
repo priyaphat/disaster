@@ -118,6 +118,12 @@ class DisasterController extends Controller
         return ApiResponse::successResponse(__('success.sys_updated'), $earthquake);
     }
 
+    public function dst_eq_delete(DisasterEarthquake $id)
+    {
+        $id->delete();
+        return ApiResponse::successResponse(__('success.deleted'));
+    }
+
     //flood - fl
 
     /**
