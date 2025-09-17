@@ -35,6 +35,7 @@ return [
     'date_equals' => ':attribute ต้องเป็นวันที่เท่ากับ :date',
     'date_format' => ':attribute ต้องตรงกับรูปแบบ :format',
     'different' => ':attribute และ :other ต้องแตกต่างกัน',
+    'decimal' => ':attribute ต้องมี ทศนิยม :decimal ตำแหน่ง',
     'digits' => ':attribute ต้องมี :digits หลัก',
     'digits_between' => ':attribute ต้องมีจำนวนหลักระหว่าง :min และ :max',
     'dimensions' => ':attribute มีขนาดรูปภาพที่ไม่ถูกต้อง',

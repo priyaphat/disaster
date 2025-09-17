@@ -122,10 +122,10 @@
     <form class="form" id="loginForm">
         <div class="wrapper">
             <div class="banner">
-                <img src="{{ asset(env('APP_URL')) }}./Logo/5.png" class="w-13" />
+                <img src="{{ asset(env('APP_URL')) }}./Logo/7.png" class="w-13" />
                 <div class="">
-                    <div class="">องค์การบริหารส่วนจังหวัดเชียงราย</div>
-                    <div class="">Chiangrai Provincial Administrative Organization</div>
+                    <div class="">ระบบภูมิสารสนเทศทางสาธารณสุข</div>
+                    <div class="">สำหรับศูนย์ปฏิบัติการภาวะฉุกเฉิน (จีโอเฮลท์ ศปฉ.)</div>
                 </div>
             </div>
             {{-- <small class="small" id="error_tag" style="color: red">error message here</small> --}}

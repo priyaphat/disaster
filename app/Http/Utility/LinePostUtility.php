@@ -36,7 +36,7 @@ class LinePostUtility
             ])) {
                 $data = $data['model'];
             }
-            // return (new LineController)->LineNotification($data, $form);
+            return (new LineController)->LineNotification($data, $form);
         }
     }
 
