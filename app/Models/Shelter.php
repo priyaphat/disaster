@@ -19,7 +19,7 @@ class Shelter extends Model
     public const OPEN = 1;
     public const CLOSED = 2;
 
-    protected $appends = ['gis_map'];
+    protected $appends = ['gis_map', 'google_maps'];
 
     protected $fillable = [
         'name',
@@ -47,6 +47,13 @@ class Shelter extends Model
     {
         return Attribute::make(
             get: fn(mixed $value, array $attributes) => env('GIS_SHELTER_URL') . '?' . http_build_query(['name' => $attributes['name']]),
+        );
+    }
+
+    protected function googleMaps(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => env('GOOGLE_MAPS_URL') . '/' . urlencode($attributes['name']),
         );
     }
 
