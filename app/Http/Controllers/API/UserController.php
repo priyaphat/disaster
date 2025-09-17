@@ -34,8 +34,7 @@ class UserController extends Controller
     public function index(FilterUserRequest $request)
     {
         // $request->user()->givePermissionTo('view-users');
-        $this->authorize('view', User::class);
-
+        $this->authorize('viewAny', User::class);
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->userService->getList($request->all(), $paginate, $perPage);
@@ -93,7 +92,6 @@ class UserController extends Controller
     public function profile()
     {
         //
-
         $user = Auth::user();
         $data = $user->load(['prefix', 'department', 'position', 'area', 'approval', 'member', 'image']);
         $data->role = $user->getRoleNames()->first();

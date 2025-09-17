@@ -46,8 +46,6 @@ class ProductController extends Controller
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Product::class);
-
         $products = $this->productService->getList($request->all());
         return ApiResponse::successResponse(__('success.data'), $products);
     }
@@ -70,8 +68,6 @@ class ProductController extends Controller
     #[PathParameter('product', description: 'ส่ง id ของ products', type: 'string', example: '3')]
     public function show($product, $val = false)
     {
-        $this->authorize('view', Product::class);
-
         $q = Product::select(
             'products.*',
             // 'shelter_products.quantity',

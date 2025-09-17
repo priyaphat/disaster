@@ -11,11 +11,6 @@ class ProductPolicy
         return $user->hasRole('admin');
     }
 
-    private function hasAllowedRole(User $user): bool
-    {
-        return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
-    }
-
     public function create(User $user): bool
     {
         return $this->isAdmin($user);
@@ -31,13 +26,4 @@ class ProductPolicy
         return $this->isAdmin($user);
     }
 
-    public function view(User $user): bool
-    {
-        return $this->hasAllowedRole($user);
-    }
-
-    public function viewAny(User $user): bool
-    {
-        return $this->hasAllowedRole($user);
-    }
 }

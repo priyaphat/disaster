@@ -7,13 +7,14 @@ use App\Http\Traits\CreatedUpdatedBy;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
 
 class News extends Model
 {
-    use CreatedUpdatedBy;
+    use CreatedUpdatedBy, HasFactory;
 
     public const IMAGE_FOLDER = 'news';
     protected $appends = ['thai_created_at'];

@@ -147,7 +147,6 @@ class PopulationController extends Controller
      */
     public function destroyAll()
     {
-        //
         AssessmentLogs::truncate();
         Assessments::truncate();
         ShelterPopulation::truncate();

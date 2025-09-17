@@ -14,7 +14,7 @@ class NewsPolicy
             return $user->staff?->shelter_id == $shelterId;
         }
 
-        return $user->hasAnyRole(['admin', 'team_leader', 'team_member']);
+        return $user->hasRole('admin');
     }
 
     public function update(User $user, News $news): bool
@@ -24,7 +24,7 @@ class NewsPolicy
             return $user->staff?->shelter_id == $shelterId;
         }
 
-        return $user->hasAnyRole(['admin', 'team_leader', 'team_member']);
+        return $user->hasRole('admin');
     }
 
     public function delete(User $user, News $news): bool
@@ -34,6 +34,6 @@ class NewsPolicy
             return $user->staff?->shelter_id == $shelterId;
         }
 
-        return $user->hasAnyRole(['admin', 'team_leader', 'team_member']);
+        return $user->hasRole('admin');
     }
 }

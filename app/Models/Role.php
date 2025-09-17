@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use Spatie\Permission\Models\Role as SpatieRole;
+use Spatie\Permission\Models\model_has_roles;
 
 class Role extends SpatieRole
 {
