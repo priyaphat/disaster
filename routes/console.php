@@ -14,3 +14,4 @@ Schedule::command('app:notification-task')->dailyAt('23:59');
 // Schedule::command('app:appointment-task')->timezone('Asia/Bangkok')->dailyAt('23:59');
 Schedule::command('app:smog-task')->dailyAt('12:00');
 Schedule::command('app:earthquake-task')->dailyAt('12:00');
+// Schedule::command('app:wildfire-task')->dailyAt('12:00');

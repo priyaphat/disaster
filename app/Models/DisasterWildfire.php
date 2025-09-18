@@ -23,12 +23,13 @@ class DisasterWildfire extends Model
     protected $fillable = [
         'type',
         'model',
+        'host'
     ];
 
-    public function getCreatedByAttribute($value)
-    {
-        // if ($value) { //ทำไม ตอน save ถึงทำงาน
-        return optional(User::selectRaw("concat(firstname, ' ', lastname) as fullname")->find($value))->fullname ?? null;
-        // }
-    }
+    // public function getCreatedByAttribute($value)
+    // {
+    //     // if ($value) { //ทำไม ตอน save ถึงทำงาน
+    //     return optional(User::selectRaw("concat(firstname, ' ', lastname) as fullname")->find($value))->fullname ?? null;
+    //     // }
+    // }
 }

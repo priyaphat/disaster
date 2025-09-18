@@ -157,6 +157,10 @@ class DisasterService
                     $query->where('water_source', 'like', "%{$req->search}%")
                         ->orWhere('water_source_type', 'like', "%{$req->search}%");
                 })
+            )->when(
+                $req->externalDataSource == 1,
+                fn($q) => $q->whereNull('created_by'),
+                fn($q) => $q->whereNotNull('created_by')
             )
             ->when(
                 $req->groupBy,
@@ -236,19 +240,29 @@ class DisasterService
         return Storage::download($path, $file_name);
     }
 
-    public function dst_wf_show()
+    public function dst_wf_show($request)
     {
-        $data['first_graph'] = self::get_wildfire(DisasterWildfire::MODELI);
-        $data['second_graph'] = self::get_wildfire(DisasterWildfire::MODELII);
-        $data['third_graph'] = self::get_wildfire(DisasterWildfire::MODELIII);
-        $data['fourth_graph'] = self::get_wildfire(DisasterWildfire::MODELIV);
+        $data['first_graph'] = self::get_wildfire($request, DisasterWildfire::MODELI);
+        $data['second_graph'] = self::get_wildfire($request, DisasterWildfire::MODELII);
+        // $data['third_graph'] = self::get_wildfire(DisasterWildfire::MODELIII);
+        // $data['fourth_graph'] = self::get_wildfire(DisasterWildfire::MODELIV);
 
         return $data;
     }
 
-    private function get_wildfire($type)
+    private function get_wildfire($req, $type)
     {
-        $data = DisasterWildfire::where('type', $type)->latest()->first();
+        $data = DisasterWildfire::where('disaster_wildfires.type', $type)
+            ->leftJoin('users', 'disaster_wildfires.created_by', 'users.id')
+            ->select('disaster_wildfires.*', DB::raw('concat(users.firstname," ",users.lastname) as created_name'));
+        if ($req->groupBy) {
+            $create = Config::where('type', Config::disaster)->value('description');
+            $create = $create['wildfire'];
+            if ($create) $data = $data->whereNotNull('created_by');
+            else $data = $data->whereNull('created_by');
+        }
+        $data = $data->latest()->first();
+
         if ($data) {
             $array = $data->toArray();
             unset($array['model']);
@@ -256,10 +270,10 @@ class DisasterService
                 $array = array_merge($array, $data->model);
             }
 
-            if ($type == 1) {
-                $array['model'] = [$array['modis'] ?? null, $array['viirs'] ?? null];
-                // unset($array['viirs'], $array['modis']);
-            }
+            // if ($type == 1) {
+            //     $array['model'] = [$array['modis'] ?? null, $array['viirs'] ?? null];
+            //     // unset($array['viirs'], $array['modis']);
+            // }
         }
         return $array ?? null;
     }
@@ -276,8 +290,8 @@ class DisasterService
 
         if ($model->type == 1) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m1, $data);
         else if ($model->type == 2) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m2, $data);
-        else if ($model->type == 3) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m3, $data);
-        else if ($model->type == 4) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m4, $data);
+        // else if ($model->type == 3) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m3, $data);
+        // else if ($model->type == 4) LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m4, $data);
 
         return $model;
     }

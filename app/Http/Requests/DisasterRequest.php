@@ -127,18 +127,14 @@ class DisasterRequest extends FormRequest
             'type' => 'required|integer|in:1,2,3,4',
             'line_oa' => 'required|boolean|in:0,1',
         ];
-        if ($type == 1) {
-            $rules['modis'] = 'required|numeric';
-            $rules['viirs'] = 'required|numeric';
-        }
         if ($type == 2) {
             $rules['model'] = 'required|array';
             $rules['model.*.district_id'] = 'required';
             $rules['model.*.district_name'] = 'required|string';
-            $rules['model.*.modis'] = 'required|numeric';
+            // $rules['model.*.modis'] = 'required|numeric';
             $rules['model.*.viirs'] = 'required|numeric';
         }
-        if (in_array($type, [3, 4])) {
+        if ($type == 1) { 
             $rules['model'] = 'required|array';
             $rules['model.*'] = 'required|numeric';
         }

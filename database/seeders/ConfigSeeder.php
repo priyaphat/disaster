@@ -103,7 +103,8 @@ class ConfigSeeder extends Seeder
             ['name' => 'แสดงภัยพิบัต', 'type' => 5, 'description' => [
                 "flood" => 0,
                 "smog" => 0,
-                "earthquake" => 0
+                "earthquake" => 0,
+                "wildfire" => 0
             ]]
         ];
 

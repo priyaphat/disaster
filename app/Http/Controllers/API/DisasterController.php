@@ -225,9 +225,9 @@ class DisasterController extends Controller
     /**
      * Disaster | ดึง wildfire
      */
-    public function dst_wf_show()
+    public function dst_wf_show(Request $request)
     {
-        $data = $this->disasterService->dst_wf_show();
+        $data = $this->disasterService->dst_wf_show($request);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
@@ -327,11 +327,6 @@ class DisasterController extends Controller
             $q = $this->disasterService->dst_wf_show(request(), null, 'get');
             for ($i = 0; $i <= 5; $i++) {
                 $row = [];
-                if ($i == '0') {
-                    $row[] = ($q['first_graph']['viirs'] ?? '') . ', ' . ($q['first_graph']['modis'] ?? '');
-                } else {
-                    $row[] = null;
-                }
                 if ($i <= 4) {
                     $row[] = ($q['second_graph']['model'][$i]['district_name'] ?? '') . ': ' . ($q['second_graph']['model'][$i]['viirs'] ?? '') . ', ' . ($q['second_graph']['model'][$i]['modis'] ?? '');
                 } else {
@@ -341,7 +336,7 @@ class DisasterController extends Controller
                 $row[] = ($q['fourth_graph']['labels'][$i] ?? '') . ': ' . ($q['third_graph']['model'][$i] ?? '');
                 $rows[] = $row;
             }
-            $columns = ['จุดความร้อน VIIRS,MODIS ', '5 อันดับ พื้นที่ที่มีจุดความร้อน VIIRS และ MODIS', 'จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน MODIS', 'จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน VIIRS'];
+            $columns = ['จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน VIIRS', '5 อันดับ พื้นที่ที่มีจุดความร้อน VIIRS (เชียงราย)'];
         } else if ($case == 'smog') {
             $q = $this->disasterService->dst_sm_show(request(), null, 'get');
             $rows = $q->map(function ($i) {

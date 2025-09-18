@@ -169,7 +169,7 @@ class ConfigController extends Controller
     }
 
     /**
-     * Config disaster ส่ง ตัวแปร disaster = smog/flood/earthquake
+     * Config disaster ส่ง ตัวแปร disaster = smog/flood/earthquake/wildfire
      */
     public function indexDisaster(Request $r)
     {
@@ -178,7 +178,7 @@ class ConfigController extends Controller
     }
 
     /**
-     * Config disaster update ส่งตัวแปร smog = 1 , 0 | flood = 0 , 1 
+     * Config disaster update ส่งตัวแปร smog = 1 , 0 | flood = 0 , 1 | earthquake = 0 ,1 | wildfire 0 1
      */
     public function storeDisaster(Request $r)
     {
