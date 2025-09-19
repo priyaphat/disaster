@@ -34,6 +34,11 @@ class Assessments extends Model
     ];
 
     
+    public function logs()
+    {
+        return $this->hasMany(AssessmentLogs::class, 'assessment_id', 'id');
+    }
+
     public function population()
     {
          return $this->belongsTo(Population::class, 'population_id', 'id');

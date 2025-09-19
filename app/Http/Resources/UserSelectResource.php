@@ -17,10 +17,10 @@ class UserSelectResource extends JsonResource
         return [
             'id' => $this->id,
             'prefix_id' => $this->prefix_id,
-            'prefix_name' => $this->when($this->relationLoaded('prefix'), $this->prefix?->name),
+            'prefix_name' => $this->when($this->relationLoaded('prefix'), fn() => $this->prefix?->name),
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
-            'fullname' => $this->when($this->relationLoaded('prefix'), $this->prefix?->name.' '.$this->firstname.' '.$this->lastname),
+            'fullname' => $this->when($this->relationLoaded('prefix'), fn() => $this->prefix?->name.' '.$this->firstname.' '.$this->lastname),
         ];
     }
 }

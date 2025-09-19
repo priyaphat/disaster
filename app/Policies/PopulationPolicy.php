@@ -3,44 +3,33 @@
 namespace App\Policies;
 
 use App\Models\Population;
+use App\Models\Role;
 use App\Models\User;
 
 class PopulationPolicy
 {
     public function view(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
     public function create(User $user): bool
     {
-        $shelterId = request()->get('shelter_id');
-        if ($user->hasRole('staff')) {
-            return $user->staff?->shelter_id == $shelterId;
-        }
-
-        return $user->hasRole('admin');
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
-    public function update(User $user, Population $population): bool
+    public function update(User $user): bool
     {
-        if ($user->hasRole('staff')) {
-            return $user->staff?->shelter_id == $population->shelterPopulation?->shelter_id;
-        }
-        return $user->hasRole('admin');
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
-    public function delete(User $user, Population $population): bool
+    public function delete(User $user): bool
     {
-        if ($user->hasRole('staff')) {
-            return $user->staff?->shelter_id == $population->shelterPopulation?->shelter_id;
-        }
-
-        return $user->hasRole('admin');
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 }

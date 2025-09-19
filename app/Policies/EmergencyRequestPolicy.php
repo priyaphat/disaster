@@ -2,37 +2,43 @@
 
 namespace App\Policies;
 
+use App\Models\EmergencyRequest;
+use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class EmergencyRequestPolicy
 {
-    public function isAdmin(User $user): bool
-    {
-        return $user->hasRole('admin');
-    }
-
     public function view(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'team_leader', 'team_memebr']);
+        return $user->hasAnyRole([Role::ADMIN, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'team_leader', 'team_memebr']);
+        return $user->hasAnyRole([Role::ADMIN, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
-    public function create(User $user): bool
+    public function update(User $user, EmergencyRequest $emergencyRequest): bool
     {
-        return $this->isAdmin($user);
-    }
+        if ($emergencyRequest['status'] === EmergencyRequest::waiting) {
+            return $user->hasRole(Role::ADMIN);
+        } else if ($emergencyRequest['status'] === EmergencyRequest::approve) {
+            return $user->hasRole(Role::ADMIN) || ($user->hasRole(Role::TEAM_LEADER) && $emergencyRequest->emergency_team_id === $user->member?->team_id); // เช็กด้วยว่าทีมตรงกันไหม
 
-    public function update(User $user): bool
-    {
-        return $this->isAdmin($user) || $user->hasRole('team_leader');
+        } else if ($emergencyRequest['status'] === EmergencyRequest::helping) {
+            return $user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER]) && $emergencyRequest->emergency_team_id === $user->member?->team_id; // เช้็กด้วยว่าทีมตรงกันไหม
+        }
+        return false;
     }
 
     public function delete(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
+    }
+
+    public function requestShelter(User $user): bool
+    {
+        return $user->hasAnyRole([Role::ADMIN, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 }

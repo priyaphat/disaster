@@ -23,15 +23,6 @@ class AppointmentLogController extends Controller
     }
 
     /**
-     * Disaster | ดึง Disaster by id 
-     */
-    public function show(AppointmentLog $log)
-    {
-        $this->authorize('viewAny', AppointmentLog::class);
-        return ApiResponse::successResponse(__('success.data'), $log);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function update(UpdateAppointmentLogRequest $request, AppointmentLog $log)

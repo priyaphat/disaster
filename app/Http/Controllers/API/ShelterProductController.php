@@ -48,7 +48,7 @@ class ShelterProductController extends Controller
     {
         $this->authorize('delete', ShelterProduct::class);
 
-        $q = app(ProductTransferController::class)->productList(new Request(), false, $shelter);
+        $q = app(ProductTransferController::class)->getProductList(new Request(), false, $shelter);
         if (count($q) > 0) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         $shelter = $shelter ?? ProductUtility::getShelter();
 

@@ -48,8 +48,12 @@ class ProductTransferController extends Controller
     public function productList(Request $filter, $unit_type = true, $shelter = null) //shelter from (all delete)
     {
         // แสดง ทรัพยากร ที่ shelter มี และสามารถ โอนได้
-        $this->authorize('isStaff', ShelterProduct::class);
+        $this->authorize('viewAny', ShelterProduct::class);
+        return $this->getProductList($filter, $unit_type, $shelter);
+    }
 
+    public function getProductList(Request $filter, $unit_type = true, $shelter = null) //shelter from (all delete)
+    {
         $shelter = $shelter ?? ProductUtility::getShelter();
         $q = ShelterProduct::select(
             'shelter_products.*',

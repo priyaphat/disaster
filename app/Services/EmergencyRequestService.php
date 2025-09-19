@@ -4,14 +4,12 @@ namespace App\Services;
 
 use App\Models\EmergencyRequest;
 use App\Enums\CancellationReason;
-use App\Http\Controllers\API\LineController;
-use App\Http\Responses\ApiResponse;
 use App\Models\EmergencyRequestLog;
 use App\Models\Prefix;
 use App\Http\Utility\PaginateUtility;
-use App\Models\Team;
+use App\Http\Utility\PermissionUtility;
+use App\Models\Role;
 use App\Models\TeamMember;
-use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 
@@ -82,7 +80,7 @@ class EmergencyRequestService
         waiting : waiting=1 , helping=4
         history : complete=5 , disapprove=3 , incomplete=6
         */
-
+        $role = PermissionUtility::getRoleName(Auth::user());
         $prefix = Prefix::all()->keyBy('id');
         $items = EmergencyRequest::with('prefix', 'disaster', 'reason', 'geography');
         if (($emc->search)) {
@@ -95,7 +93,6 @@ class EmergencyRequestService
             });
         }
 
-
         if ($emc->district_id) $items = $items->where('district_id', $emc->district_id);
         if ($emc->start_date && $emc->end_date) $items = $items->whereBetween('created_at', [$emc->start_date, $emc->end_date]);
         if ($emc->sort) $items = $items->sortBy('created_at', $emc->sort === 'asc' ? SORT_ASC : SORT_DESC); //asc or desc
@@ -103,12 +100,24 @@ class EmergencyRequestService
             $items = $items->where('status', $emc->status);
         } else {
             if ($type == 'waiting') { // ถ้ามีทีม แสดงแค่ทีม ตัวเอง ถ้าไม่ใช่ จนท สก. รอ role
+                $statusArr = [EmergencyRequest::helping];
+                 if ($role === Role::ADMIN) {
+                     $statusArr[] = EmergencyRequest::approve;
+                }
+                else if ($role === Role::TEAM_LEADER) {
+                    $items->where('emergency_team_id', Auth::user()->member?->team_id);
+                    $statusArr[] = EmergencyRequest::approve;
+                }
+                else if ($role === Role::TEAM_MEMBER) {
+                    $items->where('emergency_team_id', Auth::user()->member?->team_id);
+                }
 
-                $items = $items->whereIn('status', [
-                    EmergencyRequest::approve,
-                    EmergencyRequest::helping
-                ]);
-            } elseif ($type == 'history') {
+                $items = $items->whereIn('status', $statusArr);
+            } else if ($type == 'history') {
+                if ($role === Role::TEAM_LEADER || $role === Role::TEAM_MEMBER) {
+                    $items->where('emergency_team_id', Auth::user()->member?->team_id);
+                }
+
                 $items = $items->whereIn('status', [EmergencyRequest::complete, EmergencyRequest::disapprove, EmergencyRequest::incomplete]);
             } else {
                 $items = $items->where('status', EmergencyRequest::waiting);

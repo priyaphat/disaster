@@ -38,7 +38,7 @@ class EmergencyRequestController extends Controller
      */
     public function index()
     {
-        $this->authorize('isAdmin', EmergencyRequest::class);
+        $this->authorize('viewAny', EmergencyRequest::class);
         $emergencyRequest = $this->emergencyRequestService->index();
         return ApiResponse::successResponse(__('success.data'), $emergencyRequest);
     }
@@ -49,7 +49,7 @@ class EmergencyRequestController extends Controller
     public function show(Request $emergencyRequest)
     {
         // approve
-        $this->authorize('view', EmergencyRequest::class);
+        $this->authorize('viewAny', EmergencyRequest::class);
         $data = $this->emergencyRequestService->show($emergencyRequest, null);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -90,7 +90,6 @@ class EmergencyRequestController extends Controller
      */
     public function store(EmergencyRequestRequest $request)
     {
-        $this->authorize('create', EmergencyRequest::class);
         $data = $this->emergencyRequestService->create($request->all());
         $name = ['name' => Prefix::where('id', $data['prefix_id'])->value('name') . ' ' . $data['first_name'] . ' ' . $data['last_name']];
         (new LineController)->LineNotification($name, LineController::Emc_request_post);
@@ -105,12 +104,15 @@ class EmergencyRequestController extends Controller
      */
     public function update(EmergencyRequestRequest $request, EmergencyRequest $emergencyRequest)
     {   
-        $this->authorize('update', EmergencyRequest::class);
+        $this->authorize('update', $emergencyRequest);
+        
         if ($edit = self::canEdit($emergencyRequest)) return $edit;
 
         $old = clone $emergencyRequest;
         $skip = false;
         $name = Prefix::where('id', $emergencyRequest['prefix_id'])->value('name') . ' ' . $emergencyRequest['first_name'] . ' ' . $emergencyRequest['last_name'];
+
+        // ต้องดูสถานะด้วยว่าเป็น helping complete incomplete เปลี่ยนไม่ได้แล้ว
         if ($old['emergency_team_id'] && !$request['emergency_team_id']) { //ส่วนกลาง กดลบทีม
             //team = null
             if ($res = self::canCheck($request)) return $res;
@@ -147,13 +149,13 @@ class EmergencyRequestController extends Controller
         $data = $this->emergencyRequestService->update($emergencyRequest, $request->all());
         $data->load('team');
         if ($request->status != $old['status']) {
-            if ($emergencyRequest['status'] == EmergencyRequest::waiting && $skip == false) { //หัวหน้าทีม ปฏิเสธการช่วยเหลือ
+            if ($emergencyRequest['status'] == EmergencyRequest::waiting && $skip == false) {
                 // ส้งไปให้ส่วนกลาง
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_unaccept, $emergencyRequest);
                 $emergencyRequest->update(['emergency_team_id' => null]);
                 $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $data->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToCenterStaff($notification);
-            } else if ($emergencyRequest['status'] == EmergencyRequest::approve) { //ส่งให้หัวหน้าทีมกด อนุมัติช่วยเหลือ
+            } else if ($emergencyRequest['status'] == EmergencyRequest::approve) {
                 // ส่งหัวหน้า
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
 
@@ -208,7 +210,7 @@ class EmergencyRequestController extends Controller
      */
     public function reason()
     {
-        $this->authorize('isAdmin', EmergencyRequest::class);
+        $this->authorize('viewAny', EmergencyRequest::class);
         $data = $this->emergencyRequestService->reason();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -230,7 +232,9 @@ class EmergencyRequestController extends Controller
 
     public function requestShelter(Request $request)
     {
-        $this->authorize('isAdmin', EmergencyRequest::class);
+        // ให้แต่ทีมที่รับผิดชอบย้ายได้
+        $this->authorize('requestShelter', EmergencyRequest::class);
+
         if ($request->check == true) {
             if ($request->victim_name) {
                 $victims = $request->victim_name;
@@ -310,7 +314,7 @@ class EmergencyRequestController extends Controller
                     (new PopulationService)->create($i);
                 } else {
                     $q = Population::find($i['id']);
-                    (new populationService)->update($q, $i);
+                    (new PopulationService)->update($q, $i);
                 }
             }
         }

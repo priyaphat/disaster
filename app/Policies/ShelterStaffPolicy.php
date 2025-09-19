@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Role;
 use App\Models\ShelterStaff;
 use App\Models\User;
 
@@ -9,55 +10,54 @@ class ShelterStaffPolicy
 {
     public function view(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
     public function createMany(User $user): bool
     {
         $shelterId = request()->get('shelter_id');
-        if ($user->hasRole('staff')) {
+        if ($user->hasRole(Role::STAFF)) {
             return $user->staff?->shelter_id == $shelterId;
         }
 
-        return $user->hasRole('admin');
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->hasRole(Role::ADMIN);
     }
-
 
     public function update(User $user, ShelterStaff $shelterStaff): bool
     {
-        if ($user->hasRole('staff')) {
+        if ($user->hasRole(Role::STAFF)) {
             return $user->staff?->shelter_id == $shelterStaff->shelter_id;
         }
 
-        return $user->hasRole('admin');
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function delete(User $user, ShelterStaff $shelterStaff): bool
     {
-        if ($user->hasRole('staff')) {
+        if ($user->hasRole(Role::STAFF)) {
             return $user->staff?->shelter_id == $shelterStaff->shelter_id;
         }
 
-        return $user->hasRole('admin');
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function deleteAll(User $user): bool
     {
         $shelterId = request()->get('shelter_id');
-        if ($user->hasRole('staff')) {
+        if ($user->hasRole(Role::STAFF)) {
             return $user->staff?->shelter_id == $shelterId;
         }
 
-        return $user->hasRole('admin');
+        return $user->hasRole(Role::ADMIN);
     }
 }

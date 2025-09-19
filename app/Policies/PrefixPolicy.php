@@ -2,42 +2,28 @@
 
 namespace App\Policies;
 
+use App\Models\Role;
 use App\Models\User;
 
 class PrefixPolicy
 {
-    private function isAdmin(User $user): bool
-    {
-        return $user->hasRole('admin');
-    }
-
-    private function hasAllowedRole(User $user): bool
-    {
-        return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
-    }
-
     public function view(User $user): bool
     {
-        return $this->hasAllowedRole($user);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
-
-    // public function viewAny(User $user): bool
-    // {
-    //     return $this->hasAllowedRole($user);
-    // }
 
     public function create(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function update(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function delete(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 }

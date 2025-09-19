@@ -70,7 +70,7 @@ class Population extends Model
     protected function gisMap(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value, array $attributes) => $attributes['sequence_id'] ? env('GIS_POPULATION_URL') .'?'. http_build_query(['id' => $attributes['sequence_id']]) : null,
+            get: fn(mixed $value, array $attributes) => isset($attributes['sequence_id']) ? env('GIS_POPULATION_URL') .'?'. http_build_query(['id' => $attributes['sequence_id']]) : null,
         );
     }
 

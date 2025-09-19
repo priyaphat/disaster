@@ -2,37 +2,33 @@
 
 namespace App\Policies;
 
+use App\Models\Role;
 use App\Models\User;
 
 class ConfigPolicy
 {
-    private function isAdmin(User $user): bool
-    {
-        return $user->hasRole('admin');
-    }
-
     public function create(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function update(User $user): bool
     {
-        return $this->isAdmin($user);
+       return $user->hasRole(Role::ADMIN);
     }
 
     public function delete(User $user): bool
     {
-        return $this->isAdmin($user);
+       return $user->hasRole(Role::ADMIN);
     }
 
     public function view(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function viewAny(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 }

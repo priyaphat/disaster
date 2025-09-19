@@ -90,7 +90,6 @@ class PostController extends Controller
      */
     public function logs(Request $request)
     {
-        $this->authorize('viewAny', EmergencyPost::class);
         $logs = $this->emergencyPostService->logs($request);
         return ApiResponse::successResponse(__('success.data'), $logs);
     }

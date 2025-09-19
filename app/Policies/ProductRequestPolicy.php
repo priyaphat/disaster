@@ -3,52 +3,38 @@
 namespace App\Policies;
 
 use App\Http\Utility\PermissionUtility;
+use App\Models\Role;
 use App\Models\User;
 
 class ProductRequestPolicy
 {
-    private function isAdmin(User $user): bool
-    {
-        return $user->hasRole('admin');
-    }
-
-    private function isStaff(User $user): bool
-    {
-        return $user->hasRole('staff');
-    }
-
-    private function isTeam(User $user): bool
-    {
-        return $user->hasAnyRole(['team_leader', 'team_member']);
-    }
-
     public function viewAny(User $user): bool
     {
         $shelterId = request()->get('id');
-        if ($this->isStaff($user)) {
+        if ($user->hasRole(Role::STAFF)) {
             return $user->staff?->shelter_id == $shelterId;
         }
 
-        if ($this->isTeam($user)) {
+        if ($user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER])) {
             $allowedShelter = PermissionUtility::getShelterByTeam($user->member?->team_id);
-            return in_array($shelterId, $allowedShelter);
+            return $allowedShelter->search($shelterId);
         }
 
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function viewAnyLog(User $user): bool
     {
-        return $this->isStaff($user);
+        return $user->hasRole(Role::STAFF);
     }
 
     public function create(User $user): bool
     {
-        return $this->isStaff($user);
+        return $user->hasRole(Role::STAFF);
     }
 
     public function update(User $user): bool
     {
-        return $this->isStaff($user);
+        return $user->hasRole(Role::STAFF);
     }
 }

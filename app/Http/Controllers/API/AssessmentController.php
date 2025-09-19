@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\AssessmentSummaryExport;
 use App\Models\AssessmentLogs;
+use App\Models\Population;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,11 +18,9 @@ use Maatwebsite\Excel\Facades\Excel;
 class AssessmentController extends Controller
 {
     use AuthorizesRequests;
-    
+
     public function store(Request $request)
     {
-        $this->authorize('create', Assessments::class);
-
         $request->validate([
             'datetime' => 'required',
             'population_id' => 'required|exists:populations,id',
@@ -30,6 +29,11 @@ class AssessmentController extends Controller
             'district_id' => 'required_if:type,1',
             'type' => 'required|in:1,2,3'
         ]);
+
+        // Permission Part
+        $population = Population::findOrFail($request->population_id);
+        $this->authorize('create', [Assessments::class, $population]);
+
         $assessment = new Assessments();
         $assessment->name = AssessmentType::tryFrom($request->type)->label();
         $assessment->fill($request->all());
@@ -41,7 +45,8 @@ class AssessmentController extends Controller
 
     public function index(Request $r, $id = null, $methed = null)
     {
-        $this->authorize('viewAny', Assessments::class);
+        $population = Population::findOrFail($r->population_id);
+        $this->authorize('viewAny', [Assessments::class, $population]);
 
         $q = Assessments::query()
             ->select(
@@ -111,7 +116,7 @@ class AssessmentController extends Controller
         }
 
         $this->authorize('delete', $assessment);
-        
+
         $assessment->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }
@@ -152,6 +157,11 @@ class AssessmentController extends Controller
 
     public function logs(Request $f, $id)
     {
+        $population = Population::whereHas('assessments', function ($query) use ($id) {
+            $query->where('id', $id);
+        })->first();
+        $this->authorize('viewAny', [AssessmentLogs::class, $population]);
+
         $q = AssessmentLogs::select(
             'assessment_logs.*',
             DB::raw('concat(up.name, " ",users.firstname, " ", users.lastname) as created_by_name'),

@@ -58,7 +58,11 @@ class PopulationFilter extends QueryFilter
     {
         if ($value) {
             return $this->builder->whereHas('shelterPopulation', function ($query) use ($value) {
-                $query->where('shelter_id', $value);
+                if (is_array($value)) {
+                    $query->whereIn('shelter_id', $value);
+                } else {
+                    $query->where('shelter_id', $value);
+                }
             });
         }
     }

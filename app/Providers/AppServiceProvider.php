@@ -3,20 +3,17 @@
 namespace App\Providers;
 
 use App\Enums\ProductLogs;
-use App\Events\AdminRegistered;
-use App\Events\UserRegistered;
-use App\Listeners\CreateUserApproval;
-use App\Listeners\SendPasswordEmail;
-use App\Listeners\SendWelcomeEmail;
 use App\Listeners\UserEventSubscriber;
 use App\Models\Appointment;
 use App\Models\AppointmentLog;
+use App\Models\AssessmentLogs;
 use App\Models\Assessments;
 use App\Models\Category;
 use App\Models\Config;
 use App\Models\Department;
 use App\Models\Disaster;
 use App\Models\DisasterEarthquake;
+use App\Models\DisasterFlood;
 use App\Models\DisasterLandslide;
 use App\Models\DisasterSmog;
 use App\Models\DisasterWildfire;
@@ -37,7 +34,6 @@ use App\Models\ProductRequest;
 use App\Models\ShelterPosition;
 use App\Models\ShelterProduct;
 use App\Models\Unit;
-use App\Observers\PopulationObserver;
 use App\Observers\ShelterObserver;
 use App\Observers\ShelterPopulationObserver;
 use App\Observers\ShelterStaffObserver;
@@ -45,18 +41,24 @@ use App\Observers\TeamMemberObserver;
 use App\Observers\TeamObserver;
 use App\Policies\AppointmenLogPolicy;
 use App\Policies\AppointmentPolicy;
-use App\Policies\AssessmentPolicy;
+use App\Policies\AssessmentLogsPolicy;
+use App\Policies\AssessmentsPolicy;
 use App\Policies\CategoryPolicy;
 use App\Policies\ConfigPolicy;
 use App\Policies\DepartmentPolicy;
+use App\Policies\DisasterEarthquakePolicy;
+use App\Policies\DisasterFloodPolicy;
+use App\Policies\DisasterLandslidePolicy;
 use App\Policies\DisasterPolicy;
+use App\Policies\DisasterSmogPolicy;
+use App\Policies\DisasterWildfirePolicy;
 use App\Policies\EmergencyPostPolicy;
 use App\Policies\EmergencyRequestPolicy;
 use App\Policies\NewsPolicy;
 use App\Policies\PopulationPolicy;
 use App\Policies\PositionPolicy;
 use App\Policies\PrefixPolicy;
-use App\Policies\ProductLogPolicy;
+use App\Policies\ProductLogsPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\ProductRequestPolicy;
 use App\Policies\ShelterPolicy;
@@ -70,18 +72,14 @@ use App\Policies\UnitPolicy;
 use App\Policies\UserPolicy;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
-use Illuminate\Support\Str;
 use Dedoc\Scramble\Scramble;
-use Illuminate\Routing\Route;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\ValidationException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -116,10 +114,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(News::class, NewsPolicy::class);
         Gate::policy(Disaster::class, DisasterPolicy::class);
-        Gate::policy(DisasterSmog::class, DisasterPolicy::class);
-        Gate::policy(DisasterWildfire::class, DisasterPolicy::class);
-        Gate::policy(DisasterEarthquake::class, DisasterPolicy::class);
-        Gate::policy(DisasterLandslide::class, DisasterPolicy::class);
+        Gate::policy(DisasterFlood::class, DisasterFloodPolicy::class);
+        Gate::policy(DisasterSmog::class, DisasterSmogPolicy::class);
+        Gate::policy(DisasterWildfire::class, DisasterWildfirePolicy::class);
+        Gate::policy(DisasterEarthquake::class, DisasterEarthquakePolicy::class);
+        Gate::policy(DisasterLandslide::class, DisasterLandslidePolicy::class);
         
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(AppointmentLog::class, AppointmenLogPolicy::class);
@@ -146,12 +145,14 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(ShelterProduct::class, ShelterProductPolicy::class);
         Gate::policy(ProductRequest::class, ProductRequestPolicy::class);
-        Gate::policy(ProductLogs::class, ProductLogPolicy::class);
+        Gate::policy(ProductLogs::class, ProductLogsPolicy::class);
 
         Gate::policy(EmergencyPost::class, EmergencyPostPolicy::class);
         Gate::policy(EmergencyRequest::class, EmergencyRequestPolicy::class);
 
-        Gate::policy(Assessments::class, AssessmentPolicy::class);
+        Gate::policy(Assessments::class, AssessmentsPolicy::class);
+        Gate::policy(AssessmentLogs::class, AssessmentLogsPolicy::class);
+
 
         // API Document
         Scramble::configure()

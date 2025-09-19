@@ -9,7 +9,6 @@ use App\Http\Requests\Appointment\StoreAppointmentRequest;
 use App\Http\Requests\Appointment\UpdateAppointmentRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Appointment;
-use App\Models\User;
 use App\Services\AppointmentService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 

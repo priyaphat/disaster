@@ -11,6 +11,8 @@ use App\Http\Requests\UserApproval\ApprovalRequest;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\PermissionUtility;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
@@ -92,13 +94,24 @@ class UserController extends Controller
     public function profile()
     {
         //
+        $loadQuery = ['prefix', 'department', 'position', 'area', 'approval', 'image'];
         $user = Auth::user();
-        $data = $user->load(['prefix', 'department', 'position', 'area', 'approval', 'member', 'image']);
-        $data->role = $user->getRoleNames()->first();
+        $role = PermissionUtility::getRoleName($user);
+       
+        if($role === Role::STAFF){
+            $loadQuery[] = 'staff' ;
+        }
+        
+        if($role === Role::TEAM_LEADER || $role === Role::TEAM_MEMBER){
+            $loadQuery[] = 'member' ;
+        }
+
+        $data = $user->load($loadQuery);
+        $data->role = $role;
         return ApiResponse::successResponse(__('success.data'), new ProfileResource($data));
     }
 
-    /**
+    /*
      * Update user's profile | แก้ไขข้อมูลส่วนตัว
      */
     public function updateProfile(UpdateUserRequest $request)

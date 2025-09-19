@@ -120,6 +120,7 @@ class DisasterController extends Controller
 
     public function dst_eq_delete(DisasterEarthquake $id)
     {
+        $this->authorize('delete', DisasterEarthquake::class);
         $id->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }

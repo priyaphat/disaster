@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
+use App\Models\Appointment;
+use App\Models\Role;
 use App\Models\User;
 
 class AppointmentPolicy
 {
-    private function isAdmin(User $user): bool
-    {
-        return $user->hasRole('admin');
-    }
-
-    private function hasAllowedRole(User $user): bool
-    {
-        return $user->hasAnyRole(['admin', 'staff', 'team_leader', 'team_member']);
-    }
-
     public function create(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function update(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function delete(User $user): bool
     {
-        return $this->isAdmin($user);
+        return $user->hasRole(Role::ADMIN);
     }
 
-    public function view(User $user): bool
+    public function view(User $user, Appointment $appointment): bool
     {
-        return $this->hasAllowedRole($user);
+        $shelterId = $appointment->shelter_id;
+        $teamId = $appointment->teamId;
+        if ($user->hasRole(Role::STAFF)) {
+            return $user->staff?->shelter_id == $shelterId;
+        } else if ($user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER])) {
+            return $user->member?->team_id == $teamId;
+        }
+
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function viewAny(User $user): bool
     {
-        return $this->hasAllowedRole($user);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 }

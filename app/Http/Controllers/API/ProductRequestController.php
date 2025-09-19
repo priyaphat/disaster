@@ -17,12 +17,9 @@ use App\Models\ShelterProduct;
 use App\Services\ProductRequestService;
 use App\Services\SearchService;
 use Carbon\Carbon;
-use Dedoc\Scramble\Attributes\PathParameter;
-use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use PDO;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ProductRequestController extends Controller
