@@ -121,9 +121,9 @@ class DisasterService
     public function fl_show($req, $id = null, $method = null)
     {
         if ($req->groupBy) {
-            $gb = DisasterFlood::select('water_source', DB::raw('MAX(id) as id'))
-                ->groupBy('water_source')
-                ->pluck('id');
+            $gb = DisasterFlood::select('disaster_floods.water_source', DB::raw('MAX(disaster_floods.id) as id'))
+                ->groupBy('disaster_floods.water_source')
+                ->pluck('disaster_floods.id');
 
             $create = Config::where('type', Config::disaster)->value('description');
             $create = $create['flood'];
@@ -133,49 +133,59 @@ class DisasterService
             ->when(
                 $req->district,
                 fn($q) =>
-                $q->where('address', 'like', "%$req->district%")
+                $q->where('disaster_floods.address', 'like', "%$req->district%")
             )
             ->when(
                 $req->subdistrict,
                 fn($q) =>
-                $q->where('address', 'like', "%$req->subdistrict%")
+                $q->where('disaster_floods.address', 'like', "%$req->subdistrict%")
             )
             ->when(
                 $req->status,
                 fn($q) =>
-                $q->where('status', $req->status)
+                $q->where('disaster_floods.status', $req->status)
             )
             ->when(
                 $id,
                 fn($q) =>
-                $q->where('id', $id)
+                $q->where('disaster_floods.id', $id)
             )
             ->when(
                 $req->search,
                 fn($q) =>
-                $q->where(function ($query) use ($req, $create) {
-                    $query->where('water_source', 'like', "%{$req->search}%")
-                        ->orWhere('water_source_type', 'like', "%{$req->search}%");
+                $q->where(function ($query) use ($req) {
+                    $query->where('disaster_floods.water_source', 'like', "%{$req->search}%");
                 })
             )->when(
+                $req->water_source_type,
+                fn($q) => $q->Where('disaster_floods.water_source_type', $req->water_source_type)
+            )->when(
                 $req->externalDataSource == 1,
-                fn($q) => $q->whereNull('created_by'),
-                fn($q) => $q->whereNotNull('created_by')
+                fn($q) => $q->whereNull('disaster_floods.created_by'),
+            )
+            ->when(
+                $req->externalDataSource == 2,
+                fn($q) => $q->whereNotNull('disaster_floods.created_by')
             )
             ->when(
                 $req->groupBy,
                 fn($q) =>
-                $q->whereIn('id', $gb)
+                $q->whereIn('disaster_floods.id', $gb)
                     ->when(
                         $create,
-                        fn($q) => $q->whereNotNull('created_by'),
-                        fn($q) => $q->whereNull('created_by')
-                    ),
+                        fn($q) => $q->whereNotNull('disaster_floods.created_by'),
+                        fn($q) => $q->whereNull('disaster_floods.created_by')
+                    )->select('disaster_floods.*', DB::raw('concat(users.firstname," ",users.lastname) as created_name')),
                 fn($q) =>
-                $q->select('disaster_floods.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
+                $q->select(
+                    'disaster_floods.*',
+                    DB::raw("IF(disaster_floods.created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"),
+                    DB::raw('concat(users.firstname," ",users.lastname) as created_name')
+                )
             );
 
-        $q = $q->orderBy('created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        $q = $q->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
+            ->leftJoin('users', 'users.id', 'disaster_floods.created_by');
         if ($method) return $q->get();
         if ($id) return  $q->with('area')->first();
         return $q->paginate($req->paginate ?? 10);
@@ -191,28 +201,37 @@ class DisasterService
 
         $q = DisasterLandslide::query()
             ->when($req->start_date && $req->end_date, fn($q) =>
-            $q->whereBetween('created_at', [
+            $q->whereBetween('disaster_landslides.created_at', [
                 Carbon::parse($req->start_date)->startOfDay(),
                 Carbon::parse($req->end_date)->endOfDay()
             ]))
             ->when(
                 $req->search,
                 fn($q) =>
-                $q->where('name', 'like', "%$req->search%")
+                $q->where('disaster_landslides.name', 'like', "%$req->search%")
             )
             ->when(
                 $id,
                 fn($q) =>
-                $q->where('id', $id)
+                $q->where('disaster_landslides.id', $id)
             )
             ->when(
                 $req->groupBy,
                 fn($q) =>
-                $q->whereIn('id', $gb),
+                $q->whereIn('disaster_landslides.id', $gb)
+                    ->select(
+                        'disaster_landslides.*',
+                        DB::raw('concat(users.firstname," ",users.lastname) as created_name')
+                    ),
                 fn($q) =>
-                $q->select('disaster_landslides.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
+                $q->select(
+                    'disaster_landslides.*',
+                    DB::raw("IF(disaster_landslides.created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"),
+                    DB::raw('concat(users.firstname," ",users.lastname) as created_name')
+                )
             );
-        $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        $q->orderBy('disaster_landslides.updated_at', $req->sort === 'asc' ? 'asc' : 'desc')
+            ->leftJoin('users', 'users.id', 'disaster_landslides.created_by');
         if ($method) $q->get();
         if ($id) $q->first();
         return $q->paginate($req->paginate ?? 10);
@@ -311,42 +330,50 @@ class DisasterService
             ->when(
                 $req->district,
                 fn($q) =>
-                $q->where('address', 'like', "%$req->district%")
+                $q->where('disaster_smogs.address', 'like', "%$req->district%")
             )
             ->when(
                 $req->subdistrict,
                 fn($q) =>
-                $q->where('address', 'like', "%$req->subdistrict%")
+                $q->where('disaster_smogs.address', 'like', "%$req->subdistrict%")
             )
             ->when(
                 $req->status,
                 fn($q) =>
-                $q->where('status', $req->status)
+                $q->where('disaster_smogs.status', $req->status)
             )
             ->when(
                 $id,
                 fn($q) =>
-                $q->where('id', $id)
+                $q->where('disaster_smogs.id', $id)
                     ->with('area')
             )
             ->when(
                 $req->search,
                 fn($q) =>
-                $q->where('source', 'like', "%$req->search%")
+                $q->where('disaster_smogs.source', 'like', "%$req->search%")
             )
             ->when(
                 $req->groupBy,
                 fn($q) =>
-                $q->whereIn('id', $gb)
+                $q->whereIn('disaster_smogs.id', $gb)
                     ->when(
                         $create,
-                        fn($q) => $q->whereNotNull('created_by'),
-                        fn($q) => $q->whereNull('created_by')
+                        fn($q) => $q->whereNotNull('disaster_smogs.created_by'),
+                        fn($q) => $q->whereNull('disaster_smogs.created_by')
+                    )->select(
+                        'disaster_smogs.*',
+                        DB::raw('concat(users.firstname," ",users.lastname) as created_name')
                     ),
                 fn($q) =>
-                $q->select('disaster_smogs.*', DB::raw("IF(created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"))
+                $q->select(
+                    'disaster_smogs.*',
+                    DB::raw("IF(disaster_smogs.created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"),
+                    DB::raw('concat(users.firstname," ",users.lastname) as created_name')
+                )
             );
-        $data = $q->orderBy('updated_at', $req->sort === 'asc' ? 'asc' : 'desc')->get();
+        $data = $q->orderBy('disaster_smogs.updated_at', $req->sort === 'asc' ? 'asc' : 'desc')
+            ->leftJoin('users', 'users.id', 'disaster_smogs.created_by')->get();
         $data->transform(function ($item) {
             $item->status_name = SmogStatus::tryFrom($item->status)?->label();
             return $item;

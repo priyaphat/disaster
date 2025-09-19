@@ -18,6 +18,7 @@ return new class extends Migration
             $table->float('magnitude')->comment('ขนาดแผ่นดินไหว');
             $table->datetime('occurrence_time')->comment('เวลาที่เกิดแผ่นดินไหว');
             $table->unsignedBigInteger('geography_id')->nullable();
+            $table->string('host')->nullable();
             $table->tinyInteger('line_oa')->default(0)->comment('0 - inactive, 1 - active');
             $table->foreignId('created_by')->nullable()->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');

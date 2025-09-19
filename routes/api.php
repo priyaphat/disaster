@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\WildfireTask;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\AppointmentLogController;
@@ -107,6 +108,9 @@ Route::get('/download-user-doc/{type}', function ($type) {
     return Storage::download($path, $file_name);
 });
 #endregion
+
+// Route::get('/tests', [WildfireTask::class,'handle']);
+
 
 Route::middleware('auth:api')->group(function () {
 
@@ -343,9 +347,10 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/post/{post}', [PostController::class, 'index']);
+    Route::get('/post-level', [PostController::class, 'level']);
     Route::post('/post', [PostController::class, 'store']);
     Route::post('/post/{post}', [PostController::class, 'update']);
-    // Route::delete('/post/{post}', [PostController::class, 'destroy']);
+    // Route::delete('/post/{post} ', [PostController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------

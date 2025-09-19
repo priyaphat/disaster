@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\EmergencyLevel;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\EmergencyPost;
@@ -87,5 +88,17 @@ class PostController extends Controller
     {
         $logs = $this->emergencyPostService->logs($request);
         return ApiResponse::successResponse(__('success.data'), $logs);
+    }
+
+    /**
+     * Post | post level
+     */
+    public function level()
+    {
+        $data = array_map(fn($case) => [
+            'id' => $case->value,
+            'name' => $case->label(),
+        ], EmergencyLevel::cases());
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

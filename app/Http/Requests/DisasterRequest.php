@@ -92,6 +92,7 @@ class DisasterRequest extends FormRequest
             'geography_id' => 'required',
             'status' => 'required|in:0,1,2,3,4,5',
             'water_value' => 'required|decimal:1',
+            'host' => 'max:255',
             'line_oa' => 'required|in:0,1',
             'province_id' => 'required',
             'district_id' => 'required',
@@ -108,6 +109,7 @@ class DisasterRequest extends FormRequest
             'status' => 'required|in:0,1,2,3,4,5',
             'water_value' => 'required|decimal:1',
             'line_oa' => 'required|in:0,1',
+            'host' => 'max:255'
         ];
     }
 
@@ -116,7 +118,7 @@ class DisasterRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'line_oa' => 'required|in:0,1',
-            'file' => 'required|file|mimes:xlsx,xls|max:10240',
+            'file' => 'required|file|mimes:xlsx,csv,xls|max:10240',
         ];
     }
 
@@ -126,6 +128,7 @@ class DisasterRequest extends FormRequest
         $rules = [
             'type' => 'required|integer|in:1,2,3,4',
             'line_oa' => 'required|boolean|in:0,1',
+            'host' => 'max:255'
         ];
         if ($type == 2) {
             $rules['model'] = 'required|array';
@@ -134,7 +137,7 @@ class DisasterRequest extends FormRequest
             // $rules['model.*.modis'] = 'required|numeric';
             $rules['model.*.viirs'] = 'required|numeric';
         }
-        if ($type == 1) { 
+        if ($type == 1) {
             $rules['model'] = 'required|array';
             $rules['model.*'] = 'required|numeric';
         }

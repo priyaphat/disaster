@@ -465,9 +465,14 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box_link($text, self::Disaster_landslide, __('line.see_more'), $type);
         } else if ($form == self::Disaster_wildfire_m1) {
-            $text = __('line.disaster_wildfire_h') . __('line.disaster_wildfire_m1', [
-                'modis' => $data['modis'],
-                'viirs' => $data['viirs'],
+            $text = __('line.disaster_wildfire_h') . __('line.disaster_wildfire_m34', [
+                'type' => 'VIIRS',
+                'val1' => $data[0] ?? 0,
+                'val2' => $data[1] ?? 0,
+                'val3' => $data[2] ?? 0,
+                'val4' => $data[3] ?? 0,
+                'val5' => $data[4] ?? 0,
+                'val6' => $data[5] ?? 0,
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Disaster_wildfire_m2) {
@@ -477,7 +482,6 @@ class LineController extends Controller
             foreach ($data as $item) {
                 $text = $text . __('line.disaster_wildfire_m2', [
                     'district' => "• " . $item['district_name'],
-                    'modis' => $item['modis'],
                     'viirs' => $item['viirs'],
                 ]);
             }

@@ -51,7 +51,8 @@ class EarthquakeTask extends Command
                 'longitude' => $area['Longitude'],
                 'depth' => $area['Longitude'],
                 'magnitude' => $area['Magnitude'],
-                'occurrence_time' => $area['DateTimeThai']
+                'occurrence_time' => $area['DateTimeThai'],
+                'host'=> 'data.tmd.go.th',
             ]);
         }
     }

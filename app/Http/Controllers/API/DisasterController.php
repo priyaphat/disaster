@@ -296,6 +296,7 @@ class DisasterController extends Controller
     public function exp(Request $r)
     {
         $case = $r->disaster;
+        // $case = 'wildfire';
         if (!$case) return ApiResponse::errorResponse(__('error.model_not_found'));
         $rows = [];
         $columns = [];
@@ -327,13 +328,13 @@ class DisasterController extends Controller
             $q = $this->disasterService->dst_wf_show(request(), null, 'get');
             for ($i = 0; $i <= 5; $i++) {
                 $row = [];
+                $row[] = ($q['first_graph']['labels'][$i] ?? '') . ': ' . ($q['first_graph']['model'][$i] ?? '');
+
                 if ($i <= 4) {
-                    $row[] = ($q['second_graph']['model'][$i]['district_name'] ?? '') . ': ' . ($q['second_graph']['model'][$i]['viirs'] ?? '') . ', ' . ($q['second_graph']['model'][$i]['modis'] ?? '');
+                    $row[] = ($q['second_graph']['model'][$i]['district_name'] ?? '') . ': ' . ($q['second_graph']['model'][$i]['viirs'] ?? '');
                 } else {
                     $row[] = null;
                 }
-                $row[] = ($q['third_graph']['labels'][$i] ?? '') . ': ' . ($q['third_graph']['model'][$i] ?? '');
-                $row[] = ($q['fourth_graph']['labels'][$i] ?? '') . ': ' . ($q['third_graph']['model'][$i] ?? '');
                 $rows[] = $row;
             }
             $columns = ['จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน VIIRS', '5 อันดับ พื้นที่ที่มีจุดความร้อน VIIRS (เชียงราย)'];

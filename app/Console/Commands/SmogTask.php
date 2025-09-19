@@ -56,7 +56,8 @@ class SmogTask extends Command
                 'source' => $area['nameTH'],
                 'address' => $address,
                 'status' => $status,
-                'smog_value' => $aqi
+                'smog_value' => $aqi,
+                'host' => 'air4thai.pcd.go.th',
             ]);
         }
 

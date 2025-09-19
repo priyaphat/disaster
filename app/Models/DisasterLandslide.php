@@ -17,6 +17,7 @@ class DisasterLandslide extends Model
         'file_name',
         'file_id',
         'link',
+        'host',
         'line_oa',
     ];
 

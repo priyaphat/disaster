@@ -16,6 +16,7 @@
                 $table->integer('status')->default(0)->comment('0: Not Verified, 1: น้อยวิกฤต, 2: น้อย, 3: ปกติ, 4: มาก, 5: เกินความจุ');
                 $table->decimal('water_value', 6, 1)->nullable();
                 $table->unsignedBigInteger('geography_id')->nullable();
+                $table->string('host')->nullable();
                 $table->tinyInteger('line_oa')->default(0)->comment('0 - inactive, 1 - active');
                 $table->foreignId('created_by')->nullable()->constrained('users');
                 $table->foreignId('updated_by')->nullable()->constrained('users');

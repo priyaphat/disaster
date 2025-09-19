@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\DisasterEarthquake;
+use App\Models\DisasterWildfire;
+use App\Models\Geography;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -11,56 +13,48 @@ use Illuminate\Support\Str;
 
 class WildfireTask extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+
     protected $signature = 'app:wildfire-task';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
+        $url = 'https://api-gateway.gistda.or.th/api/2.0/resources/features/viirs/1day';
+
         $response = Http::withHeaders([
             'accept' => 'application/json',
             'API-Key' => '7iPj0ZjITZyxJTMh5LZYQhJLZXUBy73V1I1bnI2l9irjrVszLzaph3U6NuePSeXp',
-        ])->get('https://api-gateway.gistda.or.th/api/2.0/resources/features/viirs/1day', [
+        ])->get($url, [
             'offset' => 0,
             'ct_tn' => 'ราชอาณาจักรไทย',
             'pv_idn' => 57, // เชียงราย
         ]);
 
-        $data = $response->json();
-        $data = $response->json()['DailyEarthquakes'];
-        $search = 'เชียงราย';
-        $areas = collect($data)->filter(function ($item) use ($search) {
-            return Str::contains($item['OriginThai'], $search);
-        })->values();
+        if ($response->successful()) {
+            $data = $response->json();
 
-        $start = Carbon::now()->subDay()->setTime(12, 00, 00)->format('Y-m-d H:i:s');
-        $end = Carbon::now()->setTime(11, 59, 59)->format('Y-m-d H:i:s');
-        // $start = Carbon::now()->setDate(2025, 01, 01)->setTime(12, 00, 00)->format('Y-m-d H:i:s');
-        // $end = Carbon::now()->setDate(2025, 02, 28)->setTime(12, 00, 00)->format('Y-m-d H:i:s');
-        $areas = $areas->whereBetween('DateTimeThai', [$start, $end])->values();
+            $features = collect($data['features'] ?? [])->pluck('properties');
 
-        foreach ($areas as $area) {
-            DisasterEarthquake::create([
-                'address' => $area['TitleThai'],
-                'latitude' => $area['Latitude'],
-                'longitude' => $area['Longitude'],
-                'depth' => $area['Longitude'],
-                'magnitude' => $area['Magnitude'],
-                'occurrence_time' => $area['DateTimeThai']
-            ]);
+            $grouped = $features->groupBy('amphoe')->map(function ($items, $amphoe) {
+                return [
+                    'district_id'   => Geography::where('district_name_th', $amphoe)->value('district_code'),
+                    'district_name' => $amphoe,
+                    'viirs'         => $items->count(),
+                ];
+            })->values();
+
+            $createdAt = isset($features[0]['_createdAt'])
+                ? Carbon::parse($features[0]['_createdAt'])
+                : now();
+
+            $data = new DisasterWildfire();
+            $data->model = [
+                'model' => $grouped,
+                'line_oa' => 1
+            ];
+            $data->type = 2;
+            $data->host = "api-gateway.gistda.or.th";
+            $data->created_at =  $createdAt;
+            $data->save();
         }
     }
 }

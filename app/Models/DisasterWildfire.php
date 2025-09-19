@@ -23,7 +23,8 @@ class DisasterWildfire extends Model
     protected $fillable = [
         'type',
         'model',
-        'host'
+        'host',
+        'created_at',
     ];
 
     // public function getCreatedByAttribute($value)

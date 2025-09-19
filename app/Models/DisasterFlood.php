@@ -18,6 +18,7 @@ class DisasterFlood extends Model
         'status',
         'water_value',
         'geography_id',
+        'host',
         'line_oa',
     ];
 
