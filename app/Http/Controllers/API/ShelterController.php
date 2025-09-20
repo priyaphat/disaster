@@ -9,11 +9,14 @@ use App\Http\Requests\Shelter\UpdateShelterRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\LinePostUtility;
 use App\Models\DamagedUtility;
+use App\Models\DamagedUtilityLogs;
 use App\Models\Shelter;
 use App\Services\ShelterService;
+use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ShelterController extends Controller
 {
@@ -126,26 +129,93 @@ class ShelterController extends Controller
     public function dmg_stroe(Request $request)
     {
         $data = $request->validate([
-            'data' => 'required|array',
-            'data.*.type' => 'required|in:' . implode(',', array_map(fn($e) => $e->value, EnumsDamagedUtility::cases())),
-            'data.*.name' => 'required|string|max:255',
+            'type' => 'required|in:' . implode(',', array_map(fn($e) => $e->value, EnumsDamagedUtility::cases())),
+            'name' => 'required|string|max:255',
+            'phone' => 'string|max:10',
+            'address' => 'string|max:255',
+            'geopraphy_id' => 'exists:geography,id',
         ], []);
 
-        $type = $data['data'][0]['type'];
-        self::dmg_delete($type);
-        if (DamagedUtility::insert($data['data'])) {
-            LinePostUtility::LineMakeInformation(LineController::Damaged_utility_post, $data);
-            return ApiResponse::successResponse(__('success.damaged_utility.created'), $data['data']);
+        if ($data = DamagedUtility::create($data)) {
+            self::dul_log($data, DamagedUtilityLogs::created);
+            // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_post, $data);
+            return ApiResponse::successResponse(__('success.damaged_utility.created'), $data);
+        }
+    }
+
+    /**
+     * สาธารณประโยชน์ที่ได้รับความเสียหาย | updated // type, name
+     */
+    public function dmg_update(Request $request, DamagedUtility $id)
+    {
+        $data = $request->validate([
+            'type' => 'required|in:' . implode(',', array_map(fn($e) => $e->value, EnumsDamagedUtility::cases())),
+            'name' => 'required|string|max:255',
+            'phone' => 'string|max:10',
+            'address' => 'string|max:255',
+            'geopraphy_id' => 'exists:geography,id',
+        ], []);
+
+        if ($id->update($data)) {
+            self::dul_log($id, DamagedUtilityLogs::updated);
+            // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_post, $data);
+            return ApiResponse::successResponse(__('success.damaged_utility.created'), $data);
         }
     }
 
     /**
      * สาธารณประโยชน์ที่ได้รับความเสียหาย | dalete // type
      */
-    public function dmg_delete($damaged)
+    public function dmg_delete(DamagedUtility $damaged)
     {
-        DamagedUtility::where('type', $damaged)->delete();
-        LinePostUtility::LineMakeInformation(LineController::Damaged_utility_end, $damaged);
+        $damaged->delete();
+        self::dul_log($damaged, DamagedUtilityLogs::deleted);
+        // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_end, $damaged);
         return ApiResponse::successResponse(__('success.damaged_utility.deleted'));
+    }
+
+    /**
+     * สาธารณประโยชน์ที่ได้รับความเสียหาย log 
+     */
+    public function damaged_utility_logs(Request $r)
+    {
+        $q = DamagedUtilityLogs::select(
+            'damaged_utility_logs.*',
+            DB::raw('concat(users.firstname," ",users.lastname) as created_name')
+        )
+            ->leftJoin('users', 'damaged_utility_logs.created_by', 'users.id')
+            ->when(
+                $r->search,
+                fn($q) =>
+                $q->where(DB::raw('concat(users.firstname," ",users.lastname)'), 'like', '%' . $r->search . '%')
+            )
+            ->when($r->start_date && $r->end_date, fn($q) =>
+            $q->whereBetween('damaged_utility_logs.created_at', [
+                Carbon::parse($r->start_date)->startOfDay(),
+                Carbon::parse($r->end_date)->endOfDay()
+            ]))
+            ->when(
+                $r->type,
+                fn($q) =>
+                $q->where('damaged_utility_logs.type', $r->type)
+            )
+            ->when(
+                $r->status,
+                fn($q) =>
+                $q->where('damaged_utility_logs.status', $r->status)
+            )->paginate($r->paginate ?? 10);
+        return ApiResponse::successResponse(__('success.data'), $q);
+    }
+
+    private function dul_log($data, $status)
+    {
+        $q = new DamagedUtilityLogs();
+        if ($status == DamagedUtilityLogs::created) $data['datail'] = 'เพิ่มสถานที่ ' . $data['name'];
+        if ($status == DamagedUtilityLogs::updated) $data['datail'] = 'แก้ไขสถานที่ ' . $data['name'];
+        if ($status == DamagedUtilityLogs::deleted) $data['datail'] = 'ลบสถานที่ ' . $data['name'];
+        $q['datail'] = $data;
+        $q['type'] = $data['type'];
+        $q['status'] = $status;
+        $q->save();
     }
 }

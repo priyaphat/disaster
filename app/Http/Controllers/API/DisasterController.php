@@ -330,11 +330,10 @@ class DisasterController extends Controller
                 $row = [];
                 $row[] = ($q['first_graph']['labels'][$i] ?? '') . ': ' . ($q['first_graph']['model'][$i] ?? '');
 
-                if ($i <= 4) {
+                if ($q['second_graph']['model'][$i]['district_name']) {
                     $row[] = ($q['second_graph']['model'][$i]['district_name'] ?? '') . ': ' . ($q['second_graph']['model'][$i]['viirs'] ?? '');
-                } else {
-                    $row[] = null;
                 }
+
                 $rows[] = $row;
             }
             $columns = ['จุดความร้อนตามพื้นที่ใช้ประโยชน์ที่ดิน VIIRS', '5 อันดับ พื้นที่ที่มีจุดความร้อน VIIRS (เชียงราย)'];
@@ -345,12 +344,11 @@ class DisasterController extends Controller
                     $i['created_at'],
                     $i['source'],
                     $i['address'],
-                    $i['status_name'],
                     $i['smog_value'],
                     $i['Resources'],
                 ];
             })->toArray();
-            $columns = ['อัปเดตเมื่อ', 'ชื่อจุดตรวจวัด', 'ตำแหน่งจุดตรวจวัด', 'สถานะ', 'ค่ามลพิษ', 'แหล่งข้อมูล'];
+            $columns = ['อัปเดตเมื่อ', 'ชื่อจุดตรวจวัด', 'ตำแหน่งจุดตรวจวัด', 'ค่ามลพิษ', 'แหล่งข้อมูล'];
         } else if ($case == 'earthquake') {
             $q = $this->disasterService->eq_show(request(), null, 'get');
             $rows = $q->map(function ($i) {

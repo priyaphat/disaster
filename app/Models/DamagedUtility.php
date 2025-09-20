@@ -19,10 +19,13 @@ class DamagedUtility extends Model
 
     protected $fillable = [
         'name',
-        'type'
+        'type',
+        'phone',
+        'address',
+        'geography_id'
     ];
 
-    protected $hidden = ['created_by', 'updated_by', 'created_at', 'updated_at'];
+    protected $hidden = ['created_by', 'updated_by', 'created_at', 'updated_at','geography_id'];
 
     public function getTypeNameAttribute(): string
     {

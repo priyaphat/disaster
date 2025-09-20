@@ -58,6 +58,10 @@ Route::get('/line-login', function () {
 Route::get('/population-line', function () {
     return view('line-login-population');
 });
+Route::get('/line-location', function () {
+    return view('line-login-population');
+});
+
 Route::post('/line-login', [LoginController::class, 'line']);
 Route::post('/line-login-population', [LoginController::class, 'line_population_match']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
@@ -194,7 +198,9 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/damaged-utility-name', [ShelterController::class, 'dmg_name']);
+    Route::get('/damaged-utility-logs', [ShelterController::class, 'damaged_utility_logs']);
     Route::post('/damaged-utility', [ShelterController::class, 'dmg_stroe']);
+    Route::post('/damaged-utility/{id}', [ShelterController::class, 'dmg_update']);
     Route::delete('/damaged-utility/{damaged}', [ShelterController::class, 'dmg_delete']);
 
     /*

@@ -132,10 +132,10 @@ class DisasterRequest extends FormRequest
         ];
         if ($type == 2) {
             $rules['model'] = 'required|array';
-            $rules['model.*.district_id'] = 'required';
-            $rules['model.*.district_name'] = 'required|string';
+            $rules['model.*.district_id'] = 'nullable';
+            $rules['model.*.district_name'] = 'nullable|string';
             // $rules['model.*.modis'] = 'required|numeric';
-            $rules['model.*.viirs'] = 'required|numeric';
+            $rules['model.*.viirs'] = 'nullable|numeric';
         }
         if ($type == 1) {
             $rules['model'] = 'required|array';
@@ -148,7 +148,7 @@ class DisasterRequest extends FormRequest
     {
         return [
             "status" => 'required|integer|in:1,2,3',
-            "smog_value" => 'required|numeric',
+            "smog_value" => 'required|decimal:2',
             "line_oa" => 'required|in:0,1'
         ];
     }
@@ -160,7 +160,7 @@ class DisasterRequest extends FormRequest
             "address" => 'required|string|max:255',
             'geography_id' => 'required',
             "status" => 'required|integer|in:1,2,3',
-            "smog_value" => 'required|numeric',
+            "smog_value" => 'required|decimal:2',
             "line_oa" => 'required|in:0,1',
             'province_id' => 'required',
             'district_id' => 'required',

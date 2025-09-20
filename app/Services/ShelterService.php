@@ -158,7 +158,22 @@ class ShelterService
             $q->where('name', 'like', '%' . $request['search'] . '%')
         );
 
-        if ($type) return PaginateUtility::Paginate($data->get(), $request['paginate'] ?? 10);
+        if ($type) return PaginateUtility::Paginate($data
+            ->leftJoin('geography', 'geography.id', 'damaged_utilities.geography_id')
+            ->select(
+                'damaged_utilities.*',
+                'geography.province_code',
+                'geography.province_name_th',
+                'geography.province_name_en',
+                'geography.district_code',
+                'geography.district_name_th',
+                'geography.district_name_en',
+                'geography.subdistrict_code',
+                'geography.subdistrict_name_th',
+                'geography.subdistrict_name_en',
+                DB::raw('concat("https://www.google.com/maps/search/?api=1&query=",damaged_utilities.name) as gis_map')
+            )
+            ->get(), $request['paginate'] ?? 10);
 
         $data = $data->select('type', DB::raw('count(id) as total'))
             ->groupBy('type')
