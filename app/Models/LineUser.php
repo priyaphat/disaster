@@ -12,7 +12,10 @@ class LineUser extends Model
     protected $fillable = [
         'user_id',
         'token_id',
-        'role'
+        'role',
+        'latitude',
+        'longitude',
+        'province'
     ];
 
     public function staff()

@@ -13,11 +13,13 @@ return new class extends Migration
             $table->id();
             $table->string('token_id')->unique();
             $table->integer('user_id')->nullable();
-            $table->tinyInteger('role')->nullable()->comment('1 user , 2 poppulation');
+            $table->tinyInteger('role')->nullable()->comment('1 user , 2 population');
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->string('province')->nullable();
             $table->timestamps();
         });
     }
-
 
     public function down(): void
     {

@@ -59,11 +59,12 @@ Route::get('/population-line', function () {
     return view('line-login-population');
 });
 Route::get('/line-location', function () {
-    return view('line-login-population');
+    return view('location');
 });
 
 Route::post('/line-login', [LoginController::class, 'line']);
 Route::post('/line-login-population', [LoginController::class, 'line_population_match']);
+Route::post('/line-location',[LineController::class,'gps']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 
 Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');

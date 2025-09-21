@@ -6,6 +6,7 @@ use App\Enums\FloodStatus;
 use App\Enums\ShiftType;
 use App\Enums\SmogStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\ApiResponse;
 use App\Http\Utility\DateUtility;
 use App\Models\LineUser;
 use Illuminate\Http\Request;
@@ -139,7 +140,7 @@ class LineController extends Controller
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
             $recipint = self::areaFind('เชียงราย');
-
+            dd($recipint);
             $message = self::form_box($form, $data, self::Population);
             self::broadcast_multi($recipint, $message);
             return response()->json(["success" => true, "message" => 'Send Line OK.', 'data' => $message]);
@@ -204,12 +205,26 @@ class LineController extends Controller
         }
 
         if ($select == 2 || $select == 'all') {
-            $populationTokens = Population::select('line_users.token_id as token')
+            // $populationTokens = Population::select('line_users.token_id as token')
+            //     ->leftJoin('geography', 'populations.p_geography_id', 'geography.id')
+            //     ->leftJoin('line_users', 'populations.id', 'line_users.user_id')
+            //     ->where('line_users.role', LineUser::Population)
+            //     ->where('geography.province_name_th', $province)
+            //     ->whereNotNull('line_users.token_id')
+            //     ->distinct()
+            //     ->pluck('token');
+            $populationTokens = LineUser::select('line_users.token_id as token')
+                ->leftJoin('populations', 'line_users.user_id', 'populations.id')
                 ->leftJoin('geography', 'populations.p_geography_id', 'geography.id')
-                ->leftJoin('line_users', 'populations.id', 'line_users.user_id')
                 ->where('line_users.role', LineUser::Population)
-                ->where('geography.province_name_th', $province)
                 ->whereNotNull('line_users.token_id')
+                ->where(function ($q) use ($province) {
+                    $q->where('line_users.province', $province)
+                        ->orWhere(function ($q2) use ($province) {
+                            $q2->whereNull('line_users.province')
+                                ->where('geography.province_name_th', $province);
+                        });
+                })
                 ->distinct()
                 ->pluck('token');
 
@@ -639,7 +654,6 @@ class LineController extends Controller
         $this->rich_change($userId, env('RICHMENU_AUTH'));
     }
 
-
     private function rich_change($userId, $richId)
     {
         Http::withToken(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'))
@@ -683,5 +697,21 @@ class LineController extends Controller
             $query->where('team_id', $teamId);
         })->pluck('token_id')->toArray();
         // return LineUser::with('team')->get()->toArray();
+    }
+
+    public function gps(Request $r)
+    {
+        $q = LineUser::where('token_id', $r->userId)->first();
+        if ($q) {
+            $q->update([
+                'latitude' => $r->latitude,
+                'longitude' => $r->longitude,
+                'province' => $r->province,
+                'role' => 2
+            ]);
+            self::broadcast_push($r->userId, __('line.location', ['province' => $r->province]));
+            return ApiResponse::successResponse(__('success.data'));
+        }
+        return ApiResponse::errorResponse(__('error.model_not_found'));
     }
 }
