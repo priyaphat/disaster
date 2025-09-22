@@ -10,7 +10,7 @@ class ProductRequestPolicy
 {
     public function viewAny(User $user): bool
     {
-        $shelterId = request()->get('id');
+        $shelterId = request()->get('shelter_id');
         if ($user->hasRole(Role::STAFF)) {
             return $user->staff?->shelter_id == $shelterId;
         }
