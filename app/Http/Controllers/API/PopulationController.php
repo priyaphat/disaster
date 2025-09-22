@@ -128,6 +128,15 @@ class PopulationController extends Controller
     }
 
     /**
+     * Search population | เช็คประชากรที่อยู่ในระบบ
+     */
+    public function search(Request $request)
+    {
+        $data = $this->populationService->search($request->input('first_name'), $request->input('last_name'));
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    /**
      * Import population | นำเข้าประชากรจากภายนอก
      */
     public function addExternalPop()

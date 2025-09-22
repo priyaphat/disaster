@@ -62,6 +62,7 @@ class EmergencyRequestService
                 }
                 $item->address = $item->address . ' ' . $item->geography->postal_code;
                 $item->victim_name = $victimName;
+                $item->emergency_team_name = $item->team?->name ?? $item->emergency_team_name;
                 return $item;
             });
 

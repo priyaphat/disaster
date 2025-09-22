@@ -243,6 +243,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/population', [PopulationController::class, 'index']);
+    Route::get('/population/search', [PopulationController::class, 'search']);
     Route::get('/population/{population}', [PopulationController::class, 'show']);
     Route::post('/population', [PopulationController::class, 'store']);
     Route::post('/population/{population}', [PopulationController::class, 'update']);

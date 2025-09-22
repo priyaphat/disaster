@@ -91,6 +91,25 @@ class PopulationService
         return new PopulationShowResource($data);
     }
 
+    public function search(?string $firstName = null, ?string $lastName = null)
+    {
+        $query = Population::select('first_name', 'last_name');
+        if ($firstName) {
+            $query->where('first_name', 'like', "%{$firstName}%");
+        }
+
+        if ($lastName) {
+            $query->where('last_name', 'like', "%{$lastName}%");
+        }
+
+        $firstNameList = $query->pluck('first_name');
+        $lastNameList = $query->pluck('last_name');
+        return [
+            'fname_list' => $firstNameList,
+            'lname_list' => $lastNameList
+        ];
+    }
+
     public function checkPopulation(array $data)
     {
         $user = Population::where('first_name', $data['first_name'])
