@@ -39,6 +39,7 @@ class EmergencyRequestRequest extends FormRequest
             'address' => 'nullable|string|max:255',
             'status' => 'nullable|integer',
             'emergency_team_id' => 'nullable|integer',
+            'reason' => 'nullable|max:255',
         ];
     }
 
@@ -58,6 +59,7 @@ class EmergencyRequestRequest extends FormRequest
             'address' => 'nullable|string|max:255',
             'status' => 'nullable|integer',
             'emergency_team_id' => 'nullable|integer',
+            'reason' => 'nullable|max:255',
         ];
     }
 }

@@ -97,7 +97,15 @@ class DisasterService
                 $req->subdistrict,
                 fn($q) =>
                 $q->where('disaster_earthquakes.address', 'like', "%$req->subdistrict%")
+            )->when(
+                $req->externalDataSource == 1,
+                fn($q) => $q->whereNull('disaster_earthquakes.created_by'),
             )
+            ->when(
+                $req->externalDataSource == 2,
+                fn($q) => $q->whereNotNull('disaster_earthquakes.created_by')
+            )
+
             ->when(
                 $req->groupBy,
                 fn($q) =>
@@ -357,6 +365,13 @@ class DisasterService
                 $req->search,
                 fn($q) =>
                 $q->where('disaster_smogs.source', 'like', "%$req->search%")
+            )->when(
+                $req->externalDataSource == 1,
+                fn($q) => $q->whereNull('disaster_smogs.created_by'),
+            )
+            ->when(
+                $req->externalDataSource == 2,
+                fn($q) => $q->whereNotNull('disaster_smogs.created_by')
             )
             ->when(
                 $req->groupBy,

@@ -139,12 +139,12 @@ class ShelterController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'string|max:10',
             'address' => 'string|max:255',
-            'geopraphy_id' => 'exists:geography,id',
-        ], []);
+            'geography_id' => 'exists:geography,id',
+        ]);
 
         if ($data = DamagedUtility::create($data)) {
             self::dul_log($data, DamagedUtilityLogs::created);
-            // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_post, $data);
+            (new LineController)->LineNotification($data, LineController::Damaged_utility_post);
             return ApiResponse::successResponse(__('success.damaged_utility.created'), $data);
         }
     }
@@ -159,13 +159,13 @@ class ShelterController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'string|max:10',
             'address' => 'string|max:255',
-            'geopraphy_id' => 'exists:geography,id',
+            'geography_id' => 'exists:geography,id',
         ], []);
 
         if ($id->update($data)) {
             self::dul_log($id, DamagedUtilityLogs::updated);
-            // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_post, $data);
-            return ApiResponse::successResponse(__('success.damaged_utility.created'), $data);
+            (new LineController)->LineNotification($id->toArray(), LineController::Damaged_utility_post);
+            return ApiResponse::successResponse(__('success.damaged_utility.created'), $this->shelterService->damaged_utility($id->id));
         }
     }
 
@@ -176,7 +176,7 @@ class ShelterController extends Controller
     {
         $damaged->delete();
         self::dul_log($damaged, DamagedUtilityLogs::deleted);
-        // LinePostUtility::LineMakeInformation(LineController::Damaged_utility_end, $damaged);
+        (new LineController)->LineNotification($damaged->toArray(), LineController::Damaged_utility_end);
         return ApiResponse::successResponse(__('success.damaged_utility.deleted'));
     }
 

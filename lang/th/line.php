@@ -38,10 +38,11 @@ return [
 
     'damaged_utilities_head' => "🚨 อัปเดตสาธารณประโยชน์ที่ได้รับความ เสียหาย\n",
 
-    'damaged_utilities_detail_post' => "ขณะนี้ :utility ปิดทำการ :amount แห่ง\n"
-        . ":utility_name\n\n",
+    'damaged_utilities_detail_post' => "ขณะนี้ :utility ปิดทำการ\n"
+        . "• :utility_name\n\n",
 
-    'damaged_utilities_detail_end' => "ขณะนี้ :utility เปิดทำการเป็น ปกติแล้ว\n",
+    'damaged_utilities_detail_end' => "ขณะนี้ :utility เปิดทำการเป็น ปกติแล้ว\n"
+        . "• :utility_name\n\n",
 
     'resource' =>  "🚨 คำร้องขอทรัพยากร\n\n"
         . "ศูนย์พักพิง:shelter\n"

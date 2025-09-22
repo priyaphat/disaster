@@ -32,7 +32,7 @@ class LinePostUtility
             if (in_array($form, [
                 LineController::Disaster_wildfire_m1,
                 LineController::Disaster_wildfire_m2,
-             ])) {
+            ])) {
                 $data = $data['model'];
             }
             return (new LineController)->LineNotification($data, $form);
@@ -41,21 +41,7 @@ class LinePostUtility
 
     public static function LineMakeInformation($form, $data) //use edit data form
     {
-        if ($form == LineController::Damaged_utility_post) {
-            $data = [
-                [
-                    'utility' => DamagedUtility::tryFrom($data['data'][0]['type'])->label(),
-                    'amount' => count($data['data']),
-                    'name' => array_column($data['data'], 'name'),
-                ]
-            ];
-        } else if ($form == LineController::Damaged_utility_end) {
-            $data = [
-                [
-                    'utility' => DamagedUtility::tryFrom($data)->label(),
-                ],
-            ];
-        } else if ($form == LineController::Emc_request_post_team || $form == LineController::Emc_request_end) {
+        if ($form == LineController::Emc_request_post_team || $form == LineController::Emc_request_end) {
             $prefix = Prefix::all()->keyBy('id');
             $team = Team::select(
                 'teams.*',
