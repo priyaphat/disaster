@@ -14,7 +14,7 @@ class PermissionUtility
 
     public static function getRoleName($user)
     {
-        return $user->getRoleNames()->first();
+        return $user->getRoleNames()->first() ?? null;
     }
 
     public static function getPopulationFilters($user)

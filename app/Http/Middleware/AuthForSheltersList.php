@@ -26,9 +26,13 @@ class AuthForSheltersList
         }
 
          // Only the admin role can view close shelters
-        $role = PermissionUtility::getRoleName(Auth::guard('api')->user());
-        if (Auth::guard('api')->check() && $role !== Role::ADMIN && (!$request->has('status') || $request->status != Shelter::OPEN) && !$request->has('role')) {
-            throw new AuthorizationException();
+
+        if (Auth::guard('api')->check() && (!$request->has('status') || $request->status != Shelter::OPEN) && !$request->has('role')) {
+            $user = Auth::guard('api')->user();
+            $role = PermissionUtility::getRoleName($user);
+            if($role !== Role::ADMIN){
+                 throw new AuthorizationException();
+            }
         }
         return $next($request);
     }
