@@ -140,7 +140,6 @@ class LineController extends Controller
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
             $recipint = self::areaFind('เชียงราย');
-            dd($recipint);
             $message = self::form_box($form, $data, self::Population);
             self::broadcast_multi($recipint, $message);
             return response()->json(["success" => true, "message" => 'Send Line OK.', 'data' => $message]);
@@ -257,24 +256,20 @@ class LineController extends Controller
             $text = __('line.shelter_end', ['shelter' => $data['name']]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Damaged_utility_post) {
-            $text = __('line.damaged_utilities_head');
-            foreach ($data as $item) {
-                $text = $text . __('line.damaged_utilities_detail_post', [
-                    'utility' => $item['utility'],
-                    'amount' => $item['amount'],
-                    'utility_name' => "• " . implode("\n• ", $item['name']),
-                ]);
-            }
-            $text = $text . __('line.close_follow');
+            $text = __('line.damaged_utilities_head')
+                . __('line.damaged_utilities_detail_post', [
+                    'utility' => $data['type_name'],
+                    'utility_name' => $data['name'],
+                ])
+                . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Damaged_utility_end) {
-            $text = __('line.damaged_utilities_head');
-            foreach ($data as $item) {
-                $text = $text . __('line.damaged_utilities_detail_end', [
-                    'utility' => $item['utility'],
-                ]);
-            }
-            $text = $text . "\n" . __('line.close_follow');
+            $text = __('line.damaged_utilities_head')
+                . __('line.damaged_utilities_detail_end', [
+                    'utility' => $data['type_name'],
+                    'utility_name' => $data['name'],
+                ])
+                . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Resource) {
             $text = __('line.resource', [

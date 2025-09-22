@@ -9,6 +9,7 @@ use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Resources\ShelterResource;
+use App\Http\Responses\ApiResponse;
 use App\Http\Utility\PaginateUtility;
 use App\Models\DamagedUtility as ModelsDamagedUtility;
 use App\Models\Population;
@@ -146,6 +147,25 @@ class ShelterService
         ], DamagedUtility::cases());
     }
 
+    public function damaged_utility($id)
+    {
+        return ModelsDamagedUtility::select(
+            'damaged_utilities.*',
+            'geography.province_code',
+            'geography.province_name_th',
+            'geography.province_name_en',
+            'geography.district_code',
+            'geography.district_name_th',
+            'geography.district_name_en',
+            'geography.subdistrict_code',
+            'geography.subdistrict_name_th',
+            'geography.subdistrict_name_en',
+            'geography.postal_code',
+            DB::raw('concat("https://www.google.com/maps/search/?api=1&query=",damaged_utilities.name) as gis_map')
+        )->leftJoin('geography', 'geography.id', 'damaged_utilities.geography_id')
+            ->where('damaged_utilities.id', $id)->first();
+    }
+
     public function damaged_utilities($request, $type = null)
     {
         $data = ModelsDamagedUtility::query()->when(
@@ -171,6 +191,7 @@ class ShelterService
                 'geography.subdistrict_code',
                 'geography.subdistrict_name_th',
                 'geography.subdistrict_name_en',
+                'geography.postal_code',
                 DB::raw('concat("https://www.google.com/maps/search/?api=1&query=",damaged_utilities.name) as gis_map')
             )
             ->get(), $request['paginate'] ?? 10);

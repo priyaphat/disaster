@@ -10,7 +10,7 @@ class ConfigSeeder extends Seeder
 {
     /**
      * php artisan db:seed --class=ConfigSeeder
-     * type 1 line , 2 line id , 3 weather , 4 chart , 5 disasterCornjob
+     * type 1 line , 2 line id , 3 weather , 4 chart , 5 disasterCornjob , 6 lineCount
      */
 
     public function run(): void
@@ -105,7 +105,9 @@ class ConfigSeeder extends Seeder
                 "smog" => 0,
                 "earthquake" => 0,
                 "wildfire" => 0
-            ]]
+            ]],
+            ['name' => 'lineCredit', 'type' => 6, 'description' => 6],
+
         ];
 
         foreach ($configs as $config) {
