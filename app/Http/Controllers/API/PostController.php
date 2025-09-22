@@ -9,10 +9,12 @@ use App\Models\EmergencyPost;
 use Illuminate\Http\Request;
 use App\Services\EmergencyPostService;
 use App\Http\Requests\EmergencyPostRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Spatie\FlareClient\Api;
 
 class PostController extends Controller
 {
+    use AuthorizesRequests;
     public function __construct(private EmergencyPostService $emergencyPostService) {}
 
     /**
@@ -38,6 +40,7 @@ class PostController extends Controller
      */
     public function store(EmergencyPostRequest $request)
     {
+        $this->authorize('create', EmergencyPost::class);
         $request['status'] = 1; //set default
         //repetitive updated
         $q = EmergencyPost::where('disaster_id', $request->disaster_id)
@@ -57,6 +60,7 @@ class PostController extends Controller
      */
     public function update(EmergencyPostRequest $request, EmergencyPost $post)
     {
+        $this->authorize('update', EmergencyPost::class);
         //repetitive to stop
         $q = EmergencyPost::where('disaster_id', $request->disaster_id)
             ->where('status', EmergencyPost::active)
@@ -77,6 +81,7 @@ class PostController extends Controller
      */
     public function destroy(EmergencyPost $post)
     {
+        $this->authorize('delete', EmergencyPost::class);
         $post = $this->emergencyPostService->delete($post);
         return ApiResponse::successResponse(__('success.data'), $post);
     }

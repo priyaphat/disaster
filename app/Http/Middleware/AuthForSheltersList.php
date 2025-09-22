@@ -2,8 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Utility\PermissionUtility;
+use App\Models\Role;
 use App\Models\Shelter;
 use Closure;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +23,12 @@ class AuthForSheltersList
     {
         if (!Auth::guard('api')->check() && $request->has('status') && $request->status != Shelter::OPEN) {
             throw new AuthenticationException();
+        }
+
+         // Only the admin role can view close shelters
+        $role = PermissionUtility::getRoleName(Auth::guard('api')->user());
+        if (Auth::guard('api')->check() && $role !== Role::ADMIN && (!$request->has('status') || $request->status != Shelter::OPEN) && !$request->has('role')) {
+            throw new AuthorizationException();
         }
         return $next($request);
     }

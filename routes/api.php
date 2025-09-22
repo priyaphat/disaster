@@ -36,6 +36,7 @@ use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
+use App\Http\Controllers\API\UserRoleController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -159,7 +160,6 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/users', [UserController::class, 'index']); // All users
     Route::get('/users/available', [UserController::class, 'selectable']); // All users
-    // Route::get('/users', [UserController::class, 'list']);
     Route::get('/user/{user}', [UserController::class, 'show']);
     Route::post('/user', [UserController::class, 'store']);
     Route::post('/user/{user}', [UserController::class, 'update']);
@@ -168,6 +168,10 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/profile', [UserController::class, 'updateProfile']);
+
+    // assign and delete role route
+    Route::post('/user/{user}/role', [UserRoleController::class, 'store']);
+    Route::delete('/user/{user}/role', [UserRoleController::class, 'delete']);
 
     /*
     |--------------------------------------------------------------------------
@@ -178,12 +182,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/new/{news}', [NewsController::class, 'update']);
     Route::delete('/new/{news}', [NewsController::class, 'destroy']);
 
-    Route::post('/role', [PermissionController::class, 'createRole']);
-
-    Route::group(['middleware' => ['permission:team.view']], function () {});
-
-    Route::get('/roles', [PermissionController::class, 'showRoles']);
-    Route::get('/permissions', [PermissionController::class, 'showPermissions']);
+    Route::post('/role', [PermissionController::class, 'store']);
+    Route::get('/roles', [PermissionController::class, 'show']);
     /*
     |--------------------------------------------------------------------------
     | Routes for display shelters
@@ -251,6 +251,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/population-exit-all', [ShelterPopulationController::class, 'exitAll']);
     Route::post('/population-check', [PopulationController::class, 'checkPopulation']);
     Route::post('/population-add', [PopulationController::class, 'addExternalPop']);
+    Route::delete('/population', [PopulationController::class, 'destroyAll']);
 
     /*
     |--------------------------------------------------------------------------
@@ -468,5 +469,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
-    Route::get('/assessment-logs/{id}', [AssessmentController::class, 'logs']);
+    Route::get('/assessment-logs/{log}', [AssessmentController::class, 'logs']);
 });

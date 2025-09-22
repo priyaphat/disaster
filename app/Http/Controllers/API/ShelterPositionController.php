@@ -9,10 +9,12 @@ use App\Http\Responses\ApiResponse;
 use App\Models\ShelterPosition;
 use App\Services\ShelterPositionService;
 use Dedoc\Scramble\Attributes\PathParameter;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class ShelterPositionController extends Controller
 {
+    use AuthorizesRequests;
     protected $shelterPositionService;
 
     public function __construct(ShelterPositionService $shelterPositionService)
@@ -26,6 +28,7 @@ class ShelterPositionController extends Controller
     public function index()
     {
         //
+        $this->authorize('viewAny', ShelterPosition::class);
         $data = $this->shelterPositionService->getList();
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -36,6 +39,7 @@ class ShelterPositionController extends Controller
     public function store(CreateShelterPositionRequest $request)
     {
         //
+        $this->authorize('create', ShelterPosition::class);
         $data = $this->shelterPositionService->create($request->all());
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
@@ -47,6 +51,7 @@ class ShelterPositionController extends Controller
     public function update(UpdateShelterPositionRequest $request, ShelterPosition $shelterPosition)
     {
         //
+        $this->authorize('update', ShelterPosition::class);
         $data = $this->shelterPositionService->update($shelterPosition, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
@@ -58,6 +63,7 @@ class ShelterPositionController extends Controller
     public function destroy(ShelterPosition $shelterPosition)
     {
         //
+        $this->authorize('delete', ShelterPosition::class);
         $this->shelterPositionService->delete($shelterPosition);
         return ApiResponse::successResponse(__('success.deleted'));
     }

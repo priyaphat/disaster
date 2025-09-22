@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Traits\CreatedUpdatedBy;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -31,6 +32,17 @@ class Assessments extends Model
         'count',
         'status',
     ];
+
+    
+    public function logs()
+    {
+        return $this->hasMany(AssessmentLogs::class, 'assessment_id', 'id');
+    }
+
+    public function population()
+    {
+         return $this->belongsTo(Population::class, 'population_id', 'id');
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

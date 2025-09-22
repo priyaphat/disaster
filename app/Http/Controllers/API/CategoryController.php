@@ -9,12 +9,14 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\CategoryService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Spatie\FlareClient\Api;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class CategoryController extends Controller
 {
+    use AuthorizesRequests;
     protected $categoryService;
 
     public function __construct(CategoryService $categoryService)
@@ -30,18 +32,22 @@ class CategoryController extends Controller
 
     public function store(CreateCategoryRequest $request)
     {
+        $this->authorize('create', Category::class);
         $data = $this->categoryService->create($request->all());
         return ApiResponse::createdResponse(__('success.categories.created'), $data);
     }
 
     public function update(UpdateCategoryRequest $request, Category $category)
     {
+        $this->authorize('update', Category::class);
         $data = $this->categoryService->update($category, $request->all());
         return ApiResponse::successResponse(__('success.categories.updated'), $data);
     }
 
     public function destroy(Category $category)
     {
+        $this->authorize('delete', Category::class);
+    
         if (Product::where('category_id', $category->id)->first()) {
             throw new BadRequestHttpException(__('error.sql.fk-constraint2'));
         }

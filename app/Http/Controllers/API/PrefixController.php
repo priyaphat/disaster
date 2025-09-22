@@ -8,9 +8,11 @@ use App\Http\Requests\Prefix\UpdatePrefixRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Prefix;
 use App\Services\PrefixService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PrefixController extends Controller
 {
+    use AuthorizesRequests;
     protected $prefixService;
 
     public function __construct(PrefixService $prefixService)
@@ -33,6 +35,7 @@ class PrefixController extends Controller
     public function store(StorePrefixRequest $request)
     {
         //
+        $this->authorize('create', Prefix::class);
         $data = $this->prefixService->create($request->all());
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
@@ -42,6 +45,7 @@ class PrefixController extends Controller
      */
     public function show(Prefix $prefix)
     {
+        $this->authorize('view', Prefix::class);
         return ApiResponse::successResponse(__('success.data'), $prefix);
     }
 
@@ -51,6 +55,7 @@ class PrefixController extends Controller
     public function update(UpdatePrefixRequest $request, Prefix $prefix)
     {
         //
+        $this->authorize('update', Prefix::class);
         $data = $this->prefixService->update($prefix, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
@@ -61,6 +66,7 @@ class PrefixController extends Controller
     public function destroy(Prefix $prefix)
     {
         //
+        $this->authorize('delete', Prefix::class);
         $this->prefixService->delete($prefix);
         return ApiResponse::successResponse(__('success.deleted'));
     }

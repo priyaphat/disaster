@@ -23,7 +23,10 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             PositionSeeder::class,
             PrefixSeeder::class,
-            UserSeeder::class,
+            ShelterPositionSeeder::class,
+            DisasterSeeder::class,
+            ConfigSeeder::class,
+            // UserSeeder::class,
         ]);
     }
 }

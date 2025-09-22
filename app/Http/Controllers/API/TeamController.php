@@ -17,9 +17,11 @@ use App\Services\NotificationService;
 use App\Services\TeamService;
 use Illuminate\Http\Request;
 use Dedoc\Scramble\Attributes\BodyParameter;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TeamController extends Controller
 {
+    use AuthorizesRequests;
     protected $teamService, $notificationService;
 
     public function __construct(TeamService $teamService, NotificationService $notificationService)
@@ -33,6 +35,8 @@ class TeamController extends Controller
      */
     public function index(FilterTeamRequest $request)
     {
+        $this->authorize('viewAny', Team::class);
+        
         $paginate = $request->has('paginate');
         $perPage = $request->input('paginate') ?? 10;
         $data = $this->teamService->getList($request->all(), $paginate, $perPage);
@@ -45,6 +49,8 @@ class TeamController extends Controller
     public function store(StoreTeamRequest $request)
     {
         //
+        $this->authorize('create', Team::class);
+
         $data = $this->teamService->create($request->normalized());
         return ApiResponse::createdResponse(__('success.team.created'), $data);
     }
@@ -54,6 +60,8 @@ class TeamController extends Controller
      */
     public function show(Request $request, string $id)
     {
+        $this->authorize('view', Team::class);
+
         $data = $this->teamService->show($id, $request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -63,6 +71,8 @@ class TeamController extends Controller
      */
     public function update(UpdateTeamRequest $request, Team $team)
     {
+        $this->authorize('update', $team);
+
         $data = $this->teamService->update($team, $request->normalized());
         return ApiResponse::successResponse(__('success.team.updated'), $data);
     }
@@ -73,6 +83,8 @@ class TeamController extends Controller
     public function destroy(Team $team)
     {
         //
+        $this->authorize('delete', $team);
+
         $this->teamService->delete($team);
         return ApiResponse::successResponse(__('success.team.deleted'));
     }

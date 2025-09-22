@@ -17,10 +17,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\SearchService;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProductTransferController extends Controller
 {
-
+    use AuthorizesRequests;
     protected $search;
     public function __construct(SearchService $search)
     {
@@ -32,6 +33,9 @@ class ProductTransferController extends Controller
      */
     public function shelterList(Request $filter)
     {
+        // แสดง shelter ที่ สามารถ ย้ายทรัพยากรไปได้
+        $this->authorize('isAdmin', Shelter::class);
+
         $q = Shelter::select('id', 'name')->where('id', '!=', ProductUtility::getShelter())
             ->where('status', Shelter::OPEN);
         $q = $this->search->search($q, $filter, 'get');
@@ -42,6 +46,13 @@ class ProductTransferController extends Controller
      * Get product for tranfer , your shelter
      */
     public function productList(Request $filter, $unit_type = true, $shelter = null) //shelter from (all delete)
+    {
+        // แสดง ทรัพยากร ที่ shelter มี และสามารถ โอนได้
+        $this->authorize('viewAny', ShelterProduct::class);
+        return $this->getProductList($filter, $unit_type, $shelter);
+    }
+
+    public function getProductList(Request $filter, $unit_type = true, $shelter = null) //shelter from (all delete)
     {
         $shelter = $shelter ?? ProductUtility::getShelter();
         $q = ShelterProduct::select(
@@ -70,6 +81,9 @@ class ProductTransferController extends Controller
      */
     public function productLog(Request $filter)
     {
+        // แสดง log การโอนสินค้า ผู้ดูแลศูนย์นั้นๆ ดูได้อย่างเดียว
+        $this->authorize('viewAny', ProductLogs::class);
+
         $shelter = ProductUtility::getShelter();
         $e = ProductLogs::select(
             'product_logs.*',
@@ -126,6 +140,8 @@ class ProductTransferController extends Controller
      */
     public function store(ProductTransferRequest $request, $shelter = null) //shelter from (all trasfer)
     {
+        // โอนย้าย ทรัพยากร
+        $this->authorize('create', ShelterProduct::class);
         $shelter = $shelter ?? ProductUtility::getShelter();
         $to = $request['shelter_id'] ?? '0';
         if ($shelter == $to) return ApiResponse::errorResponse(__('auth.unauthenicated_transfer'));

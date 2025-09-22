@@ -6,17 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\Config;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Spatie\FlareClient\Api;
 
 class ConfigController extends Controller
 {
+    use AuthorizesRequests;
 
     /**
      * Config | ดึง config ตัวแปร / ปุ้ย
      */
     public function index(Request $request, $id = null)
     {
+        $this->authorize('viewAny', Config::class);
+
         $user = $request->user;
         $population = $request->population;
         $data = Config::select('*');
@@ -53,6 +57,8 @@ class ConfigController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Config::class);
+
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:configs,name',
             'type' => 'nullable|integer|in:1,2',
@@ -69,6 +75,8 @@ class ConfigController extends Controller
      */
     public function update(Request $request, Config $config)
     {
+        $this->authorize('update', Config::class);
+
         $data = $request->validate([
             // 'name' => 'nullable|string|max:255|unique:configs,name,' . $config->id,
             // 'type' => 'nullable|integer|in:1,2',
@@ -97,6 +105,7 @@ class ConfigController extends Controller
      */
     public function reset()
     {
+        $this->authorize('update', Config::class);
         // Config::where('type', 1)->update([
         //     'description->population' => 0,
         //     'description->user' => 0,
@@ -118,6 +127,7 @@ class ConfigController extends Controller
      */
     public function destroy(Config $config)
     {
+        $this->authorize('delete', Config::class);
         $config->delete();
         return ApiResponse::successResponse(__('success.deleted'));
     }

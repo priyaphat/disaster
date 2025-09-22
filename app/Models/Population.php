@@ -154,6 +154,11 @@ class Population extends Model
         return $this->belongsTo(Prefix::class, 'prefix_id');
     }
 
+    public function assessments()
+    {
+        return $this->hasMany(Assessments::class, 'population_id', 'id');
+    }
+
     public function logs()
     {
         return $this->morphMany(TransferHistory::class, 'parentable');

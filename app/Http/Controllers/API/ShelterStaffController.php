@@ -74,11 +74,12 @@ class ShelterStaffController extends Controller
     #[PathParameter('userId', description: 'ส่ง id ของ user_id', type: 'integer', example: 3)]
     public function transfer(TransferShelterStaffRequest $request, $userId)
     {
-
         $staff = ShelterStaff::where('user_id', $userId)->first();
+
         if (!$staff) {
             throw new ModelNotFoundException();
         }
+
         $oldShelter_id = $staff->shelter_id;
         $newShelter_id = $request->shelter_id;
 

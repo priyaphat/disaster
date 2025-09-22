@@ -15,11 +15,13 @@ use App\Services\ShelterService;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ShelterController extends Controller
 {
+    use AuthorizesRequests;
     protected $shelterService;
 
     public function __construct(
@@ -48,6 +50,8 @@ class ShelterController extends Controller
      */
     public function store(CreateShelterRequest $request)
     {
+        $this->authorize('create', Shelter::class);
+
         $data = $this->shelterService->create($request->all());
         (new LineController)->LineNotification($data->toArray(), LineController::Shelter_post);
         return ApiResponse::createdResponse(__('success.created'), $data);
@@ -59,6 +63,8 @@ class ShelterController extends Controller
     #[PathParameter('shelter', description: 'ส่ง id ของ shelters', type: 'string', example: '3')]
     public function update(UpdateShelterRequest $request, Shelter $shelter)
     {
+        $this->authorize('update', $shelter);
+
         // Update only status
         if ($request->has('status') && count($request->all()) === 1) {
             $data = $this->shelterService->update($shelter, $request->only('status'));

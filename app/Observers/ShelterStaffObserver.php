@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\ActionType;
+use App\Models\Role;
 use App\Models\Shelter;
 use App\Models\ShelterPosition;
 use App\Models\ShelterStaff;
@@ -37,6 +38,9 @@ class ShelterStaffObserver
             $notification = $this->notificationService->createNotification('shelter_position.updated', [], $shelterStaff->id, ShelterStaff::class, false);
             $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
         }
+
+        // Add staff role to user
+        $shelterStaff->user->assignRole(Role::STAFF);
     }
 
     /**
@@ -67,5 +71,8 @@ class ShelterStaffObserver
         // Send a notification
         $notification = $this->notificationService->createNotification('shelter_staff.leaved', ['name' => $shelterStaff->shelter->name], $shelterStaff->id, ShelterStaff::class, false);
         $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
+
+        // Remove all roles from user
+        $shelterStaff->user->syncRoles([]);
     }
 }

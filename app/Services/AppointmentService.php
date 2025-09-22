@@ -8,8 +8,10 @@ use App\Http\Resources\AppointmentResource;
 use App\Http\Utility\ConvertUtility;
 use App\Http\Utility\LogUtility;
 use App\Models\Appointment;
+use App\Models\Role;
 use App\Utility\GvarFunc;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Illuminate\Support\Str;
 

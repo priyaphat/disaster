@@ -9,9 +9,11 @@ use App\Http\Requests\Department\UpdateDepartmentRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Department;
 use App\Services\DepartmentService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class DepartmentController extends Controller
 {
+    use AuthorizesRequests;
     protected $departmentService;
 
     public function __construct(DepartmentService $departmentService)
@@ -36,6 +38,7 @@ class DepartmentController extends Controller
     public function store(StoreDepartmentRequest $request)
     {
         //
+        $this->authorize('create', Department::class);
         $data = $this->departmentService->create($request->all());
         return ApiResponse::successResponse(__('success.created'), $data);
     }
@@ -45,6 +48,7 @@ class DepartmentController extends Controller
      */
     public function show(Department $department)
     {
+        $this->authorize('view', Department::class);
         return ApiResponse::successResponse(__('success.data'), $department);
     }
 
@@ -54,6 +58,8 @@ class DepartmentController extends Controller
     public function update(UpdateDepartmentRequest $request, Department $department)
     {
         //
+        $this->authorize('update', Department::class);
+
         $data = $this->departmentService->update($department, $request->all());
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
@@ -64,6 +70,8 @@ class DepartmentController extends Controller
     public function destroy(Department $department)
     {
         //
+        $this->authorize('delete', Department::class);
+
         $this->departmentService->delete($department);
         return ApiResponse::successResponse(__('success.deleted'));
     }

@@ -6,6 +6,7 @@ use App\Filters\ShelterFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\URL;
 use Spatie\Activitylog\LogOptions;
@@ -13,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Shelter extends Model
 {
-    use CreatedUpdatedBy, LogsActivity;
+    use CreatedUpdatedBy, LogsActivity, HasFactory;
 
     public const IMAGE_FOLDER = 'shelter';
     public const OPEN = 1;

@@ -26,18 +26,30 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
     public function definition(): array
     {
+        $faker = fake('th_TH');
+        $type = fake()->randomElement(UserType::cases())->value;
+        if ($type == UserType::INSIDE_AREA->value) {
+            $districtId = Geography::where('province_name_th', 'เชียงราย')
+                ->inRandomOrder()
+                ->first()?->district_code;
+        } else {
+            $districtId = Geography::inRandomOrder()
+                ->first()?->district_code;
+        }
+
         return [
             'email' => fake()->unique()->safeEmail(),
             'username' => fake()->userName(),
             'password' => static::$password ??= Hash::make('password'),
             'prefix_id' => Prefix::inRandomOrder()->first()?->id,
-            'firstname' => fake()->firstName(),
-            'lastname' => fake()->lastName(),
-            'phone' => fake()->phoneNumber(),
-            'type' => fake()->randomElement(UserType::cases())->value,
-            'district_id' => Geography::inRandomOrder()->first()?->district_code,
+            'firstname' => $faker->firstName(),
+            'lastname' => $faker->lastName(),
+            'phone' => fake()->numerify('0#########'),
+            'type' => $type,
+            'district_id' => $districtId,
             'department_id' => Department::inRandomOrder()->first()?->id,
             'position_id' => Position::inRandomOrder()->first()?->id,
             'remember_token' => Str::random(10),
@@ -49,7 +61,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }

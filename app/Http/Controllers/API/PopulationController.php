@@ -5,17 +5,23 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Population\CheckPopulationRequest;
 use App\Http\Requests\Population\CreatePopulationRequest;
-use App\Http\Requests\Population\ExitAllPopulationRequest;
-use App\Http\Requests\Population\TransferPopulationRequest;
 use App\Http\Requests\Population\UpdatePopulationRequest;
 use Illuminate\Http\Request;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\PermissionUtility;
 use App\Models\AssessmentLogs;
 use App\Models\Assessments;
+use App\Models\EmergencyPost;
+use App\Models\EmergencyPostLog;
 use App\Models\Image;
+use App\Models\News;
 use App\Models\Population;
+use App\Models\Product;
+use App\Models\ProductLogs;
 use App\Models\Shelter;
 use App\Models\ShelterPopulation;
+use App\Models\ShelterProduct;
+use App\Models\ShelterStaff;
 use App\Models\TransferHistory;
 use App\Services\ImageService;
 use App\Services\PopulationService;
@@ -23,10 +29,14 @@ use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Dedoc\Scramble\Attributes\QueryParameter;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 
 class PopulationController extends Controller
 {
+    use AuthorizesRequests;
     protected $populationService, $shelterService, $transferLogService, $imageService;
 
     public function __construct(PopulationService $populationService, ShelterService $shelterService, TransferHistoryService $transferLogService, ImageService $imageService)
@@ -50,8 +60,13 @@ class PopulationController extends Controller
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function index(Request $request)
     {
-        $data = $this->populationService->getList($request->all());
-        $summary = $this->populationService->summary($request->except('sort'));
+        $this->authorize('viewAny', Population::class);
+
+        $optional = PermissionUtility::getPopulationFilters(Auth::user());
+        $filters = array_merge($request->all(), $optional);
+
+        $data = $this->populationService->getList($filters);
+        $summary = $this->populationService->summary(Arr::except($filters, ['sort']));
         return ApiResponse::customSuccessResponse(__('success.data'), [
             'data' => $data,
             'summary' => $summary
@@ -63,6 +78,8 @@ class PopulationController extends Controller
      */
     public function store(CreatePopulationRequest $request)
     {
+        $this->authorize('create', Population::class);
+
         $data = $this->populationService->create($request->all());
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
@@ -73,6 +90,8 @@ class PopulationController extends Controller
     #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function show(Population $population)
     {
+        $this->authorize('view', $population);
+
         $data = $this->populationService->show($population);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -83,9 +102,11 @@ class PopulationController extends Controller
     #[PathParameter('population', description: 'ส่ง id ของ populations', type: 'string', example: '25')]
     public function update(UpdatePopulationRequest $request, Population $population)
     {
-        $prevShelter = $population->shelterPopulation->shelter_id;
-        $isJson = $request->isJson();
-        $data = $this->populationService->update($population, $request->all(), $isJson);
+        $this->authorize('update', Population::class);
+
+        $prevShelter = $population->shelter_id;
+        $data = $this->populationService->update($population, $request->all());
+        // $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
 
         if ($prevShelter == $data->shelterPopulation->shelter_id) {
             return ApiResponse::successResponse(__('success.updated'), $data);
@@ -115,7 +136,7 @@ class PopulationController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-     /**
+    /**
      * Delete all populations | ลบประชากรทั้งหมด
      */
     public function destroy(Population $population)
@@ -123,14 +144,16 @@ class PopulationController extends Controller
         //
         $population->shelterPopulation->delete();
         $population->image->delete();
+        $population->assessments->log->delete();
         $population->assessments->delete();
+        $population->histories->delete();
 
-        AssessmentLogs::truncate();
-        Assessments::truncate();
-        ShelterPopulation::truncate();
-        Population::truncate();
-        Image::where('parentable_type', Population::class)->delete();
-        TransferHistory::where('parentable_type', Population::class)->delete();
+        // AssessmentLogs::truncate();
+        // Assessments::truncate();
+        // ShelterPopulation::truncate();
+        // Population::truncate();
+        // Image::where('parentable_type', Population::class)->delete();
+        // TransferHistory::where('parentable_type', Population::class)->delete();
         return ApiResponse::successResponse(__('success.population.deleted'));
     }
 
@@ -139,13 +162,45 @@ class PopulationController extends Controller
      */
     public function destroyAll()
     {
-        //
-        AssessmentLogs::truncate();
-        Assessments::truncate();
-        ShelterPopulation::truncate();
-        Population::truncate();
+        AssessmentLogs::query()->delete();
+        Assessments::query()->delete();
+        ShelterPopulation::query()->delete();
         Image::where('parentable_type', Population::class)->delete();
         TransferHistory::where('parentable_type', Population::class)->delete();
+        Population::query()->delete();
+
+        News::query()->delete();
+
+        ShelterStaff::query()->delete();
+        ShelterProduct::query()->delete();
+        Shelter::query()->delete();
+
+        ProductLogs::query()->delete();
+        Product::query()->delete();
+
+        EmergencyPost::query()->delete();
+        EmergencyPostLog::query()->delete();
+        ProductLogs::query()->delete();
+        Product::query()->delete();
+
+        // reset auto increment ด้วย
+        DB::statement('ALTER TABLE assessment_logs AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE assessments AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE shelter_populations AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE populations AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE images AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE transfer_histories AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE shelter_staffs AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE news AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE shelters AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE shelters AUTO_INCREMENT = 1;');
+
+        DB::statement('ALTER TABLE product_logs AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE products AUTO_INCREMENT = 1;');
+
+        // DB::statement('ALTER TABLE products AUTO_INCREMENT = 1;');
+        // DB::statement('ALTER TABLE products AUTO_INCREMENT = 1;');
+
         return ApiResponse::successResponse(__('success.population.deleted'));
     }
 }
