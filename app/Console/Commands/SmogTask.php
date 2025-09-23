@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\API\LineController;
+use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterSmog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -39,13 +41,15 @@ class SmogTask extends Command
             $address = str_replace(", ", " จ.", $area['areaTH']);
             $aqi = $area['AQILast']['PM25']['value'] ?? '-';
             $status = self::getStatus($aqi);
-            DisasterSmog::create([
+            $data = [
                 'source' => $area['nameTH'],
                 'address' => $address,
                 'status' => $status,
                 'smog_value' => $aqi,
                 'host' => 'air4thai.pcd.go.th',
-            ]);
+            ];
+            DisasterSmog::create($data);
+            LinePostUtility::line_oa_call(LineController::Disaster_smog, $data);
         }
 
         // Log::info("Get smog data from external API");

@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\API\LineController;
+use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterEarthquake;
 use App\Models\DisasterWildfire;
 use App\Models\Geography;
@@ -55,6 +57,7 @@ class WildfireTask extends Command
             $data->host = "api-gateway.gistda.or.th";
             $data->created_at =  $createdAt;
             $data->save();
+            LinePostUtility::line_oa_call(LineController::Disaster_wildfire_m2, $data->toArray());
         }
     }
 }

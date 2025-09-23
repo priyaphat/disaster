@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\API\LineController;
+use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterEarthquake;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -45,15 +47,17 @@ class EarthquakeTask extends Command
         $areas = $areas->whereBetween('DateTimeThai', [$start, $end])->values();
 
         foreach ($areas as $area) {
-            DisasterEarthquake::create([
+            $data = [
                 'address' => $area['TitleThai'],
                 'latitude' => $area['Latitude'],
                 'longitude' => $area['Longitude'],
-                'depth' => $area['Longitude'],
+                'depth' => $area['Depth'],
                 'magnitude' => $area['Magnitude'],
                 'occurrence_time' => $area['DateTimeThai'],
-                'host'=> 'data.tmd.go.th',
-            ]);
+                'host' => 'data.tmd.go.th',
+            ];
+            LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $data);
+            DisasterEarthquake::create($data);
         }
     }
 }

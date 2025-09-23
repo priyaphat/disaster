@@ -103,9 +103,9 @@ class EmergencyRequestController extends Controller
      * Emergency request | อัพเดตรายการแจ้งเหตุฉุกเฉิน  ตัวแปร / ปุ้ย .
      */
     public function update(EmergencyRequestRequest $request, EmergencyRequest $emergencyRequest)
-    {   
+    {
         $this->authorize('update', $emergencyRequest);
-        
+
         if ($edit = self::canEdit($emergencyRequest)) return $edit;
 
         $old = clone $emergencyRequest;
@@ -124,6 +124,7 @@ class EmergencyRequestController extends Controller
             // ส่งให้แค่หัวหน้าทีม
             $notification = $this->notificationService->createNotification('emergency_request.canceled', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
             $this->notificationService->sendToTeamLeader($notification, $emergencyRequest->emergency_team_id);
+            $textResponse = __('success.emc_request.delTeam');
         } else if (
             $old['emergency_team_id']
             && $request['emergency_team_id']
@@ -143,6 +144,7 @@ class EmergencyRequestController extends Controller
             // ส่งอันใหม่
             $notification = $this->notificationService->createNotification('emergency_request.assigned', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
             $this->notificationService->sendToTeamLeader($notification, $request['emergency_team_id']);
+            $textResponse = __('success.emc_request.changeTeam');
         }
 
         if ($emergencyRequest['status'] == EmergencyRequest::approve)  $request['assigner'] = Auth::user()->id;
@@ -150,37 +152,51 @@ class EmergencyRequestController extends Controller
         $data->load('team');
         if ($request->status != $old['status']) {
             if ($emergencyRequest['status'] == EmergencyRequest::waiting && $skip == false) {
-                // ส้งไปให้ส่วนกลาง
+                // ส้งไปให้ส่วนกลาง หัวหน้าทีม กด ปฏิเสธ ปะ ? 
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_unaccept, $emergencyRequest);
                 $emergencyRequest->update(['emergency_team_id' => null]);
                 $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $data->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToCenterStaff($notification);
+                $textResponse = __('success.emc_request.delTeam');
             } else if ($emergencyRequest['status'] == EmergencyRequest::approve) {
                 // ส่งหัวหน้า
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
-
                 $notification = $this->notificationService->createNotification('emergency_request.assigned', ['team' => $data->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToTeamLeader($notification, $data->emergency_team_id);
+                $textResponse = __('success.emc_request.approve');
             } else if ($emergencyRequest['status'] == EmergencyRequest::helping) { //ส่งแจ้งเตือนให้ลูกทีมทราบ
                 LinePostUtility::LineMakeInformation(LineController::Emc_assigned, $emergencyRequest);
-
                 $notification = $this->notificationService->createNotification('emergency_request.approved', ['team' => $data->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToCenterStaff($notification);
-
                 $notification = $this->notificationService->createNotification('emergency_request.assigned', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToTeamMember($notification, $data->emergency_team_id);
+                $textResponse = __('success.emc_request.heling');
             } else if ($emergencyRequest['status'] == EmergencyRequest::complete) { //ส่งแจ้งเตือน ช่วยเหลือสำเร็จ
+                self::updatedAssigner($emergencyRequest);
                 LinePostUtility::LineMakeInformation(LineController::Emc_success, $emergencyRequest);
                 $notification = $this->notificationService->createNotification('emergency_request.success', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToCenterStaff($notification);
+                $textResponse = __('success.emc_request.complete');
             } else if ($emergencyRequest['status'] == EmergencyRequest::incomplete) { //ส่งแจ้งเตือน ช่วยเหลือไม่สำเร็จ
+                self::updatedAssigner($emergencyRequest);
                 LinePostUtility::LineMakeInformation(LineController::Emc_unsuccess, $emergencyRequest);
                 $notification = $this->notificationService->createNotification('emergency_request.unsuccess', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToCenterStaff($notification);
+                $textResponse = __('success.emc_request.incomplete');
             }
         }
+        if ($emergencyRequest['victim_name'] != $request['victim_name']) $textResponse = __('success.emc_request.victimName ');
+        if ($emergencyRequest['status'] == EmergencyRequest::disapprove) $textResponse = __('success.emc_request.disapprove ');
+        return ApiResponse::successResponse($textResponse ?? __('success.updated'), $emergencyRequest);
+    }
 
-        return ApiResponse::successResponse(__('success.updated'), $emergencyRequest);
+    private function updatedAssigner($e)
+    {
+        if (!$e['assigner']) {
+            $e->update([
+                'assigner' => Auth::user()->id
+            ]);
+        }
     }
 
     private function canCheck($e)
@@ -308,8 +324,8 @@ class EmergencyRequestController extends Controller
             );
             foreach ($request['victim_name'] as $i) {
                 $i['shelter_id'] = $request['shelter_id'];
-                $i['birth_date'] = Carbon::parse($request['birth_date'])->format('Y-m-d');
-                $i['created_date'] = Carbon::parse($request['created_date'])->format('Y-m-d');
+                $i['birth_date'] = Carbon::parse($i['birth_date'])->format('Y-m-d');
+                $i['created_date'] = Carbon::parse($i['created_date'])->format('Y-m-d');
                 if ($i['trans_status'] == Population::new_population) {
                     (new PopulationService)->create($i);
                 } else {

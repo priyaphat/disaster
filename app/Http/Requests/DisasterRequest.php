@@ -22,7 +22,7 @@ class DisasterRequest extends FormRequest
             'dst_eq_create' => $this->earthquakeCreate(),
             'dst_fl_create' => $this->floodCreate(),
             'dst_fl_update' => $this->floodUpdate(),
-            'dst_sl_create' => $this->landsildeCreate(),
+            'dst_ls_create' => $this->landsildeCreate(),
             'dst_wf_create' => $this->wildfireCreate(),
             'dst_sm_update' => $this->smogUpdate(),
             'dst_sm_create' => $this->smogCreate(),

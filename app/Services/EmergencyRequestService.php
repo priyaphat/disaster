@@ -10,6 +10,7 @@ use App\Http\Utility\PaginateUtility;
 use App\Http\Utility\PermissionUtility;
 use App\Models\Role;
 use App\Models\TeamMember;
+use Carbon\Carbon;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 
@@ -95,21 +96,24 @@ class EmergencyRequestService
         }
 
         if ($emc->district_id) $items = $items->where('district_id', $emc->district_id);
-        if ($emc->start_date && $emc->end_date) $items = $items->whereBetween('created_at', [$emc->start_date, $emc->end_date]);
+        if ($emc->start_date && $emc->end_date) {
+            $items = $items->whereBetween('created_at', [
+                Carbon::parse($emc->start_date)->startOfDay(),
+                Carbon::parse($emc->end_date)->endOfDay()
+            ]);
+        }
         if ($emc->sort) $items = $items->sortBy('created_at', $emc->sort === 'asc' ? SORT_ASC : SORT_DESC); //asc or desc
         if ($emc->status) {
             $items = $items->where('status', $emc->status);
         } else {
             if ($type == 'waiting') { // ถ้ามีทีม แสดงแค่ทีม ตัวเอง ถ้าไม่ใช่ จนท สก. รอ role
                 $statusArr = [EmergencyRequest::helping];
-                 if ($role === Role::ADMIN) {
-                     $statusArr[] = EmergencyRequest::approve;
-                }
-                else if ($role === Role::TEAM_LEADER) {
+                if ($role === Role::ADMIN) {
+                    $statusArr[] = EmergencyRequest::approve;
+                } else if ($role === Role::TEAM_LEADER) {
                     $items->where('emergency_team_id', Auth::user()->member?->team_id);
                     $statusArr[] = EmergencyRequest::approve;
-                }
-                else if ($role === Role::TEAM_MEMBER) {
+                } else if ($role === Role::TEAM_MEMBER) {
                     $items->where('emergency_team_id', Auth::user()->member?->team_id);
                 }
 
