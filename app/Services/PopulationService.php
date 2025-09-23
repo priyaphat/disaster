@@ -88,22 +88,36 @@ class PopulationService
     public function show(Population $population)
     {
         $data = Population::with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image')->findOrFail($population->id);
-        return new PopulationShowResource($data);
+        return new PopulationResource($data);
     }
 
-    public function search(?string $firstName = null, ?string $lastName = null)
+    public function search(array $data)
     {
-        $query = Population::select('first_name', 'last_name');
+        $firstName = $data['first_name'];
+        $lastName = $data['last_name'];
+        $offset = $data['offset'] ?? 0;
+        $limit = $data['limit'] ?? 10;
+
+        $query = Population::select('id','first_name', 'last_name');
         if ($firstName) {
-            $query->where('first_name', 'like', "%{$firstName}%");
+            $query->where('first_name', 'like', "%{$firstName}%")
+                ->orderByRaw("CASE
+            WHEN first_name LIKE ? THEN 1
+            ELSE 2
+            END, first_name ASC ", [$firstName . '%']);
         }
 
         if ($lastName) {
-            $query->where('last_name', 'like', "%{$lastName}%");
+            $query->where('last_name', 'like', "%{$lastName}%")
+            ->orderByRaw("CASE
+            WHEN last_name LIKE ? THEN 1
+            ELSE 2
+            END, last_name ASC ", [$lastName . '%']);
         }
 
-        $firstNameList = $query->pluck('first_name');
-        $lastNameList = $query->pluck('last_name');
+        $firstNameList = $query->orderBy('first_name')->skip($offset)->take($limit)->pluck('first_name', 'id');
+        $lastNameList = $query->orderBy('last_name')->skip($offset)->take($limit)->pluck('last_name', 'id');
+
         return [
             'fname_list' => $firstNameList,
             'lname_list' => $lastNameList
@@ -117,7 +131,7 @@ class PopulationService
             ->where('prefix_id', $data['prefix_id'])
             ->with('permanentAddress', 'currentAddress', 'prefix', 'shelter')
             ->first();
-        return $user ? new PopulationShowResource($user) : false;
+        return $user ? new PopulationResource($user) : false;
     }
 
     public function addExternalPopulation()

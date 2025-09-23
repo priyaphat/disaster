@@ -132,7 +132,7 @@ class PopulationController extends Controller
      */
     public function search(Request $request)
     {
-        $data = $this->populationService->search($request->input('first_name'), $request->input('last_name'));
+        $data = $this->populationService->search($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
