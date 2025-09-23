@@ -1,6 +1,6 @@
 <?php
 
-use App\Console\Commands\WildfireTask;
+use App\Console\Commands\LineTask;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\AppointmentLogController;
@@ -52,6 +52,7 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 | Routes for line
 |--------------------------------------------------------------------------
 */
+Route::get('/line-quota',[LineTask::class,'handle']);
 Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
     return view('line-login');

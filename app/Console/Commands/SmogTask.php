@@ -10,23 +10,10 @@ use Illuminate\Support\Str;
 
 class SmogTask extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:smog-task';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
+    protected $signature = 'app:smog-task';
     protected $description = 'Command description';
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         //
@@ -61,7 +48,7 @@ class SmogTask extends Command
             ]);
         }
 
-        Log::info("Get smog data from external API");
+        // Log::info("Get smog data from external API");
     }
 
     private function getStatus($aqi)

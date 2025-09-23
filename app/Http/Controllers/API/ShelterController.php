@@ -144,7 +144,7 @@ class ShelterController extends Controller
 
         if ($data = DamagedUtility::create($data)) {
             self::dul_log($data, DamagedUtilityLogs::created);
-            (new LineController)->LineNotification($data, LineController::Damaged_utility_post);
+            (new LineController)->LineNotification($data->toArray(), LineController::Damaged_utility_post);
             return ApiResponse::successResponse(__('success.damaged_utility.created'), $data);
         }
     }

@@ -135,18 +135,32 @@ class LineController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    private function limitUpdate($data, $limit)
+    {
+        $limit['totalUsage'] = $limit['totalUsage'] + count($data);
+        Config::where('type', Config::lineCount)
+            ->update(['description' => $limit]);
+    }
+
     public function LineNotification(array $data = null, $form, $recipint = null)
     {
+        //line limitCount
+        $limitCount = Config::where('type', Config::lineCount)->first();
+        $limit = $limitCount->description;
+        if ($limit['type'] == Config::limited && ($limit['limited'] <= $limit['totalUsage'])) return;
+
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
             $recipint = self::areaFind('เชียงราย');
             $message = self::form_box($form, $data, self::Population);
             self::broadcast_multi($recipint, $message);
+            //เก็บ จำนวนส่ง
+            self::limitUpdate($recipint, $limit);
             return response()->json(["success" => true, "message" => 'Send Line OK.', 'data' => $message]);
         }
 
         $config = Config::WhereJsonContains('description->line_type', $form)
-            ->where('type', 1)
+            ->where('type', Config::line)
             ->first();
 
         if ($recipint) {
@@ -154,6 +168,8 @@ class LineController extends Controller
                 if ($config->description['user']) {
                     $message = self::form_box($form, $data, self::User);
                     self::broadcast_multi($recipint, $message);
+                    //เก็บ จำนวนส่ง
+                    self::limitUpdate($recipint, $limit);
                 }
             }
         } else {
@@ -168,6 +184,8 @@ class LineController extends Controller
                     if ($hasUser->isNotEmpty()) { // check user empty
                         $message = self::form_box($form, $data, self::User);
                         self::broadcast_multi($hasUser, $message);
+                        //เก็บ จำนวนส่ง
+                        self::limitUpdate($hasUser, $limit);
                     }
                 }
                 if (isset($config->description['population'])) {
@@ -178,6 +196,8 @@ class LineController extends Controller
                         if ($noUser->isNotEmpty()) {
                             $message = self::form_box($form, $data, self::Population);
                             self::broadcast_multi($noUser, $message);
+                            //เก็บ จำนวนส่ง
+                            self::limitUpdate($noUser, $limit);
                         }
                     }
                 }

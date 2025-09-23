@@ -106,7 +106,12 @@ class ConfigSeeder extends Seeder
                 "earthquake" => 0,
                 "wildfire" => 0
             ]],
-            ['name' => 'lineCredit', 'type' => 6, 'description' => 6],
+            ['name' => 'lineCredit', 'type' => 6, 'description' => [
+                "totalUsage" => 0,
+                "limited" => 0,
+                "type" => 1, //1 limit 2 unlimit
+                "rate" => 0
+            ]],
 
         ];
 
