@@ -53,14 +53,14 @@ class ProductRequestController extends Controller
             // DB::raw('SUM(product_requests.request) as total_request'),
 
             //  DB::raw('IF != 0 SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) as total_request'),
-            DB::raw('IF(SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) != 0, 
-            SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END), 
+            DB::raw('IF(SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) != 0,
+            SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END),
             "ไม่จำกัด") as total_request'),
             DB::raw('MAX(product_requests.updated_at) as updated_at'),
             DB::raw('MAX(product_requests.id) as id'),
             // DB::raw('(SUM(product_requests.request) - SUM(product_requests.quantity)) as needed'),
 
-            // DB::raw('(SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) 
+            // DB::raw('(SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END)
             //     - SUM(product_requests.quantity)
             // ) as needed'),
             DB::raw('IF(
@@ -120,6 +120,7 @@ class ProductRequestController extends Controller
             'product_requests.created_at',
             'product_requests.shelter_id',
             'product_requests.request',
+            'product_requests.quantity',
             'shelters.name',
             'shelters.phone',
             DB::raw('(product_requests.request - product_requests.quantity) as needed'),
@@ -157,10 +158,10 @@ class ProductRequestController extends Controller
         $this->authorize('update', ProductRequest::class);
 
         if ($productReq['status'] == ProductRequest::STOP) return ApiResponse::errorResponse(__('error.product_required.canNotDelete'));
-        if (isset($request['status']) && $request['status'] != $productReq['status'] && $request['status'] == ProductRequest::STOP) {  //ยุติ ส่ง 0 มา 
+        if (isset($request['status']) && $request['status'] != $productReq['status'] && $request['status'] == ProductRequest::STOP) {  //ยุติ ส่ง 0 มา
             $productReq->update(['status' => $request['status']]);
             $pdt = Product::find($productReq['product_id']);
-            $this->productRequestService->log($productReq, $pdt, ProductLogs::STOP); //แต่ log ส่ง 3 
+            $this->productRequestService->log($productReq, $pdt, ProductLogs::STOP); //แต่ log ส่ง 3
             return ApiResponse::successResponse(__('success.product_required.stop'), $productReq);
         }
         ProductNotification::dispatch();

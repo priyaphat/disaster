@@ -91,37 +91,44 @@ class PopulationService
         return new PopulationResource($data);
     }
 
-    public function search(array $data)
+    public function search(array $filters = [])
     {
-        $firstName = $data['first_name'];
-        $lastName = $data['last_name'];
-        $offset = $data['offset'] ?? 0;
-        $limit = $data['limit'] ?? 10;
+        $type = $filters['type'] ?? 1;
+        $firstName = $filters['first_name'];
+        $lastName = $filters['last_name'];
+        $offset = $filters['offset'] ?? 0;
+        $limit = $filters['limit'] ?? 10;
 
-        $query = Population::select('id','first_name', 'last_name');
-        if ($firstName) {
-            $query->where('first_name', 'like', "%{$firstName}%")
+        $query = Population::select('id', 'first_name', 'last_name');
+        if ($type == 1) {
+            $data = $query->where('first_name', 'like', "%{$firstName}%")
+                ->where('last_name', 'like', "%{$lastName}%")
                 ->orderByRaw("CASE
             WHEN first_name LIKE ? THEN 1
             ELSE 2
-            END, first_name ASC ", [$firstName . '%']);
-        }
-
-        if ($lastName) {
-            $query->where('last_name', 'like', "%{$lastName}%")
-            ->orderByRaw("CASE
+            END, first_name ASC ", [$firstName . '%'])
+                ->select('first_name')
+                ->distinct()
+                ->orderBy('first_name')
+                ->skip($offset)
+                ->take($limit)
+                ->get()->pluck('first_name');
+        } else {
+            $data = $query->where('first_name', 'like', "%{$firstName}%")
+                ->where('last_name', 'like', "%{$lastName}%")
+                ->orderByRaw("CASE
             WHEN last_name LIKE ? THEN 1
             ELSE 2
-            END, last_name ASC ", [$lastName . '%']);
+            END, last_name ASC ", [$lastName . '%'])
+                ->select('last_name')
+                ->distinct()
+                ->orderBy('last_name')
+                ->skip($offset)
+                ->take($limit)
+                ->get()->pluck('last_name');
         }
 
-        $firstNameList = $query->orderBy('first_name')->skip($offset)->take($limit)->pluck('first_name', 'id');
-        $lastNameList = $query->orderBy('last_name')->skip($offset)->take($limit)->pluck('last_name', 'id');
-
-        return [
-            'fname_list' => $firstNameList,
-            'lname_list' => $lastNameList
-        ];
+        return $data;
     }
 
     public function checkPopulation(array $data)

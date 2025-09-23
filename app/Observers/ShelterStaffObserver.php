@@ -40,7 +40,7 @@ class ShelterStaffObserver
         }
 
         // Add staff role to user
-        $shelterStaff->user->assignRole(Role::STAFF);
+        $shelterStaff->user->syncRoles(Role::STAFF);
     }
 
     /**

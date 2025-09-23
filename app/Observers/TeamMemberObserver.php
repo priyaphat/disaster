@@ -37,7 +37,7 @@ class TeamMemberObserver
         $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
 
         // Add leader or member role to user
-        $teamMember->user->assignRole($teamMember->team_position == 1 ? Role::TEAM_LEADER : Role::TEAM_MEMBER);
+        $teamMember->user->syncRoles($teamMember->team_position->value == 1 ? Role::TEAM_LEADER : Role::TEAM_MEMBER);
     }
 
     /**
@@ -56,10 +56,11 @@ class TeamMemberObserver
 
             // $notification = $this->notificationService->createNotification('team.leaved', ['name' => $oldData['team']['name'] ?? 'ไม่มีทีม'], $teamMember->id, TeamMember::class, false);
             // $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
-
             $notification = $this->notificationService->createNotification('team.joined', ['name' => $teamMember->team->name], $teamMember->id, TeamMember::class, false);
             $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
         }
+        // Add leader or member role to user
+        $teamMember->user->syncRoles($teamMember->team_position->value == 1 ? Role::TEAM_LEADER : Role::TEAM_MEMBER);
     }
 
     /**
