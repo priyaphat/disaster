@@ -119,11 +119,19 @@ class ProductRequestController extends Controller
             'product_requests.id',
             'product_requests.created_at',
             'product_requests.shelter_id',
-            'product_requests.request',
+            // 'product_requests.request',
+            DB::raw('IF((CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) != 0,
+            (CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END),
+            "ไม่จำกัด") as request'),
             'product_requests.quantity',
             'shelters.name',
             'shelters.phone',
             DB::raw('(product_requests.request - product_requests.quantity) as needed'),
+            // DB::raw('IF(
+            //     ((CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - (product_requests.quantity)) != 0,
+            //     ((CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - (product_requests.quantity)),
+            //     "ไม่จำกัด"
+            // ) as needed'),
         )
             ->where('product_requests.status', ProductRequest::ACTIVE)
             ->where('product_id', $RequsetId)
