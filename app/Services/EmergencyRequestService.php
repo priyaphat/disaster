@@ -102,7 +102,8 @@ class EmergencyRequestService
                 Carbon::parse($emc->end_date)->endOfDay()
             ]);
         }
-        if ($emc->sort) $items = $items->sortBy('created_at', $emc->sort === 'asc' ? SORT_ASC : SORT_DESC); //asc or desc
+        if ($emc->month) $items = $items = $items->whereMonth('created_at', Carbon::parse($emc->end_date)->month);
+        if ($emc->sort) $items = $items->orderBy('created_at', $emc->sort === 'asc' ? 'asc' : 'desc');
         if ($emc->status) {
             $items = $items->where('status', $emc->status);
         } else {

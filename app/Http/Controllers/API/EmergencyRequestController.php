@@ -20,6 +20,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
+use function Pest\Laravel\json;
 use function PHPUnit\Framework\isNull;
 
 class EmergencyRequestController extends Controller
@@ -185,9 +186,18 @@ class EmergencyRequestController extends Controller
                 $textResponse = __('success.emc_request.incomplete');
             }
         }
-        if ($emergencyRequest['victim_name'] != $request['victim_name']) $textResponse = __('success.emc_request.victimName ');
-        if ($emergencyRequest['status'] == EmergencyRequest::disapprove) $textResponse = __('success.emc_request.disapprove ');
+        if (self::isDifferent($emergencyRequest['victim_name'], $request['victim_name'])) $textResponse = __('success.emc_request.victimName');
+        // return ['e'=>json_decode($emergencyRequest['victim_name'], true), 'r'=>$request['victim_name']];
+        if ($emergencyRequest['status'] == EmergencyRequest::disapprove) $textResponse = __('success.emc_request.disapprove');
         return ApiResponse::successResponse($textResponse ?? __('success.updated'), $emergencyRequest);
+    }
+
+    function isDifferent($aJson, array $b): bool
+    {
+        $a = json_decode($aJson, true);
+        sort($a);
+        sort($b);
+        return json_encode($a) !== json_encode($b);
     }
 
     private function updatedAssigner($e)
