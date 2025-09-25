@@ -118,7 +118,7 @@ class DisasterRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'line_oa' => 'required|in:0,1',
-            'file' => 'required|file|mimes:xlsx,csv,xls|max:10240',
+            'file' => 'required|file|max:10240',
         ];
     }
 
@@ -160,7 +160,7 @@ class DisasterRequest extends FormRequest
             "address" => 'required|string|max:255',
             'geography_id' => 'required',
             "status" => 'required|integer|in:1,2,3',
-            "smog_value" => 'required|decimal:2',
+            "smog_value" => 'required|decimal:1',
             "line_oa" => 'required|in:0,1',
             'province_id' => 'required',
             'district_id' => 'required',

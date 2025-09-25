@@ -65,7 +65,7 @@ class LinePostUtility
                 'team' => $team->name,
                 'assigner' => $assigner ?? '-'
             ];
-            return (new LineController)->LineNotification($data, $form, [$team->token_id]);
+            return (new LineController)->LineNotification($data, $form, [$team['token_id']]);
         } else if ($form == LineController::Emc_request_unaccept) { //ส่งให้เจ้าหน้าที่ส่วนกลาง
             $prefix = Prefix::all()->keyBy('id');
             $team = Team::select(
