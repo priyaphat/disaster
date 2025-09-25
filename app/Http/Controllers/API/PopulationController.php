@@ -104,14 +104,21 @@ class PopulationController extends Controller
     {
         $this->authorize('update', Population::class);
 
-        $prevShelter = $population->shelter_id;
+        $prevShelter = $population->shelterPopulation->shelter_id;
         $data = $this->populationService->update($population, $request->all());
         // $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
 
+        // Return message when update only tracking
+        if ($request->has('tracking') && count($request->all()) === 1) {
+            return ApiResponse::successResponse($data->tracking == Population::tracking ? __('success.population.tracking') : __('success.population.no_tracking'), $data);
+        }
+
+        // Return message when update population
         if ($prevShelter == $data->shelterPopulation->shelter_id) {
             return ApiResponse::successResponse(__('success.updated'), $data);
         }
 
+         // Return message when transfer population to another shelter
         return ApiResponse::successResponse(__('success.created'), $data);
     }
 

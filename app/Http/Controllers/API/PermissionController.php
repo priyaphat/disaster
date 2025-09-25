@@ -17,7 +17,7 @@ class PermissionController extends Controller
         $this->permissionService = $permissionService;
     }
 
-    public function store(PermissionRequest $request)
+    public function store(Request $request)
     {
         $data = $this->permissionService->create($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
