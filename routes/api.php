@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\FloodTask;
 use App\Console\Commands\LineTask;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;

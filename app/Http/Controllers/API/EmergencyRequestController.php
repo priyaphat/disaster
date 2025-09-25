@@ -344,6 +344,10 @@ class EmergencyRequestController extends Controller
                 }
             }
         }
+        if ($request->id) {
+            EmergencyRequest::where('id', $request->id)
+                ->update(['status' => EmergencyRequest::complete]);
+        }
         return ApiResponse::successResponse(__('success.emc_request.trans'));
     }
 }

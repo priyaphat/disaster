@@ -10,6 +10,7 @@ enum FloodSourceType: string
     case POND = '4';
     case IRRIGATION_CANNEL = '5';
     case MARSH = '6';
+    case OTHER = '7';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum FloodSourceType: string
             self::POND => 'บึง/หนองน้ำ',
             self::IRRIGATION_CANNEL => 'คลองชลประทาน',
             self::MARSH => 'หนอง/ทุ่งน้ำ',
+            self::OTHER => 'ไม่ระบุ',
         };
     }
 }

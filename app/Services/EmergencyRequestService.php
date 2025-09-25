@@ -61,7 +61,7 @@ class EmergencyRequestService
                         }
                     }
                 }
-                $item->address = $item->address . ' ' . $item->geography->postal_code;
+                $item->address = $item->address;
                 $item->victim_name = $victimName;
                 $item->emergency_team_name = $item->team?->name ?? $item->emergency_team_name;
                 return $item;
@@ -102,8 +102,9 @@ class EmergencyRequestService
                 Carbon::parse($emc->end_date)->endOfDay()
             ]);
         }
-        if ($emc->month) $items = $items = $items->whereMonth('created_at', Carbon::parse($emc->end_date)->month);
+        if ($emc->month) $items = $items = $items->whereMonth('created_at', Carbon::parse($emc->month)->month);
         if ($emc->sort) $items = $items->orderBy('created_at', $emc->sort === 'asc' ? 'asc' : 'desc');
+        if ($emc->sort_approve) $items = $items->orderBy('updated_at', $emc->sort_approve === 'asc' ? 'asc' : 'desc');
         if ($emc->status) {
             $items = $items->where('status', $emc->status);
         } else {
