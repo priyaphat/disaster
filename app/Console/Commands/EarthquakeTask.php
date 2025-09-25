@@ -55,6 +55,7 @@ class EarthquakeTask extends Command
                 'magnitude' => $area['Magnitude'],
                 'occurrence_time' => $area['DateTimeThai'],
                 'host' => 'data.tmd.go.th',
+                'line_oa' => 1,
             ];
             LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $data);
             DisasterEarthquake::create($data);

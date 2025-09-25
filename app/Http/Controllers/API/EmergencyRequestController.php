@@ -10,6 +10,7 @@ use App\Models\EmergencyRequest;
 use App\Services\EmergencyRequestService;
 use App\Http\Requests\EmergencyRequestRequest;
 use App\Http\Utility\LinePostUtility;
+use App\Http\Utility\RecipintUtility;
 use App\Models\Population;
 use App\Models\Prefix;
 use App\Services\NotificationService;
@@ -93,7 +94,8 @@ class EmergencyRequestController extends Controller
     {
         $data = $this->emergencyRequestService->create($request->all());
         $name = ['name' => Prefix::where('id', $data['prefix_id'])->value('name') . ' ' . $data['first_name'] . ' ' . $data['last_name']];
-        (new LineController)->LineNotification($name, LineController::Emc_request_post);
+        $recipint = RecipintUtility::recipint('admin');
+        (new LineController)->LineNotification($name, LineController::Emc_request_post, $recipint);
         // Send a emergency request notfication
         $notification = $this->notificationService->createNotification('emergency_request.created', ['name' => $name['name']], $data->id, EmergencyRequest::class, false);
         $this->notificationService->sendToCenterStaff($notification);
@@ -343,6 +345,10 @@ class EmergencyRequestController extends Controller
                     (new PopulationService)->update($q, $i);
                 }
             }
+        }
+        if ($request->id) {
+            EmergencyRequest::where('id', $request->id)
+                ->update(['status' => EmergencyRequest::complete]);
         }
         return ApiResponse::successResponse(__('success.emc_request.trans'));
     }

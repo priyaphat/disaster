@@ -47,6 +47,7 @@ class SmogTask extends Command
                 'status' => $status,
                 'smog_value' => $aqi,
                 'host' => 'air4thai.pcd.go.th',
+                'line_oa' => 1,
             ];
             DisasterSmog::create($data);
             LinePostUtility::line_oa_call(LineController::Disaster_smog, $data);

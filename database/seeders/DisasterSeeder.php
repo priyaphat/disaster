@@ -45,21 +45,22 @@ class DisasterSeeder extends Seeder
         //     'อุบัติเหตุรถไฟ',
         //     'เรืออับปาง',
         // ];
-        
+
         $disasters = [
-            'อุทกภัย',
-            'ดินถล่ม',
-            'ไฟป่า',
-            'หมอกควัน',
-            'พายุฤดูร้อน',
-            'แผ่นดินไหว',
-            'อัคคีภัย',
-            'โรคระบาด',
+            ['อุทกภัย', 'images/Flood.png'],
+            ['ดินถล่ม', 'images/Landslide.png'],
+            ['ไฟป่า', 'images/ForestFire.png'],
+            ['หมอกควัน', 'images/Cray.png'],
+            ['พายุฤดูร้อน', 'images/Storm.png'],
+            ['แผ่นดินไหว', 'images/Earthquake.png'],
+            ['อัคคีภัย', 'images/Fire.png'],
+            ['โรคระบาด', 'images/Epidemic.png'],
         ];
 
         foreach ($disasters as $disaster) {
             Disaster::create([
-                'name' => $disaster
+                'name' => $disaster[0],
+                'image' => $disaster[1]
             ]);
         }
     }
