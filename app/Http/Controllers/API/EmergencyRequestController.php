@@ -11,6 +11,7 @@ use App\Services\EmergencyRequestService;
 use App\Http\Requests\EmergencyRequestRequest;
 use App\Http\Utility\LinePostUtility;
 use App\Http\Utility\RecipintUtility;
+use App\Models\EmergencyRequestLog;
 use App\Models\Population;
 use App\Models\Prefix;
 use App\Services\NotificationService;
@@ -332,6 +333,7 @@ class EmergencyRequestController extends Controller
                     'victim_name.*.same_address' => 'required',
                     'victim_name.*.status' => ['required', Rule::enum(PopulationStatus::class)],
                     'victim_name.*.created_date' => 'required|date',
+                    'request_id' => 'required',
                 ]
             );
             foreach ($request['victim_name'] as $i) {
@@ -346,9 +348,16 @@ class EmergencyRequestController extends Controller
                 }
             }
         }
-        if ($request->id) {
-            EmergencyRequest::where('id', $request->id)
-                ->update(['status' => EmergencyRequest::complete]);
+        if ($request->request_id) {
+            EmergencyRequest::where('id', $request->request_id)
+                ->update([
+                    'status' => EmergencyRequest::complete,
+                ]);
+            EmergencyRequestLog::create([
+                'emergency_request_id' => $request->request_id,
+                'reason_id' => 99,
+                'reason' => 'ย้ายเข้าสู่ศูนย์',
+            ]);
         }
         return ApiResponse::successResponse(__('success.emc_request.trans'));
     }

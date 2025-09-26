@@ -45,8 +45,10 @@ class AssessmentController extends Controller
 
     public function index(Request $r, $id = null, $methed = null)
     {
-        $population = Population::findOrFail($r->population_id);
-        $this->authorize('viewAny', [Assessments::class, $population]);
+        if (!$id) {
+            $population = Population::findOrFail($r->population_id);
+            $this->authorize('viewAny', [Assessments::class, $population]);
+        }
 
         $q = Assessments::query()
             ->select(

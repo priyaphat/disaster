@@ -187,13 +187,14 @@ class EmergencyRequestService
 
     public function noti()
     {
-        $pms = Auth()->user();
-        if ($pms->department_id == 1) {
-            return EmergencyRequest::whereIn('status', [
+        $user = Auth()->user();
+        $role = PermissionUtility::getRoleName($user);
+        if ($role == Role::ADMIN) {
+            $count =  EmergencyRequest::whereIn('status', [
                 EmergencyRequest::waiting,
             ])->count();
-        } else if ($pms->department_id == 2) {
-            $team_id = TeamMember::where('user_id', $pms->id)
+        } else if ($role == Role::TEAM_LEADER) {
+            $team_id = TeamMember::where('user_id', $user->id)
                 ->leftJoin('teams', 'teams.id', '=', 'team_id')
                 ->value('teams.id');
 
@@ -203,7 +204,18 @@ class EmergencyRequestService
                     EmergencyRequest::helping,
                 ])->where('emergency_team_id', $team_id)->count();
             }
+        } else if ($role == Role::TEAM_MEMBER) {
+            $team_id = TeamMember::where('user_id', $user->id)
+                ->leftJoin('teams', 'teams.id', '=', 'team_id')
+                ->value('teams.id');
+
+            if ($team_id) {
+                return EmergencyRequest::whereIn('status', [
+                    EmergencyRequest::helping,
+                ])->where('emergency_team_id', $team_id)->count();
+            }
         }
-        return 0;
+
+        return $count ?? 0;
     }
 }
