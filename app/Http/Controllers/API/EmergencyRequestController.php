@@ -160,7 +160,7 @@ class EmergencyRequestController extends Controller
                 $emergencyRequest->update(['emergency_team_id' => null]);
                 $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $data->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToCenterStaff($notification);
-                $textResponse = __('success.emc_request.delTeam');
+                $textResponse = __('success.emc_request.delTeam2');
             } else if ($emergencyRequest['status'] == EmergencyRequest::approve) {
                 // ส่งหัวหน้า
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
