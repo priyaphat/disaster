@@ -100,7 +100,7 @@ class EmergencyRequestController extends Controller
         // Send a emergency request notfication
         $notification = $this->notificationService->createNotification('emergency_request.created', ['name' => $name['name']], $data->id, EmergencyRequest::class, false);
         $this->notificationService->sendToCenterStaff($notification);
-        return ApiResponse::createdResponse(__('success.data'), $data);
+        return ApiResponse::createdResponse(__('success.emc_request.created'), $data);
     }
 
     /**
