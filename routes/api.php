@@ -375,7 +375,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
-    Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestBy']);
+    Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestId']);
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
     Route::get('/emc-requests', [EmergencyRequestController::class, 'show']);
     Route::post('/emc-requests-wait', [EmergencyRequestController::class, 'show_wait']);
