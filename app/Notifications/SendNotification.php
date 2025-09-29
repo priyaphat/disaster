@@ -39,7 +39,6 @@ class SendNotification extends Notification implements ShouldQueue
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
-            'count' => 1,
             'title' => $this->notification['title'],
             'description' => $this->notification['description'],
             'format' => $this->notification['format'],

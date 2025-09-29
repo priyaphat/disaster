@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Utility\PermissionUtility;
+use App\Models\Role;
 use App\Models\Shelter;
 use App\Models\Team;
 use App\Models\User;
@@ -9,12 +11,11 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-// Broadcast::channel('notification', function ($user, $id) {
-//     return (int) $user->id === (int) $id;
-// });
+Broadcast::channel('team.{teamId}', function ($user, $teamId) {
+    return $user->team_id == $teamId;
+});
 
-// Broadcast::channel('group.{groupId}', function ($user, $groupId) {
-//     // For example, check if $user belongs to group $groupId
-//     // Replace this with your actual group membership logic
-//     return in_array($user->id, $groupId);
-// });
+Broadcast::channel('admin', function ($user) {
+    $role = PermissionUtility::getRoleName($user);
+    return $role === Role::ADMIN;
+});
