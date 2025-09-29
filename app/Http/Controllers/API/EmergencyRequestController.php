@@ -88,6 +88,17 @@ class EmergencyRequestController extends Controller
         $data = $this->emergencyRequestService->emcRequestBy($request, $emc, $id); //phone & id
         return ApiResponse::successResponse(__('success.data'), $data);
     }
+
+    /**
+     * Emergency request | ดึงข้อมูล id 
+     */
+    #[PathParameter('emc', description: 'Phone or id | เบอร์โทรหรือ id', type: 'string', example: '0987654321')]
+    public function emcRequestId(Request $request, $id)
+    {
+        $data = $this->emergencyRequestService->emcRequestBy($request, null, $id); //phone & id
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
     /**
      * Emergency request | สร้างรายการแจ้งเหตุฉุกเฉิน  ตัวแปร / ปุ้ย .
      */
@@ -128,7 +139,7 @@ class EmergencyRequestController extends Controller
             // ส่งให้แค่หัวหน้าทีม
             $notification = $this->notificationService->createNotification('emergency_request.canceled', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
             $this->notificationService->sendToTeamLeader($notification, $emergencyRequest->emergency_team_id);
-            $textResponse = __('success.emc_request.delTeam');
+            $textResponse = __('success.emc_request.delTeam2');
         } else if (
             $old['emergency_team_id']
             && $request['emergency_team_id']
@@ -161,7 +172,7 @@ class EmergencyRequestController extends Controller
                 $emergencyRequest->update(['emergency_team_id' => null]);
                 $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $data->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToCenterStaff($notification);
-                $textResponse = __('success.emc_request.delTeam2');
+                $textResponse = __('success.emc_request.delTeam');
             } else if ($emergencyRequest['status'] == EmergencyRequest::approve) {
                 // ส่งหัวหน้า
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
