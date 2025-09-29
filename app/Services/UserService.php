@@ -64,7 +64,7 @@ class UserService
             unset($filters['available']);
             // unset($filters['available_member']);
         }
-        
+
         $query = $this->baseQuery($filters);
 
         // Team page
@@ -98,7 +98,7 @@ class UserService
         // Send a register notification
         $notificationService = app(NotificationService::class);
         $notification = $notificationService->createNotification('user.registered', ['name' => $user->fullname], $user->id, User::class, true);
-        $notificationService->sendToCenterStaff($notification);
+        $notificationService->sendToAdmin($notification);
         return $user;
     }
 

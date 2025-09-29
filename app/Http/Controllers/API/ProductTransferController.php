@@ -227,7 +227,7 @@ class ProductTransferController extends Controller
                 ProductLogs::class,
                 true
             );
-            $notificationService->sendToCenterStaff($notify);
+            $notificationService->sendToAdmin($notify);
         }
     }
 }

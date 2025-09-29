@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\EmcRequestNotification;
 use App\Events\Notification as EventsNotification;
 use App\Events\Notify;
 use App\Http\Controllers\Controller;
@@ -59,6 +60,13 @@ class NotificationController extends Controller
     {
         $this->notificationService->deleteAll();
         return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+     public function emcNotification(Request $request)
+    {
+        $data = EmergencyRequest::first();
+        EmcRequestNotification::dispatch([$data->emergency_team_id]);
+        return ApiResponse::createdResponse(__('success.data'), $data);
     }
 
     public function notification(Request $request)
