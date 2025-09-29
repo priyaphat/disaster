@@ -26,11 +26,11 @@ class ShelterProductController extends Controller
      */
     public function index(Request $filter, $shelter = null)
     {
-        
+
         $this->authorize('viewAny', ShelterProduct::class);
 
         // ดัก เข้าไปดู shelter ที่ไม่ใช่ของตัวเอง
-        $shelterSelf = ProductUtility::getShelter();
+        $shelterSelf = $shelter ?? ProductUtility::getShelter();
         if ($shelterSelf != $shelter) return Response()->json(['success' => true, "code" => 200, 'message' => __('success.data'), 'quantity' => 0]);
 
         $shelter = $shelter ?? $shelterSelf;
@@ -52,7 +52,7 @@ class ShelterProductController extends Controller
         if (count($q) > 0) return ApiResponse::errorResponse(__('error.product_transfer.please_transfer'));
         $shelter = $shelter ?? ProductUtility::getShelter();
 
-        //ส่งยุติ product req เก็บ log ถ้ามี 
+        //ส่งยุติ product req เก็บ log ถ้ามี
         $pr = ProductRequest::where('shelter_id', $shelter)->where('status', Product::Active)->get();
         if ($pr->isNotEmpty()) {
             $r = new UpdateProductReqRequest();
