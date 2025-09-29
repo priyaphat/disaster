@@ -38,7 +38,6 @@ class EmergencyRequestService
         if (Auth::check()) {
             $searchArr = ['phone', 'id'];
         }
-return $id;
         $prefix = Prefix::all()->keyBy('id');
         $items = EmergencyRequest::query()->when(
             $search && $id == null,
