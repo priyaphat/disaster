@@ -37,7 +37,7 @@ class TeamMemberObserver
         $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
 
         // Add leader or member role to user
-        $teamMember->user->syncRoles($teamMember->team_position->value == 1 ? Role::TEAM_LEADER : Role::TEAM_MEMBER);
+        $teamMember->user->syncRoles($teamMember->team_position == 1 ? Role::TEAM_LEADER : Role::TEAM_MEMBER);
     }
 
     /**
@@ -60,7 +60,7 @@ class TeamMemberObserver
             $this->notificationService->sendToSelfUser($notification, $teamMember->user_id);
         }
         // Add leader or member role to user
-        $teamMember->user->syncRoles($teamMember->team_position->value == 1 ? Role::TEAM_LEADER : Role::TEAM_MEMBER);
+        $teamMember->user->syncRoles($teamMember->team_position == 1 ? Role::TEAM_LEADER : Role::TEAM_MEMBER);
     }
 
     /**

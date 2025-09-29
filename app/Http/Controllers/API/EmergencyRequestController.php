@@ -10,6 +10,8 @@ use App\Models\EmergencyRequest;
 use App\Services\EmergencyRequestService;
 use App\Http\Requests\EmergencyRequestRequest;
 use App\Http\Utility\LinePostUtility;
+use App\Http\Utility\RecipintUtility;
+use App\Models\EmergencyRequestLog;
 use App\Models\Population;
 use App\Models\Prefix;
 use App\Services\NotificationService;
@@ -93,11 +95,12 @@ class EmergencyRequestController extends Controller
     {
         $data = $this->emergencyRequestService->create($request->all());
         $name = ['name' => Prefix::where('id', $data['prefix_id'])->value('name') . ' ' . $data['first_name'] . ' ' . $data['last_name']];
-        (new LineController)->LineNotification($name, LineController::Emc_request_post);
+        $recipint = RecipintUtility::recipint('admin');
+        (new LineController)->LineNotification($name, LineController::Emc_request_post, $recipint);
         // Send a emergency request notfication
         $notification = $this->notificationService->createNotification('emergency_request.created', ['name' => $name['name']], $data->id, EmergencyRequest::class, false);
         $this->notificationService->sendToCenterStaff($notification);
-        return ApiResponse::createdResponse(__('success.data'), $data);
+        return ApiResponse::createdResponse(__('success.emc_request.created'), $data);
     }
 
     /**
@@ -158,7 +161,7 @@ class EmergencyRequestController extends Controller
                 $emergencyRequest->update(['emergency_team_id' => null]);
                 $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $data->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToCenterStaff($notification);
-                $textResponse = __('success.emc_request.delTeam');
+                $textResponse = __('success.emc_request.delTeam2');
             } else if ($emergencyRequest['status'] == EmergencyRequest::approve) {
                 // ส่งหัวหน้า
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
@@ -330,6 +333,7 @@ class EmergencyRequestController extends Controller
                     'victim_name.*.same_address' => 'required',
                     'victim_name.*.status' => ['required', Rule::enum(PopulationStatus::class)],
                     'victim_name.*.created_date' => 'required|date',
+                    'request_id' => 'required',
                 ]
             );
             foreach ($request['victim_name'] as $i) {
@@ -343,6 +347,17 @@ class EmergencyRequestController extends Controller
                     (new PopulationService)->update($q, $i);
                 }
             }
+        }
+        if ($request->request_id) {
+            EmergencyRequest::where('id', $request->request_id)
+                ->update([
+                    'status' => EmergencyRequest::complete,
+                ]);
+            EmergencyRequestLog::create([
+                'emergency_request_id' => $request->request_id,
+                'reason_id' => 99,
+                'reason' => 'ย้ายเข้าสู่ศูนย์',
+            ]);
         }
         return ApiResponse::successResponse(__('success.emc_request.trans'));
     }

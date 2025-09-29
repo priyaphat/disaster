@@ -26,16 +26,16 @@ class ShelterProductPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole(Role::STAFF);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF]);
     }
 
     public function update(User $user): bool
     {
-        return $user->hasRole(Role::STAFF);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF]);
     }
 
     public function delete(User $user): bool
     {
-        return $user->hasRole(Role::STAFF);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF]);
     }
 }

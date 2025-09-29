@@ -84,12 +84,12 @@ class ShelterStaffController extends Controller
         $newShelter_id = $request->shelter_id;
 
         if ($newShelter_id == $oldShelter_id) {
-            return ApiResponse::successResponse(__('success.staff.tranfered'));
+            return ApiResponse::successResponse(__('success.staff.transfered'));
         }
 
         $requestArr = ['shelter_id' => $request->shelter_id, 'user_id' => $staff->user_id, 'shelter_position_id' => $staff->shelter_position_id];
         $this->shelterStaffService->update($staff, $requestArr);
-        return ApiResponse::successResponse(__('success.staff.tranfered'));
+        return ApiResponse::successResponse(__('success.staff.transfered'));
     }
 
     /**

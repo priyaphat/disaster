@@ -34,7 +34,7 @@ class ProductTransferController extends Controller
     public function shelterList(Request $filter)
     {
         // แสดง shelter ที่ สามารถ ย้ายทรัพยากรไปได้
-        $this->authorize('isAdmin', Shelter::class);
+        // $this->authorize('isAdmin', Shelter::class);
 
         $q = Shelter::select('id', 'name')->where('id', '!=', ProductUtility::getShelter())
             ->where('status', Shelter::OPEN);

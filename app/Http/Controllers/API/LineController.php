@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\FloodSourceType;
 use App\Enums\FloodStatus;
 use App\Enums\ShiftType;
 use App\Enums\SmogStatus;
@@ -85,6 +86,7 @@ class LineController extends Controller
                 if ($text === 'test') {
                     $message = [
                         'type' => 'flex',
+                        'altText' => 'ข้อความแจ้งเตือน',
                         'contents' => [
                             'type' => 'bubble',
                             'body' => [
@@ -93,7 +95,7 @@ class LineController extends Controller
                                 'contents' => [
                                     [
                                         'type' => 'text',
-                                        'text' => __('line.disaster_end'),
+                                        'text' => __('line.location', ['province' => '123']),
                                         'wrap' => true
                                     ]
                                 ]
@@ -483,7 +485,8 @@ class LineController extends Controller
         } else if ($form == self::Disaster_flood) {
             $text = __('line.disaster_flood', [
                 'water_source' => $data['water_source'],
-                'water_source_type' => $data['water_source_type'],
+                // 'water_source_type' => $data['water_source_type'],
+                'water_source_type' => FloodSourceType::tryFrom($data['water_source_type'])->label(),
                 'address' => $data['address'],
                 'water_value' => $data['water_value'],
                 'status' => FloodStatus::from($data['status'])->label(),
@@ -571,6 +574,11 @@ class LineController extends Controller
 
     private function broadcast_push($userId, $message) // one userId
     {
+        $limitCount = Config::where('type', Config::lineCount)->first();
+        $limit = $limitCount->description;
+        if ($limit['type'] == Config::limited && ($limit['limited'] <= $limit['totalUsage'])) return;
+        self::limitUpdate([$userId], $limit);
+
         Http::withToken(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'))->post('https://api.line.me/v2/bot/message/push', [
             'to' => $userId,
             'messages' => [

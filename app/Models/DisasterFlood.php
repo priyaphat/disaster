@@ -20,6 +20,7 @@ class DisasterFlood extends Model
         'geography_id',
         'host',
         'line_oa',
+        'created_at'
     ];
 
     protected $hidden = [

@@ -61,7 +61,7 @@ class UpdateTeamRequest extends FormRequest
             error_log($index);
             return [
                 'user_id' => $item,
-                'team_position' => $index == 0 ? TeamPosition::LEADER : TeamPosition::MEMBER,
+                'team_position' => $index == 0 ? TeamPosition::LEADER->value : TeamPosition::MEMBER->value,
                 'sequence' => $index,
             ];
         })->toArray();

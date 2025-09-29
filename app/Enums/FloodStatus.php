@@ -9,6 +9,7 @@ enum FloodStatus: string
     case NORMAL = '3';
     case HIGH = '4';
     case OVER_FLOW = '5';
+    case OTHER = '6';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum FloodStatus: string
             self::NORMAL => 'ปกติ',
             self::HIGH => 'มาก',
             self::OVER_FLOW => 'เกินความจุ',
+            self::OTHER => 'ไม่ระบุ',
         };
     }
 }

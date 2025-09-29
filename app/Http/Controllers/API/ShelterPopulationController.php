@@ -42,7 +42,7 @@ class ShelterPopulationController extends Controller
     {
         $this->authorize('update', $population);
 
-        $oldShelter = $population->shelter_id;
+        $oldShelter = $population->shelterPopulation->shelter_id;
         $newShelter = $request->shelter_id;
 
         if ($newShelter == $oldShelter) {
@@ -50,7 +50,7 @@ class ShelterPopulationController extends Controller
         }
 
         $data = $this->shelterPopService->update($population, $request->all());
-        return ApiResponse::successResponse(__('success.population.tranfered'), $data);
+        return ApiResponse::successResponse(__('success.population.transfered'), $data);
     }
 
     /**

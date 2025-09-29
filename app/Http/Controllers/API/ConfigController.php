@@ -198,6 +198,6 @@ class ConfigController extends Controller
         $d[$index[0]] = (int)$r[$index[0]];
         $config->description = $d;
         $config->update();
-        return ApiResponse::successResponse($r[$index[0]] ? __('success.config.disaster_user') : __('success.config.disaster_api'), [$index[0] => $r[$index[0]]]);
+        return ApiResponse::successResponse($r[$index[0]] ? __('success.config.disaster_api') : __('success.config.disaster_user'), [$index[0] => $r[$index[0]]]);
     }
 }

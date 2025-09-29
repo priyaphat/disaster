@@ -61,7 +61,7 @@ class EmergencyRequestService
                         }
                     }
                 }
-                $item->address = $item->address . ' ' . $item->geography->postal_code;
+                $item->address = $item->address;
                 $item->victim_name = $victimName;
                 $item->emergency_team_name = $item->team?->name ?? $item->emergency_team_name;
                 return $item;
@@ -102,8 +102,9 @@ class EmergencyRequestService
                 Carbon::parse($emc->end_date)->endOfDay()
             ]);
         }
-        if ($emc->month) $items = $items = $items->whereMonth('created_at', Carbon::parse($emc->end_date)->month);
+        if ($emc->month) $items = $items = $items->whereMonth('created_at', Carbon::parse($emc->month)->month);
         if ($emc->sort) $items = $items->orderBy('created_at', $emc->sort === 'asc' ? 'asc' : 'desc');
+        if ($emc->sort_approve) $items = $items->orderBy('updated_at', $emc->sort_approve === 'asc' ? 'asc' : 'desc');
         if ($emc->status) {
             $items = $items->where('status', $emc->status);
         } else {
@@ -186,13 +187,14 @@ class EmergencyRequestService
 
     public function noti()
     {
-        $pms = Auth()->user();
-        if ($pms->department_id == 1) {
-            return EmergencyRequest::whereIn('status', [
+        $user = Auth()->user();
+        $role = PermissionUtility::getRoleName($user);
+        if ($role == Role::ADMIN) {
+            $count =  EmergencyRequest::whereIn('status', [
                 EmergencyRequest::waiting,
             ])->count();
-        } else if ($pms->department_id == 2) {
-            $team_id = TeamMember::where('user_id', $pms->id)
+        } else if ($role == Role::TEAM_LEADER) {
+            $team_id = TeamMember::where('user_id', $user->id)
                 ->leftJoin('teams', 'teams.id', '=', 'team_id')
                 ->value('teams.id');
 
@@ -202,7 +204,18 @@ class EmergencyRequestService
                     EmergencyRequest::helping,
                 ])->where('emergency_team_id', $team_id)->count();
             }
+        } else if ($role == Role::TEAM_MEMBER) {
+            $team_id = TeamMember::where('user_id', $user->id)
+                ->leftJoin('teams', 'teams.id', '=', 'team_id')
+                ->value('teams.id');
+
+            if ($team_id) {
+                return EmergencyRequest::whereIn('status', [
+                    EmergencyRequest::helping,
+                ])->where('emergency_team_id', $team_id)->count();
+            }
         }
-        return 0;
+
+        return $count ?? 0;
     }
 }
