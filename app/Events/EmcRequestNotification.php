@@ -25,14 +25,15 @@ class EmcRequestNotification implements ShouldBroadcast
     public function broadcastOn()
     {
         Log::info('EMC REQUEST NOTIFICATION');
-        // if ($this->teamIds) {
-            return [
-                collect($this->teamIds)
-                    ->map(fn($id) => new PrivateChannel("team.$id"))
-                    ->all(),
-                new PrivateChannel("admin"),
-            ];
-        return new PrivateChannel("admin");
+        $channels[] = new PrivateChannel('admin');
+
+        if ($this->teamIds) {
+            foreach ($this->teamIds as $teamId) {
+                $channels[] = new PrivateChannel('team.'. $teamId);
+            }
+        }
+
+        return $channels;
     }
 
     public function broadcastAs()
