@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 use function Pest\Laravel\json;
@@ -204,10 +205,10 @@ class EmergencyRequestController extends Controller
             }
         }
 
-        if($data->isDirty('emergency_team_id')){
+        if($data->wasChanged('emergency_team_id')){
             EmcRequestNotification::dispatch([$old['emergency_team_id'], $data->emergency_team_id]);
         }
-        else if($data->isDirty('status')){
+        else if($data->wasChanged('status')){
             EmcRequestNotification::dispatch([$data->emergency_team_id]);
         }
 
