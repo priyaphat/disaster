@@ -7,6 +7,7 @@ use App\Http\Resources\NotificationResource;
 use App\Jobs\BroadcastNotification;
 use App\Models\Notification;
 use App\Models\NotificationUser;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -110,11 +111,11 @@ class NotificationService
             });
     }
 
-    public function sendToCenterStaff($notification, $chunkSize = 100)
+    public function sendToAdmin($notification, $chunkSize = 100)
     {
         User::where('username', 'superadmin')
             ->chunk($chunkSize, function ($users) use ($notification) {
-                BroadcastNotification::dispatch($users, $notification);
+                BroadcastNotification::dispatch($users, $notification, Role::ADMIN);
             });
     }
 

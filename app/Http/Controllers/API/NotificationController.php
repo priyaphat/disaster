@@ -3,29 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Events\EmcRequestNotification;
-use App\Events\Notification as EventsNotification;
-use App\Events\Notify;
+use App\Events\ProductNotification;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Geography\AddressRequest;
-use App\Http\Requests\Geography\DistrictRequest;
-use App\Http\Requests\Geography\SubDistrictRequest;
 use App\Http\Requests\NotificationRequest;
 use App\Http\Responses\ApiResponse;
-use App\Http\Utility\NotificationUtility;
-use App\Jobs\BroadcastNotification;
-use App\Models\Appointment;
-use App\Models\DamagedUtility;
-use App\Models\EmergencyPost;
 use App\Models\EmergencyRequest;
-use App\Models\News;
-use App\Models\Notification;
-use App\Models\NotificationUser;
-use App\Models\Shelter;
-use App\Models\User;
-use App\Notifications\SendNotification;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -66,6 +50,7 @@ class NotificationController extends Controller
     {
         $data = EmergencyRequest::first();
         EmcRequestNotification::dispatch([$data->emergency_team_id]);
+        ProductNotification::dispatch();
         return ApiResponse::createdResponse(__('success.data'), $data);
     }
 
