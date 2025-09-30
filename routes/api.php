@@ -452,7 +452,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notification', [NotificationController::class, 'notification']);
     Route::get('/notifications/emc', [NotificationController::class, 'emcNotification']);
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::delete('/notifications', [NotificationController::class, 'deleteAll']);
     Route::delete('/notifications/bulk', [NotificationController::class, 'bulkDelete']);
 

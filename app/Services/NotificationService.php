@@ -13,16 +13,13 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationService
 {
-    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
+    public function getList(array $filters = [])
     {
-        $query = NotificationUser::with('notification')->where('user_id', Auth::user()->id)->latest('id');
-        if (!$paginate) {
-            return NotificationResource::collection($query->get());
-        }
+        $offset = $filters['offset'] ?? 0;
+        $limit = $filters['limit'] ?? 10;
 
-        $data = $query->paginate($perPage);
-        $paginate = $data->setCollection(NotificationResource::collection($data->items())->collection);
-        return  $paginate;
+        $query = NotificationUser::with('notification')->skip($offset)->take($limit)->where('user_id', Auth::user()->id)->latest('id');
+        return NotificationResource::collection($query->get());
     }
 
     public function markAllAsRead()

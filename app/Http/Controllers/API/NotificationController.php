@@ -31,7 +31,7 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         $this->notificationService->markAllAsRead();
-        return ApiResponse::successResponse(__('success.deleted'));
+        return ApiResponse::successResponse(__('success.data'));
     }
 
     public function bulkDelete(NotificationRequest $request)
