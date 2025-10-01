@@ -59,14 +59,22 @@ class PositionService
     }
 
     /**
+     * Check department is used.
+     */
+    public function isUsed(Position $position): bool
+    {
+        return $position->users()->exists();
+    }
+
+    /**
      * Delete a position.
      */
     public function delete(Position $position): bool
     {
-        if ($position->users) {
+        if ($this->isUsed($position)) {
             throw new BadRequestHttpException(__('error.sql.fk-constraint'));
         }
-    
+
         return $position->delete();
     }
 }

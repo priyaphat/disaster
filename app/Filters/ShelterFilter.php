@@ -20,14 +20,6 @@ class ShelterFilter extends QueryFilter
         }
     }
 
-    public function max_capacity($value)
-    {
-        if ($value === 'false') {
-            return $this->builder->withCount('populations')
-                ->havingRaw('populations_count < max_capacity');
-        }
-    }
-
     public function sort($value)
     {
         return $value === 'name' ? $this->builder->orderBy('name', 'desc')

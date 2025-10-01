@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\Config;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -101,7 +102,7 @@ class ConfigController extends Controller
     }
 
     /**
-     * Config | reset config ครับ จะรี แบบไหน เปิด หรือ ปิด 
+     * Config | reset config ครับ จะรี แบบไหน เปิด หรือ ปิด
      */
     public function reset()
     {
@@ -175,6 +176,15 @@ class ConfigController extends Controller
             $q->description = ($request->all());
             $q->save();
         }
+        // Send chart notification to all users
+        $notification = app(NotificationService::class)->createNotification(
+            'position.updated',
+            [],
+            $q->id,
+            Config::class,
+            true
+        );
+        app(NotificationService::class)->sendToAllUsers($notification);
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 

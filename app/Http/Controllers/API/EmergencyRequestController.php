@@ -25,9 +25,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
-use function Pest\Laravel\json;
-use function PHPUnit\Framework\isNull;
-
 class EmergencyRequestController extends Controller
 {
     use AuthorizesRequests;
@@ -112,7 +109,7 @@ class EmergencyRequestController extends Controller
         $recipint = RecipintUtility::recipint('admin');
         (new LineController)->LineNotification($name, LineController::Emc_request_post, $recipint);
         // Send a emergency request notfication
-        $notification = $this->notificationService->createNotification('emergency_request.created', ['name' => $name['name']], $data->id, EmergencyRequest::class, false);
+        $notification = $this->notificationService->createNotification('emergency_request.created', ['name' => $name['name']], $data->id, EmergencyRequest::class, true);
         $this->notificationService->sendToAdmin($notification);
         EmcRequestNotification::dispatch([$data->emergency_team_id]);
         return ApiResponse::createdResponse(__('success.emc_request.created'), $data);

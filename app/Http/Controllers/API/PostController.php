@@ -9,13 +9,14 @@ use App\Models\EmergencyPost;
 use Illuminate\Http\Request;
 use App\Services\EmergencyPostService;
 use App\Http\Requests\EmergencyPostRequest;
+use App\Services\NotificationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Spatie\FlareClient\Api;
 
 class PostController extends Controller
 {
     use AuthorizesRequests;
-    public function __construct(private EmergencyPostService $emergencyPostService) {}
+    public function __construct(private EmergencyPostService $emergencyPostService, private NotificationService $notificationService) {}
 
     /**
      * Post | get post by id / ปุ้ย.
@@ -52,6 +53,10 @@ class PostController extends Controller
         //end
 
         $post = $this->emergencyPostService->create($request->all());
+
+        // Send post notification via socket
+        $notification = $this->notificationService->createNotification('post.created', ['disaster' => $post->disaster?->name, 'level' => $post->level, 'area' => $post->gis_map], $post->id, EmergencyPost::class, false);
+        $this->notificationService->sendToAllUsers($notification);
         return ApiResponse::successResponse(__('success.post.created'), $post);
     }
 
@@ -72,7 +77,16 @@ class PostController extends Controller
         //end
 
         $post = $this->emergencyPostService->update($post, $request->all());
-        if ($post['status'] == EmergencyPost::inactive) return ApiResponse::successResponse(__('success.post.deleted'), $post);
+        // Send post notification via socket
+        if ($post['status'] == EmergencyPost::inactive) {
+            $notification = $this->notificationService->createNotification('post.deleted', ['disaster' => $post->disaster?->name, 'level' => $post->level, 'area' => $post->gis_map], $post->id, EmergencyPost::class, false);
+            $this->notificationService->sendToAllUsers($notification);
+            return ApiResponse::successResponse(__('success.post.deleted'), $post);
+        }
+
+        $notification = $this->notificationService->createNotification('post.updated', ['disaster' => $post->disaster?->name, 'level' => $post->level, 'area' => $post->gis_map], $post->id, EmergencyPost::class, false);
+        $this->notificationService->sendToAllUsers($notification);
+
         return ApiResponse::successResponse(__('success.post.updated'), $post);
     }
 
@@ -83,6 +97,9 @@ class PostController extends Controller
     {
         $this->authorize('delete', EmergencyPost::class);
         $post = $this->emergencyPostService->delete($post);
+        // Send post notification via socket
+        $notification = $this->notificationService->createNotification('post.deleted', ['disaster' => $post->disaster?->name, 'level' => $post->level, 'area' => $post->gis_map], $post->id, EmergencyPost::class, false);
+        $this->notificationService->sendToAllUsers($notification);
         return ApiResponse::successResponse(__('success.data'), $post);
     }
 

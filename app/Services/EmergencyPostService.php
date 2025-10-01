@@ -70,7 +70,7 @@ class EmergencyPostService
         if ($post['status'] == EmergencyPost::inactive) {
             LinePostUtility::line_oa_call(LineController::Disaster_end, self::index($post)->toArray());
         }
-        return $post;
+        return $post->refresh();
     }
 
     public function delete($post): EmergencyPost

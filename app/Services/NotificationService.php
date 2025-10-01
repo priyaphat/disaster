@@ -18,7 +18,10 @@ class NotificationService
         $offset = $filters['offset'] ?? 0;
         $limit = $filters['limit'] ?? 10;
 
-        $query = NotificationUser::with('notification')->skip($offset)->take($limit)->where('user_id', Auth::user()->id)->latest('id');
+        $query = Notification::whereHas('notification_users', function ($q) {
+            $q->where('user_id', Auth::user()->id);
+        })->skip($offset)->take($limit)->latest('created_at');
+
         return NotificationResource::collection($query->get());
     }
 
@@ -45,12 +48,15 @@ class NotificationService
      */
     public function createNotification(string $type, array $detail,  $entityId = null, $entityType = null, $isShow = false)
     {
+        [$eventType, $eventAction] = explode('.', $type);
         $notification = self::formatData($type, $detail);
         $data = [
             'notification' => $notification,
             'entity_id' => $entityId,
             'entity_type' => $entityType,
             'notification_type' => $type,
+            'event_type' => $eventType,
+            'event_action' => $eventAction,
             'show_details' => $isShow
         ];
         return Notification::create($data);

@@ -73,4 +73,15 @@ class PositionController extends Controller
         $this->positionService->delete($position);
         return ApiResponse::successResponse(__('success.deleted'));
     }
+
+    /**
+     * Check delete an department | ลบหน่วยงาน
+     */
+    public function checkDelete(Position $position)
+    {
+        //
+        $this->authorize('delete', Position::class);
+        $data = $this->positionService->isUsed($position);
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
 }

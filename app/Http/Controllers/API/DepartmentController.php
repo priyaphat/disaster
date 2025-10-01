@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Exceptions\WarningException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Department\FilterDepartmentRequest;
 use App\Http\Requests\Department\StoreDepartmentRequest;
@@ -20,8 +21,9 @@ class DepartmentController extends Controller
     {
         $this->departmentService = $departmentService;
     }
+
     /**
-     * Display a listing of the resource.
+     * Display a listing of the an department | แสดงรายการหน่วยงาน
      */
     public function index(FilterDepartmentRequest $request)
     {
@@ -33,7 +35,7 @@ class DepartmentController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create an department | สร้างหน่วยงาน
      */
     public function store(StoreDepartmentRequest $request)
     {
@@ -44,7 +46,7 @@ class DepartmentController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show an department | แสดงหน่วยงาน
      */
     public function show(Department $department)
     {
@@ -53,7 +55,7 @@ class DepartmentController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update an department | แก้ไขนัดหมาย
      */
     public function update(UpdateDepartmentRequest $request, Department $department)
     {
@@ -65,7 +67,7 @@ class DepartmentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete an department | ลบหน่วยงาน
      */
     public function destroy(Department $department)
     {
@@ -74,5 +76,16 @@ class DepartmentController extends Controller
 
         $this->departmentService->delete($department);
         return ApiResponse::successResponse(__('success.deleted'));
+    }
+
+    /**
+     * Check delete an department | ลบหน่วยงาน
+     */
+    public function checkDelete(Department $department)
+    {
+        //
+        $this->authorize('delete', Department::class);
+        $data = $this->departmentService->isUsed($department);
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

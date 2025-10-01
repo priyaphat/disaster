@@ -6,10 +6,18 @@ use App\Events\EmcRequestNotification;
 use App\Events\ProductNotification;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\NotificationRequest;
+use App\Http\Resources\NewsResource;
+use App\Http\Resources\NotificationResource;
+use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\EmergencyRequest;
+use App\Models\News;
+use App\Models\Notification;
+use App\Models\NotificationUser;
+use App\Notifications\SendNotification;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -56,6 +64,17 @@ class NotificationController extends Controller
 
     public function notification(Request $request)
     {
+        $user = Auth::user();
+        // $data = NotificationUser::whereHas('notification' , function ($q) {
+        //             $q->where('entity_type', News::class);
+        //     })->first();
+
+        // $data = new NotificationResource($data);
+        // $data->toArray(request());
+        // $user->notify(new SendNotification($data));
+
+        $data = Notification::where('entity_type', News::class)->first();
+        $this->notificationService->sendToAdmin($data);
         // ศูนย์พักพิงมีนัดหมายใหม่
         // $appointment = Appointment::find(121);
         // $data = [
@@ -330,7 +349,7 @@ class NotificationController extends Controller
         //     EmergencyPost::class,
         //     false
         // );
-        // $this->notificationService->sendToUser($notification);
+        // $this->notificationService->sendToAllUsers($notification);
 
 
         // $data = EmergencyPost::latest()->first();
@@ -423,6 +442,6 @@ class NotificationController extends Controller
         //     false
         // );
 
-        // return ApiResponse::successResponse(__('success.data'), $notification);
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

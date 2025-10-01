@@ -16,22 +16,20 @@ class Notification extends Model
         'entity_id',
         'entity_type',
         'notification_type',
+        'event_type',
+        'event_action',
         'show_details'
     ];
 
     protected $casts = [
         'notification' => 'array', // หรือใช้ 'json' ก็ได้
+        'show_details' => 'boolean'
     ];
-    //     /**
-    //  * Interact with the user's first name.
-    //  */
-    // protected function notification(): Attribute
-    // {
-    //     return Attribute::make(
-    //         get: fn (string $value) => json_decode($value),
-    //         set: fn (string $value) => json_encode($value),
-    //     );
-    // }
+
+    public function entity()
+    {
+        return $this->morphTo();
+    }
 
     public function notification_users()
     {

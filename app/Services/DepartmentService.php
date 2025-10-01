@@ -5,11 +5,12 @@ namespace App\Services;
 use App\Models\Department;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class DepartmentService
 {
     /**
-     * Get all news with filter and limit number.
+     * Get all department with filter and limit number.
      */
     public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
@@ -23,7 +24,7 @@ class DepartmentService
     }
 
     /**
-     * Get paginated news.
+     * Get paginated department.
      */
     public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
@@ -35,7 +36,7 @@ class DepartmentService
     }
 
     /**
-     * Get a news by its id.
+     * Get a department by its id.
      */
     public function getById(int $id): Department
     {
@@ -43,7 +44,7 @@ class DepartmentService
     }
 
     /**
-     * Create a news.
+     * Create a department.
      */
     public function create(array $data): Department
     {
@@ -51,7 +52,7 @@ class DepartmentService
     }
 
     /**
-     * Update a news.
+     * Update a department.
      */
     public function update(Department $department, array $data): Department
     {
@@ -59,11 +60,23 @@ class DepartmentService
         return $department;
     }
 
+     /**
+     * Check department is used.
+     */
+    public function isUsed(Department $department): bool
+    {
+        return $department->users()->exists();
+    }
+
     /**
-     * Delete a news.
+     * Delete a department.
      */
     public function delete(Department $department): bool
     {
+        if($this->isUsed($department)){
+            throw new BadRequestHttpException(__('error.sql.fk-constraint'));
+        }
+
         return $department->delete();
     }
 }

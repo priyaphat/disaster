@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             ShelterPositionSeeder::class,
             DisasterSeeder::class,
             ConfigSeeder::class,
-            // UserSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

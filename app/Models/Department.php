@@ -15,6 +15,11 @@ class Department extends Model
         'name'
     ];
 
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'id', 'department_id');
+    }
+
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return (new DepartmentFilter($filters))->apply($query);

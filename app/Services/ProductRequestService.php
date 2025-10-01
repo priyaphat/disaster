@@ -79,7 +79,7 @@ class ProductRequestService
             $already = ShelterProduct::where('product_id', $i['product_id'])->where('shelter_id', $shelter)->first();
             if ($already) {
                 self::create_request($i, $shelter);
-            } else { //if not have shelter product | this create. 
+            } else { //if not have shelter product | this create.
                 $shelter_product = new ShelterProductRequest();
                 $item['product_id'] = $i['product_id'];
                 $item['quantity'] = 0;

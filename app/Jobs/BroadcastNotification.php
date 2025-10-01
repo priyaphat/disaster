@@ -3,11 +3,13 @@
 namespace App\Jobs;
 
 use App\Events\Notification;
+use App\Http\Resources\NotificationResource;
 use App\Models\NotificationUser;
 use App\Notifications\SendNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class BroadcastNotification implements ShouldQueue
 {
@@ -18,7 +20,8 @@ class BroadcastNotification implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        public Collection $users, public $data
+        public Collection $users,
+        public $data
     ) {}
 
     /**
@@ -33,8 +36,12 @@ class BroadcastNotification implements ShouldQueue
         ])->toArray();
 
         NotificationUser::upsert($rows, ['notification_id', 'user_id'], ['is_read']);
+
+        $notification = new NotificationResource($this->data);
+        $notification = $notification->toArray(request());
+
         foreach ($this->users as $user) {
-            $user->notify(new SendNotification($this->data->notification));
+            $user->notify(new SendNotification($notification));
         }
     }
 }

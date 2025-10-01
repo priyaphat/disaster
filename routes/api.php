@@ -131,6 +131,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/position/{position}', [PositionController::class, 'show']);
+    Route::get('/position/{position}/deletion-check', [PositionController::class, 'checkDelete']);
     Route::post('/position', [PositionController::class, 'store']);
     Route::post('/position/{position}', [PositionController::class, 'update']);
     Route::delete('/position/{position}', [PositionController::class, 'destroy']);
@@ -143,6 +144,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/department/{department}', [DepartmentController::class, 'show']);
     Route::post('/department', [DepartmentController::class, 'store']);
     Route::post('/department/{department}', [DepartmentController::class, 'update']);
+    Route::get('/department/{department}/deletion-check', [DepartmentController::class, 'checkDelete']);
     Route::delete('/department/{department}', [DepartmentController::class, 'destroy']);
 
     /*

@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->count(14)->create()->each(function ($user) {
+        User::factory()->count(4)->create()->each(function ($user) {
             $user->approval()->create([
                 'is_approved' => 1,
                 'approved_by' => $user->id,
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            
+
         });
 
         // User::factory()->count(3)->create()->each(function ($user) {

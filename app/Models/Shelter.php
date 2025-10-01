@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\UtilitiesCast;
 use App\Filters\ShelterFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -40,7 +41,7 @@ class Shelter extends Model
 
     protected $casts = [
         'status' => 'integer',
-        'utilities' => 'array',
+        'utilities' => UtilitiesCast::class,
     ];
 
 

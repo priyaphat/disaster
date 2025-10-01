@@ -36,12 +36,7 @@ class ShelterResource extends JsonResource
             'staff_count' => $this->staff->count(),
             'current_capacity' => $this->populations->count(),
             'max_capacity' => $this->max_capacity,
-            'utilities' => is_array($this->utilities)
-                ? collect($this->utilities)->map(fn($u) => [
-                    'id' => $u,
-                    'name' => ShelterUtilities::tryFrom($u)->utility(),
-                ])->toArray()
-                : [],
+            'utilities' => $this->utilities,
             'image' =>  $this->when($this->image, $this->image?->image_path),
             'gis_map' => $this->gis_map ?? null,
             'google_maps' => $this->google_maps ?? null,
