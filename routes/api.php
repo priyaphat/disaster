@@ -26,6 +26,7 @@ use App\Http\Controllers\API\UnitController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\ConfigController;
+use App\Http\Controllers\API\DamageUtilityController;
 use App\Http\Controllers\API\FileController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
@@ -90,8 +91,8 @@ Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
 Route::get('/chart/{id?}', [ConfigController::class, 'indexChart']);
-
-Route::get('/damaged-utilities/{type?}', [ShelterController::class, 'dmgs']);
+Route::get('/notification', [NotificationController::class, 'notification']);
+Route::get('/damaged-utilities/{type?}', [DamageUtilityController::class, 'dmgs']);
 Route::get('/posts', [PostController::class, 'show']);
 Route::get('/category', [CategoryController::class, 'index']);
 Route::get('/shelter', [ShelterController::class, 'index'])->middleware('check_auth_shelters_list');
@@ -202,11 +203,11 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display damaged utility
     |--------------------------------------------------------------------------
     */
-    Route::get('/damaged-utility-name', [ShelterController::class, 'dmg_name']);
-    Route::get('/damaged-utility-logs', [ShelterController::class, 'damaged_utility_logs']);
-    Route::post('/damaged-utility', [ShelterController::class, 'dmg_stroe']);
-    Route::post('/damaged-utility/{id}', [ShelterController::class, 'dmg_update']);
-    Route::delete('/damaged-utility/{damaged}', [ShelterController::class, 'dmg_delete']);
+    Route::get('/damaged-utility-name', [DamageUtilityController::class, 'dmg_name']);
+    Route::get('/damaged-utility-logs', [DamageUtilityController::class, 'damaged_utility_logs']);
+    Route::post('/damaged-utility', [DamageUtilityController::class, 'dmg_stroe']);
+    Route::post('/damaged-utility/{id}', [DamageUtilityController::class, 'dmg_update']);
+    Route::delete('/damaged-utility/{damaged}', [DamageUtilityController::class, 'dmg_delete']);
 
     /*
     |--------------------------------------------------------------------------
@@ -452,7 +453,6 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::get('/notification', [NotificationController::class, 'notification']);
     Route::get('/notifications/emc', [NotificationController::class, 'emcNotification']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::delete('/notifications', [NotificationController::class, 'deleteAll']);

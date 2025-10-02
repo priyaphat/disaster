@@ -93,8 +93,12 @@ class ProductRequestService
     public function create_request($r, $shelter)
     {
         $r['shelter_id'] = $shelter;
-        $product = Product::find($r['product_id']);
-        ProductRequest::create($r);
+        $product = Product::with('unit')->find($r['product_id']);
+        $data = ProductRequest::create($r);
+
+        // Send create product request notification
+        $notification = app(NotificationService::class)->createNotification('product_request.created', ['product' => $product->name, 'unit' => $product->unit?->name ?? ''], $data->id, ProductRequest::class, true);
+        app(NotificationService::class)->sendToAdmin($notification);
 
         self::log($r, $product, ProductLogs::REQUEST);
     }

@@ -21,4 +21,12 @@ class EmergencyPostPolicy
     {
         return $user->hasRole(Role::ADMIN);
     }
+
+    /**
+     * Determine whether the user can view the notification.
+     */
+    public function viewNoti(User $user): bool
+    {
+        return true;
+    }
 }

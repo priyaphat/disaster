@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Http\Traits\CreatedUpdatedBy;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ProductRequest extends Model
 {
@@ -37,6 +38,12 @@ class ProductRequest extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function shelter(): HasOne
+    {
+        return $this->hasOne(Shelter::class, 'id', 'shelter_id');
+    }
+
     public function image()
     {
         return $this->morphOne(Image::class, 'parentable');

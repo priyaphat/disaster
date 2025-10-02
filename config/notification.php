@@ -82,7 +82,7 @@ return [
         'updated' => [
             'title' => 'อัปเดต ทรัพยากรภายในศูนย์',
             'message' => [
-                ['type' => 'text', 'content' => '#{product} (#{unit})'],
+                ['type' => 'bold', 'content' => '#{product} (#{unit})'],
                 ['type' => 'text', 'content' => 'คงเหลือ'],
                 ['type' => 'text', 'content' => '#{total}'],
             ]
@@ -148,7 +148,7 @@ return [
         ]
     ],
     'appointment' => [
-        'shelter' => [
+        'staff' => [
             'created' => [
                 'title' => 'นัดหมายตรวจเยี่ยม ใหม่',
                 'message' => [
@@ -207,7 +207,7 @@ return [
             'message' => [
                 ['type' => 'text', 'content' => 'ขณะนี้'],
                 ['type' => 'text', 'content' => 'มีคำร้องขอ'],
-                ['type' => 'text', 'content' => '#{product} #{unit}'],
+                ['type' => 'bold', 'content' => '#{product} (#{unit})'],
             ]
         ]
     ],
@@ -226,62 +226,82 @@ return [
         ]
     ],
     'emergency_request' => [
-        'created' => [
-            'title' => 'เหตุฉุกเฉิน',
-            'message' => [
-                ['type' => 'text', 'content' => 'ขณะนี้ มีคำร้องขอใหม่จาก'],
-                ['type' => 'bold', 'content' => '#{name}'],
+        'admin' => [
+
+            'created' => [
+                'title' => 'เหตุฉุกเฉิน',
+                'message' => [
+                    ['type' => 'text', 'content' => 'ขณะนี้ มีคำร้องขอใหม่จาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                ]
+            ],
+            'approved' => [
+                'title' => 'เหตุฉุกเฉิน',
+                'message' => [
+                    ['type' => 'text', 'content' => 'ทีมเจ้าหน้าที่'],
+                    ['type' => 'bold', 'content' => '#{team}'],
+                    ['type' => 'text', 'content' => 'รับคำร้องจาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                ]
+            ],
+            'rejected' => [
+                'title' => 'เหตุฉุกเฉิน',
+                'message' => [
+                    ['type' => 'text', 'content' => 'ทีมเจ้าหน้าที่'],
+                    ['type' => 'bold', 'content' => '#{team}'],
+                    ['type' => 'text', 'content' => 'ปฏิเสธคำร้องจาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                ]
+            ],
+            'success' => [
+                'title' => 'เหตุฉุกเฉิน',
+                'message' => [
+                    ['type' => 'text', 'content' => 'คำร้องจาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                    ['type' => 'text', 'content' => 'ได้รับการช่วยเหลือสำเร็จแล้ว'],
+                ]
+            ],
+            'unsuccess' => [
+                'title' => 'เหตุฉุกเฉิน',
+                'message' => [
+                    ['type' => 'text', 'content' => 'คำร้องจาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                    ['type' => 'text', 'content' => 'เข้าช่วยเหลือไม่สำเร็จ'],
+                ]
+            ],
+            'assigned' => [
+                'title' => 'เหตุฉุกเฉิน',
+                'message' => [
+                    ['type' => 'text', 'content' => 'ได้รับมอบหมาย เข้าช่วยเหลือ คำขอจาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                ]
+            ],
+            'canceled' => [
+                'title' => 'เหตุฉุกเฉิน ถูกยกเลิก',
+                'message' => [
+                    ['type' => 'text', 'content' => 'คำขอจาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                    ['type' => 'text', 'content' => 'ถูกยกเลิก'],
+                ]
             ]
         ],
-        'approved' => [
-            'title' => 'เหตุฉุกเฉิน',
-            'message' => [
-                ['type' => 'text', 'content' => 'ทีมเจ้าหน้าที่'],
-                ['type' => 'bold', 'content' => '#{team}'],
-                ['type' => 'text', 'content' => 'รับคำร้องจาก'],
-                ['type' => 'bold', 'content' => '#{name}'],
+        'team' => [
+            'assigned' => [
+                'title' => 'เหตุฉุกเฉิน',
+                'message' => [
+                    ['type' => 'text', 'content' => 'ได้รับมอบหมาย เข้าช่วยเหลือ คำขอจาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                ]
+            ],
+            'canceled' => [
+                'title' => 'เหตุฉุกเฉิน ถูกยกเลิก',
+                'message' => [
+                    ['type' => 'text', 'content' => 'คำขอจาก'],
+                    ['type' => 'bold', 'content' => '#{name}'],
+                    ['type' => 'text', 'content' => 'ถูกยกเลิก'],
+                ]
             ]
-        ],
-        'rejected' => [
-            'title' => 'เหตุฉุกเฉิน',
-            'message' => [
-                ['type' => 'text', 'content' => 'ทีมเจ้าหน้าที่'],
-                ['type' => 'bold', 'content' => '#{team}'],
-                ['type' => 'text', 'content' => 'ปฏิเสธคำร้องจาก'],
-                ['type' => 'bold', 'content' => '#{name}'],
-            ]
-        ],
-        'success' => [
-            'title' => 'เหตุฉุกเฉิน',
-            'message' => [
-                ['type' => 'text', 'content' => 'คำร้องจาก'],
-                ['type' => 'bold', 'content' => '#{name}'],
-                ['type' => 'text', 'content' => 'ได้รับการช่วยเหลือสำเร็จแล้ว'],
-            ]
-        ],
-        'unsuccess' => [
-            'title' => 'เหตุฉุกเฉิน',
-            'message' => [
-                ['type' => 'text', 'content' => 'คำร้องจาก'],
-                ['type' => 'bold', 'content' => '#{name}'],
-                ['type' => 'text', 'content' => 'เข้าช่วยเหลือไม่สำเร็จ'],
-            ]
-        ],
-        'assigned' => [
-            'title' => 'เหตุฉุกเฉิน',
-            'message' => [
-                ['type' => 'text', 'content' => 'ได้รับมอบหมาย เข้าช่วยเหลือ คำขอจาก'],
-                ['type' => 'bold', 'content' => '#{name}'],
-            ]
-        ],
-        'canceled' => [
-            'title' => 'เหตุฉุกเฉิน ถูกยกเลิก',
-            'message' => [
-                ['type' => 'text', 'content' => 'คำขอจาก'],
-                ['type' => 'bold', 'content' => '#{name}'],
-                ['type' => 'text', 'content' => 'ถูกยกเลิก'],
-            ]
-        ],
+        ]
     ],
     'user' => [
         'registered' => [

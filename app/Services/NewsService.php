@@ -104,11 +104,11 @@ class NewsService
             ['title' => $news->title],
             $news->id,
             News::class,
-            false
+            true
         );
 
         if ($news->shelter_id) {
-            $this->notificationService->sendToStaff($notification, $news->id);
+            $this->notificationService->sendToStaff($notification, $news->shelter_id);
         } else {
             $this->notificationService->sendToAllUsers($notification);
         }

@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\NotificationUser;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationService
@@ -18,7 +19,9 @@ class NotificationService
         $offset = $filters['offset'] ?? 0;
         $limit = $filters['limit'] ?? 10;
 
-        $query = Notification::whereHas('notification_users', function ($q) {
+        $query = Notification::with(['notification_users' => function ($q) {
+            $q->where('user_id', Auth::user()->id);
+        }])->whereHas('notification_users', function ($q) {
             $q->where('user_id', Auth::user()->id);
         })->skip($offset)->take($limit)->latest('created_at');
 
@@ -27,7 +30,7 @@ class NotificationService
 
     public function markAllAsRead()
     {
-        $data = NotificationUser::where('user_id', Auth::user()->id)->update(['is_read' => true]);
+        $data = NotificationUser::where(['user_id' => Auth::user()->id, 'is_read' => false])->update(['is_read' => true, 'readed_at' => Carbon::now()]);
         return $data;
     }
 
@@ -116,10 +119,11 @@ class NotificationService
 
     public function sendToAdmin($notification, $chunkSize = 100)
     {
-        User::where('username', 'superadmin')
-            ->chunk($chunkSize, function ($users) use ($notification) {
-                BroadcastNotification::dispatch($users, $notification, Role::ADMIN);
-            });
+        User::whereHas('roles', function ($q) {
+            $q->where('name', Role::ADMIN);
+        })->chunk($chunkSize, function ($users) use ($notification) {
+            BroadcastNotification::dispatch($users, $notification, Role::ADMIN);
+        });
     }
 
     public function sendToStaff($notification, $shelterId, $chunkSize = 100)
