@@ -35,8 +35,8 @@ class ShelterStaffObserver
         if ($shelterStaff->shelter_position_id) {
             $this->logService->createLog(ActionType::ASSIGN->value, User::class, $shelterStaff->user_id, ShelterPosition::class, $shelterStaff->shelter_position_id);
              // Send a notification
-            $notification = $this->notificationService->createNotification('shelter_position.updated', [], $shelterStaff->id, ShelterStaff::class, false);
-            $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
+            $notification = $this->notificationService->createNotification('shelter_position.updated', [], $shelterStaff->id, ShelterStaff::class, true);
+            $this->notificationService->sendToStaff($notification, $shelterStaff->shelter_id);
         }
 
         // Add staff role to user
@@ -57,8 +57,8 @@ class ShelterStaffObserver
         if ($shelterStaff->wasChanged('shelter_position_id') && $shelterStaff->shelter_position_id) {
             $this->logService->createLog(ActionType::ASSIGN->value, User::class, $shelterStaff->user_id, ShelterPosition::class, $shelterStaff->shelter_position_id);
             // Send a notification
-            $notification = $this->notificationService->createNotification('shelter_position.updated', [], $shelterStaff->id, ShelterStaff::class, false);
-            $this->notificationService->sendToSelfUser($notification, $shelterStaff->user_id);
+            $notification = $this->notificationService->createNotification('shelter_position.updated', [], $shelterStaff->id, ShelterStaff::class, true);
+            $this->notificationService->sendToStaff($notification, $shelterStaff->shelter_id);
         }
     }
 

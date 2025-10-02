@@ -5,8 +5,9 @@ namespace App\Models;
 use App\Enums\ProductLogs as EnumsProductLogs;
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Traits\CreatedUpdatedBy;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class   ProductLogs extends Model
+class ProductLogs extends Model
 {
 
     use CreatedUpdatedBy;
@@ -30,4 +31,14 @@ class   ProductLogs extends Model
         'category_id',
         'unit_id',
     ];
+
+    public function fromShelter(): HasOne
+    {
+        return $this->hasOne(Shelter::class, 'id', 'from');
+    }
+
+    public function toShelter(): HasOne
+    {
+        return $this->hasOne(Shelter::class, 'id', 'to');
+    }
 }

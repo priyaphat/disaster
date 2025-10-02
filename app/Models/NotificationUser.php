@@ -10,7 +10,8 @@ class NotificationUser extends Model
     protected $fillable = [
         'notification_id',
         'user_id',
-        'is_read'
+        'is_read',
+        'readed_at'
     ];
 
     protected $casts = [

@@ -8,9 +8,13 @@ use App\Models\User;
 
 class ShelterStaffPolicy
 {
-    public function view(User $user): bool
+    public function view(User $user, ShelterStaff $staff): bool
     {
-        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
+        $shelterId = $staff->shelter_id;
+        if ($shelterId && $user->hasRole(Role::STAFF)) {
+            return $user->staff?->shelter_id == $shelterId;
+        }
+        return $user->hasAnyRole([Role::ADMIN, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 
     public function viewAny(User $user): bool
@@ -59,5 +63,17 @@ class ShelterStaffPolicy
         }
 
         return $user->hasRole(Role::ADMIN);
+    }
+
+    /**
+     * Handle the Shelter Population "updated" event.
+     */
+    public function viewNoti(User $user, ShelterStaff $staff): bool
+    {
+        $shelterId = $staff->shelter_id;
+        if ($shelterId && $user->hasRole(Role::STAFF)) {
+            return $user->staff?->shelter_id == $shelterId;
+        }
+        return $user->hasAnyRole([Role::ADMIN, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
     }
 }

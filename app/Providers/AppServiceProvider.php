@@ -10,6 +10,7 @@ use App\Models\AssessmentLogs;
 use App\Models\Assessments;
 use App\Models\Category;
 use App\Models\Config;
+use App\Models\DamagedUtility;
 use App\Models\Department;
 use App\Models\Disaster;
 use App\Models\DisasterEarthquake;
@@ -45,6 +46,7 @@ use App\Policies\AssessmentLogsPolicy;
 use App\Policies\AssessmentsPolicy;
 use App\Policies\CategoryPolicy;
 use App\Policies\ConfigPolicy;
+use App\Policies\DamageUtilityPolicy;
 use App\Policies\DepartmentPolicy;
 use App\Policies\DisasterEarthquakePolicy;
 use App\Policies\DisasterFloodPolicy;
@@ -113,13 +115,15 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(News::class, NewsPolicy::class);
+
+        Gate::policy(DamagedUtility::class, DamageUtilityPolicy::class);
         Gate::policy(Disaster::class, DisasterPolicy::class);
         Gate::policy(DisasterFlood::class, DisasterFloodPolicy::class);
         Gate::policy(DisasterSmog::class, DisasterSmogPolicy::class);
         Gate::policy(DisasterWildfire::class, DisasterWildfirePolicy::class);
         Gate::policy(DisasterEarthquake::class, DisasterEarthquakePolicy::class);
         Gate::policy(DisasterLandslide::class, DisasterLandslidePolicy::class);
-        
+
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(AppointmentLog::class, AppointmenLogPolicy::class);
 

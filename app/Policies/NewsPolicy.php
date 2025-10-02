@@ -37,4 +37,17 @@ class NewsPolicy
 
         return $user->hasRole(Role::ADMIN);
     }
+
+    /**
+     * Determine whether the user can view the notification.
+     */
+    public function viewNoti(User $user, News $news): bool
+    {
+        $shelterId = $news->shelter_id;
+        if ($shelterId && $user->hasRole(Role::STAFF)) {
+            return $user->staff?->shelter_id == $shelterId;
+        }
+
+        return true;
+    }
 }

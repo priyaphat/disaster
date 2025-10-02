@@ -4,7 +4,10 @@ namespace App\Http\Resources;
 
 use App\Models\Appointment;
 use App\Models\News;
+use App\Models\ProductLogs;
+use App\Models\ProductRequest;
 use App\Models\Shelter;
+use App\Models\ShelterProduct;
 use App\Models\ShelterStaff;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -24,27 +27,29 @@ class NotificationResource extends JsonResource
 
         $entityClass = $this->entity_type;
         $entity = $entityClass::find($this->entity_id);
-
+        $relatedData = [];
         $isShow = $this->show_details;
         if ($isShow) {
-            $isShow = Gate::forUser(Auth::user())->allows('view', $entity);
-        }
-
-        $data = [];
-        if ($entityClass === News::class) {
-            $data['shelter_id'] = $this->entity?->shelter_id;
-            $data['shelter_name'] = $this->entity?->shelter?->name;
-            $data['entity_id'] = $this->entity?->id;
-            $data['entity_name'] = $this->entity?->title;
-        }
-        else if ($entityClass === ShelterStaff::class) {
-            $data['shelter_id'] = $this->entity?->shelter_id;
-            $data['shelter_name'] = $this->entity?->shelter?->name;
-        }else if ($entityClass === Appointment::class) {
-            $data['shelter_id'] = $this->entity?->shelter_id;
-            $data['shelter_name'] = $this->entity?->shelter?->name;
-            $data['team_id'] = $this->entity?->team_id;
-            $data['team_name'] = $this->entity?->team?->name;
+            $isShow = Gate::forUser(Auth::user())->allows('viewNoti', $entity);
+            if ($entityClass === News::class) {
+                $data['shelter_id'] = $this->entity?->shelter_id;
+                $data['shelter_name'] = $this->entity?->shelter?->name;
+                $data['entity_id'] = $this->entity?->id;
+                $data['entity_name'] = $this->entity?->title;
+            } else if ($entityClass === ShelterStaff::class || $entityClass === ProductRequest::class || $entityClass === ShelterProduct::class) {
+                $relatedData['shelter_id'] = $this->entity?->shelter_id;
+                $relatedData['shelter_name'] = $this->entity?->shelter?->name;
+            } else if ($entityClass === Appointment::class) {
+                $relatedData['shelter_id'] = $this->entity?->shelter_id;
+                $relatedData['shelter_name'] = $this->entity?->shelter?->name;
+                $relatedData['team_id'] = $this->entity?->team_id;
+                $relatedData['team_name'] = $this->entity?->team?->name;
+            } else if ($entityClass === ProductLogs::class) {
+                $relatedData['from_shelter_id'] = $this->entity?->fromShelter?->id;
+                $relatedData['from_shelter_name'] = $this->entity?->fromShelter?->name;
+                $relatedData['to_shelter_id'] = $this->entity?->toShelter?->id;
+                $relatedData['to_shelter_name'] = $this->entity?->toShelter?->name;
+            }
         }
 
         return [
@@ -56,8 +61,8 @@ class NotificationResource extends JsonResource
             'event_type' =>  $this->event_type ?? null,
             'event_action' =>  $this->event_action ?? null,
             'show_details' => $isShow,
-            'related_data' => $data,
-            'is_read' => $this->is_read,
+            'related_data' => $relatedData,
+            'is_read' => $this->notification_users[0]['is_read'] ?? null,
             'created_at' => $this->created_at,
         ];
     }

@@ -56,4 +56,13 @@ class UserPolicy
     {
         return $user->hasRole(Role::ADMIN);
     }
+
+
+    /**
+     * Handle the Shelter Population "updated" event.
+     */
+    public function viewNoti(User $user): bool
+    {
+        return $user->hasRole(Role::ADMIN);
+    }
 }
