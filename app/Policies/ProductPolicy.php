@@ -14,7 +14,7 @@ class ProductPolicy
 
     public function update(User $user): bool
     {
-        return $user->hasRole(Role::ADMIN);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF]);
     }
 
     public function delete(User $user): bool
