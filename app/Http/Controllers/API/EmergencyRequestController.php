@@ -354,7 +354,7 @@ class EmergencyRequestController extends Controller
                     'victim_name.*.status' => ['required', Rule::enum(PopulationStatus::class)],
                     'victim_name.*.created_date' => 'required|date',
                     'request_id' => 'required',
-                ]
+                ],
             );
             foreach ($request['victim_name'] as $i) {
                 $i['shelter_id'] = $request['shelter_id'];
