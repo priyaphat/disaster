@@ -213,6 +213,20 @@ return [
 
         "source" => 'แหล่งที่มา',
         "smog_value" => 'ค่าหมอก',
+
+        'victim_name.*.prefix_id' => 'คำนำหน้า',
+        'victim_name.*.first_name' => 'ชื่อ',
+        'victim_name.*.last_name' => 'นามสกุล',
+        'victim_name.*.birth_date' => 'วันเกิด',
+        'victim_name.*.gender' => 'เพศ',
+        'victim_name.*.phone' => 'เบอร์โทรศัพท์',
+        'victim_name.*.p_address' => 'ที่อยู่ตามทะเบียนบ้าน',
+        'victim_name.*.p_geography_id' => 'จังหวัดตามทะเบียนบ้าน',
+        'victim_name.*.c_address' => 'ที่อยู่ปัจจุบัน',
+        'victim_name.*.c_geography_id' => 'จังหวัดที่อยู่ปัจจุบัน',
+        'victim_name.*.same_address' => 'ใช้ที่อยู่เดียวกัน',
+        'victim_name.*.status' => 'สถานะบุคคล',
+        'victim_name.*.created_date' => 'วันที่บันทึก',
     ],
 
 ];
