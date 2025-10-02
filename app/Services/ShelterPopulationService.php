@@ -35,10 +35,6 @@ class ShelterPopulationService
     {
         $shelterService = app(ShelterService::class);
 
-        if ($shelterService->isShelterMax($data['shelter_id'], $population->id)) {
-            throw new BadRequestHttpException(__('error.shelter.full'));
-        }
-
         // Check if the shelter is open. If it is not, the data cannot be updated
         if (!$shelterService->isShelterOpen($data['shelter_id'])) {
             throw new BadRequestHttpException(__('error.shelter.closed'));

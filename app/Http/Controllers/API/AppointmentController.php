@@ -52,7 +52,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Show an appointment | แก้ไขนัดหมาย
+     * Update an appointment | แก้ไขนัดหมาย
      */
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {

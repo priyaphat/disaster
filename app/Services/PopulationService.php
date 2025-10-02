@@ -52,10 +52,6 @@ class PopulationService
         if (isset($data['shelter_id']) && $data['shelter_id']) {
             $shelterService = app(ShelterService::class);
 
-            if ($shelterService->isShelterMax($data['shelter_id'])) {
-                throw new BadRequestHttpException(__('error.shelter.full'));
-            }
-
             if (!$shelterService->isShelterOpen($data['shelter_id'])) {
                 throw new BadRequestHttpException(__('error.shelter.closed'));
             }

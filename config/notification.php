@@ -7,29 +7,32 @@ return [
             ['type' => 'text', 'content' => 'ทดสอบแจ้งเตือน'],
         ]
     ],
-    'disaster' => [
+    'post' => [
         'created' => [
             'title' => 'ประกาศภัยพิบัติ',
             'message' => [
                 ['type' => 'text', 'content' => '#{disaster}'],
-                ['type' => 'text', 'content' => '#{level}'],
-                ['type' => 'text', 'content' => '#{area}']
+                ['type' => 'text', 'content' => 'ระดับ #{level}'],
+                ['type' => 'text', 'content' => 'พื้นที่ #{area}']
             ]
         ],
         'updated' => [
             'title' => 'อัปเดตภัยพิบัติ',
             'message' => [
                 ['type' => 'text', 'content' => '#{disaster}'],
-                ['type' => 'text', 'content' => '#{level}'],
-                ['type' => 'text', 'content' => '#{area}']
+                ['type' => 'text', 'content' => 'ระดับ #{level}'],
+                ['type' => 'text', 'content' => 'พื้นที่ #{area}']
             ]
         ],
         'deleted' => [
             'title' => 'ยุติภัยพิบัติ',
-            'message' => ['type' => 'text', 'content' => '#{disaster}'],
+            'message' => [
+                ['type' => 'text', 'content' => '#{disaster}'],
+                ['type' => 'text', 'content' => 'ระดับ #{level}'],
+                ['type' => 'text', 'content' => 'พื้นที่ #{area}']
+            ]
         ]
     ],
-
     'shelter' => [
         'opened' => [
             'title' => 'เปิดใช้งานศูนย์พักพิง',
@@ -71,7 +74,7 @@ return [
                 ['type' => 'bold', 'content' => '#{amount}'],
                 ['type' => 'text', 'content' => 'จาก'],
                 ['type' => 'bold', 'content' => 'ศูนย์พักพิง#{shelter}'],
-                
+
             ]
         ]
     ],
@@ -114,6 +117,14 @@ return [
             ]
         ]
     ],
+    'position' => [
+        'updated' => [
+            'title' => 'อัปเดต ระบบบัญชาการ',
+            'message' => [
+                ['type' => 'text', 'content' => 'ขณะนี้ มีการปรับเปลี่ยนตำแหน่งงานในระบบบัญชาการ'],
+            ]
+        ]
+    ],
     'shelter_position' => [
         'updated' => [
             'title' => 'อัปเดต แผนผังการทำงาน',
@@ -121,12 +132,6 @@ return [
                 ['type' => 'text', 'content' => 'ขณะนี้ มีการปรับเปลี่ยนตำแหน่งงานภายในศูนย์ใหม่'],
             ]
         ],
-        'updated_leader' => [
-            'title' => 'อัปเดต ระบบบัญชาการ',
-            'message' => [
-                ['type' => 'text', 'content' => 'ขณะนี้ มีการปรับเปลี่ยนตำแหน่งงานในระบบบัญชาการ'],
-            ]
-        ]
     ],
     'shelter_news' => [
         'created' => [
@@ -254,7 +259,7 @@ return [
                 ['type' => 'text', 'content' => 'ได้รับการช่วยเหลือสำเร็จแล้ว'],
             ]
         ],
-        'unsuceess' => [
+        'unsuccess' => [
             'title' => 'เหตุฉุกเฉิน',
             'message' => [
                 ['type' => 'text', 'content' => 'คำร้องจาก'],

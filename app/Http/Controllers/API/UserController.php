@@ -12,6 +12,7 @@ use App\Http\Resources\ProfileResource;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\PermissionUtility;
+use App\Models\NotificationUser;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\UserService;
@@ -97,17 +98,18 @@ class UserController extends Controller
         $loadQuery = ['prefix', 'department', 'position', 'area', 'approval', 'image'];
         $user = Auth::user();
         $role = PermissionUtility::getRoleName($user);
-       
+
         if($role === Role::STAFF){
             $loadQuery[] = 'staff' ;
         }
-        
+
         if($role === Role::TEAM_LEADER || $role === Role::TEAM_MEMBER){
             $loadQuery[] = 'member' ;
         }
 
         $data = $user->load($loadQuery);
         $data->role = $role;
+        $data->new_notifications = NotificationUser::where(['user_id' => $user->id, 'is_read' => false])->exists() ? true : false;
         return ApiResponse::successResponse(__('success.data'), new ProfileResource($data));
     }
 

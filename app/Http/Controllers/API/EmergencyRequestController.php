@@ -22,10 +22,8 @@ use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
-
-use function Pest\Laravel\json;
-use function PHPUnit\Framework\isNull;
 
 class EmergencyRequestController extends Controller
 {
@@ -111,7 +109,7 @@ class EmergencyRequestController extends Controller
         $recipint = RecipintUtility::recipint('admin');
         (new LineController)->LineNotification($name, LineController::Emc_request_post, $recipint);
         // Send a emergency request notfication
-        $notification = $this->notificationService->createNotification('emergency_request.created', ['name' => $name['name']], $data->id, EmergencyRequest::class, false);
+        $notification = $this->notificationService->createNotification('emergency_request.created', ['name' => $name['name']], $data->id, EmergencyRequest::class, true);
         $this->notificationService->sendToAdmin($notification);
         EmcRequestNotification::dispatch([$data->emergency_team_id]);
         return ApiResponse::createdResponse(__('success.emc_request.created'), $data);
@@ -175,7 +173,7 @@ class EmergencyRequestController extends Controller
                 $emergencyRequest->update(['emergency_team_id' => null]);
                 $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $data->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
                 $this->notificationService->sendToAdmin($notification);
-                $textResponse = __('success.emc_request.delTeam2');
+                $textResponse = __('success.emc_request.delTeam');
             } else if ($emergencyRequest['status'] == EmergencyRequest::approve) {
                 // ส่งหัวหน้า
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
@@ -204,10 +202,10 @@ class EmergencyRequestController extends Controller
             }
         }
 
-        if($data->isDirty('emergency_team_id')){
+        if($data->wasChanged('emergency_team_id')){
             EmcRequestNotification::dispatch([$old['emergency_team_id'], $data->emergency_team_id]);
         }
-        else if($data->isDirty('status')){
+        else if($data->wasChanged('status')){
             EmcRequestNotification::dispatch([$data->emergency_team_id]);
         }
 

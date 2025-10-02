@@ -49,6 +49,11 @@ class News extends Model
         );
     }
 
+    public function shelter(): HasOne
+    {
+        return $this->hasOne(Shelter::class, 'id', 'shelter_id');
+    }
+
     public function creator(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'created_by');

@@ -58,31 +58,28 @@ class ShelterService
 
     public function update(Shelter $shelter, array $data, $updateImage = false): Shelter
     {
-        // Create an instance of notification
-        $notificationService = app(NotificationService::class);
-
         $shelter->update($data);
         $shelter->refresh();
 
-        if ($shelter->wasChanged('status')) {
-            if ($shelter->status === Shelter::CLOSED) {
-                app(ShelterPopulationService::class)->deleteByShelter(['shelter_id' => $shelter->id]);
-                app(AppointmentService::class)->deleteUpcomingAppointment(['shelter_id' => $shelter->id]);
-                (new ShelterProductController)->transfer($shelter->id);
-                (new ShelterProductController)->delete($shelter->id);
-                // Send a closed shelter notification
-                $notification = $notificationService->createNotification('shelter.closed', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
-                $notificationService->sendToAllUsers($notification);
-                (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_end);
-            }
+        // if ($shelter->wasChanged('status')) {
+        //     if ($shelter->status === Shelter::CLOSED) {
+        //         app(ShelterPopulationService::class)->deleteByShelter(['shelter_id' => $shelter->id]);
+        //         app(AppointmentService::class)->deleteUpcomingAppointment(['shelter_id' => $shelter->id]);
+        //         (new ShelterProductController)->transfer($shelter->id);
+        //         (new ShelterProductController)->delete($shelter->id);
+        //         // Send a closed shelter notification
+        //         $notification = $notificationService->createNotification('shelter.closed', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
+        //         $notificationService->sendToAllUsers($notification);
+        //         (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_end);
+        //     }
 
-            if ($shelter->status === Shelter::OPEN) {
-                // Send an opened shelter notification
-                $notification = $notificationService->createNotification('shelter.opened', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
-                $notificationService->sendToAllUsers($notification);
-                (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_post);
-            }
-        }
+        //     if ($shelter->status === Shelter::OPEN) {
+        //         // Send an opened shelter notification
+        //         $notification = $notificationService->createNotification('shelter.opened', ['name' => $shelter->name], $shelter->id, Shelter::class, false);
+        //         $notificationService->sendToAllUsers($notification);
+        //         (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_post);
+        //     }
+        // }
 
         if ($updateImage) {
             $shelter->image = app(ImageService::class)->handleImageUpdate($data, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
@@ -206,17 +203,6 @@ class ShelterService
         });
 
         return $utilities->values();
-    }
-
-    public function isShelterMax($id, $populationId = null): bool
-    {
-        $shelter = Shelter::find($id);
-        $populationQuery = ShelterPopulation::where('shelter_id', $id);
-        if ($populationId) {
-            $populationQuery->where('population_id', '!=', $populationId);
-        }
-        $populationCount = $populationQuery->count();
-        return $populationCount >= $shelter->max_capacity;
     }
 
     public function isShelterOpen($id): bool

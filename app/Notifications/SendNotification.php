@@ -13,16 +13,14 @@ class SendNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $notification;
+    public $data;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($notification)
+    public function __construct($data)
     {
-        //
-         Log::info("test notification broadcast");
-        $this->notification = $notification;
+        $this->data = $data;
     }
 
     /**
@@ -38,10 +36,17 @@ class SendNotification extends Notification implements ShouldQueue
      */
     public function toBroadcast($notifiable)
     {
+        Log::info($this->data);
         return new BroadcastMessage([
-            'title' => $this->notification['title'],
-            'description' => $this->notification['description'],
-            'format' => $this->notification['format'],
+            'title' => $this->data['notification']['title'],
+            'description' => $this->data['notification']['description'],
+            'format' => $this->data['notification']['format'],
+            'event_type' => $this->data['event_type'],
+            'event_action' => $this->data['event_action'],
+            'entity_type' => $this->data['entity_type'],
+            'entity_id' => $this->data['entity_id'],
+            'related_data' => $this->data['related_data'],
+            'show_details' => $this->data['show_details'],
         ]);
     }
 
@@ -51,7 +56,6 @@ class SendNotification extends Notification implements ShouldQueue
      */
     public function broadcastAs()
     {
-         Log::info("broadcastAs");
         return 'user.notification';
     }
 }

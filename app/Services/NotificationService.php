@@ -13,16 +13,16 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationService
 {
-    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
+    public function getList(array $filters = [])
     {
-        $query = NotificationUser::with('notification')->where('user_id', Auth::user()->id)->latest('id');
-        if (!$paginate) {
-            return NotificationResource::collection($query->get());
-        }
+        $offset = $filters['offset'] ?? 0;
+        $limit = $filters['limit'] ?? 10;
 
-        $data = $query->paginate($perPage);
-        $paginate = $data->setCollection(NotificationResource::collection($data->items())->collection);
-        return  $paginate;
+        $query = Notification::whereHas('notification_users', function ($q) {
+            $q->where('user_id', Auth::user()->id);
+        })->skip($offset)->take($limit)->latest('created_at');
+
+        return NotificationResource::collection($query->get());
     }
 
     public function markAllAsRead()
@@ -48,12 +48,15 @@ class NotificationService
      */
     public function createNotification(string $type, array $detail,  $entityId = null, $entityType = null, $isShow = false)
     {
+        [$eventType, $eventAction] = explode('.', $type);
         $notification = self::formatData($type, $detail);
         $data = [
             'notification' => $notification,
             'entity_id' => $entityId,
             'entity_type' => $entityType,
             'notification_type' => $type,
+            'event_type' => $eventType,
+            'event_action' => $eventAction,
             'show_details' => $isShow
         ];
         return Notification::create($data);

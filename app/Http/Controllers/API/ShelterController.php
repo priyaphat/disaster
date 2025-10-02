@@ -11,6 +11,7 @@ use App\Http\Utility\LinePostUtility;
 use App\Models\DamagedUtility;
 use App\Models\DamagedUtilityLogs;
 use App\Models\Shelter;
+use App\Services\NotificationService;
 use App\Services\ShelterService;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\PathParameter;
@@ -53,7 +54,6 @@ class ShelterController extends Controller
         $this->authorize('create', Shelter::class);
 
         $data = $this->shelterService->create($request->all());
-        (new LineController)->LineNotification($data->toArray(), LineController::Shelter_post);
         return ApiResponse::createdResponse(__('success.created'), $data);
     }
 
@@ -75,11 +75,6 @@ class ShelterController extends Controller
             $request->merge([
                 'utilities' => null
             ]);
-        }
-
-        // Update all data;
-        if ($request->max_capacity < $shelter->populations->count()) {
-            return ApiResponse::errorResponse(__('error.shelter.limit'));
         }
 
         $data = $this->shelterService->update($shelter, $request->all(), true);
@@ -145,6 +140,19 @@ class ShelterController extends Controller
         if ($data = DamagedUtility::create($data)) {
             self::dul_log($data, DamagedUtilityLogs::created);
             (new LineController)->LineNotification($data->toArray(), LineController::Damaged_utility_post);
+            $total = DamagedUtility::where('type', $data->type->value)->count();
+            $notification = app(NotificationService::class)->createNotification(
+                'damaged.updated',
+                [
+                    'name' => $data->type->label(),
+                    'total' => $total
+                ],
+                $data->id,
+                DamagedUtility::class,
+                true
+            );
+            app(NotificationService::class)->sendToAllUsers($notification);
+
             return ApiResponse::successResponse(__('success.damaged_utility.created'), $data);
         }
     }
@@ -165,6 +173,18 @@ class ShelterController extends Controller
         if ($id->update($data)) {
             self::dul_log($id, DamagedUtilityLogs::updated);
             (new LineController)->LineNotification($id->toArray(), LineController::Damaged_utility_post);
+            $total = DamagedUtility::where('type', $id->type->value)->count();
+            $notification = app(NotificationService::class)->createNotification(
+                'damaged.updated',
+                [
+                    'name' => $id->type->label(),
+                    'total' => $total
+                ],
+                $id->id,
+                DamagedUtility::class,
+                true
+            );
+            app(NotificationService::class)->sendToAllUsers($notification);
             return ApiResponse::successResponse(__('success.damaged_utility.created'), $this->shelterService->damaged_utility($id->id));
         }
     }
@@ -177,11 +197,23 @@ class ShelterController extends Controller
         $damaged->delete();
         self::dul_log($damaged, DamagedUtilityLogs::deleted);
         (new LineController)->LineNotification($damaged->toArray(), LineController::Damaged_utility_end);
+        $total = DamagedUtility::where('type', $damaged->type->value)->count();
+        $notification = app(NotificationService::class)->createNotification(
+            'damaged.updated',
+            [
+                'name' => $damaged->type->label(),
+                'total' => $total
+            ],
+            $damaged->id,
+            DamagedUtility::class,
+            true
+        );
+        app(NotificationService::class)->sendToAllUsers($notification);
         return ApiResponse::successResponse(__('success.damaged_utility.deleted'));
     }
 
     /**
-     * สาธารณประโยชน์ที่ได้รับความเสียหาย log 
+     * สาธารณประโยชน์ที่ได้รับความเสียหาย log
      */
     public function damaged_utility_logs(Request $r)
     {
