@@ -33,10 +33,12 @@ use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ProductTransferController;
+use App\Http\Controllers\API\ShelterPointController;
 use App\Http\Controllers\API\ShelterPopulationController;
 use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Controllers\API\ShelterStaffController;
+use App\Http\Controllers\API\ShelterTypeController;
 use App\Http\Controllers\API\StockLogController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
@@ -195,6 +197,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display shelters
     |--------------------------------------------------------------------------
     */
+    Route::get('/shelter-point', [ShelterPointController::class, 'search']);
     Route::post('/shelter', [ShelterController::class, 'store']);
     Route::post('/shelter/{shelter}', [ShelterController::class, 'update']);
     Route::get('/shelter-utility', [ShelterController::class, 'utility']);
@@ -222,6 +225,17 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/staff/exit-all', [ShelterStaffController::class, 'exitAll']);
     Route::post('/staff/assign/{userId}', [ShelterStaffController::class, 'assignPosition']);
     Route::post('/staff/join', [ShelterStaffController::class, 'join']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for display shelter type positions
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/shelter-types', [ShelterTypeController::class, 'index']);
+    Route::post('/shelter-type', [ShelterTypeController::class, 'store']);
+    Route::get('/shelter-type/{shelterType}', [ShelterTypeController::class, 'show']);
+    Route::post('/shelter-type/{shelterType}', [ShelterTypeController::class, 'update']);
+    Route::delete('/shelter-type/{shelterType}', [ShelterTypeController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------

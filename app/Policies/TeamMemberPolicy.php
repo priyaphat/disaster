@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Role;
+use App\Models\TeamMember;
 use App\Models\User;
 
 class TeamMemberPolicy
@@ -19,16 +20,31 @@ class TeamMemberPolicy
 
     public function create(User $user): bool
     {
+        $teamId = request()->get('team_id');
+        if($user->hasRole(Role::TEAM_LEADER)){
+            return $user->member?->team_id === $teamId;
+        }
+
         return $user->hasRole(Role::ADMIN);
     }
 
-    public function update(User $user): bool
+    public function update(User $user, TeamMember $teamMember): bool
     {
+        $teamId = $teamMember->team_id;
+        if($user->hasRole(Role::TEAM_LEADER)){
+            return $user->member?->team_id === $teamId;
+        }
+
         return $user->hasRole(Role::ADMIN);
     }
 
-    public function delete(User $user): bool
+    public function delete(User $user, TeamMember $teamMember): bool
     {
+        $teamId = $teamMember->team_id;
+        if($user->hasRole(Role::TEAM_LEADER)){
+            return $user->member?->team_id === $teamId;
+        }
+
         return $user->hasRole(Role::ADMIN);
     }
 }

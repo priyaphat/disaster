@@ -28,7 +28,7 @@ class UpdateShelterRequest extends FormRequest
              * @var string
              * @example ศูนย์พักใจ
              */
-            'name' => ['string','max:255', Rule::unique('shelters', 'name')->ignore($this->shelter->id)],
+            'name' => ['string', 'max:255', Rule::unique('shelters', 'name')->ignore($this->shelter->id)],
             /**
              * เบอร์โทร
              * @var string
@@ -87,6 +87,12 @@ class UpdateShelterRequest extends FormRequest
              */
             'max_capacity' => 'string',
             /**
+             * ID ประเภทของศูนย์พักพิง
+             * @var integer
+             * @example 1
+             */
+            'type' => 'required|integer|exists:shelter_types,id',
+            /**
              * ละติจูด
              * @var string
              * @example 19.997184
@@ -98,6 +104,18 @@ class UpdateShelterRequest extends FormRequest
              * @example 99.863721
              */
             'longitude' => 'regex:/^-?[0-9]+(\.[0-9]+)?$/'
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'type' =>  __('validation.attributes.shelter_type')
         ];
     }
 }

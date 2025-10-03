@@ -227,6 +227,8 @@ return [
         'victim_name.*.same_address' => 'ใช้ที่อยู่เดียวกัน',
         'victim_name.*.status' => 'สถานะบุคคล',
         'victim_name.*.created_date' => 'วันที่บันทึก',
+
+        'shelter_type' => 'ประเภทของศูนย์พักพิง',
     ],
 
 ];

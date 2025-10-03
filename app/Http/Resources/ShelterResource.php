@@ -25,6 +25,8 @@ class ShelterResource extends JsonResource
             'leader_id' => $this->leader ? $this->leader->id : null,
             'leader_name' => $this->leader ? $this->leader->prefix->name . ' ' . $this->leader->firstname . ' ' . $this->leader->lastname : null,
             'address' => $this->address,
+            'type' => $this->type,
+            'type_name' => $this->shelterType?->name,
             'geography_id' => $this->geography->id,
             'province_code' => $this->geography->province_code,
             'province_name' => $this->geography->province_name_th,

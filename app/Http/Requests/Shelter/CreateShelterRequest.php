@@ -85,6 +85,12 @@ class CreateShelterRequest extends FormRequest
              * @example 200
              */
             'max_capacity' => 'required|string',
+            /**
+             * ID ประเภทของศูนย์พักพิง
+             * @var integer
+             * @example 1
+             */
+            'type' => 'required|integer|exists:shelter_types,id',
             //  /**
             //  * ละติจูด
             //  * @var string
@@ -97,6 +103,18 @@ class CreateShelterRequest extends FormRequest
             //  * @example 99.863721
             //  */
             // 'longitude' => ['required', 'regex:/^-?[0-9]+(\.[0-9]+)?$/']
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'type' =>  __('validation.attributes.shelter_type')
         ];
     }
 }

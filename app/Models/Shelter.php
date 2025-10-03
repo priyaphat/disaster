@@ -35,12 +35,14 @@ class Shelter extends Model
         'subdistrict_code',
         'address',
         'max_capacity',
+        'type',
         'latitude',
         'longitude',
     ];
 
     protected $casts = [
         'status' => 'integer',
+        'type' => 'integer',
         'utilities' => UtilitiesCast::class,
     ];
 
@@ -48,7 +50,13 @@ class Shelter extends Model
     protected function gisMap(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value, array $attributes) => env('GIS_SHELTER_URL') . '?' . http_build_query(['name' => $attributes['name']]),
+            get: function (mixed $value, array $attributes) {
+                $map = ShelterPoint::where('name', $attributes['name'])->first();
+                if ($map) {
+                    return $map->map_url;
+                }
+                return env('GIS_SHELTER_URL') . '?' . http_build_query(['name' => $attributes['name']]);
+            }
         );
     }
 
@@ -65,6 +73,11 @@ class Shelter extends Model
             ->useLogName('shelters')
             ->logOnly(['*'])
             ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
+    }
+
+    public function shelterType()
+    {
+        return $this->hasOne(ShelterType::class, 'id', 'type');
     }
 
     public function image()
