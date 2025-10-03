@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ProductLogs;
 use App\Models\Shelter;
 use App\Models\ShelterProduct;
+use App\Models\StockLogs;
 use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
@@ -91,12 +92,21 @@ class ProductTransferController extends Controller
             DB::raw("COALESCE(`to`.name, 'ศูนย์กลาง') as shelter_name_to"),
             DB::raw("concat(users.firstname, ' ', users.lastname) as created_name")
         )
-            ->where('product_logs.type', ProductLogs::PRODUCT)
-            ->where(function ($q) use ($shelter) {
+            ->where('product_logs.type', ProductLogs::PRODUCT);
+
+        if ($filter['other_shelter']) {
+            $e = $e->where(function ($q) use ($shelter) { //and
+                $q->where('product_logs.from', '!=', $shelter)
+                    ->where('product_logs.to', '!=', $shelter);
+            });
+        } else {
+            $e = $e->where(function ($q) use ($shelter) { //or
                 $q->where('from', $shelter)
                     ->orWhere('to', $shelter);
-            })
-            ->leftJoin('shelters as from', 'from.id', '=', 'product_logs.from')
+            });
+        }
+
+        $e = $e->leftJoin('shelters as from', 'from.id', '=', 'product_logs.from')
             ->leftJoin('shelters as to', 'to.id', '=', 'product_logs.to')
             ->leftJoin('users', 'product_logs.created_by', 'users.id')
             ->when($filter['search'], function ($q) use ($filter) {
@@ -151,7 +161,8 @@ class ProductTransferController extends Controller
                 'shelter_products.*',
                 'products.unit_id',
                 'products.name',
-                'products.category_id'
+                'products.category_id',
+                'products.group_id',
             )
                 ->where('product_id', $item['product_id'])->where('shelter_id', $shelter)
                 ->leftJoin('products', 'shelter_products.product_id', 'products.id')
@@ -169,6 +180,7 @@ class ProductTransferController extends Controller
                 ShelterProduct::create($item);
             }
             self::log($request, $item, $pdt);
+            (new StockLogController)->store($request, $item, StockLogs::TRANSFEROUT, $pdt, $product);
         }
         return ApiResponse::successResponse(__('success.transfer.created'));
     }
@@ -185,6 +197,7 @@ class ProductTransferController extends Controller
             ->leftJoin('units', 'products.unit_id', 'units.id')->first();
         $i['to_shelter_name'] = Shelter::find($r['shelter_id'])->name ?? 'ศูนย์กลาง';
         $i['product']['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
+        $i['reason'] = $r['reason'] ?? null;
         $data = [
             'from' => $pdt['shelter_id'],
             'to' => $r['shelter_id'] ?? 0,
@@ -192,7 +205,8 @@ class ProductTransferController extends Controller
             'type' => ProductLogs::PRODUCT,
             'name' => $pdt['name'],
             'category_id' => $pdt['category_id'],
-            'unit_id' => $pdt['unit_id']
+            'unit_id' => $pdt['unit_id'],
+            'group_id' => $pdt['group_id'],
         ];
 
         $log = ProductLogs::create($data);

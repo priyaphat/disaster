@@ -30,6 +30,7 @@ class ProductRequestService
             'products.name as name',
             'products.unit_id',
             'products.category_id',
+            'products.group_id',
             'units.name as unit_name',
             'categories.name as category_name'
         )
@@ -100,7 +101,7 @@ class ProductRequestService
         $notification = app(NotificationService::class)->createNotification('product_request.created', ['product' => $product->name, 'unit' => $product->unit?->name ?? ''], $data->id, ProductRequest::class, true);
         app(NotificationService::class)->sendToAdmin($notification);
 
-        self::log($r, $product, ProductLogs::REQUEST);
+        self::log($data, $product, ProductLogs::REQUEST);
     }
 
     public function update($r, ProductRequest $productReq)
@@ -131,9 +132,9 @@ class ProductRequestService
                 $log_stop = true;
             }
             $q->update();
-            //log
+            //log type receive
             $pdt = Product::find($productReq->product_id);
-            self::log($productReq, $pdt, ProductLogs::RECEIVE, $r['quantity']);
+            self::log($productReq, $pdt, ProductLogs::RECEIVE, $r['quantity'], $r);
             $stop = new UpdateProductReqRequest();
             if ($log_stop) app(ProductRequestController::class)->update($stop->merge(['status' => 0]), $productReq);
             $productReq->update();
@@ -141,23 +142,30 @@ class ProductRequestService
         } else {
             if ($r['request'] == ProductRequest::NOT_QUANTITY) $r['quantity'] = 0;
             $productReq->update($r);
+            //log type updated
+            $pdt = Product::find($productReq->product_id);
+            self::log($productReq, $pdt, ProductLogs::UPDATE);
         }
         return ApiResponse::successResponse(__('success.product_required.updated'));
     }
 
-    public function log($detail, $pdt, $type, $receive = null)
+    public function log($detail, $pdt, $type, $receive = null, $r = null)
     {
         $detail = is_array($detail) ? $detail : $detail->toArray();
+        $datail['datail'] = $r['datail'] ?? null;
         $pdt = is_array($pdt) ? $pdt : $pdt->toArray();
         if ($receive) $detail['receive'] = $receive ?? null;
         $pdt['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
+
         $data = [
             'to' => $detail['shelter_id'],
             'detail' => array_merge($detail, $pdt),
             'type' => $type,
             'name' => $pdt['name'],
             'category_id' => $pdt['category_id'],
-            'unit_id' => $pdt['unit_id']
+            'unit_id' => $pdt['unit_id'],
+            'group_id' => $pdt['group_id'],
+            'product_request_id' => $detail['id'] ?? null
         ];
         ProductLogs::create($data);
     }

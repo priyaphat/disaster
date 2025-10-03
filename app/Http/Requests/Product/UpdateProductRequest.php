@@ -39,7 +39,8 @@ class UpdateProductRequest extends FormRequest
             'unit_type' => 'nullable|in:1,2',
             'unit_id' => 'required_if:unit_type,2|nullable|exists:units,id|',
             'status' => 'integer|in:0,1',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif'
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif',
+            'group_id' => 'required|in:1,2,3,4',
         ];
     }
 

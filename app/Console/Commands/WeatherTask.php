@@ -36,7 +36,6 @@ class WeatherTask extends Command
             'province' => 'เชียงราย',
             'amphoe' => 'เมืองเชียงราย'
         ]);
-
         if ($w1day->successful()) {
             $weather['location'] = $w1day['WeatherForecasts'][0]['location'];
             $weather['hour'] =  collect($w1day['WeatherForecasts'][0]['forecasts'])->map(function ($forecast) {
@@ -45,7 +44,6 @@ class WeatherTask extends Command
                 $forecast['data']['month'] = DateUtility::months($forecast['time']);
                 return $forecast;
             })->toArray();
-
             if ($w7day->successful()) {
                 $weather['7day'] = collect($w7day['WeatherForecasts'][0]['forecasts'])->map(function ($forecast) {
                     $forecast['data']['cond_text'] = WeatherCond::tryFrom($forecast['data']['cond'])->labelTh();
@@ -53,23 +51,23 @@ class WeatherTask extends Command
                     $forecast['data']['month'] = DateUtility::months($forecast['time']);
                     return $forecast;
                 })->toArray();
+
+                $data['name'] = 'weather';
+                $data['type'] = Config::weather;
+                $data['description'] = $weather;
+                $config = Config::where('type', Config::weather)->first();
+                if ($config) {
+                    $config->update($data);
+                    Log::info('Weather pulled data at ' . now());
+                } else {
+                    $data['status'] =
+                        $data = Config::create($data);
+                    Log::info('Weather pulled data at ' . now());
+                }
             }
             // Log::info($weather);
         } else {
             Log::error('Weather error pulling data. Status: ' . $w1day->status() . ' at ' . now());
-        }
-
-        $data['name'] = 'weather';
-        $data['type'] = Config::weather;
-        $data['description'] = $weather;
-        $config = Config::where('type', Config::weather)->first();
-        if ($config) {
-            $config->update($data);
-            Log::info('Weather pulled data at ' . now());
-        } else {
-            $data['status'] = 
-            $data = Config::create($data);
-            Log::info('Weather pulled data at ' . now());
         }
     }
 }

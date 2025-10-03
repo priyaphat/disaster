@@ -45,6 +45,7 @@ class CreateProductRequest extends FormRequest
             'unit_type' => 'nullable|in:1,2',
             'status' => 'integer',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif',
+            'group_id' => 'required|in:1,2,3,4',
         ];
     }
 

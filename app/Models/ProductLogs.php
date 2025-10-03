@@ -16,6 +16,7 @@ class ProductLogs extends Model
     public const REQUEST = 2;
     public const STOP = 3;
     public const RECEIVE = 4;
+    public const UPDATE = 5;
 
     protected $casts = [
         'detail' => "array",
@@ -23,6 +24,7 @@ class ProductLogs extends Model
     ];
 
     protected $fillable = [
+        'product_request_id',
         'from',
         'to',
         'detail',
@@ -30,6 +32,7 @@ class ProductLogs extends Model
         'name',
         'category_id',
         'unit_id',
+        'group_id',
     ];
 
     public function fromShelter(): HasOne

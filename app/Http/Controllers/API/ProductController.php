@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Enums\ShelterUtilities;
+use App\Enums\ProductGroup;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\CreateProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\ProductRequest;
 use App\Models\Shelter;
 use App\Models\ShelterProduct;
+use App\Models\StockLogs;
 use App\Services\ImageService;
 use App\Services\NotificationService;
 use App\Services\ProductService;
@@ -44,6 +45,7 @@ class ProductController extends Controller
     #[QueryParameter('unit_id', description: 'ค้นหาตามหน่วย ดึงหน่วยจาก api unit.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/unit.index', type: 'string', example: "1")]
     #[QueryParameter('category_id', description: 'ค้นหาตามประเภท ดึงประเภทจาก api category.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/category.index', type: 'string', example: "2")]
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
+    #[QueryParameter('type', description: 'ค้าหาตามหมวดหมู่', type: 'int', example: "1,2,3")]
     public function index(Request $request)
     {
         $products = $this->productService->getList($request->all());
@@ -209,10 +211,14 @@ class ProductController extends Controller
         }
 
         if ($data['quantity'] == ShelterProduct::MINUS) throw new BadRequestHttpException(__('error.shelter_product.IsNotUnit_error'));
-        if ($r['condition'] == ShelterProduct::PLUS) $data['quantity'] += $r['quantity'];
+        if ($r['condition'] == ShelterProduct::PLUS) {
+            $data['quantity'] += $r['quantity'];
+            (new StockLogController)->store($data, $r, StockLogs::INSTOCK);
+        }
         if ($r['condition'] == ShelterProduct::MINUS) {
             if ($r['quantity'] > $data['quantity']) throw new BadRequestHttpException(__('error.shelter_product.minus_error') . '(' . $data['quantity'] . ')');
             $data->quantity -= $r['quantity'];
+            (new StockLogController)->store($data, $r, StockLogs::OUTSTOCK);
         }
         $data->update();
         //noti อัปเดต ทรัพยากรภายในศูนย์ shelter == 0 ทรัพยากรกลาง
@@ -232,5 +238,14 @@ class ProductController extends Controller
             $notificationService->sendToStaff($notify, $data->shelter_id);
         }
         return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($data['product_id'], true));
+    }
+
+    public function typeName()
+    {
+        $data = array_map(fn($q) => [
+            'id' => $q->value,
+            'name' => $q->label(),
+        ], ProductGroup::cases());
+        return ApiResponse::successResponse(__('success.data'), $data);
     }
 }
