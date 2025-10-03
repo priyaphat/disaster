@@ -91,7 +91,7 @@ class UpdateShelterRequest extends FormRequest
              * @var integer
              * @example 1
              */
-            'type' => 'required|integer|exists:shelter_types,id',
+            'shelter_type_id' => 'required|integer|exists:shelter_types,id',
             /**
              * ละติจูด
              * @var string
@@ -104,18 +104,6 @@ class UpdateShelterRequest extends FormRequest
              * @example 99.863721
              */
             'longitude' => 'regex:/^-?[0-9]+(\.[0-9]+)?$/'
-        ];
-    }
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            'type' =>  __('validation.attributes.shelter_type')
         ];
     }
 }

@@ -16,6 +16,6 @@ class ShelterType extends Model
 
     public function shelters()
     {
-        return $this->belongsTo(Shelter::class, 'id', 'type');
+        return $this->belongsTo(Shelter::class, 'id', 'shelter_type_id');
     }
 }

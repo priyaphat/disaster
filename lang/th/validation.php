@@ -228,7 +228,7 @@ return [
         'victim_name.*.status' => 'สถานะบุคคล',
         'victim_name.*.created_date' => 'วันที่บันทึก',
 
-        'shelter_type' => 'ประเภทของศูนย์พักพิง',
+        'shelter_type_id' => 'ประเภทของศูนย์พักพิง',
     ],
 
 ];
