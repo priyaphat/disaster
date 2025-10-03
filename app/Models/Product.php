@@ -22,6 +22,7 @@ class Product extends Model
         'name',
         'unit_id',
         'category_id',
+        'group_id',
         'detail',
         'unit_type',
         'status'

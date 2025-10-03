@@ -2,6 +2,7 @@
 
 use App\Console\Commands\FloodTask;
 use App\Console\Commands\LineTask;
+use App\Console\Commands\WeatherTask;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\AppointmentLogController;
@@ -36,6 +37,7 @@ use App\Http\Controllers\API\ShelterPopulationController;
 use App\Http\Controllers\API\ShelterPositionController;
 use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Controllers\API\ShelterStaffController;
+use App\Http\Controllers\API\StockLogController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
 use App\Http\Controllers\API\UserRoleController;
@@ -54,7 +56,8 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 | Routes for line
 |--------------------------------------------------------------------------
 */
-Route::get('/line-quota',[LineTask::class,'handle']);
+// Route::get('/weatherTask', [WeatherTask::class, 'handle']);
+Route::get('/line-quota', [LineTask::class, 'handle']);
 Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
     return view('line-login');
@@ -68,7 +71,7 @@ Route::get('/line-location', function () {
 
 Route::post('/line-login', [LoginController::class, 'line']);
 Route::post('/line-login-population', [LoginController::class, 'line_population_match']);
-Route::post('/line-location',[LineController::class,'gps']);
+Route::post('/line-location', [LineController::class, 'gps']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 
 Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
@@ -103,6 +106,7 @@ Route::get('/new/{news}', [NewsController::class, 'show'])->middleware('check_au
 Route::get('/product-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublic']);
 Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
 Route::get('/export-disaster', [DisasterController::class, 'exp']);
+Route::get('/export-stock', [StockLogController::class, 'exp']);
 
 #region User Manual
 Route::get('/download-user-doc/{type}', function ($type) {
@@ -117,9 +121,6 @@ Route::get('/download-user-doc/{type}', function ($type) {
     return Storage::download($path, $file_name);
 });
 #endregion
-
-// Route::get('/tests', [WildfireTask::class,'handle']);
-
 
 Route::middleware('auth:api')->group(function () {
 
@@ -291,6 +292,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/product/{product}', [ProductController::class, 'update']);
     Route::delete('/product/{product}', [ProductController::class, 'destroy']);
     Route::get('/product-check-del/{productId}', [ProductController::class, 'checkDel']);
+    Route::get('/product-groups', [ProductController::class, 'typeName']);
 
     /*
     |--------------------------------------------------------------------------
@@ -476,4 +478,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
     Route::get('/assessment-logs/{log}', [AssessmentController::class, 'logs']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes for Stock log
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/stocks', [StockLogController::class, 'index']);
 });

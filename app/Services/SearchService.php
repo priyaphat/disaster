@@ -27,6 +27,9 @@ class SearchService
         if (!empty($f['sort'])  && !in_array(6, $skip)) {
             $q->orderBy('created_at', $f['sort'] == 'asc' ? 'asc' : 'desc');
         }
+        if (!empty($f['group_id'])  && !in_array(9, $skip)) {
+           $q->where('group_id', $f['group_id']);
+        }
         if (!empty($f['start_date']) && !empty($f['end_date']  && !in_array(7, $skip))) {
             $q->whereBetween('created_at', [
                 Carbon::parse($f['start_date'])->startOfDay(),

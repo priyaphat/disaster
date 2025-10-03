@@ -104,7 +104,8 @@ class ShelterProductController extends Controller
 
         $q = (new ProductService)->getList([], true, $shelter);
         $r = new ProductTransferRequest();
-        $item['shelter_id'] = ShelterProduct::Shelter_center;
+        // $item['shelter_id'] = ShelterProduct::Shelter_center;
+        $item['shelter_id'] = 0;
         $item['transfer'] = [];
         foreach ($q as $i) {
             if ($i['quantity'] > 0) {

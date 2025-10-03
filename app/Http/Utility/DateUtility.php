@@ -22,14 +22,14 @@ class DateUtility
     public static function months($date) //14 กรกฎาคม
     {
         $date = Carbon::parse($date);
-        $dateText = $date->isoFormat('D MMMM');
+        $dateText = $date->locale('th')->isoFormat('D MMMM');
         return $dateText;
     }
 
     public static function days($date) // จันทร์
     {
         $date = Carbon::parse($date);
-        $day = $date->isoFormat('dddd');
+        $day = $date->locale('th')->isoFormat('dddd');
         return $day;
     }
 }

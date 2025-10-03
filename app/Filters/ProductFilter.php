@@ -19,6 +19,13 @@ class ProductFilter extends QueryFilter
         }
     }
 
+    public function group_id($value)
+    {
+        if ($value) {
+            return $this->builder->where('products.group_id', $value);
+        }
+    }
+
     public function category_id($value)
     {
         if ($value) {
