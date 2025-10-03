@@ -108,7 +108,6 @@ Route::get('/new/{news}', [NewsController::class, 'show'])->middleware('check_au
 Route::get('/product-requests/{RequsetId?}', [ProductRequestController::class, 'indexPublic']);
 Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
 Route::get('/export-disaster', [DisasterController::class, 'exp']);
-Route::get('/export-stock', [StockLogController::class, 'exp']);
 
 #region User Manual
 Route::get('/download-user-doc/{type}', function ($type) {
@@ -499,4 +498,5 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/stocks', [StockLogController::class, 'index']);
+    Route::get('/export-stock', [StockLogController::class, 'exp']);
 });

@@ -240,12 +240,13 @@ class ProductController extends Controller
         return ApiResponse::successResponse(($r['condition'] == ShelterProduct::PLUS ? __('success.shelter_product.plus_quantity') : __('success.shelter_product.minus_quantity')), self::show($data['product_id'], true));
     }
 
-    public function typeName()
+    public function typeName($r = null)
     {
         $data = array_map(fn($q) => [
             'id' => $q->value,
             'name' => $q->label(),
         ], ProductGroup::cases());
+        if ($r) return $data;
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 }

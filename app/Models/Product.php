@@ -24,6 +24,7 @@ class Product extends Model
         'category_id',
         'group_id',
         'detail',
+        'source',
         'unit_type',
         'status'
     ];

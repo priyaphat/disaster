@@ -113,7 +113,11 @@ class DisasterService
                     ->when(
                         $create,
                         fn($q) => $q->whereNull('disaster_earthquakes.created_by'),
-                        fn($q) => $q->whereNotNull('disaster_earthquakes.created_by')
+                        fn($q) => $q->whereNotNull('disaster_earthquakes.created_by')->select(
+                            'disaster_earthquakes.*',
+                            DB::raw("IF(disaster_earthquakes.created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"),
+                            DB::raw('concat(users.firstname," ",users.lastname) as created_name')
+                        )
                     ),
                 fn($q) =>
                 $q->select(

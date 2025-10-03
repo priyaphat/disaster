@@ -8,6 +8,7 @@ enum ProductGroup: int
     case Engine = 2;
     case Medical = 3;
     case Medicine = 4;
+    case Food = 5;
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum ProductGroup: int
             self::Engine => 'เครื่องจักร เครื่องมือต่างๆ',
             self::Medical => 'อุปกรณ์ทางการแพทย์',
             self::Medicine => 'ยารักษาโรค',
+            self::Food => 'อาหารปรุงสุก',
         };
     }
 }
