@@ -37,6 +37,7 @@ use App\Models\ShelterPosition;
 use App\Models\ShelterProduct;
 use App\Models\ShelterType;
 use App\Models\Unit;
+use App\Models\VulnerableGroup;
 use App\Observers\ShelterObserver;
 use App\Observers\ShelterPopulationObserver;
 use App\Observers\ShelterStaffObserver;
@@ -76,6 +77,7 @@ use App\Policies\TeamMemberPolicy;
 use App\Policies\TeamPolicy;
 use App\Policies\UnitPolicy;
 use App\Policies\UserPolicy;
+use App\Policies\VulnerableGroupPolicy;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Event;
@@ -162,6 +164,8 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(Assessments::class, AssessmentsPolicy::class);
         Gate::policy(AssessmentLogs::class, AssessmentLogsPolicy::class);
+
+        Gate::policy(VulnerableGroup::class, VulnerableGroupPolicy::class);
 
 
         // API Document

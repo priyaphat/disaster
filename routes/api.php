@@ -43,6 +43,7 @@ use App\Http\Controllers\API\StockLogController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
 use App\Http\Controllers\API\UserRoleController;
+use App\Http\Controllers\API\VulnerableGroupController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -275,6 +276,18 @@ Route::middleware('auth:api')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Routes for display vulnerable group positions
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/vulnerable-groups', [VulnerableGroupController::class, 'index']);
+    Route::post('/vulnerable-group', [VulnerableGroupController::class, 'store']);
+    Route::get('/vulnerable-group/{group}', [VulnerableGroupController::class, 'show']);
+    Route::post('/vulnerable-group/{group}', [VulnerableGroupController::class, 'update']);
+    Route::get('/vulnerable-group/{position}/deletion-check', [VulnerableGroupController::class, 'checkDelete']);
+    Route::delete('/vulnerable-group/{group}', [VulnerableGroupController::class, 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
     | Routes for display units
     |--------------------------------------------------------------------------
     */
@@ -499,4 +512,5 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/stocks', [StockLogController::class, 'index']);
     Route::get('/export-stock', [StockLogController::class, 'exp']);
+
 });
