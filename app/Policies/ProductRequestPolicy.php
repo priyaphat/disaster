@@ -32,12 +32,16 @@ class ProductRequestPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole(Role::STAFF);
+        // return $user->hasRole(Role::STAFF); 
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF]);
+        //เพราะว่า มี หลักการโอนแบบพิเศษ โอนแล้วไปเพิ่ม stocklog
     }
 
     public function update(User $user): bool
     {
-        return $user->hasRole(Role::STAFF);
+        // return $user->hasRole(Role::STAFF); 
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF]);
+        //เพราะว่า มี หลักการโอนแบบพิเศษ โอนแล้วไปเพิ่ม stocklog
     }
 
     /**

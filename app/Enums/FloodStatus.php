@@ -18,7 +18,7 @@ enum FloodStatus: string
             self::LOW => 'น้อย',
             self::NORMAL => 'ปกติ',
             self::HIGH => 'มาก',
-            self::OVER_FLOW => 'เกินความจุ',
+            self::OVER_FLOW => 'ล้นตลิ่ง',
             self::OTHER => 'ไม่ระบุ',
         };
     }

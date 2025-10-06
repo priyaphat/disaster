@@ -54,9 +54,18 @@ class ProductRequestController extends Controller
             // DB::raw('SUM(product_requests.request) as total_request'),
 
             //  DB::raw('IF != 0 SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) as total_request'),
-            DB::raw('IF(SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) != 0,
-            SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END),
-            "ไม่จำกัด") as total_request'),
+
+            // DB::raw('IF(
+            // SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) != 0,
+            // SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END),
+            // "ไม่จำกัด") as total_request'),
+
+            DB::raw('IF(
+                SUM(CASE WHEN product_requests.request = -1 THEN 1 ELSE 0 END) > 0,
+                "ไม่จำกัด",
+                SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END)
+            ) as total_request'),
+
             DB::raw('MAX(product_requests.updated_at) as updated_at'),
             DB::raw('MAX(product_requests.id) as id'),
             // DB::raw('(SUM(product_requests.request) - SUM(product_requests.quantity)) as needed'),
@@ -64,11 +73,19 @@ class ProductRequestController extends Controller
             // DB::raw('(SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END)
             //     - SUM(product_requests.quantity)
             // ) as needed'),
+
+            // DB::raw('IF(
+            //     (SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - SUM(product_requests.quantity)) != 0,
+            //     (SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - SUM(product_requests.quantity)),
+            //     "ไม่จำกัด"
+            // ) as needed'),
+
             DB::raw('IF(
-                (SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - SUM(product_requests.quantity)) != 0,
-                (SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - SUM(product_requests.quantity)),
-                "ไม่จำกัด"
+                SUM(CASE WHEN product_requests.request = -1 THEN 1 ELSE 0 END) > 0,
+                "ไม่จำกัด",
+                (SUM(CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - SUM(product_requests.quantity))
             ) as needed'),
+
             'products.name as name',
             'products.unit_id',
             'products.category_id',

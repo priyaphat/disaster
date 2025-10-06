@@ -136,23 +136,29 @@ class ProductRequestService
             $q->update();
             //log type receive
             $pdt = Product::find($productReq->product_id);
-            self::log($productReq, $pdt, ProductLogs::RECEIVE, $r['quantity'], $r);
-            (new StockLogController)->store([
-                "product_id" => $productReq->product_id,
-                "quantity" => $productReq['quantity'],
-                "shelter_id" => $productReq['shelter_id'],
-            ], [
-                "detail" => [
-                    "shelter_id" => null,
-                    "shelter_name" => null,
-                    "other" => null,
-                    "lot_no" => null,
-                    "reason" => null,
-                    "exp_date" => null,
-                    "recipient" => null,
-                ],
-                "quantity" => $r['quantity']
-            ], StockLogs::INSTOCK);
+            self::log($productReq, $pdt, $r['spacial'] ? ProductLogs::TRANSIN : ProductLogs::RECEIVE, $r['quantity'], $r);
+            $dt = $r['detail'];
+            if (!$r['spacial']) { //ขัดจากการโอนของ transfer
+                (new StockLogController)->store([
+                    "product_id" => $productReq->product_id,
+                    "quantity" => $productReq['quantity'],
+                    "shelter_id" => $productReq['shelter_id'],
+                ], [
+                    "detail" => [
+                        "reason" => isset($dt['reason']) ? $dt['reason'] : null,
+                        "shelter_id" => isset($dt['shelter_id']) && $dt['shelter_id'] !== '' ? $dt['shelter_id'] : null,
+                        "shelter_name" => isset($dt['shelter_id']) && $dt['shelter_id'] !== '' ? ProductUtility::shelterName($dt['shelter_id']) : null,
+                        "other" => isset($dt['other']) ? $dt['other'] : null,
+                        "lot_no" => isset($dt['lot_no']) ? $dt['lot_no'] : null,
+                        "exp_date" => isset($dt['exp_date']) ? $dt['exp_date'] : null,
+                        "recipient_id" => isset($dt['recipient_id']) ? $dt['recipient_id'] : null,
+                        "recipient_name" => isset($dt['recipient_name']) ? $dt['recipient_name'] : null,
+                        "sender_id" => isset($dt['sender_id']) ? $dt['sender_id'] : null,
+                        "sender_name" => isset($dt['sender_name']) ? $dt['sender_name'] : null,
+                    ],
+                    "quantity" => $r['quantity']
+                ], StockLogs::INSTOCK);
+            }
             $stop = new UpdateProductReqRequest();
             if ($log_stop) app(ProductRequestController::class)->update($stop->merge(['status' => 0]), $productReq);
             $productReq->update();
@@ -170,14 +176,13 @@ class ProductRequestService
     public function log($detail, $pdt, $type, $receive = null, $r = null)
     {
         $detail = is_array($detail) ? $detail : $detail->toArray();
-        $datail['datail'] = $r['datail'] ?? null;
+        $detail['detail'] = $r['detail'] ?? null;
         $pdt = is_array($pdt) ? $pdt : $pdt->toArray();
         if ($receive) $detail['receive'] = $receive ?? null;
         $pdt['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
-
         $data = [
             'to' => $detail['shelter_id'],
-            'detail' => array_merge($detail, $pdt),
+            'detail' => array_merge($pdt, $detail),
             'type' => $type,
             'name' => $pdt['name'],
             'category_id' => $pdt['category_id'],

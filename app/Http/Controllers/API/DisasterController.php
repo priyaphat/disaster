@@ -133,6 +133,11 @@ class DisasterController extends Controller
     public function dst_fl_create(DisasterRequest $request)
     {
         $this->authorize('create', DisasterFlood::class);
+        if ($request['water_value'] > 100) $request['status'] = FloodStatus::OVER_FLOW->value;
+        else if ($request['water_value'] > 70) $request['status'] = FloodStatus::HIGH->value;
+        else if ($request['water_value'] > 30) $request['status'] = FloodStatus::NORMAL->value;
+        else if ($request['water_value'] > 10) $request['status'] = FloodStatus::LOW->value;
+        else  $request['status'] = FloodStatus::CRITICAL_LOW->value;
         $flood = DisasterFlood::create($request->all());
         LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
         return ApiResponse::successResponse(__('success.created'), $flood);

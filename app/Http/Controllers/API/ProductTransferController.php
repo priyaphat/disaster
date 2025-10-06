@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
 use App\Http\Requests\ProductTransferRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\PaginateUtility;
@@ -159,7 +160,6 @@ class ProductTransferController extends Controller
      */
     public function store(ProductTransferRequest $request, $shelter = null) //shelter from (all trasfer)
     {
-
         // โอนย้าย ทรัพยากร
         $this->authorize('create', ShelterProduct::class);
         $shelter = $shelter ?? ProductUtility::getShelter();
@@ -182,20 +182,39 @@ class ProductTransferController extends Controller
             $pdt->update();
 
             //recipint
-            $product = ShelterProduct::where('product_id', $item['product_id'])->where('shelter_id', $to)
-                ->where('status', ProductRequest::ACTIVE)->first();
+            $product = ShelterProduct::where('product_id', $item['product_id'])->where('shelter_id', $to)->first();
             if ($product) {
                 $product['quantity'] = $item['quantity'] + $product['quantity'];
-                $product->update();
+                if (!$request['spacial']) $product->update();
             } else {
                 $item['shelter_id'] = $to;
-                ShelterProduct::create($item);
+                if (!$request['spacial']) ShelterProduct::create($item);
             }
             self::log($request, $item, $pdt);
             (new StockLogController)->store($request, $item, StockLogs::TRANSFEROUT, $pdt, $product);
             //ย้ายแบบ เพิ่ม log ที่ product request log ด้วย
             //ขอ id ของ product_requrest_id
-            // if ($request['spacial']) self::spacialLog($request, $item, $pdt);
+            if ($request['spacial']) {
+                $productRequest = ProductRequest::find($request['product_request_id']);
+                $resData = [
+                    "status" => 1,
+                    "request" => $productRequest->request,
+                    "quantity" => $item['quantity'],
+                    "spacial" => true,
+                    "detail" => [
+                        "reason" => $item['reason'],
+                        "receive" => $item['quantity'],
+                        "request" => $productRequest['request'],
+                        "quantity" => $product['quantity'],
+                        "recipient_id" => $request['shelter_id'] ?? 0,
+                        "recipient_name" => ProductUtility::shelterName($request['shelter_id']),
+                        "sender_id" => $pdt['shelter_id'],
+                        "sender_name" => ProductUtility::shelterName($pdt['shelter_id']),
+                    ]
+                ];
+                $updateProductReqRequest = new UpdateProductReqRequest($resData);
+                app(ProductRequestController::class)->update($updateProductReqRequest, $productRequest);
+            }
         }
         return ApiResponse::successResponse(__('success.transfer.created'));
     }
@@ -259,38 +278,4 @@ class ProductTransferController extends Controller
             $notificationService->sendToAdmin($notify);
         }
     }
-
-    // private function spacialLog($r, $i, $pdt)
-    // {
-    //     $from = ProductUtility::shelterName($pdt['shelter_id']);
-    //     $to = ProductUtility::shelterName($r['shelter_id']);
-    //     $q = ProductRequest::where('shelter_id', $r['shelter_id'])
-    //         ->where('product_id', $i['product_id'])
-    //         ->where('status', ProductRequest::ACTIVE)
-    //         ->first();
-
-    //     if ($q) {
-    //         $detail = [
-    //             'reason' => $i['reason'],
-    //             "receive" => $i['quantity'],
-    //             "request" => $q['request'],
-    //             "quantity" => $q['quantity'],
-    //             "recipient_id" => $r['shelter_id'] ?? 0,
-    //             "recipient_name" => $from,
-    //             "sender_id" => $pdt['shelter_id'],
-    //             "sender_name" => $to,
-    //         ];
-    //         $data = [
-    //             'to' => $pdt['shelter_id'],
-    //             'detail' => $detail,
-    //             'type' => ProductLogs::TRANSIN,
-    //             'name' => $pdt['name'],
-    //             'category_id' => $pdt['category_id'],
-    //             'unit_id' => $pdt['unit_id'],
-    //             'group_id' => $pdt['group_id'],
-    //             'product_request_id' => $r['product_request_id'],
-    //         ];
-    //         ProductLogs::create($data);
-    //     }
-    // }
 }
