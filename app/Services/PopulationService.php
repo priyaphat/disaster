@@ -27,7 +27,7 @@ class PopulationService
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
     public function getList(array $filters = [], bool $paginate = false, int $perPage = 10)
     {
-        $query = Population::filter($filters)->with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image', 'shelterpopulation', 'group')->latest();
+        $query = Population::filter($filters)->with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image', 'shelterpopulation', 'group', 'allergy')->latest();
         if (!$paginate) {
             return PopulationResource::collection($query->get());
         } else {
@@ -46,7 +46,7 @@ class PopulationService
             'total_victims' => $total,
             'total_healthy' =>  $group[PopulationStatus::NORMAL->value] ?? 0,
             'total_injuries' => $group[PopulationStatus::INJURED->value] ?? 0,
-            'total_deaths' => $group[PopulationStatus::DECREASE->value] ?? 0,
+            'total_deaths' => $group[PopulationStatus::DEATH->value] ?? 0,
             'updated_at' =>  $lastUpdated,
         ];
     }
@@ -65,6 +65,10 @@ class PopulationService
         app(ShelterPopulationService::class)->updateOrCreate(['population_id' => $population->id, 'shelter_id' => $data['shelter_id'] ?? NULL]);
         app(ImageService::class)->uploadImage($data['image'] ?? null, Population::IMAGE_FOLDER, Population::class, $population->id);
 
+        if (isset($data['allergy'])) {
+            app(PopulationAllergyService::class)->updateOrCreate($population->id, $data['allergy']);
+        }
+
         return $population;
     }
 
@@ -82,12 +86,16 @@ class PopulationService
             app(ShelterPopulationService::class)->update($population, Arr::only($data, ['shelter_id']));
         }
 
+        if (isset($data['allergy'])) {
+            app(PopulationAllergyService::class)->updateOrCreate($population->id, $data['allergy']);
+        }
+
         return $population;
     }
 
     public function show(Population $population)
     {
-        $data = Population::with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image')->findOrFail($population->id);
+        $data = Population::with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image', 'shelterpopulation', 'group', 'allergy')->findOrFail($population->id);
         return new PopulationResource($data);
     }
 
@@ -206,5 +214,15 @@ class PopulationService
         } else {
             Log::info('External API error: ' . $response->status());
         }
+    }
+
+    public function delete(Population $population): void
+    {
+        $population->image()?->delete();
+        $population->allergy()?->delete();
+        $population->assessments()?->delete();
+        $population->shelterPopulation()?->delete();
+        $population->delete();
+        app(ImageService::class)->deleteImage(Population::class, $population->id);
     }
 }

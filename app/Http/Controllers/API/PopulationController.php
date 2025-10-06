@@ -105,7 +105,7 @@ class PopulationController extends Controller
     {
         $this->authorize('update', Population::class);
 
-        $prevShelter = $population->shelterPopulation->shelter_id;
+        $prevShelter = $population->shelterPopulation?->shelter_id;
         $data = $this->populationService->update($population, $request->all());
         // $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
 
@@ -115,11 +115,11 @@ class PopulationController extends Controller
         }
 
         // Return message when update population
-        if ($prevShelter == $data->shelterPopulation->shelter_id) {
+        if ($prevShelter == $data->shelterPopulation?->shelter_id) {
             return ApiResponse::successResponse(__('success.updated'), $data);
         }
 
-         // Return message when transfer population to another shelter
+        // Return message when transfer population to another shelter
         return ApiResponse::successResponse(__('success.created'), $data);
     }
 
@@ -159,12 +159,15 @@ class PopulationController extends Controller
     public function destroy(Population $population)
     {
         //
-        $population->shelterPopulation->delete();
-        $population->image->delete();
-        $population->assessments->log->delete();
-        $population->assessments->delete();
-        $population->histories->delete();
-
+        $population->shelterPopulation()->delete();
+        $population->image()->delete();
+        $population->assessments->each(function ($assessment) {
+            $assessment->logs()?->delete();
+        });
+        $population->assessments()->delete();
+        $population->logs()->delete();
+        $population->allergy()->delete();
+        $population->delete();
         // AssessmentLogs::truncate();
         // Assessments::truncate();
         // ShelterPopulation::truncate();

@@ -272,7 +272,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/population-exit-all', [ShelterPopulationController::class, 'exitAll']);
     Route::post('/population-check', [PopulationController::class, 'checkPopulation']);
     Route::post('/population-add', [PopulationController::class, 'addExternalPop']);
-    Route::delete('/population', [PopulationController::class, 'destroyAll']);
+    Route::delete('/populations', [PopulationController::class, 'destroyAll']);
+    Route::delete('/population/{population}', [PopulationController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------

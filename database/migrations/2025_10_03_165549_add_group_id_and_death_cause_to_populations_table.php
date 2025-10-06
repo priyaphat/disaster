@@ -15,6 +15,7 @@ return new class extends Migration
             //
             $table->unsignedBigInteger('vulnerable_group_id')->nullable()->after('sequence_id')->comment('id ของกลุ่มเปราะบาง');
             $table->foreign('vulnerable_group_id')->references('id')->on('vulnerable_groups');
+            $table->enum('death_cause', [0, 1])->nullable()->after('status')->comment('สาเหตุการเสียชีวิต 0 -ไม่เกี่ยวกับภัย, 1 - เกี่ยวกับภัย');
         });
     }
 

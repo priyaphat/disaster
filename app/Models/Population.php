@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\URL;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+use function Laravel\Prompts\select;
+
 class Population extends Model
 {
     use CreatedUpdatedBy, LogsActivity, HasFactory;
@@ -50,6 +52,7 @@ class Population extends Model
         'c_geography_id',
         'same_address',
         'status',
+        'death_cause',
         'tracking',
         'sequence_id',
         'vulnerable_group_id',
@@ -63,6 +66,7 @@ class Population extends Model
         'gender' => 'integer',
         'same_address' => 'integer',
         'status' => 'integer',
+        'death_cause' => 'integer',
         'prefix_id' => 'integer',
         'sequence_id' => 'integer',
         'vulnerable_group_id' => 'integer',
@@ -74,7 +78,7 @@ class Population extends Model
     protected function gisMap(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value, array $attributes) => isset($attributes['sequence_id']) ? env('GIS_POPULATION_URL') .'?'. http_build_query(['id' => $attributes['sequence_id']]) : null,
+            get: fn(mixed $value, array $attributes) => isset($attributes['sequence_id']) ? env('GIS_POPULATION_URL') . '?' . http_build_query(['id' => $attributes['sequence_id']]) : null,
         );
     }
 
@@ -166,6 +170,11 @@ class Population extends Model
     public function group(): HasOne
     {
         return $this->hasOne(VulnerableGroup::class, 'id', 'vulnerable_group_id');
+    }
+
+    public function allergy(): HasOne
+    {
+        return $this->hasOne(PopulationAllergy::class, 'population_id', 'id')->select('id', 'population_id', 'status', 'drug', 'food', 'other');
     }
 
     public function logs()

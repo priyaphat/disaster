@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Population;
 
+use App\Enums\AllergyStatus;
+use App\Enums\DeathCause;
 use App\Enums\PopulationStatus;
 use App\Enums\VictimStatus;
 use App\Rules\CheckPopulationNameExists;
@@ -100,6 +102,12 @@ class UpdatePopulationRequest extends FormRequest
              */
             'status' => Rule::enum(PopulationStatus::class),
             /**
+             * ส่งรายละเอียดการเสียชีวิต
+             * @var integer
+             * @example 1
+             */
+            'death_cause' => ['nullable', 'required_if:status,' . PopulationStatus::DEATH->value, Rule::enum(DeathCause::class)],
+            /**
              * ส่งตัวแปร shelter_id ของศูนย์พักพิง
              * @var string
              * @example 3
@@ -112,6 +120,16 @@ class UpdatePopulationRequest extends FormRequest
              */
             'vulnerable_group_id' => 'nullable|exists:vulnerable_groups,id',
             /**
+             * ส่ง array รายละเอียดการแพ้
+             * @var array
+             * @example []
+             */
+            'allergy' => 'nullable|array',
+            'allergy.status' => ['required_if:allergy,array', Rule::enum(AllergyStatus::class)],
+            'allergy.drug' => 'nullable',
+            'allergy.food' => 'nullable',
+            'allergy.other' => 'nullable',
+            /**
              * วันที่บันทึกข้อมูลลงระบบ
              * @var datetime
              * @example 2025-06-24 13:10:00
@@ -120,11 +138,22 @@ class UpdatePopulationRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation(): void
+    protected function passedValidation()
     {
-        // ถ้า category_id = 0 → แปลงให้เป็น null ก่อน validate + save
         if ($this->has('vulnerable_group_id') && $this->input('vulnerable_group_id') == 0) {
             $this->merge(['vulnerable_group_id' => null]);
+        }
+
+        if ($this->has('status') && $this->input('status') != PopulationStatus::DEATH->value) {
+            $this->merge(['death_cause' => null]);
+        }
+
+        if ($this->has('allergy.status') && $this->input('allergy.status') != AllergyStatus::ALLERGIC->value) {
+            $this->merge([
+                'allergy.drug' => null,
+                'allergy.food' => null,
+                'allergy.other' => null,
+            ]);
         }
     }
 }
