@@ -6,6 +6,7 @@ use App\Http\Controllers\API\LineController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\ShelterProductController;
+use App\Http\Controllers\API\StockLogController;
 use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
 use App\Http\Requests\ShelterProductRequest;
 use App\Http\Responses\ApiResponse;
@@ -15,6 +16,7 @@ use App\Models\Product;
 use App\Models\ProductLogs;
 use App\Models\ProductRequest;
 use App\Models\ShelterProduct;
+use App\Models\StockLogs;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,6 +137,22 @@ class ProductRequestService
             //log type receive
             $pdt = Product::find($productReq->product_id);
             self::log($productReq, $pdt, ProductLogs::RECEIVE, $r['quantity'], $r);
+            (new StockLogController)->store([
+                "product_id" => $productReq->product_id,
+                "quantity" => $productReq['quantity'],
+                "shelter_id" => $productReq['shelter_id'],
+            ], [
+                "detail" => [
+                    "shelter_id" => null,
+                    "shelter_name" => null,
+                    "other" => null,
+                    "lot_no" => null,
+                    "reason" => null,
+                    "exp_date" => null,
+                    "recipient" => null,
+                ],
+                "quantity" => $r['quantity']
+            ], StockLogs::INSTOCK);
             $stop = new UpdateProductReqRequest();
             if ($log_stop) app(ProductRequestController::class)->update($stop->merge(['status' => 0]), $productReq);
             $productReq->update();

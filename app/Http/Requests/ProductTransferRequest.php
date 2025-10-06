@@ -17,10 +17,12 @@ class ProductTransferRequest extends FormRequest
     {
         return [
             'shelter_id' => 'nullable|exists:shelters,id',
-            'reason' => 'nullable|max:255',
             'transfer' => 'required|array',
             'transfer.*.product_id' => 'required|exists:products,id',
             'transfer.*.quantity' => 'required|numeric|min:1',
+            'transfer.*.reason' => 'nullable|max:255',
+            'spacial' => 'nullable|max:255',
+            'product_request_id' => 'nullable',
         ];
     }
 

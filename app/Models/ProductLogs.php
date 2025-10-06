@@ -17,6 +17,7 @@ class ProductLogs extends Model
     public const STOP = 3;
     public const RECEIVE = 4;
     public const UPDATE = 5;
+    public const TRANSIN = 6;
 
     protected $casts = [
         'detail' => "array",

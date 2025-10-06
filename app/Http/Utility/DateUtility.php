@@ -19,6 +19,12 @@ class DateUtility
         return $date->format('d/m/') . $newYear . $date->format(' H:i');
     }
 
+    public static function time($val)
+    {
+        $date = Carbon::parse($val);
+        return $date->format('H:i:m');
+    }
+
     public static function months($date) //14 กรกฎาคม
     {
         $date = Carbon::parse($date);

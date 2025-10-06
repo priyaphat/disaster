@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest\CreateProductReqRequest;
 use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\DateUtility;
 use App\Http\Utility\PaginateUtility;
 use App\Http\Utility\ProductUtility;
 use App\Models\Product;
@@ -202,6 +203,7 @@ class ProductRequestController extends Controller
             //     }
             // )
             ->where('to', ProductUtility::getShelter())
+            ->whereIn('product_logs.type', [ProductLogs::REQUEST, ProductLogs::UPDATE, ProductLogs::RECEIVE, ProductLogs::STOP, ProductLogs::TRANSIN])
             ->leftJoin('units', 'units.id', 'product_logs.unit_id')
             ->leftJoin('categories', 'categories.id', 'product_logs.category_id')
             ->leftJoin('users', 'users.id', 'product_logs.created_by')
@@ -228,27 +230,30 @@ class ProductRequestController extends Controller
         }, $q);
 
         //manual group
-        $grouped = [];
-
-        foreach ($add_type as $item) {
-            $key = $item['product_request_id'] ?? null; // กรณีมี null
-            if (!isset($grouped[$key])) {
-                $grouped[$key] = [
-                    'items' => [$item],
-                    'created_at' => $item['created_at'],
-                    'amount' => $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0),
-                    'name' =>  $item['name'],
-                ];
-            } else {
-                $grouped[$key]['items'][] = $item;
-                $grouped[$key]['amount'] = $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0);
-                $grouped[$key]['name'] = $item['name'];
+        if ($f['paginate']) {
+            $grouped = [];
+            foreach ($add_type as $item) {
+                $key = $item['product_request_id'] ?? null; // กรณีมี null
+                if (!isset($grouped[$key])) {
+                    $grouped[$key] = [
+                        'items' => [$item],
+                        // 'created_at' => $item['created_at'],
+                        'amount' => $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0),
+                        'name' =>  $item['name'],
+                        'category_name' => $item['category_name'],
+                        'created_at' => DateUtility::formFormat1($item['created_at']),
+                        'time' => DateUtility::time($item['created_at']),
+                    ];
+                } else {
+                    $grouped[$key]['items'][] = $item;
+                    $grouped[$key]['amount'] = $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0);
+                    $grouped[$key]['name'] = $item['name'];
+                }
             }
+
+            $group = array_values($grouped);
+            return PaginateUtility::Paginate($group, $f['paginate'] ?? 10);
         }
-
-        $group = array_values($grouped);
-
-        if ($f['paginate']) return PaginateUtility::Paginate($group, $f['paginate'] ?? 10);
         return $add_type;
     }
 }

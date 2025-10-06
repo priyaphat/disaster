@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('from')->nullable()->comment('from shelter');
             $table->unsignedInteger('to')->comment('to shelter');
             $table->json('detail')->nullable();
-            $table->tinyInteger('type')->default(1)->comment('1 transfer 2 request 3 stop 4 receive');
+            $table->tinyInteger('type')->default(1)->comment('1 transfer 2 request 3 stop 4 receive 5 edit 6 trasfer-in');
             $table->string('name');
             $table->foreignId('category_id')->nullable()->constrained('categories');
             $table->foreignId('unit_id')->nullable()->constrained('units');

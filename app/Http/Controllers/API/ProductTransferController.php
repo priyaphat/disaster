@@ -9,11 +9,13 @@ use App\Http\Utility\PaginateUtility;
 use App\Http\Utility\ProductUtility;
 use App\Models\Product;
 use App\Models\ProductLogs;
+use App\Models\ProductRequest;
 use App\Models\Shelter;
 use App\Models\ShelterProduct;
 use App\Models\StockLogs;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Services\ProductRequestService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\SearchService;
@@ -37,9 +39,16 @@ class ProductTransferController extends Controller
         // แสดง shelter ที่ สามารถ ย้ายทรัพยากรไปได้
         // $this->authorize('isAdmin', Shelter::class);
 
-        $q = Shelter::select('id', 'name')->where('id', '!=', ProductUtility::getShelter())
+        $shelter = ProductUtility::getShelter();
+        $q = Shelter::select('id', 'name')->where('id', '!=', $shelter)
             ->where('status', Shelter::OPEN);
         $q = $this->search->search($q, $filter, 'get');
+        if ($shelter) {
+            $q = $q->prepend([
+                'id' => '',
+                'name' => 'ศูนย์กลาง',
+            ]);
+        }
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
@@ -150,10 +159,12 @@ class ProductTransferController extends Controller
      */
     public function store(ProductTransferRequest $request, $shelter = null) //shelter from (all trasfer)
     {
+
         // โอนย้าย ทรัพยากร
         $this->authorize('create', ShelterProduct::class);
         $shelter = $shelter ?? ProductUtility::getShelter();
-        $to = $request['shelter_id'] ?? '0';
+        $request['shelter_id'] = $to = ($request['shelter_id'] ?? '') === '' ? 0 : $request['shelter_id'];
+
         if ($shelter == $to) return ApiResponse::errorResponse(__('auth.unauthenicated_transfer'));
         foreach ($request['transfer'] as $item) {
             //sender
@@ -171,7 +182,8 @@ class ProductTransferController extends Controller
             $pdt->update();
 
             //recipint
-            $product = ShelterProduct::where('product_id', $item['product_id'])->where('shelter_id', $to)->first();
+            $product = ShelterProduct::where('product_id', $item['product_id'])->where('shelter_id', $to)
+                ->where('status', ProductRequest::ACTIVE)->first();
             if ($product) {
                 $product['quantity'] = $item['quantity'] + $product['quantity'];
                 $product->update();
@@ -181,6 +193,9 @@ class ProductTransferController extends Controller
             }
             self::log($request, $item, $pdt);
             (new StockLogController)->store($request, $item, StockLogs::TRANSFEROUT, $pdt, $product);
+            //ย้ายแบบ เพิ่ม log ที่ product request log ด้วย
+            //ขอ id ของ product_requrest_id
+            // if ($request['spacial']) self::spacialLog($request, $item, $pdt);
         }
         return ApiResponse::successResponse(__('success.transfer.created'));
     }
@@ -197,7 +212,7 @@ class ProductTransferController extends Controller
             ->leftJoin('units', 'products.unit_id', 'units.id')->first();
         $i['to_shelter_name'] = Shelter::find($r['shelter_id'])->name ?? 'ศูนย์กลาง';
         $i['product']['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
-        $i['reason'] = $r['reason'] ?? null;
+        $i['reason'] = $i['reason'] ?? null;
         $data = [
             'from' => $pdt['shelter_id'],
             'to' => $r['shelter_id'] ?? 0,
@@ -244,4 +259,38 @@ class ProductTransferController extends Controller
             $notificationService->sendToAdmin($notify);
         }
     }
+
+    // private function spacialLog($r, $i, $pdt)
+    // {
+    //     $from = ProductUtility::shelterName($pdt['shelter_id']);
+    //     $to = ProductUtility::shelterName($r['shelter_id']);
+    //     $q = ProductRequest::where('shelter_id', $r['shelter_id'])
+    //         ->where('product_id', $i['product_id'])
+    //         ->where('status', ProductRequest::ACTIVE)
+    //         ->first();
+
+    //     if ($q) {
+    //         $detail = [
+    //             'reason' => $i['reason'],
+    //             "receive" => $i['quantity'],
+    //             "request" => $q['request'],
+    //             "quantity" => $q['quantity'],
+    //             "recipient_id" => $r['shelter_id'] ?? 0,
+    //             "recipient_name" => $from,
+    //             "sender_id" => $pdt['shelter_id'],
+    //             "sender_name" => $to,
+    //         ];
+    //         $data = [
+    //             'to' => $pdt['shelter_id'],
+    //             'detail' => $detail,
+    //             'type' => ProductLogs::TRANSIN,
+    //             'name' => $pdt['name'],
+    //             'category_id' => $pdt['category_id'],
+    //             'unit_id' => $pdt['unit_id'],
+    //             'group_id' => $pdt['group_id'],
+    //             'product_request_id' => $r['product_request_id'],
+    //         ];
+    //         ProductLogs::create($data);
+    //     }
+    // }
 }

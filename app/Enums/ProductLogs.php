@@ -9,6 +9,7 @@ enum ProductLogs: int
     case STOP = 3;
     case RECEIVE = 4;
     case UPDATE = 5;
+    case TRANSIN = 6;
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum ProductLogs: int
             self::STOP => 'ยุติคำร้อง',
             self::RECEIVE => 'ได้รับทรัพยากร',
             self::UPDATE => 'แก้ไขคำร้อง',
+            self::TRANSIN => 'ได้รับทรัพยากร',
         };
     }
 }
