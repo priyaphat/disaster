@@ -64,8 +64,9 @@ class PopulationController extends Controller
 
         $optional = PermissionUtility::getPopulationFilters(Auth::user());
         $filters = array_merge($request->all(), $optional);
-
-        $data = $this->populationService->getList($filters);
+        $paginate = $request->has('paginate');
+        $perPage = $request->input('paginate') ?? 10;
+        $data = $this->populationService->getList($filters, $paginate, $perPage);
         $summary = $this->populationService->summary(Arr::except($filters, ['sort']));
         return ApiResponse::customSuccessResponse(__('success.data'), [
             'data' => $data,

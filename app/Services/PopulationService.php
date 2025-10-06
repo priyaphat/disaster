@@ -25,11 +25,15 @@ class PopulationService
     #[QueryParameter('unit_id', description: 'ค้นหาตามหน่วย ดึงหน่วยจาก api unit.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/unit.index', type: 'string', example: "1")]
     #[QueryParameter('category_id', description: 'ค้นหาตามประเภท ดึงประเภทจาก api category.index https://disaster-backend.gentechsoft.tech/api/docs#/operations/category.index', type: 'string', example: "2")]
     #[QueryParameter('sort', description: 'เรียงลำดับการแสดงข้อมูล', type: 'string', example: "asc, desc, name")]
-    public function getList(array $filters = [])
+    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
     {
-        $query = Population::filter($filters);
-        $data = $query->with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image', 'shelterpopulation')->latest()->paginate(10);
-        return $data->setCollection(PopulationResource::collection($data->items())->collection);
+        $query = Population::filter($filters)->with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'image', 'shelterpopulation')->latest();
+        if (!$paginate) {
+            return PopulationResource::collection($query->get());
+        } else {
+            $data = $query->paginate($perPage);
+            return $data->setCollection(PopulationResource::collection($data->items())->collection);
+        }
     }
 
     public function summary(array $filters = [])
