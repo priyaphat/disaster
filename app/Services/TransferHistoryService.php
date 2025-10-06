@@ -40,7 +40,7 @@ class TransferHistoryService
         return $data = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
     }
 
-    public function getShelterlog(array $filters = [], bool $paginate = true, int $perPage = 10)
+    public function getShelterlog(array $filters = [], bool $paginate = false, int $perPage = 10)
     {
         $query = TransferHistory::filter($filters)->where('parentable_type', Shelter::class)->with('created_by_name', 'shelter');
         if (!$paginate) {

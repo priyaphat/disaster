@@ -11,7 +11,7 @@ class PositionService
     /**
      * Get all positions with filter and limit number.
      */
-    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
+    public function getList(array $filters = [], bool $paginate = false, int $perPage = 10)
     {
         $data = Position::filter($filters)->latest();
         if (!$paginate) {

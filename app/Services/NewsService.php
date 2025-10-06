@@ -19,7 +19,7 @@ class NewsService
         $this->imageService = $imageService;
     }
 
-    public function getList(array $filters = [], bool $shelter = false, bool $paginate = true, int $perPage = 20)
+    public function getList(array $filters = [], bool $shelter = false, bool $paginate = false, int $perPage = 20)
     {
         if (!$shelter) {
             $filters['center'] = true;

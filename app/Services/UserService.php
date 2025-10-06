@@ -36,7 +36,7 @@ class UserService
         return User::filter($filters)->with($this->relations);
     }
 
-    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
+    public function getList(array $filters = [], bool $paginate = false, int $perPage = 10)
     {
         $filters['approve'] = isset($filters['approve']) ? $filters['approve'] : 'success';
         // if (isset($filters['available'])) {

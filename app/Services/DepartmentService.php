@@ -12,9 +12,8 @@ class DepartmentService
     /**
      * Get all department with filter and limit number.
      */
-    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
+    public function getList(array $filters = [], bool $paginate = false, int $perPage = 10)
     {
-
         $data = Department::filter($filters)->latest();
         if (!$paginate) {
             return $data->get();
