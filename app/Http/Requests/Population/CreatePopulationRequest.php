@@ -104,6 +104,12 @@ class CreatePopulationRequest extends FormRequest
              */
             'shelter_id' => 'nullable|exists:shelters,id',
             /**
+             * ส่ง id ของกลุ่มเปราะบาง
+             * @var string
+             * @example 3
+             */
+            'vulnerable_group_id' => 'nullable',
+            /**
              * วันที่บันทึกข้อมูลลงระบบ
              * @var datetime
              * @example 2025-06-24 13:10:00
@@ -124,5 +130,13 @@ class CreatePopulationRequest extends FormRequest
                 }
             }
         });
+    }
+
+    protected function prepareForValidation(): void
+    {
+        // ถ้า category_id = 0 → แปลงให้เป็น null ก่อน validate + save
+        if ($this->has('vulnerable_group_id') && $this->input('vulnerable_group_id') == 0) {
+            $this->merge(['vulnerable_group_id' => null]);
+        }
     }
 }

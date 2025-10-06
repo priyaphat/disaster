@@ -2,6 +2,7 @@
 
 namespace App\Filters;
 
+use App\Http\Utility\ConvertUtility;
 use App\Models\Population;
 use Carbon\Carbon;
 
@@ -64,6 +65,14 @@ class PopulationFilter extends QueryFilter
                     $query->where('shelter_id', $value);
                 }
             });
+        }
+    }
+
+    public function vulnerable_group_id($id)
+    {
+        if (strlen($id) > 0) {
+            $id = $id == 0 ? null : $id; // ID 0 = ไม่มีกลุ่มเปราะบาง
+            return $this->builder->where('vulnerable_group_id', $id);
         }
     }
 

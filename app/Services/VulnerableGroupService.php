@@ -8,9 +8,9 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class VulnerableGroupService
 {
-    public function getList(array $filters = [], bool $paginate = true, int $perPage = 10)
+    public function getList(array $filters = [], bool $paginate = false, int $perPage = 10)
     {
-        $query = Group::latest();
+        $query = Group::select('id', 'name')->latest();
 
         if (!empty($filters['search'])) {
             $query->whereAny(['name'], 'LIKE', '%' . $filters['search'] . '%');
@@ -25,7 +25,14 @@ class VulnerableGroupService
 
     public function selectableGroups(array $filters = [])
     {
-
+        $noGroup = [
+            [
+                'id' => 0,
+                'name' => __('data.no_vulnerable')
+            ]
+        ];
+        $data = $this->getList($filters)->toArray();
+        return array_merge($noGroup, $data);
     }
 
     public function getById(int $id): Group
@@ -46,7 +53,7 @@ class VulnerableGroupService
         return $group;
     }
 
-     /**
+    /**
      * Check vulnerable is used.
      */
     public function isUsed(Group $group): bool
@@ -59,7 +66,7 @@ class VulnerableGroupService
      */
     public function delete(Group $group): bool
     {
-        if($this->isUsed($group)){
+        if ($this->isUsed($group)) {
             throw new BadRequestHttpException(__('error.sql.fk-constraint'));
         }
 

@@ -52,6 +52,7 @@ class Population extends Model
         'status',
         'tracking',
         'sequence_id',
+        'vulnerable_group_id',
         'created_date',
         'created_by',
         'updated_by',
@@ -62,6 +63,9 @@ class Population extends Model
         'gender' => 'integer',
         'same_address' => 'integer',
         'status' => 'integer',
+        'prefix_id' => 'integer',
+        'sequence_id' => 'integer',
+        'vulnerable_group_id' => 'integer',
         'create_date' => 'datetime',
     ];
 
@@ -157,6 +161,11 @@ class Population extends Model
     public function assessments()
     {
         return $this->hasMany(Assessments::class, 'population_id', 'id');
+    }
+
+    public function group(): HasOne
+    {
+        return $this->hasOne(VulnerableGroup::class, 'id', 'vulnerable_group_id');
     }
 
     public function logs()

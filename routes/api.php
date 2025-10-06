@@ -276,14 +276,15 @@ Route::middleware('auth:api')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Routes for display vulnerable group positions
+    | Routes for display vulnerable group
     |--------------------------------------------------------------------------
     */
     Route::get('/vulnerable-groups', [VulnerableGroupController::class, 'index']);
+    Route::get('/vulnerable-groups/list', [VulnerableGroupController::class, 'selectable']); // All users
     Route::post('/vulnerable-group', [VulnerableGroupController::class, 'store']);
     Route::get('/vulnerable-group/{group}', [VulnerableGroupController::class, 'show']);
     Route::post('/vulnerable-group/{group}', [VulnerableGroupController::class, 'update']);
-    Route::get('/vulnerable-group/{position}/deletion-check', [VulnerableGroupController::class, 'checkDelete']);
+    Route::get('/vulnerable-group/{group}/deletion-check', [VulnerableGroupController::class, 'checkDelete']);
     Route::delete('/vulnerable-group/{group}', [VulnerableGroupController::class, 'destroy']);
 
     /*

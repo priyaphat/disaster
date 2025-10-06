@@ -24,7 +24,7 @@ class VulnerableGroupController extends Controller
     }
 
     /**
-     * Display a listing of the an department | แสดงรายการหน่วยงาน
+     * Display a listing of the an group | แสดงรายการกลุ่มเปราะบาง
      */
     public function index(FilterGroupRequest $request)
     {
@@ -35,8 +35,17 @@ class VulnerableGroupController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
+     /**
+     * Display a listing of the vulnerable groups | รายการกลุ่มเปราะบาง รวมไม่มีกลุ่มเปราะบาง.
+     */
+    public function selectable(FilterGroupRequest $request)
+    {
+        $data = $this->groupService->selectableGroups($request->all());
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
     /**
-     * Create an department | สร้างหน่วยงาน
+     * Create an group | สร้างกลุ่มเปราะบาง
      */
     public function store(StoreGroupRequest $request)
     {
@@ -47,7 +56,7 @@ class VulnerableGroupController extends Controller
     }
 
     /**
-     * Show an department | แสดงหน่วยงาน
+     * Show an group | แสดงกลุ่มเปราะบาง
      */
     public function show(Group $group)
     {
@@ -56,7 +65,7 @@ class VulnerableGroupController extends Controller
     }
 
     /**
-     * Update an department | แก้ไขนัดหมาย
+     * Update an group | แก้ไขนัดหมาย
      */
     public function update(UpdateGroupRequest $request, Group $group)
     {
@@ -68,7 +77,7 @@ class VulnerableGroupController extends Controller
     }
 
     /**
-     * Delete an department | ลบหน่วยงาน
+     * Delete an group | ลบกลุ่มเปราะบาง
      */
     public function destroy(Group $group)
     {
@@ -79,7 +88,7 @@ class VulnerableGroupController extends Controller
     }
 
     /**
-     * Check delete an department | ลบหน่วยงาน
+     * Check delete an group | ลบกลุ่มเปราะบาง
      */
     public function checkDelete(Group $group)
     {
