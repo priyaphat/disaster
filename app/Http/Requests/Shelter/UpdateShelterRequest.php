@@ -87,11 +87,11 @@ class UpdateShelterRequest extends FormRequest
              */
             'max_capacity' => 'string',
             /**
-             * ID ประเภทของศูนย์พักพิง
+             * ประเภทของศูนย์พักพิง
              * @var integer
              * @example 1
              */
-            'shelter_type_id' => 'required|integer|exists:shelter_types,id',
+            'shelter_type' => 'string',
             /**
              * ละติจูด
              * @var string

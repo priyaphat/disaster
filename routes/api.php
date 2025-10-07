@@ -231,11 +231,11 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display shelter type positions
     |--------------------------------------------------------------------------
     */
-    Route::get('/shelter-types', [ShelterTypeController::class, 'index']);
-    Route::post('/shelter-type', [ShelterTypeController::class, 'store']);
-    Route::get('/shelter-type/{shelterType}', [ShelterTypeController::class, 'show']);
-    Route::post('/shelter-type/{shelterType}', [ShelterTypeController::class, 'update']);
-    Route::delete('/shelter-type/{shelterType}', [ShelterTypeController::class, 'destroy']);
+    Route::get('/shelter-type', [ShelterTypeController::class, 'search']);
+    // Route::post('/shelter-type', [ShelterTypeController::class, 'store']);
+    // Route::get('/shelter-type/{shelterType}', [ShelterTypeController::class, 'show']);
+    // Route::post('/shelter-type/{shelterType}', [ShelterTypeController::class, 'update']);
+    // Route::delete('/shelter-type/{shelterType}', [ShelterTypeController::class, 'destroy']);
 
     /*
     |--------------------------------------------------------------------------

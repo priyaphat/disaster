@@ -52,7 +52,7 @@ class PopulationResource extends JsonResource
             'c_subdistrict_name_th' => $this->currentAddress ? $this->currentAddress->subdistrict_name_th : null,
             'c_postal_code' => $this->currentAddress ? $this->currentAddress->postal_code : null,
             'same_address' => $this->same_address,
-            'velnerable_group_id' => $this->when($this->relationLoaded('group'),fn() => $this->group?->id),
+            'velnerable_group_id' => $this->when($this->relationLoaded('group'),fn() => $this->group?->id ?? -1),
             'velnerable_group_name' => $this->when($this->relationLoaded('group'),fn() => $this->group?->name ?? __('data.no_vulnerable')),
             'shelter_name' => $this->shelter ? $this->shelter->name : null,
             'created_date' => Carbon::parse($this->created_date)->format('Y-m-d'),

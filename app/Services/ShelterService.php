@@ -46,7 +46,7 @@ class ShelterService
             'max_capacity' => $data['max_capacity'],
             'utilities' => $data['utilities'] ?? null, //uncomment this line when use in production
             'status' => $data['status'] ?? 1,
-            'shelter_type_id' => $data['shelter_type_id'] ?? null,
+            'shelter_type' => $data['shelter_type'] ?? null,
             'gis_map' => $data['gis_map'] ?? null,
             'latitude' => $data['latitude'] ?? null,
             'longitude' => $data['longitude'] ?? null,

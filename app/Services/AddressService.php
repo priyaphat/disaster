@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\EmergencyRequest;
 use App\Models\Population;
+use App\Models\Shelter;
 use Illuminate\Support\Facades\DB;
 
 class AddressService
@@ -46,7 +48,7 @@ class AddressService
     }
 
     /**
-     * Search name of sheletr point.
+     * Search address from all tables that has address.
      */
     public function search(array $filters = [])
     {
@@ -54,12 +56,42 @@ class AddressService
         $offset = $filters['offset'] ?? 0;
         $limit = $filters['limit'] ?? 10;
 
-        $data = Population::where('p_address', 'like', "%{$search}%")
-        ->orderByRaw("CASE
+        // Search current address in populations
+        $cAddress = Population::select('id', 'c_address as address')->where('c_address', 'like', "%{$search}%")
+            ->orderByRaw("CASE
+            WHEN c_address LIKE ? THEN 1
+            ELSE 2
+            END, c_address ASC ", [$search . '%'])->toBase();
+
+        // Search permanent address in populations
+       $pAddress = Population::select('id', 'p_address as address')->where('p_address', 'like', "%{$search}%")
+            ->orderByRaw("CASE
             WHEN p_address LIKE ? THEN 1
             ELSE 2
-            END, p_address ASC ", [$search . '%'])
-        ->skip($offset)->take($limit)->pluck('p_address');
+            END, p_address ASC ", [$search . '%'])->toBase();
+
+        // Search address in shelters
+        $shelterAddress = Shelter::select('id', 'address')->where('address', 'like', "%{$search}%")
+            ->orderByRaw("CASE
+            WHEN address LIKE ? THEN 1
+            ELSE 2
+            END, address ASC ", [$search . '%'])->toBase();
+
+        // Search address in emc requests
+        $emcAdress = EmergencyRequest::select('id')->selectRaw("SUBSTRING_INDEX(address, ' ', CHAR_LENGTH(address) - CHAR_LENGTH(REPLACE(address, ' ', '')) - 3) AS address")
+            ->whereRaw("SUBSTRING_INDEX(address, ' ', CHAR_LENGTH(address) - CHAR_LENGTH(REPLACE(address, ' ', '')) - 3) LIKE ?", ["%{$search}%"])->toBase();
+
+        $unionQuery = $cAddress
+            ->union($pAddress)
+            ->union($shelterAddress)
+            ->union($emcAdress);
+
+        $data = DB::table(DB::raw("({$unionQuery->toSql()}) as unioned"))
+            ->mergeBindings($unionQuery)
+            ->distinct('address')
+            ->skip($offset)
+            ->take($limit)
+            ->pluck('address');
 
         return $data;
     }

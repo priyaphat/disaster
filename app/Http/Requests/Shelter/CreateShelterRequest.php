@@ -86,11 +86,11 @@ class CreateShelterRequest extends FormRequest
              */
             'max_capacity' => 'required|string',
             /**
-             * ID ประเภทของศูนย์พักพิง
+             * ประเภทของศูนย์พักพิง
              * @var integer
              * @example 1
              */
-            'shelter_type_id' => 'required|integer|exists:shelter_types,id',
+            'shelter_type' => 'required|string',
             //  /**
             //  * ละติจูด
             //  * @var string

@@ -24,7 +24,7 @@ class UserPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole(Role::ADMIN);
+        return $user->hasAnyRole([Role::ADMIN, Role::TEAM_LEADER]);
     }
 
     public function update(User $user, User $userUpdated): bool

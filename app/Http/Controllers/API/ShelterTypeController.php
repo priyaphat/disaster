@@ -24,58 +24,68 @@ class ShelterTypeController extends Controller
     }
 
     /**
-     * Display a listing of the an department | แสดงรายการหน่วยงาน
+     * Display a listing of the shelter types | แสดงรายการประะเภทของศูนย์พักพิง
      */
-    public function index(Request $request)
+    public function search(Request $request)
     {
         //
-        $paginate = $request->has('paginate');
-        $perPage = $request->input('paginate') ?? 10;
-        $data = $this->typeService->getList($paginate, $perPage);
+        $data = $this->typeService->search($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    /**
-     * Create an department | สร้างหน่วยงาน
-     */
-    public function store(StoreShelterTypeRequest $request)
-    {
-        //
-        $this->authorize('create', ShelterType::class);
-        $data = $this->typeService->create($request->all());
-        return ApiResponse::successResponse(__('success.created'), $data);
-    }
+    // /**
+    //  * Display a listing of the an department | แสดงรายการหน่วยงาน
+    //  */
+    // public function index(Request $request)
+    // {
+    //     //
+    //     $paginate = $request->has('paginate');
+    //     $perPage = $request->input('paginate') ?? 10;
+    //     $data = $this->typeService->getList($paginate, $perPage);
+    //     return ApiResponse::successResponse(__('success.data'), $data);
+    // }
 
-    /**
-     * Show an department | แสดงหน่วยงาน
-     */
-    public function show(ShelterType $shelterType)
-    {
-        $this->authorize('view', ShelterType::class);
-        return ApiResponse::successResponse(__('success.data'), $shelterType);
-    }
+    // /**
+    //  * Create an department | สร้างหน่วยงาน
+    //  */
+    // public function store(StoreShelterTypeRequest $request)
+    // {
+    //     //
+    //     $this->authorize('create', ShelterType::class);
+    //     $data = $this->typeService->create($request->all());
+    //     return ApiResponse::successResponse(__('success.created'), $data);
+    // }
 
-    /**
-     * Update an department | แก้ไขนัดหมาย
-     */
-    public function update(UpdateShelterTypeRequest $request, ShelterType $shelterType)
-    {
-        //
-        $this->authorize('update', ShelterType::class);
+    // /**
+    //  * Show an department | แสดงหน่วยงาน
+    //  */
+    // public function show(ShelterType $shelterType)
+    // {
+    //     $this->authorize('view', ShelterType::class);
+    //     return ApiResponse::successResponse(__('success.data'), $shelterType);
+    // }
 
-        $data = $this->typeService->update($shelterType, $request->all());
-        return ApiResponse::successResponse(__('success.updated'), $data);
-    }
+    // /**
+    //  * Update an department | แก้ไขนัดหมาย
+    //  */
+    // public function update(UpdateShelterTypeRequest $request, ShelterType $shelterType)
+    // {
+    //     //
+    //     $this->authorize('update', ShelterType::class);
 
-    /**
-     * Delete an department | ลบหน่วยงาน
-     */
-    public function destroy(ShelterType $shelterType)
-    {
-        //
-        $this->authorize('delete', ShelterType::class);
+    //     $data = $this->typeService->update($shelterType, $request->all());
+    //     return ApiResponse::successResponse(__('success.updated'), $data);
+    // }
 
-        $this->typeService->delete($shelterType);
-        return ApiResponse::successResponse(__('success.deleted'));
-    }
+    // /**
+    //  * Delete an department | ลบหน่วยงาน
+    //  */
+    // public function destroy(ShelterType $shelterType)
+    // {
+    //     //
+    //     $this->authorize('delete', ShelterType::class);
+
+    //     $this->typeService->delete($shelterType);
+    //     return ApiResponse::successResponse(__('success.deleted'));
+    // }
 }

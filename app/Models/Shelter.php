@@ -35,14 +35,13 @@ class Shelter extends Model
         'subdistrict_code',
         'address',
         'max_capacity',
-        'shelter_type_id',
+        'shelter_type',
         'latitude',
         'longitude',
     ];
 
     protected $casts = [
         'status' => 'integer',
-        'shelter_type_id' => 'integer',
         'utilities' => UtilitiesCast::class,
     ];
 
@@ -73,11 +72,6 @@ class Shelter extends Model
             ->useLogName('shelters')
             ->logOnly(['*'])
             ->setDescriptionForEvent(fn(string $eventName) => "{$eventName}");
-    }
-
-    public function shelterType()
-    {
-        return $this->hasOne(ShelterType::class, 'id', 'shelter_type_id');
     }
 
     public function image()

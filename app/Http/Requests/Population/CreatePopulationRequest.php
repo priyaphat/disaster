@@ -111,12 +111,12 @@ class CreatePopulationRequest extends FormRequest
              * @example 3
              */
             'shelter_id' => 'nullable|exists:shelters,id',
-            /**
-             * ส่ง id ของกลุ่มเปราะบาง
-             * @var string
-             * @example 3
-             */
-            'vulnerable_group_id' => 'nullable',
+            // /**
+            //  * ส่ง id ของกลุ่มเปราะบาง
+            //  * @var string
+            //  * @example 3
+            //  */
+            // 'vulnerable_group_id' => 'nullable',
             /**
              * ส่ง array รายละเอียดการแพ้
              * @var array
@@ -149,13 +149,19 @@ class CreatePopulationRequest extends FormRequest
             }
         });
     }
+    
+    // /**
+    //  * Prepare the data for validation.
+    //  */
+    // protected function prepareForValidation(): void
+    // {
+    //     if ($this->has('vulnerable_group_id') && $this->input('vulnerable_group_id') <= 0) {
+    //         $this->merge(['vulnerable_group_id' => null]);
+    //     }
+    // }
 
     protected function passedValidation()
     {
-        if ($this->has('vulnerable_group_id') && $this->input('vulnerable_group_id') == 0) {
-            $this->merge(['vulnerable_group_id' => null]);
-        }
-
         if ($this->has('status') && $this->input('status') != PopulationStatus::DEATH->value) {
             $this->merge(['death_cause' => null]);
         }

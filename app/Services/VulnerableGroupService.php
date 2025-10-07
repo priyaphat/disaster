@@ -27,7 +27,7 @@ class VulnerableGroupService
     {
         $noGroup = [
             [
-                'id' => null,
+                'id' => -1,
                 'name' => __('data.no_vulnerable')
             ]
         ];

@@ -15,12 +15,12 @@ class ShelterPointService
         $offset = $filters['offset'] ?? 0;
         $limit = $filters['limit'] ?? 10;
 
-        $data = ShelterPoint::where('name', 'like', "%{$search}%")
+        $data = ShelterPoint::select('name')->where('name', 'like', "%{$search}%")
         ->orderByRaw("CASE
             WHEN name LIKE ? THEN 1
             ELSE 2
             END, name ASC ", [$search . '%'])
-        ->skip($offset)->take($limit)->pluck('name');
+        ->distinct()->skip($offset)->take($limit)->pluck('name');
 
         return $data;
     }

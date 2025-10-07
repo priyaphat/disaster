@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::table('shelters', function (Blueprint $table) {
             //
-            $table->unsignedBigInteger('shelter_type_id')->nullable()->after('max_capacity');
-            $table->foreign('shelter_type_id')->references('id')->on('shelter_types');
+            $table->string('shelter_type')->nullable()->after('max_capacity');
         });
     }
 
