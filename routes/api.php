@@ -252,6 +252,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display address and geography
     |--------------------------------------------------------------------------
     */
+    Route::get('/address', [AddressController::class, 'search']);
     Route::post('/address', [AddressController::class, 'getAddress']);
     Route::post('/district', [AddressController::class, 'getDistricts']);
     Route::post('/sub-district', [AddressController::class, 'getSubDistricts']);

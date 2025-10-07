@@ -43,4 +43,10 @@ class AddressController extends Controller
         return ApiResponse::successResponse(__('success.data'), $sub);
     }
 
+    public function search(Request $request)
+    {
+        $data = $this->addressService->search($request->all());
+        return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
 }

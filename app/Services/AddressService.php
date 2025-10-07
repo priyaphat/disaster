@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Population;
 use Illuminate\Support\Facades\DB;
 
 class AddressService
@@ -42,5 +43,24 @@ class AddressService
             ->distinct()
             ->get();
         return $sub_district;
+    }
+
+    /**
+     * Search name of sheletr point.
+     */
+    public function search(array $filters = [])
+    {
+        $search = $filters['search'] ?? null;
+        $offset = $filters['offset'] ?? 0;
+        $limit = $filters['limit'] ?? 10;
+
+        $data = Population::where('p_address', 'like', "%{$search}%")
+        ->orderByRaw("CASE
+            WHEN p_address LIKE ? THEN 1
+            ELSE 2
+            END, p_address ASC ", [$search . '%'])
+        ->skip($offset)->take($limit)->pluck('p_address');
+
+        return $data;
     }
 }
