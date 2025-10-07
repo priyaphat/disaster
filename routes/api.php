@@ -409,6 +409,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
+    Route::get('/emc-request-select/{id?}', [EmergencyRequestController::class, 'select']);
     Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestId']);
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
     Route::get('/emc-requests', [EmergencyRequestController::class, 'show']);
@@ -515,5 +516,4 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/stocks', [StockLogController::class, 'index']);
     Route::get('/export-stock', [StockLogController::class, 'exp']);
-
 });

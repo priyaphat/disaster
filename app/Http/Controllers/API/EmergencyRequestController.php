@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\DisasterHelp;
 use App\Enums\PopulationStatus;
 use App\Events\EmcRequestNotification;
 use App\Http\Controllers\Controller;
@@ -202,10 +203,9 @@ class EmergencyRequestController extends Controller
             }
         }
 
-        if($data->wasChanged('emergency_team_id')){
+        if ($data->wasChanged('emergency_team_id')) {
             EmcRequestNotification::dispatch([$old['emergency_team_id'], $data->emergency_team_id]);
-        }
-        else if($data->wasChanged('status')){
+        } else if ($data->wasChanged('status')) {
             EmcRequestNotification::dispatch([$data->emergency_team_id]);
         }
 
@@ -380,5 +380,20 @@ class EmergencyRequestController extends Controller
             ]);
         }
         return ApiResponse::successResponse(__('success.emc_request.trans'));
+    }
+
+    public function select($id = null)
+    {
+        $q = array_map(fn($q) =>
+        [
+            'id' => $q->value,
+            'name' => $q->label(),
+        ], DisasterHelp::cases());
+
+        if ($id) {
+            $q = array_values(array_filter($q, fn($i) => $i['id'] == $id));
+        }
+
+        return ApiResponse::successResponse(__('success.data'), $q);
     }
 }
