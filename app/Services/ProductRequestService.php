@@ -136,9 +136,10 @@ class ProductRequestService
             $q->update();
             //log type receive
             $pdt = Product::find($productReq->product_id);
-            $r['spacial'] = $r['spacial'] ?? false;
+            $r['spacial'] = isset($r['spacial']) ? $r['spacial'] : false;
             self::log($productReq, $pdt, $r['spacial'] ? ProductLogs::TRANSIN : ProductLogs::RECEIVE, $r['quantity'], $r);
-            $dt = $r['detail'];
+            $dt = isset($r['detail']) && is_array($r['detail']) ? $r['detail'] : [];
+
             if (!$r['spacial']) { //ขัดจากการโอนของ transfer
                 (new StockLogController)->store([
                     "product_id" => $productReq->product_id,
