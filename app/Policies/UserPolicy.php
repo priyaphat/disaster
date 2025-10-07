@@ -9,12 +9,12 @@ class UserPolicy
 {
     public function view(User $user): bool
     {
-        return $user->hasRole(Role::ADMIN);
+       return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER]);
     }
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole([Role::ADMIN, Role::STAFF]);
+        return $user->hasAnyRole([Role::ADMIN, Role::STAFF, Role::TEAM_LEADER]);
     }
 
     public function viewList(User $user): bool
