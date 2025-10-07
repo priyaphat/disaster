@@ -136,6 +136,7 @@ class ProductRequestService
             $q->update();
             //log type receive
             $pdt = Product::find($productReq->product_id);
+            $r['spacial'] = $r['spacial'] ?? false;
             self::log($productReq, $pdt, $r['spacial'] ? ProductLogs::TRANSIN : ProductLogs::RECEIVE, $r['quantity'], $r);
             $dt = $r['detail'];
             if (!$r['spacial']) { //ขัดจากการโอนของ transfer

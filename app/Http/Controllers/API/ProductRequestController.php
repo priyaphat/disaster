@@ -257,7 +257,7 @@ class ProductRequestController extends Controller
                         // 'created_at' => $item['created_at'],
                         'amount' => $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0),
                         'name' =>  $item['name'],
-                        'category_name' => $item['category_name'],
+                        'unit_name' => $item['unit_name'],
                         'created_at' => DateUtility::formFormat1($item['created_at']),
                         'time' => DateUtility::time($item['created_at']),
                     ];
