@@ -41,6 +41,7 @@ class CreateProductRequest extends FormRequest
             'unit_id' => 'nullable|exists:units,id|required_if:unit_type,2',
             'no_unit' => 'nullable',
             // 'category_id' => 'exists:categories,id',
+            'source' => 'nullable|string|max:255',
             'detail' => 'nullable|string|max:255',
             'unit_type' => 'nullable|in:1,2',
             'status' => 'integer',

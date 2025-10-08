@@ -89,6 +89,7 @@ class AddressService
         $data = DB::table(DB::raw("({$unionQuery->toSql()}) as unioned"))
             ->mergeBindings($unionQuery)
             ->distinct('address')
+            ->orderBy('address')
             ->skip($offset)
             ->take($limit)
             ->pluck('address');
