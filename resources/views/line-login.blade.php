@@ -37,6 +37,7 @@
         align-items: center;
         padding-left: 14px;
         pointer-events: none;
+        z-index:9;
     }
 
     .wrapper {
@@ -53,6 +54,8 @@
         padding-left: 48px;
         border: 1px solid #b7b2b5;
         border-radius: 6px;
+        min-height: 42px;
+        transform: translateZ(0);
     }
 
     .icon-right {
@@ -63,6 +66,8 @@
         display: flex;
         align-items: center;
         padding-right: 14px;
+        z-index:9;
+        cursor:pointer;
     }
 
     .button {
@@ -74,7 +79,13 @@
         border-radius: 6px;
     }
 
-    .icon-eye-toggle svg:nth-child(2) {
+    .password-mask {
+        -webkit-text-security: disc;
+        -moz-webkit-text-security: disc;
+        -moz-text-security: disc;
+    }
+
+    /*.icon-eye-toggle svg:nth-child(2) {
         display: none;
     }
 
@@ -84,7 +95,7 @@
 
     .icon-eye-toggle.show svg:nth-child(2) {
         display: inline;
-    }
+    }*/
 
     input::-ms-reveal,
     input::-ms-clear {
@@ -153,10 +164,10 @@
                             fill="#B7B2B5" />
                     </svg>
                 </div>
-                <input class="input" id="password" type="password" placeholder="รหัสผ่าน" autocomplete="on" />
+                <input class="input password-mask" id="password" type="text" placeholder="รหัสผ่าน" autocomplete="on" />
                 <div class="icon-right icon-eye-toggle" id="icon_eye">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 20 18"
-                        fill="none">
+                        fill="none" style="display: inline;">
                         <path fill-rule="evenodd" clip-rule="evenodd"
                             d="M18.5303 1.53033C18.8232 1.23744 18.8232 0.762563 18.5303 0.46967C18.2374 0.176777 17.7626 0.176777 17.4697 0.46967L1.46967 16.4697C1.17678 16.7626 1.17678 17.2374 1.46967 17.5303C1.76256 17.8232 2.23744 17.8232 2.53033 17.5303L5.56535 14.4953C6.88317 15.1032 8.39185 15.5 10 15.5C12.6178 15.5 14.972 14.4486 16.6684 13.1466C17.5177 12.4948 18.2146 11.7709 18.7035 11.0663C19.1831 10.3752 19.5 9.64847 19.5 9C19.5 8.35153 19.1831 7.62481 18.7035 6.93368C18.2146 6.22913 17.5177 5.50519 16.6684 4.85335C16.3978 4.64567 16.1104 4.44437 15.808 4.25269L18.5303 1.53033ZM13.1287 6.93196L12.0307 8.02994C12.1713 8.32366 12.25 8.65264 12.25 9C12.25 10.2426 11.2426 11.25 10 11.25C9.65264 11.25 9.32366 11.1713 9.02994 11.0307L7.93196 12.1287C8.52478 12.5213 9.23569 12.75 10 12.75C12.0711 12.75 13.75 11.0711 13.75 9C13.75 8.23569 13.5213 7.52478 13.1287 6.93196Z"
                             fill="#555055"></path>
@@ -165,7 +176,7 @@
                             fill="#555055"></path>
                     </svg>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="14" viewBox="0 0 20 14"
-                        fill="none">
+                        fill="none" style="display: none;">
                         <path
                             d="M10 4.75C8.75736 4.75 7.75 5.75736 7.75 7C7.75 8.24264 8.75736 9.25 10 9.25C11.2426 9.25 12.25 8.24264 12.25 7C12.25 5.75736 11.2426 4.75 10 4.75Z"
                             fill="#555055"></path>
@@ -173,7 +184,6 @@
                             d="M10 0.5C7.38223 0.5 5.02801 1.55139 3.33162 2.85335C2.48232 3.50519 1.78544 4.22913 1.29649 4.93368C0.816861 5.62481 0.5 6.35153 0.5 7C0.5 7.64847 0.816861 8.37519 1.29649 9.06632C1.78544 9.77087 2.48232 10.4948 3.33162 11.1466C5.02801 12.4486 7.38223 13.5 10 13.5C12.6178 13.5 14.972 12.4486 16.6684 11.1466C17.5177 10.4948 18.2146 9.77087 18.7035 9.06632C19.1831 8.37519 19.5 7.64847 19.5 7C19.5 6.35153 19.1831 5.62481 18.7035 4.93368C18.2146 4.22913 17.5177 3.50519 16.6684 2.85335C14.972 1.55139 12.6178 0.5 10 0.5ZM6.25 7C6.25 4.92893 7.92893 3.25 10 3.25C12.0711 3.25 13.75 4.92893 13.75 7C13.75 9.07107 12.0711 10.75 10 10.75C7.92893 10.75 6.25 9.07107 6.25 7Z"
                             fill="#555055"></path>
                     </svg>
-
                 </div>
             </div>
             <button type="submit" class="button">เข้าสู่ระบบ</button>
@@ -198,36 +208,43 @@
     const alertBox = document.getElementById("alertBox");
     alertBox.style.display = "none";
 
-    liff.init({
-            // liffId: "2007547242-Rmgq4X9x",
-            liffId: "2007553661-G93edr6l",
-        })
-        .then(() => {
-            if (!liff.isLoggedIn()) {
-                liff.login();
-            } else {
-                liff.getProfile()
-                    .then((profile) => {
-                        userId = profile.userId;
-                        // document.getElementById("userId").innerText = userId;
-                    })
-                    .catch((err) => {
-                        console.error("getProfile error", err);
-                        // document.getElementById("userId").innerText =
-                        //     "Error loading user ID";
-                    });
-            }
-        });
+    // liff.init({
+    //         // liffId: "2007547242-Rmgq4X9x",
+    //         liffId: "2007553661-G93edr6l",
+    //     })
+    //     .then(() => {
+    //         if (!liff.isLoggedIn()) {
+    //             liff.login();
+    //         } else {
+    //             liff.getProfile()
+    //                 .then((profile) => {
+    //                     userId = profile.userId;
+    //                     // document.getElementById("userId").innerText = userId;
+    //                 })
+    //                 .catch((err) => {
+    //                     console.error("getProfile error", err);
+    //                     // document.getElementById("userId").innerText =
+    //                     //     "Error loading user ID";
+    //                 });
+    //         }
+    //     });
+    //
 
     document.addEventListener("DOMContentLoaded", function() {
         const passwordInput = document.getElementById("password");
         const iconEye = document.getElementById("icon_eye");
+        showPassword = false;
 
         if (passwordInput && iconEye) {
             iconEye.addEventListener("click", function() {
-                const isHidden = passwordInput.type === "password";
-                passwordInput.type = isHidden ? "text" : "password";
-                iconEye.classList.toggle("show", isHidden);
+                showPassword = !showPassword;
+                iconEye.children[0].style.display = showPassword ? 'none' : 'inline';
+                iconEye.children[1].style.display = showPassword ? 'inline' : 'none';
+                passwordInput.classList.toggle('password-mask');
+                // console.log("icon clicked", iconEye.children)
+                // const isHidden = passwordInput.type === "password";
+                console.log(passwordInput)
+                iconEye.classList.toggle("show", showPassword);
             });
         }
     });
