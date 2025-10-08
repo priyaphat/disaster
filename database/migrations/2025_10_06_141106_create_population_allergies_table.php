@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('population_allergies', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('population_id')->comment('id ของประชากร');
-            $table->enum('status', [0, 1, 2])->default(0)->comment('0 - ไม่ทราบ, 1 - ไม่มี, 2 - แพ้ยา');
+            $table->tinyInteger('status')->default(0)->comment('0 - ไม่ทราบ, 1 - ไม่มี, 2 - แพ้ยา');
             $table->string('drug')->nullable();
             $table->string('food')->nullable();
             $table->string('other')->nullable();

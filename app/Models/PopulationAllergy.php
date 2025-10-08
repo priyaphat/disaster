@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AllergyStatus;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
@@ -24,7 +25,7 @@ class PopulationAllergy extends Model
 
     protected $casts = [
         'population_id' => 'integer',
-        'status' => 'integer',
+        'status' => AllergyStatus::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
