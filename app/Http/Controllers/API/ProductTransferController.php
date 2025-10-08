@@ -183,6 +183,7 @@ class ProductTransferController extends Controller
 
             //recipint
             $product = ShelterProduct::where('product_id', $item['product_id'])->where('shelter_id', $to)->first();
+            $r['spacial'] = isset($r['spacial']) ? $r['spacial'] : false;
             if ($product) {
                 $product['quantity'] = $item['quantity'] + $product['quantity'];
                 if (!$request['spacial']) $product->update();
