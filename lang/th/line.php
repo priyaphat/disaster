@@ -12,7 +12,7 @@ return [
 
     'quick' => "🛑 โปรดตรวจสอบและดำเนินการโดยเร็ว",
 
-    'see_more' => "ดูข้อมูลเพิ่มเติม",
+    'see_more' => "ดูเพิ่มเติม",
 
     'read_more' => "อ่านข่าวประชาสัมพันธ์",
 
@@ -30,11 +30,10 @@ return [
         . "พื้นที่ที่ได้รับผลกระทบ:\n:type_areas\n\n",
 
     'shelter_post' => "🏠 ศูนย์พักพิงเปิดทำการ\n"
-        . ":shelter ขณะนี้เปิดใช้งานแล้ว\n\n"
-        . "🗺️ ดูแผนที่ศูนย์พักพิง:\n:location\n\n",
+        . ":shelter ขณะนี้เปิดทำการแล้ว\n",
 
     'shelter_end' => "🏠 ศูนย์พักพิงปิดทำการ\n"
-        . ":shelter ขณะนี้ปิดใช้งานแล้ว\n\n",
+        . ":shelter ขณะนี้ปิดทำการแล้ว\n\n",
 
     'damaged_utilities_head' => "🚨 อัปเดตสาธารณประโยชน์ที่ได้รับความ เสียหาย\n",
 
@@ -128,7 +127,7 @@ return [
         . "ปริมาณน้ำในแหล่งน้ำ: \n:water_value% \n\n"
         . "สถานะ: \n:status \n\n",
 
-    'disaster_landslide' => "รายงานข้อมูล ดินถล่ม \n\n :name \n\n",
+    'disaster_landslide' => "รายงานข้อมูล ดินถล่ม \n\n:name \n\n",
 
     'disaster_wildfire_h' => "รายงานข้อมูล ไฟป่า\n\n",
 
@@ -152,11 +151,11 @@ return [
         . "สถานะ:\n:status \n\n",
 
     'disaster_earthquake' => "รายงานข้อมูล แผ่นดินไหว\n\n"
-        . "จุดศูนย์กลาง: \n :address\n\n"
-        . "วัน - เวลา ที่เกิดเหตุ: \n :occurrence_time\n\n"
-        . "ละติจูด, ลองจิจูด:\n :latitude, :longitude\n\n"
-        . "ระดับความรุนแรง:\n :magnitude ริกเตอร์\n\n"
-        . "ลึกจากผิวดิน: \n :depth กม.\n\n",
+        . "จุดศูนย์กลาง: \n:address\n\n"
+        . "วัน - เวลา ที่เกิดเหตุ: \n:occurrence_time\n\n"
+        . "ละติจูด, ลองจิจูด:\n:latitude, :longitude\n\n"
+        . "ระดับความรุนแรง:\n:magnitude ริกเตอร์\n\n"
+        . "ลึกจากผิวดิน: \n:depth กม.\n\n",
 
     'location' => "ระบุพิกัดสำเร็จ พิกัดปัจจุบัน :province",
 ];

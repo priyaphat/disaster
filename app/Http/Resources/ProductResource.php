@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ProductGroup;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,6 +23,7 @@ class ProductResource extends JsonResource
             'category_id' => $this->category_id,
             'category_name' => $this->category_name,
             'group_id' => $this->group_id,
+            'group_name' => ProductGroup::tryFrom($this->group_id)->label(),
             'source' => $this->source,
             'detail' => $this->detail,
             'quantity' => $this->quantity,

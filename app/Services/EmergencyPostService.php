@@ -69,6 +69,8 @@ class EmergencyPostService
         $this->emergencylog_save($post, $district, $district_id);
         if ($post['status'] == EmergencyPost::inactive) {
             LinePostUtility::line_oa_call(LineController::Disaster_end, self::index($post)->toArray());
+        } else {
+            LinePostUtility::line_oa_call(LineController::Disaster_post, self::index($post)->toArray());
         }
         return $post->refresh();
     }
