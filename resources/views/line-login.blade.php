@@ -133,7 +133,7 @@
     <form class="form" id="loginForm">
         <div class="wrapper">
             <div class="banner">
-                <img src="{{ asset(env('APP_URL')) }}./Logo/5.png" class="w-13" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/5.png" class="w-13" />
                 <div class="">
                     <div class="">องค์การบริหารส่วนจังหวัดเชียงราย</div>
                     <div class="">Chiangrai Provincial Administrative Organization</div>
@@ -188,12 +188,12 @@
             </div>
             <button type="submit" class="button">เข้าสู่ระบบ</button>
             <footer class="banner">
-                <img src="{{ asset(env('APP_URL')) }}./Logo/5.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/6.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/1.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/2.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/3.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/4.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/5.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/6.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/1.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/2.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/3.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/4.png" width="40" height="40" />
             </footer>
         </div>
         {{-- <p class="text-center">

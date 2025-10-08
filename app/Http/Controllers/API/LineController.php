@@ -272,8 +272,8 @@ class LineController extends Controller
             ]) . __('line.close_follow');
             $text = self::flex_box($text);
         } else if ($form == self::Shelter_post) {
-            $text = __('line.shelter_post', ['shelter' => $data['name'], 'location' => $data['gis_map']]) . __('line.close_follow');
-            $text = self::flex_box($text);
+            $text = __('line.shelter_post', ['shelter' => $data['name']]);
+            $text = self::flex_box($text, $data['gis_map']);
         } else if ($form == self::Shelter_end) {
             $text = __('line.shelter_end', ['shelter' => $data['name']]) . __('line.close_follow');
             $text = self::flex_box($text);
@@ -648,27 +648,64 @@ class LineController extends Controller
         ];
     }
 
-    private function flex_box($text)
+    private function flex_box($text, $local = null)
     {
-        return [
-            'type' => 'flex',
-            'size' => 'giga',
-            'altText' => '📢 ข่าวประชาสัมพันธ์',
-            'contents' => [
-                'type' => 'bubble',
-                'body' => [
-                    'type' => 'box',
-                    'layout' => 'vertical',
-                    'contents' => [
-                        [
-                            'type' => 'text',
-                            'text' => $text,
-                            'wrap' => true
+        if (!$local) {
+            return [
+                'type' => 'flex',
+                'size' => 'giga',
+                'altText' => '📢 ข่าวประชาสัมพันธ์',
+                'contents' => [
+                    'type' => 'bubble',
+                    'body' => [
+                        'type' => 'box',
+                        'layout' => 'vertical',
+                        'contents' => [
+                            [
+                                'type' => 'text',
+                                'text' => $text,
+                                'wrap' => true
+                            ]
                         ]
                     ]
                 ]
-            ]
-        ];
+            ];
+        } else {
+            return [
+                'type' => 'flex',
+                'size' => 'giga',
+                'altText' => '📢 ข่าวประชาสัมพันธ์',
+                'contents' => [
+                    'type' => 'bubble',
+                    'body' => [
+                        'type' => 'box',
+                        'layout' => 'vertical',
+                        'contents' => [
+                            [
+                                'type' => 'text',
+                                'text' => $text,
+                                'wrap' => true
+                            ],
+                            [
+                                'type' => 'text',
+                                'text' => '🗺️ ดูแผนที่ศูนย์พักพิง',
+                                'color' => '#1E90FF',
+                                'action' => [
+                                    'type' => 'uri',
+                                    'label' => 'ดูแผนที่',
+                                    'uri' => $local
+                                ]
+                            ],
+                            [
+                                'type' => 'text',
+                                'text' => "\n" . __('line.close_follow'),
+                                'wrap' => true
+                            ],
+                        ]
+                    ]
+                ]
+            ];
+        }
     }
 
     public function user_login($userId, $text) //push text and change rich to user

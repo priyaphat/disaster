@@ -67,7 +67,7 @@
 <body>
     <div class="container">
         <div class="box">
-            <img src="{{ asset(env('APP_URL')) }}./Logo/location.png" width="150" style="height: auto" />
+            <img src="{{ asset(env('APP_URL')) }}/Logo/location.png" width="150" style="height: auto" />
             <button class="box-text" id="getLocationBtn">
                 <div class="title">ระบุตำแหน่ง</div>
                 <div class="sub-title">(Send Location)</div>

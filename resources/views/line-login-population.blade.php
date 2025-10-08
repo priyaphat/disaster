@@ -122,7 +122,7 @@
     <form class="form" id="loginForm">
         <div class="wrapper">
             <div class="banner">
-                <img src="{{ asset(env('APP_URL')) }}./Logo/7.png" class="w-13" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/7.png" class="w-13" />
                 <div class="">
                     <div class="">ระบบภูมิสารสนเทศทางสาธารณสุข</div>
                     <div class="">สำหรับศูนย์ปฏิบัติการภาวะฉุกเฉิน (จีโอเฮลท์ ศปฉ.)</div>
@@ -135,12 +135,12 @@
             <input class="input" id="phone" placeholder="เบอร์โทรศัพท์" maxlength="10" autocomplete="on" />
             <button type="submit" class="button">ยืนยันตัวตน</button>
             <footer class="banner">
-                <img src="{{ asset(env('APP_URL')) }}./Logo/5.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/6.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/1.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/2.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/3.png" width="40" height="40" />
-                <img src="{{ asset(env('APP_URL')) }}./Logo/4.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/5.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/6.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/1.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/2.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/3.png" width="40" height="40" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/4.png" width="40" height="40" />
             </footer>
         </div>
     </form>

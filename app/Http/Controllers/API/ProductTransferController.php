@@ -70,7 +70,7 @@ class ProductTransferController extends Controller
             'shelter_products.*',
             'products.unit_type',
             'products.unit_id',
-            DB::raw('CONCAT(products.name," (",units.name,")") as name')
+            DB::raw('CONCAT(products.name," ( ",COALESCE(units.name, "ไม่มีหน่วย")," )") as name')
         )
             ->leftJoin('products', 'products.id', 'shelter_products.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')

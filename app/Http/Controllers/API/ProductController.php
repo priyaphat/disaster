@@ -88,6 +88,7 @@ class ProductController extends Controller
             ->first();
         $image = $this->imageService->getByTableAndId(Product::class, $q->id);
         $q->image = $image ? $image['image_path'] : null;
+        $q->group_name = ProductGroup::tryFrom($q->group_id)->label();
         if ($val) return $q;
         return ApiResponse::successResponse(__('success.data'), $q);
     }

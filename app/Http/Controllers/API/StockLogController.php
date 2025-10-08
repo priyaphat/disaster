@@ -123,6 +123,8 @@ class StockLogController extends Controller
                 $req['start_date'] = $r['start_date'];
                 $req['end_date'] = $r['end_date'];
             }
+            if ($r['search']) $req['search'] = $r['search'];
+            if ($r['sort']) $req['sort'] = $r['sort'];
             $q = self::index($req);
 
             $q = $q->map(function ($row) {

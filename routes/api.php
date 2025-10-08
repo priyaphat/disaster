@@ -86,6 +86,7 @@ Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'em
 Route::get('/disaster', [DisasterController::class, 'index']);
 Route::get('/emc-requests/{phone}/{id}', [EmergencyRequestController::class, 'phone_detail']);
 Route::post('/emc-request', [EmergencyRequestController::class, 'store']);
+Route::get('/emc-request-select/{id?}', [EmergencyRequestController::class, 'select']);
 Route::get('/dst-floods/{flood?}', [DisasterController::class, 'dst_fl_show']);
 Route::get('/dst-landslides/{landslide?}', [DisasterController::class, 'dst_ls_show']);
 Route::get('/dst-wildfires', [DisasterController::class, 'dst_wf_show']);
@@ -409,7 +410,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
-    Route::get('/emc-request-select/{id?}', [EmergencyRequestController::class, 'select']);
     Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestId']);
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
     Route::get('/emc-requests', [EmergencyRequestController::class, 'show']);

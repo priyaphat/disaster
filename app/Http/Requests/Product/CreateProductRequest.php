@@ -38,7 +38,7 @@ class CreateProductRequest extends FormRequest
                     });
                 }),
             ],
-            'unit_id' => 'nullable|exists:units,id|required_if:unit_type,2',
+            'unit_id' => 'nullable|exists:units,id',
             'no_unit' => 'nullable',
             // 'category_id' => 'exists:categories,id',
             'source' => 'nullable|string|max:255',
