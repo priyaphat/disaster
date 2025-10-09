@@ -47,7 +47,7 @@ class ShelterStaff extends Model
 
     public function shelter()
     {
-        return $this->hasOne(Shelter::class, 'id', 'shelter_id')->select('id', 'name');
+        return $this->hasOne(Shelter::class, 'id', 'shelter_id')->select('id', 'name', 'shelter_type');
     }
 
     public function department()

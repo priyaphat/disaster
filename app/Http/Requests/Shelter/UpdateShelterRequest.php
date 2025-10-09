@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Shelter;
 
+use App\Http\Utility\StringUtility;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +29,7 @@ class UpdateShelterRequest extends FormRequest
              * @var string
              * @example ศูนย์พักใจ
              */
-            'name' => ['string', 'max:255', Rule::unique('shelters', 'name')->ignore($this->shelter->id)],
+            'name' => ['string', 'max:255', Rule::unique('shelters', 'name')->where('shelter_type', $this->input('shelter_type'))->ignore($this->shelter->id)],
             /**
              * เบอร์โทร
              * @var string
@@ -91,7 +92,7 @@ class UpdateShelterRequest extends FormRequest
              * @var integer
              * @example 1
              */
-            'shelter_type' => 'string',
+            'shelter_type' => 'integer',
             /**
              * ละติจูด
              * @var string
@@ -105,5 +106,15 @@ class UpdateShelterRequest extends FormRequest
              */
             'longitude' => 'regex:/^-?[0-9]+(\.[0-9]+)?$/'
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('name') && $this->has('shelter_type')) {
+            $this->merge(['name' => StringUtility::normalizeShelterName($this->input('shelter_type'), $this->input('name'))]);
+        }
     }
 }

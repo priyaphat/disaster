@@ -144,7 +144,7 @@ class PopulationService
         $user = Population::where('first_name', $data['first_name'])
             ->where('last_name', $data['last_name'])
             ->where('prefix_id', $data['prefix_id'])
-            ->with('permanentAddress', 'currentAddress', 'prefix', 'shelter')
+            ->with('permanentAddress', 'currentAddress', 'prefix', 'shelter', 'allergy')
             ->first();
         return $user ? new PopulationResource($user) : false;
     }

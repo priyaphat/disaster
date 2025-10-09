@@ -139,7 +139,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Shelter::class, ShelterPolicy::class);
         Gate::policy(ShelterStaff::class, ShelterStaffPolicy::class);
         Gate::policy(ShelterPosition::class, ShelterPositionPolicy::class);
-        Gate::policy(ShelterType::class, ShelterTypePolicy::class);
         Gate::policy(ShelterPoint::class, ShelterPointPolicy::class);
 
         Gate::policy(Population::class, ShelterPopulationPolicy::class);

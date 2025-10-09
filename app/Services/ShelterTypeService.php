@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Constants\ShelterType;
 use App\Models\Department;
 use App\Models\Shelter;
-use App\Models\ShelterType;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -13,19 +13,20 @@ class ShelterTypeService
     /**
      * Get all sheletr types with filter and limit number.
      */
-    public function search(array $filters = [])
+    public function getList(array $filters = [])
     {
-        $search = $filters['search'] ?? null;
-        $offset = $filters['offset'] ?? 0;
-        $limit = $filters['limit'] ?? 10;
+        // $search = $filters['search'] ?? null;
+        // $offset = $filters['offset'] ?? 0;
+        // $limit = $filters['limit'] ?? 10;
 
-        // Search current address in populations
-        $data = Shelter::select('shelter_type')->where('shelter_type', 'like', "%{$search}%")
-            ->orderByRaw("CASE
-            WHEN shelter_type LIKE ? THEN 1
-            ELSE 2
-            END, shelter_type ASC ", [$search . '%'])->distinct()->skip($offset)->take($limit)->pluck('shelter_type');
-        return $data;
+        // // Search current address in populations
+        // $data = Shelter::select('shelter_type')->where('shelter_type', 'like', "%{$search}%")
+        //     ->orderByRaw("CASE
+        //     WHEN shelter_type LIKE ? THEN 1
+        //     ELSE 2
+        //     END, shelter_type ASC ", [$search . '%'])->distinct()->skip($offset)->take($limit)->pluck('shelter_type');
+        // return $data;
+        return ShelterType::$TYPES;
     }
 
     // /**

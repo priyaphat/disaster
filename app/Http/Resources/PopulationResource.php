@@ -54,6 +54,7 @@ class PopulationResource extends JsonResource
             'same_address' => $this->same_address,
             'velnerable_group_id' => $this->when($this->relationLoaded('group'),fn() => $this->group?->id ?? -1),
             'velnerable_group_name' => $this->when($this->relationLoaded('group'),fn() => $this->group?->name ?? __('data.no_vulnerable')),
+            'shelter_id' => $this->shelter ? $this->shelter->id : null,
             'shelter_name' => $this->shelter ? $this->shelter->name : null,
             'created_date' => Carbon::parse($this->created_date)->format('Y-m-d'),
             'gender' => $this->gender,

@@ -19,6 +19,7 @@ class ShelterResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'original_name' => $this->original_name,
             'phone' => $this->phone,
             'status' => $this->status,
             'created_date' => Carbon::parse($this->created_date)->format('Y-m-d'),

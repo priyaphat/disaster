@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use App\Casts\UtilitiesCast;
+use App\Constants\ShelterType;
 use App\Filters\ShelterFilter;
 use App\Http\Traits\CreatedUpdatedBy;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\URL;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Support\Str;
 
 class Shelter extends Model
 {
@@ -21,7 +22,8 @@ class Shelter extends Model
     public const OPEN = 1;
     public const CLOSED = 2;
 
-    protected $appends = ['gis_map', 'google_maps'];
+    // protected $appends = ['gis_map', 'google_maps'];
+    // protected $appends = ['gis_map', 'google_maps'];
 
     protected $fillable = [
         'name',
@@ -45,6 +47,27 @@ class Shelter extends Model
         'utilities' => UtilitiesCast::class,
     ];
 
+    protected function originalName(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => $attributes['name'],
+        );
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: function (mixed $value, array $attributes) {
+                if (isset($attributes['shelter_type'])) {
+                    $type = ShelterType::findById((int)$attributes['shelter_type']);
+                    if (!$type || !isset($type['prefixes'])) {
+                        return $value;
+                    }
+                    return Str::of($type['name'])->append(' ')->append($value);
+                }
+            }
+        );
+    }
 
     protected function gisMap(): Attribute
     {

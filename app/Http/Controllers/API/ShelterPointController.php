@@ -27,5 +27,4 @@ class ShelterPointController extends Controller
         $data = $this->shelterPointService->search($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
-
 }

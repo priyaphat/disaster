@@ -26,10 +26,9 @@ class ShelterTypeController extends Controller
     /**
      * Display a listing of the shelter types | แสดงรายการประะเภทของศูนย์พักพิง
      */
-    public function search(Request $request)
+    public function index(Request $request)
     {
-        //
-        $data = $this->typeService->search($request->all());
+        $data = $this->typeService->getList($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 

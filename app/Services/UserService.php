@@ -91,7 +91,7 @@ class UserService
         $user = User::create($data);
         $user->image = $this->imageService->uploadImage($data['image'] ?? null, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
         // Send a password via email
-        userRegistered::dispatch($user);
+        UserRegistered::dispatch($user);
 
         // Send a register notification
         $notificationService = app(NotificationService::class);

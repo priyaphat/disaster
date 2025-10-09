@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('shelters', function (Blueprint $table) {
             //
-            $table->string('shelter_type')->nullable()->after('max_capacity');
+            $table->tinyInteger('shelter_type')->nullable()->after('max_capacity');
         });
     }
 
