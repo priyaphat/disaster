@@ -108,6 +108,10 @@ class AppServiceProvider extends ServiceProvider
         Passport::tokensExpireIn(CarbonInterval::days(15));
         Passport::refreshTokensExpireIn(CarbonInterval::days(30));
         Passport::personalAccessTokensExpireIn(CarbonInterval::months(6));
+        // Passport::tokensExpireIn(CarbonInterval::minutes(15));
+        // Passport::refreshTokensExpireIn(CarbonInterval::minutes(15));
+        // Passport::personalAccessTokensExpireIn(CarbonInterval::minutes(15));
+
         date_default_timezone_set('Asia/Bangkok');
         // Event for a user registers to the system
         Event::subscribe(UserEventSubscriber::class);
@@ -165,7 +169,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(AssessmentLogs::class, AssessmentLogsPolicy::class);
 
         Gate::policy(VulnerableGroup::class, VulnerableGroupPolicy::class);
-
 
         // API Document
         Scramble::configure()
