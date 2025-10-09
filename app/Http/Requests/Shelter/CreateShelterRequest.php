@@ -92,7 +92,7 @@ class CreateShelterRequest extends FormRequest
              * @var integer
              * @example 1
              */
-            'shelter_type' => 'required|integer',
+            'shelter_type' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5, 6, 7])],
             //  /**
             //  * ละติจูด
             //  * @var string

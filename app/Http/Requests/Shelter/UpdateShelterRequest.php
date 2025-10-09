@@ -92,7 +92,7 @@ class UpdateShelterRequest extends FormRequest
              * @var integer
              * @example 1
              */
-            'shelter_type' => 'integer',
+            'shelter_type' => ['integer', Rule::in([1, 2, 3, 4, 5, 6, 7])],
             /**
              * ละติจูด
              * @var string

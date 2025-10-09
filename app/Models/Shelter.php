@@ -44,6 +44,7 @@ class Shelter extends Model
 
     protected $casts = [
         'status' => 'integer',
+        'shelter_type' => 'integer',
         'utilities' => UtilitiesCast::class,
     ];
 
@@ -65,6 +66,7 @@ class Shelter extends Model
                     }
                     return Str::of($type['name'])->append(' ')->append($value);
                 }
+                return $value;
             }
         );
     }
