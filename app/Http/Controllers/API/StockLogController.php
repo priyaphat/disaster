@@ -112,7 +112,7 @@ class StockLogController extends Controller
 
         $group = app(ProductController::class)->typeName(true);
         $data = [];
-        $shelter = $r['shelter_id'] ?? ProductUtility::getShelter();
+        $shelter = $r['shelter_id'] ?? 0;
         // $shelter = 1;
         foreach ($group as $item) {
             $req = new Request();

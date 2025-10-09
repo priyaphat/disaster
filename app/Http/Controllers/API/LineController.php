@@ -273,7 +273,7 @@ class LineController extends Controller
             $text = self::flex_box($text);
         } else if ($form == self::Shelter_post) {
             $text = __('line.shelter_post', ['shelter' => $data['name']]);
-            $text = self::flex_box($text, $data['gis_map']);
+            $text = self::flex_box($text, $data['gis_map'] ?? '');
         } else if ($form == self::Shelter_end) {
             $text = __('line.shelter_end', ['shelter' => $data['name']]) . __('line.close_follow');
             $text = self::flex_box($text);
