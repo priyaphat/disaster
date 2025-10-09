@@ -35,7 +35,7 @@ return [
     'shelter_end' => "🏠 ศูนย์พักพิงปิดทำการ\n"
         . ":shelter ขณะนี้ปิดทำการแล้ว\n\n",
 
-    'damaged_utilities_head' => "🚨 อัปเดตสาธารณประโยชน์ที่ได้รับความ เสียหาย\n",
+    'damaged_utilities_head' => "🚨 อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย\n",
 
     'damaged_utilities_detail_post' => "ขณะนี้ :utility ปิดทำการ\n"
         . "• :utility_name\n\n",

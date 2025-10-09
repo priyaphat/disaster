@@ -333,7 +333,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/shelter-all-transfer/{shelter?}', [ShelterProductController::class, 'transfer']);
     Route::get('/shelter-all-delete/{shelter?}', [ShelterProductController::class, 'delete']);
     Route::get('/shelter-one-delete/{productId}', [ShelterProductController::class, 'deleteOne']);
-    Route::get('/shelter-product-excep', [ShelterProductController::class, 'productException']);
+    Route::get('/shelter-product-eproductxcep', [ShelterProductController::class, 'productException']);
     Route::post('/shelter-product', [ShelterProductController::class, 'store']);
 
 

@@ -182,7 +182,7 @@ class ProductRequestController extends Controller
     public function update(UpdateProductReqRequest $request, ProductRequest $productReq)
     {
         $this->authorize('update', ProductRequest::class);
-
+        
         if ($productReq['status'] == ProductRequest::STOP) return ApiResponse::errorResponse(__('error.product_required.canNotDelete'));
         if (isset($request['status']) && $request['status'] != $productReq['status'] && $request['status'] == ProductRequest::STOP) {  //ยุติ ส่ง 0 มา
             $productReq->update(['status' => $request['status']]);

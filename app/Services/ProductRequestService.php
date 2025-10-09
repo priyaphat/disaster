@@ -123,16 +123,24 @@ class ProductRequestService
         if (isset($r['quantity'])) {
             //add quantity
             $q = ShelterProduct::where('product_id', $productReq['product_id'])->where('shelter_id', $productReq['shelter_id'])->first();
-            // if quantity more receive
-            if ($productReq['quantity'] + $r['quantity'] < $productReq['request']) {
+
+            //if infinity receive
+            if ($productReq['request'] == ProductRequest::NOT_QUANTITY) {
                 $q['quantity'] += $r['quantity'];
                 $productReq['quantity'] += $r['quantity'];
             } else {
-                $q['quantity'] += $productReq['request'] - $productReq['quantity'];
-                $productReq['quantity'] = $productReq['request'];
-                //log stop
-                $log_stop = true;
+                // if quantity more receive
+                if ($productReq['quantity'] + $r['quantity'] < $productReq['request']) {
+                    $q['quantity'] += $r['quantity'];
+                    $productReq['quantity'] += $r['quantity'];
+                } else {
+                    $q['quantity'] += $productReq['request'] - $productReq['quantity'];
+                    $productReq['quantity'] = $productReq['request'];
+                    //log stop
+                    $log_stop = true;
+                }
             }
+
             $q->update();
             //log type receive
             $pdt = Product::find($productReq->product_id);
