@@ -279,4 +279,13 @@ class ProductTransferController extends Controller
             $notificationService->sendToAdmin($notify);
         }
     }
+
+    public function allow(Request $r) // true allow
+    {
+        $r['shelter_id'] = $r['shelter_id'] ?? 0;
+        $q = ShelterProduct::where('shelter_id', $r['shelter_id'])
+            ->where('quantity', '>', 0)->first();
+        if ($q) return ApiResponse::successResponse(__('success.data'), true);
+        return ApiResponse::successResponse(__('success.data'), false);
+    }
 }

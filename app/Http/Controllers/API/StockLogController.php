@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\MultiSheetExport;
 use App\Exports\StockExport;
+use App\Http\Utility\DateUtility;
 use Maatwebsite\Excel\Facades\Excel;
 
 class StockLogController extends Controller
@@ -136,26 +137,28 @@ class StockLogController extends Controller
                     // 'product_name' => 
                     $row->name,
                     // 'instock' => 
-                    $row['type'] == StockLogs::INSTOCK || $row['type'] == StockLogs::TRANSFERIN ? $row['amount'] : null,
+                    $row['type'] == (StockLogs::INSTOCK || $row['type'] == StockLogs::TRANSFERIN) ? $row['amount'] : null,
                     // 'outstock' => 
-                    $row['type'] == StockLogs::OUTSTOCK || $row['type'] == StockLogs::TRANSFEROUT ? $row['amount'] : null,
+                    $row['type'] == (StockLogs::OUTSTOCK || $row['type'] == StockLogs::TRANSFEROUT) ? $row['amount'] : null,
                     // 'total' => 
                     $row->total,
                     // 'created_name' => 
                     $row->created_name,
                     //detail
                     // 'from' => 
-                    $row['type'] == StockLogs::INSTOCK || $row['type'] == StockLogs::OUTSTOCK ? ($row->detail['shelter_name'] ?? $row->detail['other']) : $row->detail['form_name'],
+                    $row['type'] == (StockLogs::INSTOCK || $row['type'] == StockLogs::OUTSTOCK) ? ($row->detail['shelter_name'] ?? $row->detail['other']) : ($row->detail['form_name'] ?? null),
                     // 'reason' => 
                     $row->detail['reason'] ?? '',
                     // 'lot_no' => 
                     $row->detail['lot_no'] ?? '',
                     // 'date_exp' =>  
-                    $row->detail['date_exp'] ?? '',
+                    Carbon::parse($row->detail['exp_date'])
+                        ->setTimezone('Asia/Bangkok')
+                        ->format('Y-m-d H:i:s') ?? '',
                     // 'to' => 
-                    $row['type'] == StockLogs::TRANSFERIN || $row['type'] == StockLogs::TRANSFEROUT ? $row->detail['to_name'] : '',
-                    // 'recipient_name' => 
-                    $row->detail['recipient_name'] ?? '',
+                    $row['type'] == (StockLogs::TRANSFERIN || $row['type'] == StockLogs::TRANSFEROUT) ? $row->detail['recipient_name'] : ($row->detail['to_name'] ?? null),
+                    // 'sender_name' => 
+                    $row->detail['sender_name'] ?? '',
                 ];
             })->toArray();
 
