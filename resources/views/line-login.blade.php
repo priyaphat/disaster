@@ -208,27 +208,27 @@
     const alertBox = document.getElementById("alertBox");
     alertBox.style.display = "none";
 
-    // liff.init({
-    //         // liffId: "2007547242-Rmgq4X9x",
-    //         liffId: "2007553661-G93edr6l",
-    //     })
-    //     .then(() => {
-    //         if (!liff.isLoggedIn()) {
-    //             liff.login();
-    //         } else {
-    //             liff.getProfile()
-    //                 .then((profile) => {
-    //                     userId = profile.userId;
-    //                     // document.getElementById("userId").innerText = userId;
-    //                 })
-    //                 .catch((err) => {
-    //                     console.error("getProfile error", err);
-    //                     // document.getElementById("userId").innerText =
-    //                     //     "Error loading user ID";
-    //                 });
-    //         }
-    //     });
-    //
+    liff.init({
+            // liffId: "2007547242-Rmgq4X9x",
+            liffId: "2007553661-G93edr6l",
+        })
+        .then(() => {
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                liff.getProfile()
+                    .then((profile) => {
+                        userId = profile.userId;
+                        // document.getElementById("userId").innerText = userId;
+                    })
+                    .catch((err) => {
+                        console.error("getProfile error", err);
+                        // document.getElementById("userId").innerText =
+                        //     "Error loading user ID";
+                    });
+            }
+        });
+    
 
     document.addEventListener("DOMContentLoaded", function() {
         const passwordInput = document.getElementById("password");
