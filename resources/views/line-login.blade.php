@@ -133,7 +133,7 @@
     <form class="form" id="loginForm">
         <div class="wrapper">
             <div class="banner">
-                <img src="{{ asset(env('APP_URL')) }}/Logo/5.png" class="w-13" />
+                <img src="{{ asset(env('APP_URL')) }}/Logo/7.png" class="w-13" />
                 <div class="">
                     <div class="">องค์การบริหารส่วนจังหวัดเชียงราย</div>
                     <div class="">Chiangrai Provincial Administrative Organization</div>

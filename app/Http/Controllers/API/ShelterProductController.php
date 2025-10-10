@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\ProductGroup;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest\UpdateProductReqRequest;
 use App\Http\Requests\ShelterProductRequest;
@@ -34,7 +35,12 @@ class ShelterProductController extends Controller
         if ($shelterSelf != $shelter) return Response()->json(['success' => true, "code" => 200, 'message' => __('success.data'), 'quantity' => 0]);
 
         $shelter = $shelter ?? $shelterSelf;
-        $q = (new ProductService)->getList($filter->all(), true, $shelter);
+        // $q = (new ProductService)->getList($filter->all(), true, $shelter);
+        $q = (new ProductService)->getList($filter->all(), true, $shelter)
+            ->map(function ($item) {
+                $item->group_name = ProductGroup::tryFrom($item->group_id)->label();
+                return $item;
+            });
         $quantity =  $q->sum('quantity');
         if ($filter['paginate']) $q = PaginateUtility::Paginate($q, $filter['paginate'] ?? 10);
         return Response()->json(['success' => true, "code" => 200, 'message' => __('success.data'), 'data' => $q, 'quantity' => $quantity]);

@@ -198,8 +198,13 @@ class ProductController extends Controller
         $r->validate([
             'quantity' => 'required|numeric',
             'condition' => 'required|in:-1,1',
-            'shelter_id' => 'required'
+            'shelter_id' => 'required',
+            'detail.recipient_id' => 'required',
+            'detail.sender_id' => 'required_if:condition,-1',
+            'detail.shelter_id' => 'required_if:detail.type,1',
+            'detail.other' => 'required_if:detail.type,2',
         ]);
+        
         $shelter = ProductUtility::getShelter();
         $data = ShelterProduct::where('product_id', $id)->where('shelter_id', $shelter)->first();
         if (!$data && $shelter == ShelterProduct::Shelter_center) {

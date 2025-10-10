@@ -58,7 +58,7 @@ class ProductService
             });
         }
         if (isset($filters['paginate']) && $filters['paginate'] && !$inside) {
-            $data = $data->paginate($filters['per_page'] ?? 10);
+            $data = $data->paginate($filters['paginate'] ?? 10);
         } else {
             return $data->get();
         }
