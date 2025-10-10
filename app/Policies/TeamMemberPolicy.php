@@ -23,12 +23,12 @@ class TeamMemberPolicy
         return $user->hasRole(Role::ADMIN);
     }
 
-    public function update(User $user, TeamMember $teamMember): bool
+    public function update(User $user): bool
     {
         return $user->hasRole(Role::ADMIN);
     }
 
-    public function delete(User $user, TeamMember $teamMember): bool
+    public function delete(User $user): bool
     {
         return $user->hasRole(Role::ADMIN);
     }
