@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('shelter_points', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('external_id')->nullable();
-            $table->string('name');
+            $table->string('original_name');
+            $table->string('normalized_name')->nullable();
             $table->text('map_url')->nullable();
             $table->timestamps();
         });

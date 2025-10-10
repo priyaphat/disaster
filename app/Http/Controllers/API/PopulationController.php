@@ -24,6 +24,7 @@ use App\Models\ShelterProduct;
 use App\Models\ShelterStaff;
 use App\Models\TransferHistory;
 use App\Services\ImageService;
+use App\Services\PopulationAllergyService;
 use App\Services\PopulationService;
 use App\Services\ShelterService;
 use App\Services\TransferHistoryService;
@@ -218,8 +219,8 @@ class PopulationController extends Controller
         DB::statement('ALTER TABLE product_logs AUTO_INCREMENT = 1;');
         DB::statement('ALTER TABLE products AUTO_INCREMENT = 1;');
 
-        // DB::statement('ALTER TABLE products AUTO_INCREMENT = 1;');
-        // DB::statement('ALTER TABLE products AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE products AUTO_INCREMENT = 1;');
+        DB::statement('ALTER TABLE products AUTO_INCREMENT = 1;');
 
         return ApiResponse::successResponse(__('success.population.deleted'));
     }

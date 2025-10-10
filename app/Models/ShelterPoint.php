@@ -12,7 +12,8 @@ class ShelterPoint extends Model
 
     protected $fillable = [
         'external_id',
-        'name',
+        'original_name',
+        'normalized_name',
         'map_url'
     ];
 }

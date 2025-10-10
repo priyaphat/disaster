@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Shelter;
 
-use App\Http\Utility\StringUtility;
+use App\Http\Utility\ShelterUtility;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -114,7 +114,7 @@ class CreateShelterRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if ($this->has('name') && $this->has('shelter_type')) {
-            $this->merge(['name' => StringUtility::normalizeShelterName($this->input('shelter_type'), $this->input('name'))]);
+            $this->merge(['name' => ShelterUtility::normalizeShelterName($this->input('shelter_type'), $this->input('name'))]);
         }
     }
 }
