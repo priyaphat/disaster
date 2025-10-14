@@ -81,7 +81,7 @@ class StockLogController extends Controller
                 'form_name' => $from,
                 'to' => $base['shelter_id'],
                 'to_name' => $to,
-                'reason' => $item['reason'],
+                'reason' => $item['reason'] ?? null,
             ];
 
             $out_transfer = [
