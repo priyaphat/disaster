@@ -6,6 +6,7 @@ use App\Casts\UtilitiesCast;
 use App\Constants\ShelterType;
 use App\Filters\ShelterFilter;
 use App\Http\Traits\CreatedUpdatedBy;
+use App\Http\Utility\ShelterUtility;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -75,11 +76,7 @@ class Shelter extends Model
     {
         return Attribute::make(
             get: function (mixed $value, array $attributes) {
-                $map = ShelterPoint::where('name', $attributes['name'])->first();
-                if ($map) {
-                    return $map->map_url;
-                }
-                return env('GIS_SHELTER_URL') . '?' . http_build_query(['name' => $attributes['name']]);
+                return ShelterUtility::getGisMap($attributes['shelter_type'], $attributes['name']);
             }
         );
     }

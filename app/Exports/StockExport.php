@@ -56,7 +56,7 @@ class StockExport implements FromArray, WithHeadings, WithTitle, WithStyles, Sho
         ]);
 
         for ($row = 2; $row <= $highestRow; $row++) {
-            $color = ($row % 2 == 0) ?  'FFFFFF' :'DD69BE';
+            $color = ($row % 2 == 0) ?  'ffffff' :'f1c3e5';
             $sheet->getStyle("A{$row}:{$highestColumn}{$row}")->applyFromArray([
                 'fill' => [
                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,

@@ -15,12 +15,12 @@ class ShelterPointService
         $offset = $filters['offset'] ?? 0;
         $limit = $filters['limit'] ?? 10;
 
-        $data = ShelterPoint::select('name')->where('name', 'like', "%{$search}%")
+        $data = ShelterPoint::select('original_name')->where('original_name', 'like', "%{$search}%")
         ->orderByRaw("CASE
-            WHEN name LIKE ? THEN 1
+            WHEN original_name LIKE ? THEN 1
             ELSE 2
-            END, name ASC ", [$search . '%'])
-        ->distinct()->skip($offset)->take($limit)->pluck('name');
+            END, original_name ASC ", [$search . '%'])
+        ->distinct()->skip($offset)->take($limit)->pluck('original_name');
 
         return $data;
     }
@@ -35,7 +35,8 @@ class ShelterPointService
                 'external_id' => $data['id']
             ],
             [
-                'name' => $data['name'],
+                'original_name' => $data['original_name'],
+                'normalized_name' => $data['normalized_name'],
                 'map_url' => $data['map_url']
             ]
         );
