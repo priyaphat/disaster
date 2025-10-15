@@ -37,7 +37,9 @@ class ShelterPointService
             [
                 'original_name' => $data['original_name'],
                 'normalized_name' => $data['normalized_name'],
-                'map_url' => $data['map_url']
+                'map_url' => $data['map_url'],
+                'latitude' => $data['latitude'],
+                'longitude' => $data['longitude']
             ]
         );
     }

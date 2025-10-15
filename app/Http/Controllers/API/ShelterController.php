@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\API;
 
 use App\Enums\DamagedUtility as EnumsDamagedUtility;
+use App\Exports\ShelterExport;
+use App\Exports\VerticalUserExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Shelter\CreateShelterRequest;
 use App\Http\Requests\Shelter\UpdateShelterRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\LinePostUtility;
+use App\Http\Utility\ShelterUtility;
 use App\Models\DamagedUtility;
 use App\Models\DamagedUtilityLogs;
 use App\Models\Shelter;
@@ -19,6 +22,7 @@ use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ShelterController extends Controller
 {
@@ -104,5 +108,10 @@ class ShelterController extends Controller
     {
         $data = $this->shelterService->dashboard($request->all());
         return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    public function export(Request $request, ?Shelter $shelter)
+    {
+        return $this->shelterService->export($shelter, $request->all());
     }
 }

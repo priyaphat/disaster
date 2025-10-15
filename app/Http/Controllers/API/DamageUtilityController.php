@@ -11,7 +11,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Enums\DamagedUtility as Enums;
+use App\Exports\DamageUtilityExport;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DamageUtilityController extends Controller
 {
@@ -175,5 +177,12 @@ class DamageUtilityController extends Controller
         $q['type'] = $data['type'];
         $q['status'] = $status;
         $q->save();
+    }
+
+    public function export(Request $request)
+    {
+        $data = $this->dmgService->damaged_utilities($request->all(), null);
+        $data = $data->select('name', 'total')->toArray();
+        return Excel::download(new DamageUtilityExport($data), 'สาธารณประโยชน์ที่ได้รับความเสียหาย.xlsx');
     }
 }

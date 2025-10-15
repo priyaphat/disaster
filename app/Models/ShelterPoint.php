@@ -14,6 +14,8 @@ class ShelterPoint extends Model
         'external_id',
         'original_name',
         'normalized_name',
-        'map_url'
+        'map_url',
+        'latitude',
+        'longitude'
     ];
 }

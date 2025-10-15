@@ -78,6 +78,7 @@ use App\Policies\TeamPolicy;
 use App\Policies\UnitPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VulnerableGroupPolicy;
+use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Event;
@@ -113,6 +114,7 @@ class AppServiceProvider extends ServiceProvider
         // Passport::personalAccessTokensExpireIn(CarbonInterval::minutes(15));
 
         date_default_timezone_set('Asia/Bangkok');
+        
         // Event for a user registers to the system
         Event::subscribe(UserEventSubscriber::class);
         JsonResource::withoutWrapping();

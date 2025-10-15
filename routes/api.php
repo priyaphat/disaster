@@ -112,6 +112,9 @@ Route::get('/shelter-requests/{RequsetId}', [ProductRequestController::class, 'i
 Route::get('/export-disaster', [DisasterController::class, 'exp']);
 Route::get('/export-stock', [StockLogController::class, 'exp']);
 
+Route::get('/reports/shelter/{shelter?}', [ShelterController::class, 'export']);
+Route::get('/reports/damage-utility/{damage?}', [DamageUtilityController::class, 'export']);
+
 #region User Manual
 Route::get('/download-user-doc/{type}', function ($type) {
     if ($type == 'user') {
