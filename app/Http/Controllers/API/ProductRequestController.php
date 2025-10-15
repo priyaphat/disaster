@@ -255,7 +255,7 @@ class ProductRequestController extends Controller
                     $grouped[$key] = [
                         'items' => [$item],
                         // 'created_at' => $item['created_at'],
-                        'amount' => $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0),
+                        'amount' => $item['detail']['request'] < 0 ? ($item['detail']['quantity'] ?? 0) . '/ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0),
                         'name' =>  $item['name'],
                         'unit_name' => $item['unit_name'],
                         'created_at' => DateUtility::formFormat1($item['created_at']),
@@ -263,8 +263,8 @@ class ProductRequestController extends Controller
                     ];
                 } else {
                     $grouped[$key]['items'][] = $item;
-                    $grouped[$key]['amount'] = $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0);
-                    $grouped[$key]['name'] = $item['name'];
+                    // $grouped[$key]['amount'] = $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0);
+                    // $grouped[$key]['name'] = $item['name'];
                     $grouped[$key]['created_at'] = DateUtility::formFormat1($item['created_at']);
                     $grouped[$key]['time'] = DateUtility::time($item['created_at']);
                 }
