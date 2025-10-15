@@ -18,7 +18,6 @@ class ShelterResource extends JsonResource
     public function toArray(Request $request): array
     {
         $maps = ShelterUtility::getMaps($this->shelter_type, $this->original_name);
-        dd($maps);
         return [
             'id' => $this->id,
             'name' => $this->name,
