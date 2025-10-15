@@ -182,7 +182,7 @@ class ProductRequestController extends Controller
     public function update(UpdateProductReqRequest $request, ProductRequest $productReq)
     {
         $this->authorize('update', ProductRequest::class);
-        
+
         if ($productReq['status'] == ProductRequest::STOP) return ApiResponse::errorResponse(__('error.product_required.canNotDelete'));
         if (isset($request['status']) && $request['status'] != $productReq['status'] && $request['status'] == ProductRequest::STOP) {  //ยุติ ส่ง 0 มา
             $productReq->update(['status' => $request['status']]);
@@ -265,6 +265,8 @@ class ProductRequestController extends Controller
                     $grouped[$key]['items'][] = $item;
                     $grouped[$key]['amount'] = $item['detail']['request'] < 0 ? 'ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0);
                     $grouped[$key]['name'] = $item['name'];
+                    $grouped[$key]['created_at'] = DateUtility::formFormat1($item['created_at']);
+                    $grouped[$key]['time'] = DateUtility::time($item['created_at']);
                 }
             }
 
