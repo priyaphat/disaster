@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\ShelterUtilities;
+use App\Http\Utility\ShelterUtility;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,6 +17,7 @@ class ShelterResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $maps = ShelterUtility::getMaps($this->shelter_type, $this->original_name);
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -40,8 +42,8 @@ class ShelterResource extends JsonResource
             'max_capacity' => $this->max_capacity,
             'utilities' => $this->utilities,
             'image' =>  $this->when($this->image, $this->image?->image_path),
-            'gis_map' => $this->gis_map ?? null,
-            'google_maps' => $this->google_maps ?? null,
+            'gis_map' => $maps['gis_map'] ?? null,
+            'google_maps' => $maps['google_maps'] ?? null,
         ];
     }
 }

@@ -38,6 +38,7 @@ class AddShelterPoint extends Command
             collect($features)->chunk(100)->each(function ($items) {
                 foreach ($items as $item) {
                     $data = $item['properties'];
+                    $geo = $item['geometry'];
                     $normalizedName = ShelterUtility::normalizePointName($data['name']);
                     app(ShelterPointService::class)->updateOrCreate([
                         'id' => $data['id'],
@@ -45,6 +46,8 @@ class AddShelterPoint extends Command
                         'original_name' => $data['name'],
                         'normalized_name' => $normalizedName,
                         'map_url' => $data['map_url'],
+                        'latitude' => $geo['coordinates'][1] ?? null,
+                        'longitude' => $geo['coordinates'][0] ?? null,
                     ]);
                 }
             });

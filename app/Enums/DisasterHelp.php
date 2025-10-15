@@ -4,19 +4,19 @@ namespace App\Enums;
 
 enum DisasterHelp: int
 {
-    case FLOOD = 1;
-    case LANDSLIDE = 2;
-    case WILDFIRE = 3;
-    case SMOG = 4;
-    case STORM = 5;
-    case EARTHQUAKE = 6;
-    case FIRE = 7;
-    case EPIDEMIC = 8;
-    case EVACUATE = 9;
-    case SHELTER = 10;
-    case HELP = 11;
-    case SUPPORT = 12;
-    case OTHER = 99;
+    case FLOOD = 10;
+    case LANDSLIDE = 20;
+    case WILDFIRE = 30;
+    case SMOG = 40;
+    case STORM = 50;
+    case EARTHQUAKE = 60;
+    case FIRE = 70;
+    case EPIDEMIC = 80;
+    case EVACUATE = 90;
+    case SHELTER = 100;
+    case HELP = 110;
+    case SUPPORT = 120;
+    case OTHER = 999;
 
     public function label(): string
     {

@@ -14,16 +14,17 @@ class DateUtility
 
     public static function formFormat1($val)
     {
-        $date = Carbon::parse($val);
+        $date = Carbon::parse($val)->setTimezone('Asia/Bangkok');
         $newYear = $date->year + 543;
         return $date->format('d/m/') . $newYear . $date->format(' H:i');
     }
 
     public static function time($val)
     {
-        $date = Carbon::parse($val);
-        return $date->format('H:i:m');
+        $date = Carbon::parse($val)->setTimezone('Asia/Bangkok');
+        return $date->locale('th')->translatedFormat('H:i');
     }
+
 
     public static function months($date) //14 กรกฎาคม
     {
@@ -39,7 +40,7 @@ class DateUtility
         return $day;
     }
 
-        public static function DMY($val) //D-M-Y
+    public static function DMY($val) //D-M-Y
     {
         $date = Carbon::parse($val);
         $newYear = $date->year + 543;
