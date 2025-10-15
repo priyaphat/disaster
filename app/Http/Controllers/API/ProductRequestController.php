@@ -200,7 +200,7 @@ class ProductRequestController extends Controller
     public function requestLog(Request $f)
     {
         $this->authorize('viewAnyLog', ProductRequest::class);
-
+        $f['sort'] = 'desc';
         $q = ProductLogs::select(
             'product_logs.*',
             'units.name as unit_name',

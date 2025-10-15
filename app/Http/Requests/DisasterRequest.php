@@ -148,7 +148,7 @@ class DisasterRequest extends FormRequest
     {
         return [
             "status" => 'required|integer|in:1,2,3',
-            "smog_value" => 'required|regex:/^\d+(\.\d{1})?$/',
+            "smog_value" => 'required|regex:/^\d+(\.\d{1,2})?$/',
             "line_oa" => 'required|in:0,1'
         ];
     }
@@ -160,7 +160,7 @@ class DisasterRequest extends FormRequest
             "address" => 'required|string|max:255',
             'geography_id' => 'required',
             "status" => 'required|integer|in:1,2,3',
-            "smog_value" => 'required|regex:/^\d+(\.\d{1})?$/',
+            "smog_value" => 'required|regex:/^\d+(\.\d{1,2})?$/',
             "line_oa" => 'required|in:0,1',
             'province_id' => 'required',
             'district_id' => 'required',

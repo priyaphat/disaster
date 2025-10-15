@@ -38,4 +38,11 @@ class DateUtility
         $day = $date->locale('th')->isoFormat('dddd');
         return $day;
     }
+
+        public static function DMY($val) //D-M-Y
+    {
+        $date = Carbon::parse($val);
+        $newYear = $date->year + 543;
+        return $date->format('d-m-') . $newYear;
+    }
 }

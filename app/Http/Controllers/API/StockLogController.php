@@ -131,32 +131,33 @@ class StockLogController extends Controller
             $q = $q->map(function ($row) {
                 return [
                     // 'date' => 
-                    Carbon::parse($row->created_at)->format('Y-m-d'),
+                    // Carbon::parse($row->created_at)->setTimezone('Asia/Bangkok')->format('Y-m-d'),
+                    DateUtility::DMY($row->created_at),
                     // 'time' => 
                     Carbon::parse($row->created_at)->format('H:i:m'),
                     // 'product_name' => 
                     $row->name,
                     // 'instock' => 
-                    $row['type'] == (StockLogs::INSTOCK || $row['type'] == StockLogs::TRANSFERIN) ? $row['amount'] : null,
+                    in_array($row['type'], [StockLogs::INSTOCK, StockLogs::TRANSFERIN]) ? $row['amount'] : '0',
                     // 'outstock' => 
-                    $row['type'] == (StockLogs::OUTSTOCK || $row['type'] == StockLogs::TRANSFEROUT) ? $row['amount'] : null,
+                    in_array($row['type'], [StockLogs::OUTSTOCK, StockLogs::TRANSFEROUT]) ? $row['amount'] : '0',
                     // 'total' => 
-                    $row->total,
+                    str($row->total),
                     // 'created_name' => 
                     $row->created_name,
                     //detail
                     // 'from' => 
-                    $row['type'] == (StockLogs::INSTOCK || $row['type'] == StockLogs::OUTSTOCK) ? ($row->detail['shelter_name'] ?? $row->detail['other']) : ($row->detail['form_name'] ?? null),
+                    in_array($row['type'], [StockLogs::INSTOCK, StockLogs::OUTSTOCK]) ? ($row->detail['shelter_name'] ?? ($row->detail['other'] ?? null)) : ($row->detail['form_name'] ?? null),
                     // 'reason' => 
                     $row->detail['reason'] ?? '',
                     // 'lot_no' => 
                     $row->detail['lot_no'] ?? '',
                     // 'date_exp' =>  
-                    Carbon::parse($row->detail['exp_date'])
-                        ->setTimezone('Asia/Bangkok')
-                        ->format('Y-m-d H:i:s') ?? '',
+                    // isset($row->detail['exp_date']) ? Carbon::parse($row->detail['exp_date'])->setTimezone('Asia/Bangkok')->format('Y-m-d') : null,
+                    isset($row->detail['exp_date']) ? DateUtility::DMY($row->detail['exp_date']) : null,
                     // 'to' => 
-                    $row['type'] == (StockLogs::TRANSFERIN || $row['type'] == StockLogs::TRANSFEROUT) ? $row->detail['recipient_name'] : ($row->detail['to_name'] ?? null),
+                    // in_array($row['type'], [StockLogs::TRANSFERIN, StockLogs::TRANSFEROUT]) ? ($row->detail['recipient_name'] ?? null) : ($row->detail['to_name'] ?? null),
+                    isset($row->detail['recipient_name']) ? $row->detail['recipient_name'] : ($row->detail['to_name'] ?? null),
                     // 'sender_name' => 
                     $row->detail['sender_name'] ?? '',
                 ];
