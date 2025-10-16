@@ -44,6 +44,7 @@ use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
 use App\Http\Controllers\API\UserRoleController;
 use App\Http\Controllers\API\VulnerableGroupController;
+use App\Models\Assessments;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -113,7 +114,9 @@ Route::get('/export-disaster', [DisasterController::class, 'exp']);
 Route::get('/export-stock', [StockLogController::class, 'exp']);
 
 Route::get('/reports/shelter/{shelter?}', [ShelterController::class, 'export']);
-Route::get('/reports/damage-utility/{damage?}', [DamageUtilityController::class, 'export']);
+Route::get('/reports/damage-utility', [DamageUtilityController::class, 'export']);
+Route::get('/reports/shelter/{shelter?}/assessments', [AssessmentController::class, 'export']);
+Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
 
 #region User Manual
 Route::get('/download-user-doc/{type}', function ($type) {
@@ -508,7 +511,6 @@ Route::middleware('auth:api')->group(function () {
     */
     Route::get('/assessment/{id?}', [AssessmentController::class, 'index']);
     Route::get('/assessment-list', [AssessmentController::class, 'list']);
-    Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
     Route::get('/assessment-logs/{log}', [AssessmentController::class, 'logs']);

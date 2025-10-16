@@ -188,16 +188,20 @@ class ShelterService
 
     public function export(?Shelter $shelter = null, array $filters)
     {
-        $data = ShelterUtility::getSnapshot($shelter?->id, $filters);
         $fileName = $this->getFileName($shelter?->name);
-        // $format = $this->formatShelter($data, $shelter);
-        $workSheet = [];
-        foreach ($data as $key => $sheet) {
-            $format = $this->formatShelter($sheet, $shelter);
-            $sheetTitle = Carbon::createFromFormat('Y-m', $key)->format('F Y');
-            $workSheet[] = new ShelterExport($format, $sheetTitle);
+        $data = ShelterUtility::getSnapshot($shelter?->id, $filters);
+        
+        if (count($data) > 0) {
+            $workSheet = [];
+            foreach ($data as $key => $sheet) {
+                $format = $this->formatShelter($sheet, $shelter);
+                $sheetTitle = Carbon::createFromFormat('Y-m', $key)->format('F Y');
+                $workSheet[] = new ShelterExport($format, $sheetTitle);
+            }
+
+            return Excel::download(new MultiSheetExport($workSheet), $fileName);
         }
 
-        return Excel::download(new MultiSheetExport($workSheet), $fileName);
+        return redirect('/');
     }
 }

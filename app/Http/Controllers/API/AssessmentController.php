@@ -9,6 +9,7 @@ use App\Models\Assessments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\AssessmentSummaryExport;
+use App\Exports\ShelterAssessmentExport;
 use App\Models\AssessmentLogs;
 use App\Models\Population;
 use Carbon\Carbon;
@@ -192,8 +193,7 @@ class AssessmentController extends Controller
 
     public function assessment_summary()
     {
-        $this->authorize('view', Assessments::class);
-
+        // $this->authorize('view', Assessments::class);
         $sub = Assessments::select('population_id', DB::raw('MAX(id) as latest_id'))
             ->where('type', Assessments::Assessment)
             ->groupBy('population_id');
@@ -216,6 +216,12 @@ class AssessmentController extends Controller
             }
         }
         return Excel::download(new AssessmentSummaryExport($district, $summary), 'assessment_summary.xlsx');
+        // return ApiResponse::successResponse(__('success.data'), $district, $summary);
+    }
+
+    public function export()
+    {
+        return Excel::download(new ShelterAssessmentExport([['Topic' => 'Assessments']], 'Assessments'), 'assessments.xlsx');
         // return ApiResponse::successResponse(__('success.data'), $district, $summary);
     }
 }

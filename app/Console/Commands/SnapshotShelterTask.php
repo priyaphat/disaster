@@ -38,64 +38,71 @@ class SnapshotShelterTask extends Command
      */
     public function handle()
     {
-        // $now = Carbon::now()->format('Y-m-d');
-        $startDate = Carbon::createFromDate(now()->year, 2, 12);
-        $endDate = now();
+        $now = Carbon::now()->format('Y-m-d');
+        Shelter::query()
+            ->chunk(100, function ($shelters) use ($now) {
 
-        $period = CarbonPeriod::create($startDate, $endDate);
+                foreach ($shelters as $shelter) {
 
-        foreach ($period as $now) {
-            Shelter::query()
-                ->chunk(100, function ($shelters) use ($now) {
+                    $totalPopulation = ShelterPopulation::where(['shelter_id' => $shelter->id])->count();
+                    $summary = app(PopulationService::class)->summary(['shelter_id' => $shelter->id]);
 
-                    foreach ($shelters as $shelter) {
+                    ShelterDailyLog::updateOrCreate(
+                        [
+                            'log_date' => $now,
+                            'shelter_id' => $shelter['id']
+                        ],
+                        [
+                            'shelter_id' => $shelter->id,
+                            'status' => $shelter->status,
+                            'max_capacity' => $shelter->max_capacity,
+                            'current_capacity' => $shelter->populations()->count(),
+                            'total_populations' => $totalPopulation,
+                            'total_injuries' => $summary['total_injuries'],
+                            'total_healthy' => $summary['total_healthy'],
+                            'total_deaths' => $summary['total_deaths']
+                        ]
+                    );
+                }
+            });
 
-                        $maxCapacity = rand(10, 9999);
-                        $currentCapacity = $maxCapacity - rand(2, 5);
-                        $totalPopulation = $currentCapacity;
-                        $a = rand(0, $currentCapacity);
-                        $b = rand(0, $currentCapacity - $a);
+        // Mock up database
+        // $startDate = Carbon::createFromDate(now()->year, 1, 1);
+        // $endDate = now();
+        // $period = CarbonPeriod::create($startDate, $endDate);
+        // foreach ($period as $now) {
+        //     Shelter::query()
+        //         ->chunk(100, function ($shelters) use ($now) {
 
-                        // คำนวณตัวที่สามให้ครบ 9
-                        $c = $currentCapacity - $a - $b;
+        //             foreach ($shelters as $shelter) {
 
-                        // $totalPopulation = ShelterPopulation::where(['shelter_id' => $shelter->id])->count();
-                        // $summary = app(PopulationService::class)->summary(['shelter_id' => $shelter->id]);
+        //                 $maxCapacity = rand(10, 999);
+        //                 $currentCapacity = $maxCapacity - rand(2, 5);
+        //                 $totalPopulation = $currentCapacity;
+        //                 $a = rand(0, $currentCapacity);
+        //                 $b = rand(0, $currentCapacity - $a);
 
-                        ShelterDailyLog::updateOrCreate(
-                            [
-                                'log_date' => $now,
-                                'shelter_id' => $shelter['id']
-                            ],
-                            [
-                                'shelter_id' => $shelter->id,
-                                'status' => $shelter->status,
-                                'max_capacity' => $maxCapacity,
-                                'current_capacity' => $currentCapacity,
-                                'total_populations' => $totalPopulation,
-                                'total_injuries' => $a,
-                                'total_healthy' => $b,
-                                'total_deaths' => $c
-                            ]
-                        );
-                        // ShelterDailyLog::updateOrCreate(
-                        //     [
-                        //         'log_date' => $now,
-                        //         'shelter_id' => $shelter['id']
-                        //     ],
-                        //     [
-                        //         'shelter_id' => $shelter->id,
-                        //         'status' => $shelter->status,
-                        //         'max_capacity' => $shelter->max_capacity,
-                        //         'current_capacity' => $shelter->populations()->count(),
-                        //         'total_populations' => $totalPopulation,
-                        //         'total_injuries' => $summary['total_injuries'],
-                        //         'total_healthy' => $summary['total_healthy'],
-                        //         'total_deaths' => $summary['total_deaths']
-                        //     ]
-                        // );
-                    }
-                });
-        }
+        //                 // คำนวณตัวที่สามให้ครบ 9
+        //                 $c = $currentCapacity - $a - $b;
+
+        //                 ShelterDailyLog::updateOrCreate(
+        //                     [
+        //                         'log_date' => $now,
+        //                         'shelter_id' => $shelter['id']
+        //                     ],
+        //                     [
+        //                         'shelter_id' => $shelter->id,
+        //                         'status' => $shelter->status,
+        //                         'max_capacity' => $maxCapacity,
+        //                         'current_capacity' => $currentCapacity,
+        //                         'total_populations' => $totalPopulation,
+        //                         'total_injuries' => $a,
+        //                         'total_healthy' => $b,
+        //                         'total_deaths' => $c
+        //                     ]
+        //                 );
+        //             }
+        //     });
+        // }
     }
 }
