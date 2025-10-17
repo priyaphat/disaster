@@ -29,51 +29,53 @@ class SnapshotPopulationTask extends Command
      */
     public function handle()
     {
-        $startDate = Carbon::createFromDate(now()->year, 1, 1);
-        $endDate = now();
+        $now = Carbon::now()->format('Y-m-d');
+        Population::query()
+            ->chunk(100, function ($populations) use ($now) {
 
-        $period = CarbonPeriod::create($startDate, $endDate);
+                foreach ($populations as $population) {
 
-        foreach ($period as $now) {
-            // ตัวอย่าง: insert หรือเก็บค่า
-            Population::query()
-                ->chunk(100, function ($populations) use ($now) {
+                    PopulationDailyLog::updateOrCreate(
+                        [
+                            'log_date' => $now,
+                            'population_id' => $population->id
+                        ],
+                        [
+                            'shelter_id' => $population->shelterPopulation?->shelter_id ?? null,
+                            'status' => $population->status,
+                            'death_cause' => $population->death_cause,
+                        ]
+                    );
+                }
+            });
 
-                    foreach ($populations as $population) {
 
-                        PopulationDailyLog::updateOrCreate(
-                            [
-                                'log_date' => $now,
-                                'population_id' => $population->id
-                            ],
-                            [
-                                'shelter_id' => $population->shelterPopulation?->shelter_id ?? null,
-                                'status' => $population->status,
-                                'death_cause' => $population->death_cause,
-                            ]
-                        );
-                    }
-                });
-        }
+        // Mock up database
+        // $startDate = Carbon::createFromDate(now()->year, 1, 1);
+        // $endDate = now();
 
-        // $now = Carbon::now()->format('Y-m-d');
-        // Population::query()
-        //     ->chunk(100, function ($populations) use ($now) {
+        // $period = CarbonPeriod::create($startDate, $endDate);
 
-        //         foreach ($populations as $population) {
+        // foreach ($period as $now) {
 
-        //             PopulationDailyLog::updateOrCreate(
-        //                 [
-        //                     'log_date' => $now,
-        //                     'population_id' => $population->id
-        //                 ],
-        //                 [
-        //                     'shelter_id' => $population->shelterPopulation?->shelter_id ?? null,
-        //                     'status' => $population->status,
-        //                     'death_cause' => $population->death_cause,
-        //                 ]
-        //             );
-        //         }
-        //     });
+        //     Population::query()
+        //         ->chunk(100, function ($populations) use ($now) {
+
+        //             foreach ($populations as $population) {
+
+        //                 PopulationDailyLog::updateOrCreate(
+        //                     [
+        //                         'log_date' => $now,
+        //                         'population_id' => $population->id
+        //                     ],
+        //                     [
+        //                         'shelter_id' => $population->shelterPopulation?->shelter_id ?? null,
+        //                         'status' => $population->status,
+        //                         'death_cause' => $population->death_cause,
+        //                     ]
+        //                 );
+        //             }
+        //         });
+        // }
     }
 }
