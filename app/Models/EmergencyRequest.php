@@ -17,6 +17,8 @@ class EmergencyRequest extends Model
     public const helping = 4;
     public const complete = 5;
     public const incomplete = 6;
+    public const hospital = 7; //ส่ง ตัวไป รพ นอก
+
 
     protected $fillable = [
         'prefix_id',
@@ -31,8 +33,11 @@ class EmergencyRequest extends Model
         'subdistrict_id',
         'address',
         'status',
-        'emergency_team_id',
-        'assigner'
+        'emergency_team_name',
+        'assigner',
+        'accept_by',
+        'other',
+        'hospital_id'
     ];
 
     public function team()

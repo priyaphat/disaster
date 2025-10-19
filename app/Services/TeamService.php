@@ -112,7 +112,7 @@ class TeamService
         }
 
         // Update the team name on each emergency request
-        EmergencyRequest::where('emergency_team_id', $team->id)->update(['emergency_team_name' => $team->name]);
+        // EmergencyRequest::where('emergency_team_id', $team->id)->update(['emergency_team_name' => $team->name]);
         app(AppointmentService::class)->deleteUpcomingAppointment(['team_id' => $team->id]);
         $team->team_members->each->delete();
         return $team->delete();

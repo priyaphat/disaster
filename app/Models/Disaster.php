@@ -11,6 +11,10 @@ class Disaster extends Model
 {
     use CreatedUpdatedBy, LogsActivity;
 
+    //pointer
+    public const DISASTER = 1; 
+    public const EMERGENCYHELP = 2;
+
     protected $fillable = [
         'name',
     ];

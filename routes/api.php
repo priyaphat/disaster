@@ -28,6 +28,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\DamageUtilityController;
+use App\Http\Controllers\API\EmergencyTeamController;
 use App\Http\Controllers\API\FileController;
 use App\Http\Controllers\API\ProductRequestController;
 use App\Http\Controllers\API\LineController;
@@ -417,6 +418,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
+    Route::get('/hospitals', [EmergencyTeamController::class, 'hospitalShow']);
     Route::get('/emc-request/{id}', [EmergencyRequestController::class, 'emcRequestId']);
     Route::get('/emc-request-noti', [EmergencyRequestController::class, 'noti']);
     Route::get('/emc-requests', [EmergencyRequestController::class, 'show']);

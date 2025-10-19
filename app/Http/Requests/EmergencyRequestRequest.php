@@ -38,8 +38,9 @@ class EmergencyRequestRequest extends FormRequest
             'district_id' => 'required|integer',
             'address' => 'nullable|string|max:255',
             'status' => 'nullable|integer',
-            'emergency_team_id' => 'nullable|integer',
+            'emergency_team' => 'nullable|array',
             'reason' => 'nullable|max:255',
+            'other' => 'required_if:disaster_id,99|string|max:255'
         ];
     }
 
@@ -58,8 +59,12 @@ class EmergencyRequestRequest extends FormRequest
             'district_id' => 'required|integer',
             'address' => 'nullable|string|max:255',
             'status' => 'nullable|integer',
-            'emergency_team_id' => 'nullable|integer',
+            'emergency_team' => 'array|nullable',
+            'emergency_team.*.team_id' => 'required_with:emergency_team|exists:teams,id',
+            // 'emergency_team.*.seq_no' => 'required_with:emergency_team',
             'reason' => 'nullable|max:255',
+            'other' => 'required_if:disaster_id,99|string|max:255',
+            'hospital_id' => 'required_if:status,7|exists:hospitals,id'
         ];
     }
 }

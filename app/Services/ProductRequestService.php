@@ -71,7 +71,7 @@ class ProductRequestService
             return $q->where('product_requests.id', $f['id'])->first();
         }
 
-        return (new SearchService)->search($q, $f, 'get', [1, 2, 3, 4, 5]);
+        return (new SearchService)->search($q, $f, 'get', [1, 2, 3, 4, 5, 6]);
     }
 
 

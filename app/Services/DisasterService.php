@@ -39,6 +39,7 @@ class DisasterService
             DB::raw('IF(SUM(emergency_posts.status = 1) > 0, 1, 0) as disable')
         )
             ->leftJoin('emergency_posts', 'disasters.id', '=', 'emergency_posts.disaster_id')
+            ->where('pointer', Disaster::DISASTER)
             ->groupBy('disasters.id')
             ->get();
     }
@@ -185,6 +186,10 @@ class DisasterService
                 fn($q) => $q->whereNotNull('disaster_floods.created_by')
             )
             ->when(
+                $req->name_sort,
+                fn($q) => $q->orderBy('disaster_floods.water_source', $req->name_sort === 'desc' ? 'desc' : 'asc')
+            )
+            ->when(
                 $req->groupBy,
                 fn($q) =>
                 $q->whereIn('disaster_floods.id', $gb)
@@ -231,6 +236,10 @@ class DisasterService
                 $id,
                 fn($q) =>
                 $q->where('disaster_landslides.id', $id)
+            )
+            ->when(
+                $req->detail_sort,
+                fn($q) => $q->orderBy('disaster_landslides.name', $req->detail_sort === 'desc' ? 'desc' : 'asc')
             )
             ->when(
                 $req->groupBy,
