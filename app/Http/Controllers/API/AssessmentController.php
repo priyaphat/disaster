@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Constants\AssessmentData;
 use App\Enums\AssessmentType;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
@@ -9,12 +10,24 @@ use App\Models\Assessments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Exports\AssessmentSummaryExport;
+use App\Exports\MultiSheetExport;
 use App\Exports\ShelterAssessmentExport;
+use App\Exports\VisitAssessmentExport;
+use App\Http\Requests\ReportRequest;
+use App\Http\Resources\ShelterDailyLogResource;
+use App\Http\Utility\ReportUtility;
+use App\Http\Utility\ShelterUtility;
 use App\Models\AssessmentLogs;
 use App\Models\Population;
+use App\Models\Shelter;
+use App\Models\ShelterDailyLog;
+use App\Services\ReportService;
+use App\Services\ShelterDailyLogService;
+use App\Services\ShelterServiceDailyLog;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Str;
 
 class AssessmentController extends Controller
 {
@@ -37,6 +50,7 @@ class AssessmentController extends Controller
 
         $assessment = new Assessments();
         $assessment->name = AssessmentType::tryFrom($request->type)->label();
+        $assessment->shelter_id = $population->shelterPopulation?->shelter_id ?? null;
         $assessment->fill($request->all());
         $assessment->save();
         $res = self::index(request(), $assessment->id, 'frist');
@@ -219,9 +233,51 @@ class AssessmentController extends Controller
         // return ApiResponse::successResponse(__('success.data'), $district, $summary);
     }
 
-    public function export()
+    public function export(ReportRequest $request, Shelter $shelter)
     {
-        return Excel::download(new ShelterAssessmentExport([['Topic' => 'Assessments']], 'Assessments'), 'assessments.xlsx');
-        // return ApiResponse::successResponse(__('success.data'), $district, $summary);
+        // สรุปรายงานเยี่ยมบ้าน
+        $column1 = ['a' => 5, 'b' => 10, 'c' => 2, 'd' => 5, 'e' => 3, 'f' => 3];
+        $i = 0;
+        $selects = collect($column1)->flatMap(function ($count, $path) use (&$i) {
+            return collect(range(0, $count - 1))->map(function ($j) use ($path, &$i) {
+                $column = Str::of('$.assessment')->append('[' . $i . ']')->append('.')->append($path)->append($j + 1)->toString();
+                $columnName = Str::of($path)->append($j+1)->toString();
+                $i++;
+                return "SUM(JSON_EXTRACT(detail, '$column') = true) AS " . $columnName;
+            });
+        })->implode(',');
+        $report = ReportUtility::getSummary($shelter?->id, $shelter?->name, $selects, 1, $request->all());
+
+        // สรุปรายงานแบบประเมิน
+        $column2 = [
+            'assessment_bits.illness.a1' => 5,
+            'assessment_bits.illness.a2' => 10,
+            'assessment_bits.illness.a3' => 2,
+            'assessment_bits.illness.a4' => 5,
+            'assessment_bits.care.b1' => 6,
+            'assessment_bits.care.b2' => 8,
+            'assessment_bits.context.c1' => 3,
+            'assessment_bits.context.c2' => 4,
+        ];
+
+        $selects2 = collect($column2)->flatMap(function ($count, $path) {
+            return collect(range(0, $count - 1))->map(function ($i) use ($path) {
+                $column = Str::of('$.')->append($path)->append('[' . $i . ']')->toString();
+                $exp = explode('.', $path);
+                $columnName = Str::of($exp[1])->append('_')->append($exp[2])->append('_')->append($i)->toString();
+
+                return "SUM(JSON_EXTRACT(detail, '$column')) AS " . $columnName;
+            });
+        })->implode(',');
+
+        $report2 = ReportUtility::getSummary($shelter?->id, $shelter?->name, $selects2, 2, $request->all());
+
+        // // Send data to the excel
+        
+        $workSheet[] = new ShelterAssessmentExport(AssessmentData::$ASSESSMENTS, $report, 'รายงานการปฏิบัติการฉุกเฉิน');
+        $workSheet[] = new ShelterAssessmentExport(AssessmentData::$VISITS, $report2, 'แบบบันทึกเวชระเบียน');
+
+        // return ['report 1' => $report, 'report2' => $report2];
+        return Excel::download(new MultiSheetExport($workSheet), 'สรุปรายงานแบบประเมิน.xlsx');
     }
 }

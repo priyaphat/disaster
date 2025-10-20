@@ -72,22 +72,6 @@ class Shelter extends Model
         );
     }
 
-    protected function gisMap(): Attribute
-    {
-        return Attribute::make(
-            get: function (mixed $value, array $attributes) {
-                return ShelterUtility::getGisMap($attributes['shelter_type'], $attributes['name']);
-            }
-        );
-    }
-
-    protected function googleMaps(): Attribute
-    {
-        return Attribute::make(
-            get: fn(mixed $value, array $attributes) => env('GOOGLE_MAPS_URL') . '/' . urlencode($attributes['name']),
-        );
-    }
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

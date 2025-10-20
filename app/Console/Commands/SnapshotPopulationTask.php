@@ -22,7 +22,7 @@ class SnapshotPopulationTask extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Insert population daily log into database';
 
     /**
      * Execute the console command.

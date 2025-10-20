@@ -76,7 +76,7 @@ class ShelterExport implements FromArray, WithEvents, WithTitle
                             ],
                             'fill' => [
                                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                                'color' => ['argb' => 'FFE0E0E0'],
+                                'color' => ['argb' => 'FBEFF8'],
                             ],
                         ]);
 

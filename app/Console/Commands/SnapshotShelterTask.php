@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\API\LineController;
+use App\Http\Resources\ShelterDailyLogResource;
 use App\Http\Resources\ShelterResource;
 use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterEarthquake;
@@ -10,6 +11,10 @@ use App\Models\Shelter;
 use App\Models\ShelterDailyLog;
 use App\Models\ShelterPopulation;
 use App\Services\PopulationService;
+use App\Services\ReportService;
+use App\Services\ShelterDailyLogService;
+use App\Services\ShelterService;
+use App\Services\ShelterServiceDailyLog;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Console\Command;
@@ -31,71 +36,56 @@ class SnapshotShelterTask extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Insert shelter daily log and summary dashboard into database';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $now = Carbon::now()->format('Y-m-d');
-        Shelter::query()
-            ->chunk(100, function ($shelters) use ($now) {
-
+        // Update or create shelter log
+        $dateNow = Carbon::now()->format('Y-m-d');
+        Shelter::select('id', 'name', 'status', 'max_capacity')
+            ->chunk(100, function ($shelters) use ($dateNow) {
                 foreach ($shelters as $shelter) {
-
-                    $totalPopulation = ShelterPopulation::where(['shelter_id' => $shelter->id])->count();
-                    $summary = app(PopulationService::class)->summary(['shelter_id' => $shelter->id]);
-
-                    ShelterDailyLog::updateOrCreate(
-                        [
-                            'log_date' => $now,
-                            'shelter_id' => $shelter['id']
-                        ],
-                        [
-                            'shelter_id' => $shelter->id,
-                            'status' => $shelter->status,
-                            'max_capacity' => $shelter->max_capacity,
-                            'current_capacity' => $shelter->populations()->count(),
-                            'total_populations' => $totalPopulation,
-                            'total_injuries' => $summary['total_injuries'],
-                            'total_healthy' => $summary['total_healthy'],
-                            'total_deaths' => $summary['total_deaths']
-                        ]
-                    );
+                    $data = new ShelterDailyLogResource($shelter);
+                    $data = array_merge(['date' => $dateNow], $data->toArray(request()));
+                    app(ReportService::class)->updateShelter($data);
                 }
             });
 
+        // Update or create dashboard shelter log
+        app(ReportService::class)->updateDashboard($dateNow);
+
         // Mock up database
         // $startDate = Carbon::createFromDate(now()->year, 1, 1);
-        // $endDate = now();
+        // $endDate = Carbon::createFromDate(now()->year, 10, 15);
         // $period = CarbonPeriod::create($startDate, $endDate);
+
         // foreach ($period as $now) {
+        //     error_log($now);
         //     Shelter::query()
         //         ->chunk(100, function ($shelters) use ($now) {
 
         //             foreach ($shelters as $shelter) {
 
         //                 $maxCapacity = rand(10, 999);
-        //                 $currentCapacity = $maxCapacity - rand(2, 5);
-        //                 $totalPopulation = $currentCapacity;
-        //                 $a = rand(0, $currentCapacity);
-        //                 $b = rand(0, $currentCapacity - $a);
-
+        //                 $victims = $maxCapacity - rand(2, 5);
+        //                 $a = rand(0, $victims);
+        //                 $b = rand(0, $victims - $a);
         //                 // คำนวณตัวที่สามให้ครบ 9
-        //                 $c = $currentCapacity - $a - $b;
+        //                 $c = $victims - $a - $b;
 
         //                 ShelterDailyLog::updateOrCreate(
         //                     [
-        //                         'log_date' => $now,
-        //                         'shelter_id' => $shelter['id']
+        //                         'log_date' => $now->format('Y-m-d'),
+        //                         'shelter_id' => $shelter->id
         //                     ],
         //                     [
         //                         'shelter_id' => $shelter->id,
         //                         'status' => $shelter->status,
         //                         'max_capacity' => $maxCapacity,
-        //                         'current_capacity' => $currentCapacity,
-        //                         'total_populations' => $totalPopulation,
+        //                         'total_victims' => $victims,
         //                         'total_injuries' => $a,
         //                         'total_healthy' => $b,
         //                         'total_deaths' => $c

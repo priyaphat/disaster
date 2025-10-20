@@ -21,6 +21,10 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->timestamps();
             $table->unique(['log_date', 'population_id']);
+
+            // Foreign key constraints
+            $table->foreign('population_id')->references('id')->on('populations');
+            $table->foreign('shelter_id')->references('id')->on('shelters');
         });
     }
 

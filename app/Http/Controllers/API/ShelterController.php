@@ -6,6 +6,7 @@ use App\Enums\DamagedUtility as EnumsDamagedUtility;
 use App\Exports\ShelterExport;
 use App\Exports\VerticalUserExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ReportRequest;
 use App\Http\Requests\Shelter\CreateShelterRequest;
 use App\Http\Requests\Shelter\UpdateShelterRequest;
 use App\Http\Responses\ApiResponse;
@@ -110,7 +111,7 @@ class ShelterController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    public function export(Request $request, ?Shelter $shelter)
+    public function export(ReportRequest $request, ?Shelter $shelter)
     {
         return $this->shelterService->export($shelter, $request->all());
     }

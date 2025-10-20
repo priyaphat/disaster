@@ -13,6 +13,7 @@ use App\Http\Controllers\API\ShelterProductController;
 use App\Http\Resources\ShelterResource;
 use App\Http\Responses\ApiResponse;
 use App\Http\Utility\PaginateUtility;
+use App\Http\Utility\ReportUtility;
 use App\Http\Utility\ShelterUtility;
 use App\Models\DamagedUtility as ModelsDamagedUtility;
 use App\Models\Population;
@@ -117,12 +118,12 @@ class ShelterService
     public function dashboard(array $filters = [])
     {
         $totalShelter = Shelter::where('status', Shelter::OPEN)->count();
-        $totalPopulation = ShelterPopulation::whereNotNull('shelter_id')->count();
         $summary = app(PopulationService::class)->summary($filters);
 
         return $dashboard = [
             'total_shelter' => $totalShelter,
-            'total_population' => $totalPopulation,
+            'total_population' => $summary['total_victims'],
+            'total_victims' =>  $summary['total_victims'],
             'total_injuries' => $summary['total_injuries'],
             'total_healthy' => $summary['total_healthy'],
             'total_deaths' => $summary['total_deaths'],
@@ -159,49 +160,22 @@ class ShelterService
         return $fileName->append($name)->append('.xlsx');
     }
 
-    public function formatShelter($data = [], $shelter = null): array
-    {
-        return collect($data)
-            ->map(function ($item) use ($shelter) {
-                $formatData = [];
-
-                $formatData[$item['title']] = '';
-
-                if ($shelter?->name) {
-                    $formatData['ชื่อศูนย์พักพิง'] = $shelter->name;
-                }
-
-                if (isset($item['total_shelter'])) {
-                    $formatData['ศูนย์พักพิง (เปิดทำการ)'] = strval($item['total_shelter']) ?? '0';
-                }
-
-                $formatData['จำนวนผู้ประสบภัย'] = strval($item['total_populations']) ?? '0';
-                $formatData['ยอดผู้บาดเจ็บ'] = strval($item['total_injuries']) ?? '0';
-                $formatData['ยอดผู้เป็นปกติ'] = strval($item['total_healthy']) ?? '0';
-                $formatData['ยอดผู้เสียชีวิต'] = strval($item['total_deaths']) ?? '0';
-
-                return $formatData;
-            })
-            // ->values()
-            ->toArray();
-    }
-
     public function export(?Shelter $shelter = null, array $filters)
     {
         $fileName = $this->getFileName($shelter?->name);
-        $data = ShelterUtility::getSnapshot($shelter?->id, $filters);
-        
+        $data = ReportUtility::getSnapshot($shelter, $filters);
+        $workSheet = [];
         if (count($data) > 0) {
-            $workSheet = [];
             foreach ($data as $key => $sheet) {
-                $format = $this->formatShelter($sheet, $shelter);
-                $sheetTitle = Carbon::createFromFormat('Y-m', $key)->format('F Y');
-                $workSheet[] = new ShelterExport($format, $sheetTitle);
+                $sheetTitle = Carbon::createFromFormat('Y-m', $key)->thaidate('F Y');
+                $workSheet[] = new ShelterExport($sheet, $sheetTitle);
             }
-
-            return Excel::download(new MultiSheetExport($workSheet), $fileName);
+        } else {
+            // Get default value
+            $sheet = [ReportUtility::formatShelterData($shelter, [])];
+            $workSheet[] = new ShelterExport($sheet, $sheetTitle = 'สรุปรายงานประจำศูนย์พักพิง');
         }
 
-        return redirect('/');
+        return Excel::download(new MultiSheetExport($workSheet), $fileName);
     }
 }

@@ -229,6 +229,13 @@ return [
         'victim_name.*.created_date' => 'วันที่บันทึก',
 
         'shelter_type' => 'ประเภทของศูนย์พักพิง',
+
+        'report_type' => 'ประเภทของรายงาน',
+        'date' => 'วัน',
+        'month' => 'เดือน',
+        'start_month' => 'เดือนที่เริ่มต้น',
+        'end_month' => 'เดือนที่สิ้นสุด',
+        'year' => 'ปี',
     ],
 
 ];

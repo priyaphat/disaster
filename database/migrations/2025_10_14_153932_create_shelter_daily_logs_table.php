@@ -16,15 +16,18 @@ return new class extends Migration
             $table->date('log_date');
             $table->unsignedBigInteger('shelter_id')->comment('id ของศูนย์พักพิง');
             $table->tinyInteger('status')->comment('สถานะเปิดปิดของศูนย์พักพิง');
-            $table->integer('max_capacity');
-            $table->integer('current_capacity')->default(0);
-            $table->integer('total_populations')->default(0);
-            $table->integer('total_injuries')->default(0);
-            $table->integer('total_healthy')->default(0);
-            $table->integer('total_deaths')->default(0);
+            $table->unsignedBigInteger('max_capacity');
+            $table->unsignedBigInteger('current_capacity')->default(0);
+            $table->unsignedBigInteger('total_victims')->default(0);
+            $table->unsignedBigInteger('total_injuries')->default(0);
+            $table->unsignedBigInteger('total_healthy')->default(0);
+            $table->inteunsignedBigIntegerger('total_deaths')->default(0);
             $table->text('description')->nullable();
             $table->timestamps();
             $table->unique(['log_date', 'shelter_id']);
+
+            // Foreign key constraints
+            $table->foreign('shelter_id')->references('id')->on('shelters');
         });
     }
 

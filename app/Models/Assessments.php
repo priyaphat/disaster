@@ -22,6 +22,7 @@ class Assessments extends Model
 
     protected $fillable = [
         'population_id',
+        'shelter_id',
         'type',
         'name',
         'detail',

@@ -115,7 +115,7 @@ Route::get('/export-stock', [StockLogController::class, 'exp']);
 
 Route::get('/reports/shelter/{shelter?}', [ShelterController::class, 'export']);
 Route::get('/reports/damage-utility', [DamageUtilityController::class, 'export']);
-Route::get('/reports/shelter/{shelter?}/assessments', [AssessmentController::class, 'export']);
+Route::get('/reports/assessments/shelter/{shelter?}', [AssessmentController::class, 'export']);
 Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
 
 #region User Manual

@@ -3,9 +3,13 @@
 namespace App\Http\Utility;
 
 use App\Constants\ShelterType;
+use App\Http\Resources\ShelterDailyLogResource;
+use App\Models\Assessments;
 use App\Models\Shelter;
 use App\Models\ShelterDailyLog;
+use App\Models\ShelterDailyTotal;
 use App\Models\ShelterPoint;
+use App\Services\ReportService;
 use DateTimeZone;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -84,70 +88,4 @@ class ShelterUtility
         ];
     }
 
-    public static function getSnapshot(?int $shelterId = null, array $filters = [])
-    {
-        $type = $filters['type'] ?? 1;
-        $query = ShelterDailyLog::query();
-
-        if ($shelterId) {
-            $query->where('shelter_id', $shelterId);
-        }
-
-        if ($type == 1) {
-            $year = $filters['year'] ?? Carbon::now()->format('Y');
-            $month = $filters['month'] ?? Carbon::now()->format('m');
-            $day = $filters['date'] ?? Carbon::now()->format('d');
-            $date = Carbon::createFromDate($year, $month, $day);
-            $startDate = $date->clone()->startOfDay()->format('Y-m-d H:i:s');
-            $endDate = $date->clone()->endOfDay()->format('Y-m-d H:i:s');
-        } else if ($type == 2) {
-            $year = $filters['year'] ?? Carbon::now()->format('Y');
-            $month = $filters['month'] ?? Carbon::now()->format('m');
-            $fullDate = Carbon::createFromDate($year, $month, 1, config('app.timezone'));
-            $startDate = $fullDate->clone()->startOfMonth()->format('Y-m-d H:i:s');
-            $endDate = $fullDate->clone()->endOfMonth()->format('Y-m-d H:i:s');
-        } else if ($type == 3) {
-            $year = $filters['year'] ?? Carbon::now()->format('Y');
-            $start = $filters['start_month'] ?? Carbon::now()->format('m');
-            $end = $filters['end_month'] ?? Carbon::now()->format('m');
-            $startMonth = Carbon::createFromDate($year, $start);
-            $endMonth = Carbon::createFromDate($year, $end);
-            $startDate = $startMonth->startOfMonth();
-            $endDate = $endMonth->endOfMonth();
-        } else {
-            $year = $filters['year'] ?? Carbon::now()->format('Y');
-            $date = Carbon::createFromDate($year);
-            $startDate = Carbon::now()->startOfYear();
-            $endDate = Carbon::now()->endOfYear();
-        }
-
-        $baseQuery = $query->whereBetween('log_date', [$startDate, $endDate]);
-        $data = $baseQuery->get()->groupBy(function ($item) {
-            return Carbon::parse($item['log_date'])->format('Y-m');
-        })->pipe(function ($groups) use ($shelterId, $query) {
-            return $groups->map(function ($group, $key) use ($shelterId, $query) {
-                return $group
-                    ->groupBy(function ($log) {
-                        return Carbon::parse($log->log_date)->toDateString();
-                    })
-                    ->map(function ($dayGroup) use ($shelterId, $query) {
-                        $formatData = [
-                            'title' => $dayGroup[0]['log_date'] ?? '-',
-                            'total_populations' => $dayGroup->sum('total_populations'),
-                            'total_injuries' => $dayGroup->sum('total_injuries'),
-                            'total_healthy' => $dayGroup->sum('total_healthy'),
-                            'total_deaths' => $dayGroup->sum('total_deaths'),
-                        ];
-
-                        if (!$shelterId) {
-                            $formatData['total_shelter'] = $query->clone()->where(['log_date' => $dayGroup[0]['log_date'], 'status' => Shelter::OPEN])->count();
-                        }
-
-                        return $formatData;
-                    })->values();
-            });
-        });
-
-        return $data;
-    }
 }
