@@ -233,6 +233,9 @@ class EmergencyRequestController extends Controller
                 // $this->notificationService->sendToAdmin($notification);
                 $textResponse = __('success.emc_request.incomplete');
             } else if ($emergencyRequest['status'] == EmergencyRequest::hospital) { //ส่งไป รพ.
+                // LinePostUtility::LineMakeInformation(LineController::Emc_success, $emergencyRequest);
+                // $notification = $this->notificationService->createNotification('emergency_request.success', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                // $this->notificationService->sendToAdmin($notification);
                 $textResponse = __('success.emc_request.hospital');
             }
         }
@@ -318,7 +321,7 @@ class EmergencyRequestController extends Controller
     {
         // ให้แต่ทีมที่รับผิดชอบย้ายได้
         $this->authorize('requestShelter', EmergencyRequest::class);
-
+        $victim_name = []; //เก็บ population_id อันใหม่ เข้า emc request
         if ($request->check == true) {
             if ($request->victim_name) {
                 $victims = $request->victim_name;
@@ -376,6 +379,7 @@ class EmergencyRequestController extends Controller
                     'shelter_id' => 'required|exists:shelters,id',
                     'victim_name' => 'array|required',
                     'victim_name.*.prefix_id' => 'required|integer|exists:prefixes,id',
+                    'victim_name.*.prefix_name' => 'required',
                     'victim_name.*.first_name' => 'required|string|max:100',
                     'victim_name.*.last_name' => 'required|string|max:100',
                     'victim_name.*.birth_date' => 'required|date',
@@ -396,17 +400,25 @@ class EmergencyRequestController extends Controller
                 $i['birth_date'] = Carbon::parse($i['birth_date'])->format('Y-m-d');
                 $i['created_date'] = Carbon::parse($i['created_date'])->format('Y-m-d');
                 if ($i['trans_status'] == Population::new_population) {
-                    (new PopulationService)->create($i);
+                    $res = (new PopulationService)->create($i);
                 } else {
                     $q = Population::find($i['id']);
-                    (new PopulationService)->update($q, $i);
+                    $res = (new PopulationService)->update($q, $i);
                 }
+                $victim_name[] = [
+                    "fname" => $i['first_name'],
+                    "lname" => $i['last_name'],
+                    "prefix_id" => $i['prefix_id'],
+                    "prefix_name" => $i['prefix_name'],
+                    "population_id" => $res->id,
+                ];
             }
         }
         if ($request->request_id) {
             EmergencyRequest::where('id', $request->request_id)
                 ->update([
                     'status' => EmergencyRequest::complete,
+                    'victim_name' => $victim_name
                 ]);
             EmergencyRequestLog::create([
                 'emergency_request_id' => $request->request_id,

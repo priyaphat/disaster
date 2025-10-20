@@ -433,6 +433,7 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display emergency requests
     |--------------------------------------------------------------------------
     */
+    Route::get('/line-package', [ConfigController::class, 'lineCount']);
     Route::get('/configs/{id?}', [ConfigController::class, 'index']);
     Route::post('/config', [ConfigController::class, 'store']);
     Route::post('/config/{config}', [ConfigController::class, 'update']);

@@ -16,7 +16,7 @@ Schedule::command('app:notification-task')->dailyAt('23:59');
 Schedule::command('app:smog-task')->dailyAt('12:00');
 Schedule::command('app:earthquake-task')->dailyAt('12:00');
 Schedule::command('app:wildfire-task')->dailyAt('12:00');
-// Schedule::command('app:line-task')->dailyAt('00:00');
+Schedule::command('app:line-task')->dailyAt('00:00');
 Schedule::command('app:flood-task')->dailyAt('12:00');
 
 Schedule::command('app:snapshot-shelter-task')->dailyAt('23:59');

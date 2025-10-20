@@ -38,9 +38,37 @@ class LineTask extends Command
 
             $totalUsage = $totalUsage['totalUsage'];
             $limit = $limit['value'];
-            if ($limit == 15000) $rate = 0.1;
-            else if ($limit == 35000) $rate = 0.06;
-            else $rate = 0;
+            if ($limit == 35000) {
+                $name = 'โปร';
+                $price = '1,780 บาท / เดือน';
+                $rate = 0.06;
+                $detail = [
+                    'ข้อความส่งฟรี 35,000 ข้อความ / เดือน',
+                    'ส่งข้อความเพิ่มเติมได้',
+                    'ค่าบริการ ข้อความเพิ่มเติม 0.06 บาท/ข้อความ'
+                ];
+                if ($totalUsage > 35000) {
+                    $sum = 1780 + (($totalUsage - 35000) * $rate);
+                }
+            } else if ($limit == 15000) {
+                $name = 'เบสิค';
+                $price = '1,280 บาท / เดือน';
+                $detail = [
+                    'ข้อความส่งฟรี 15,000 ข้อความ / เดือน',
+                    'ส่งข้อความเพิ่มเติมได้',
+                    'ค่าบริการ ข้อความเพิ่มเติม 0.1 บาท/ข้อความ'
+                ];
+                $rate = 0.1;
+                if ($totalUsage > 15000) {
+                    $sum = 1280 + (($totalUsage - 15000) * $rate);
+                }
+            } else {
+                $name = 'ฟรี';
+                $price = '0 บาท / เดือน';
+                $detail = ['ข้อความส่งฟรี 300 ข้อความ / เดือน'];
+                $rate = 0;
+                $sum = 0;
+            }
 
             Config::where('type', Config::lineCount)->update([
                 "description" => [
@@ -48,6 +76,10 @@ class LineTask extends Command
                     "limited" => $limit,
                     "type" => 1,
                     "totalUsage" => $totalUsage,
+                    "package" => $name,
+                    "price" => $price,
+                    "detail" => $detail,
+                    "sum" => $sum,
                 ]
             ]);
         }

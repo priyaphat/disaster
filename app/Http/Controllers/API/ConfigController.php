@@ -210,4 +210,13 @@ class ConfigController extends Controller
         $config->update();
         return ApiResponse::successResponse($r[$index[0]] ? __('success.config.disaster_api') : __('success.config.disaster_user'), [$index[0] => $r[$index[0]]]);
     }
+
+    public function lineCount()
+    {
+        $q = Config::where('type', Config::lineCount)->first();
+        if ($q) {
+            $q = $q->description;
+        }
+        return ApiResponse::successResponse(__('success.data'), $q);
+    }
 }

@@ -22,7 +22,7 @@ return new class extends Migration
 
         Schema::table('emergency_requests', function (Blueprint $q) {
             $q->dropColumn('emergency_team_id');
-            $q->foreignId('accept_by')->nullable()->constrained('users')->after('assigner');
+            $q->foreignId('accept_by')->nullable()->constrained('users')->after('emergency_team_name');
             $q->foreignId('hospital_id')->nullable()->constrained('hospitals')->after('accept_by');
         });
     }
