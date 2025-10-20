@@ -65,24 +65,24 @@ class ReportUtility
         $isShelterExists = $shelter && $shelter->exists;
         $formatData = [
             'ไม่พบข้อมูล' => '',
-            ...($isShelterExists ? ['ชื่อศูนย์พักพิง' => '-'] : []),
-            ...(!$isShelterExists ? ['ศูนย์พักพิง (เปิดทำการ)' => '-'] : []),
-            'จำนวนผู้ประสบภัย' => '-',
-            'ยอดผู้บาดเจ็บ' => '-',
-            'ยอดผู้เป็นปกติ' => '-',
-            'ยอดผู้เสียชีวิต' => '-',
+            ...($isShelterExists ? ['ชื่อศูนย์พักพิง' =>  $shelter?->name ?? '-'] : []),
+            ...(!$isShelterExists ? ['ศูนย์พักพิง (เปิดทำการ)' => '0'] : []),
+            'จำนวนผู้ประสบภัย' => '0',
+            'ยอดผู้บาดเจ็บ' => '0',
+            'ยอดผู้เป็นปกติ' => '0',
+            'ยอดผู้เสียชีวิต' => '0',
         ];
 
         if ($group) {
             $title = Carbon::parse($group[0]['log_date'])->thaidate();
             $formatData = [
                 $title => '',
-                ...($isShelterExists ? ['ชื่อศูนย์พักพิง' =>  $shelter?->name] : []),
-                ...(!$isShelterExists ? ['ศูนย์พักพิง (เปิดทำการ)' => $group->sum('total_shelter')] : []),
-                'จำนวนผู้ประสบภัย' => $group->sum('total_victims'),
-                'ยอดผู้บาดเจ็บ' => $group->sum('total_injuries'),
-                'ยอดผู้เป็นปกติ' => $group->sum('total_healthy'),
-                'ยอดผู้เสียชีวิต' => $group->sum('total_deaths'),
+                ...($isShelterExists ? ['ชื่อศูนย์พักพิง' =>  $shelter?->name ?? '-'] : []),
+                ...(!$isShelterExists ? ['ศูนย์พักพิง (เปิดทำการ)' => $group->sum('total_shelter') ?? '0'] : []),
+                'จำนวนผู้ประสบภัย' => strval($group->sum('total_victims')) ?? '0',
+                'ยอดผู้บาดเจ็บ' => strval($group->sum('total_injuries')) ?? '0',
+                'ยอดผู้เป็นปกติ' => strval( $group->sum('total_healthy')) ?? '0',
+                'ยอดผู้เสียชีวิต' => strval($group->sum('total_deaths')) ?? '0',
             ];
         }
 
