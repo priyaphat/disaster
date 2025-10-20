@@ -14,53 +14,31 @@ class DisasterSeeder extends Seeder
 
     public function run(): void
     {
-        // $disasters = [
-        //     'น้ำท่วม',
-        //     'ไฟไหม้',
-        //     'พายุ',
-        //     'แผ่นดินไหว',
-        //     'ดินถล่ม',
-        //     'โคลนถล่ม',
-        //     'ภูเขาไฟระเบิด',
-        //     'สึนามิ',
-        //     'วาตภัย',
-        //     'ภัยแล้ง',
-        //     'โรคระบาด',
-        //     'รถชน',
-        //     'ไฟฟ้าช็อต',
-        //     'คนตกน้ำ',
-        //     'คนหาย',
-        //     'อุบัติเหตุจากสารเคมี',
-        //     'เหตุจลาจล',
-        //     'สัตว์กัดต่อย',
-        //     'งูเข้าบ้าน',
-        //     'ผึ้งต่อย',
-        //     'สุนัขกัด',
-        //     'คนหมดสติ',
-        //     'หัวใจวาย',
-        //     'ตึกถล่ม',
-        //     'เหตุเพลิงไหม้ในโรงงาน',
-        //     'เด็กติดในรถ',
-        //     'คนติดในลิฟต์',
-        //     'อุบัติเหตุรถไฟ',
-        //     'เรืออับปาง',
-        // ];
 
         $disasters = [
-            ['อุทกภัย', 'images/Flood.png'],
-            ['ดินถล่ม', 'images/Landslide.png'],
-            ['ไฟป่า', 'images/ForestFire.png'],
-            ['หมอกควัน', 'images/Cray.png'],
-            ['พายุฤดูร้อน', 'images/Storm.png'],
-            ['แผ่นดินไหว', 'images/Earthquake.png'],
-            ['อัคคีภัย', 'images/Fire.png'],
-            ['โรคระบาด', 'images/Epidemic.png'],
+            ['อุทกภัย', 'images/Flood.png', 1],
+            ['ดินถล่ม', 'images/Landslide.png', 1],
+            ['ไฟป่า', 'images/ForestFire.png', 1],
+            ['หมอกควัน', 'images/Cray.png', 1],
+            ['พายุฤดูร้อน', 'images/Storm.png', 1],
+            ['แผ่นดินไหว', 'images/Earthquake.png', 1],
+            ['อัคคีภัย', 'images/Fire.png', 1],
+            ['โรคระบาด', 'images/Epidemic.png', 1],
+            ['อพยพ', '', 2],
+            ['เข้าศูนย์พักพิง', '', 2],
+            ['ขอทีมช่วยเหลือชีวิต', '', 2],
+            ['ต้องการสิ่งสนับสนุนปัจจัยสี่', '', 2],
+            ['อื่น ๆ', '', 2],
         ];
 
-        foreach ($disasters as $disaster) {
+        foreach ($disasters as $index => $disaster) {
+            $id = $disaster[0] === 'อื่น ๆ' ? 99 : null;
+
             Disaster::create([
+                'id' => $id,
                 'name' => $disaster[0],
-                'image' => $disaster[1]
+                'image' => $disaster[1] ?? null,
+                'pointer' => $disaster[2],
             ]);
         }
     }

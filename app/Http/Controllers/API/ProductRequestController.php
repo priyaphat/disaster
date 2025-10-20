@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use NumberFormatter;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ProductRequestController extends Controller
@@ -144,12 +145,21 @@ class ProductRequestController extends Controller
             'product_requests.quantity',
             'shelters.name',
             'shelters.phone',
-            DB::raw('(product_requests.request - product_requests.quantity) as needed'),
-            // DB::raw('IF(
-            //     ((CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - (product_requests.quantity)) != 0,
-            //     ((CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - (product_requests.quantity)),
-            //     "ไม่จำกัด"
-            // ) as needed'),
+            // DB::raw('
+            //         CASE 
+            //             WHEN (product_requests.request - product_requests.quantity) <= -1 
+            //             THEN "ไม่จำกัด" 
+            //             ELSE (product_requests.request - product_requests.quantity) 
+            //         END as needed
+            //     ')
+            // DB::raw('(product_requests.request - product_requests.quantity) as needed'),
+            DB::raw('
+                IF(
+                    (CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - product_requests.quantity != 0,
+                    ABS((CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - product_requests.quantity),
+                    -1
+                ) as needed
+            '),
         )
             ->where('product_requests.status', ProductRequest::ACTIVE)
             ->where('product_id', $RequsetId)
@@ -188,6 +198,7 @@ class ProductRequestController extends Controller
             $productReq->update(['status' => $request['status']]);
             $pdt = Product::find($productReq['product_id']);
             $this->productRequestService->log($productReq, $pdt, ProductLogs::STOP); //แต่ log ส่ง 3
+            ProductNotification::dispatch();
             return ApiResponse::successResponse(__('success.product_required.stop'), $productReq);
         }
         ProductNotification::dispatch();
@@ -255,7 +266,7 @@ class ProductRequestController extends Controller
                     $grouped[$key] = [
                         'items' => [$item],
                         // 'created_at' => $item['created_at'],
-                        'amount' => $item['detail']['request'] < 0 ? ($item['detail']['quantity'] ?? 0) . '/ไม่จำกัด' : ($item['detail']['quantity'] ?? 0) . '/' . ($item['detail']['request'] ?? 0),
+                        'amount' => $item['detail']['request'] < 0 ? number_format($item['detail']['quantity'] ?? 0) . '/ไม่จำกัด' : number_format($item['detail']['quantity'] ?? 0) . '/' . number_format($item['detail']['request'] ?? 0),
                         'name' =>  $item['name'],
                         'unit_name' => $item['unit_name'],
                         'created_at' => DateUtility::formFormat1($item['created_at']),
