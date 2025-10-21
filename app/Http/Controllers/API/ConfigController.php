@@ -25,7 +25,13 @@ class ConfigController extends Controller
         $user = $request->user;
         $population = $request->population;
         $data = Config::select('*');
-        if ($id) $data = $data->where('id', $id);
+        if ($id) {
+            $data = $data->where('id', $id);
+        } else {
+            //
+            $q = Config::where('type', Config::lineCount)->first();
+            if ($q) $q = $q->description;
+        }
         if ($request->type) {
             $data = $data->where('type', $request->type);
         } else {
@@ -50,6 +56,7 @@ class ConfigController extends Controller
         if (isset($name)) $res['name'] = $name;
         $res['config'] = $config;
         if ($id) return ApiResponse::successResponse(__('success.data'), $config);
+        $res['linePackage'] = $q;
         return ApiResponse::successResponse(__('success.data'), $res);
     }
 
@@ -209,14 +216,5 @@ class ConfigController extends Controller
         $config->description = $d;
         $config->update();
         return ApiResponse::successResponse($r[$index[0]] ? __('success.config.disaster_api') : __('success.config.disaster_user'), [$index[0] => $r[$index[0]]]);
-    }
-
-    public function lineCount()
-    {
-        $q = Config::where('type', Config::lineCount)->first();
-        if ($q) {
-            $q = $q->description;
-        }
-        return ApiResponse::successResponse(__('success.data'), $q);
     }
 }

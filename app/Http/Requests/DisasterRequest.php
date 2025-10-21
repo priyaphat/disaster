@@ -56,6 +56,7 @@ class DisasterRequest extends FormRequest
             'occurrence_time' => 'required',
             'geography_id' => 'required',
             'line_oa' => 'required|in:0,1',
+            'host' => 'max:255'
         ];
     }
 
@@ -80,6 +81,7 @@ class DisasterRequest extends FormRequest
             'province_id' => 'required',
             'district_id' => 'required',
             'subdistrict_id' => 'required',
+            'host' => 'max:255'
         ];
     }
 
@@ -147,24 +149,26 @@ class DisasterRequest extends FormRequest
     protected function smogUpdate(): array
     {
         return [
-            "status" => 'required|integer|in:1,2,3',
-            "smog_value" => 'required|regex:/^\d+(\.\d{1,2})?$/',
-            "line_oa" => 'required|in:0,1'
+            'status' => 'required|integer|in:1,2,3',
+            'smog_value' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+            'line_oa' => 'required|in:0,1',
+            'host' => 'max:255'
         ];
     }
 
     protected function smogCreate(): array
     {
         return [
-            "source" => 'required|string|max:255',
-            "address" => 'required|string|max:255',
+            'source' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
             'geography_id' => 'required',
-            "status" => 'required|integer|in:1,2,3',
-            "smog_value" => 'required|regex:/^\d+(\.\d{1,2})?$/',
-            "line_oa" => 'required|in:0,1',
+            'status' => 'required|integer|in:1,2,3',
+            'smog_value' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+            'line_oa' => 'required|in:0,1',
             'province_id' => 'required',
             'district_id' => 'required',
             'subdistrict_id' => 'required',
+            'host' => 'max:255'
         ];
     }
 }
