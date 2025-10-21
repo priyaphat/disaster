@@ -40,12 +40,6 @@ class EmergencyRequest extends Model
         'hospital_id'
     ];
 
-    public function team()
-    {
-        return $this->hasOne(Team::class, 'id', 'emergency_team_id')
-            ->select('id', 'name');
-    }
-
     public function prefix()
     {
         return $this->belongsTo(Prefix::class)->select(['id', 'name']);

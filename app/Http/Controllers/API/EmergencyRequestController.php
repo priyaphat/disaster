@@ -193,7 +193,7 @@ class EmergencyRequestController extends Controller
 
         if ($emergencyRequest['status'] == EmergencyRequest::approve) $request['assigner'] = Auth::user()->id;
         $data = $this->emergencyRequestService->update($emergencyRequest, $request->all());
-        $data->load('team');
+        // $data->load('team');
         if ($request->status != $old['status']) {
             if ($emergencyRequest['status'] == EmergencyRequest::waiting && $skip == false) {
                 // ส่งไปให้ส่วนกลาง หัวหน้าทีม กด ปฏิเสธ ปะ ?

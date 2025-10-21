@@ -47,9 +47,21 @@ class EmergencyRequestService
         )->when(
             $id,
             fn($q) =>
-            $q->where('id', $id)
+            $q->where('emergency_requests.id', $id)
         )
-            ->with('prefix', 'disaster', 'reason', 'geography', 'team')
+            ->with('prefix', 'disaster', 'reason', 'geography')
+            ->leftJoin('hospitals as h', 'h.id', '=', 'emergency_requests.hospital_id')
+            ->leftJoin('users as a', 'a.id', 'emergency_requests.accept_by')
+            ->leftJoin('prefixes', 'prefixes.id', 'a.prefix_id')
+            ->leftJoin('emergency_teams as et', 'et.emc_id', '=', 'emergency_requests.id')
+            ->leftJoin('teams as t', 't.id', '=', 'et.team_id')
+            ->groupBy('emergency_requests.id')
+            ->select(
+                'emergency_requests.*',
+                'h.name as hospital_name',
+                DB::raw("concat(prefixes.name,' ',a.firstname,' ',a.lastname) as accept_name"),
+                DB::raw('COALESCE(JSON_ARRAYAGG(JSON_OBJECT("team_id", t.id, "name", t.name ,"seq_no", et.seq_no)), JSON_ARRAY()) as emergency_team')
+            )
             ->get()
             ->map(function ($item) use ($prefix) {
                 $item->range_age = json_decode($item->range_age);
@@ -61,6 +73,22 @@ class EmergencyRequestService
                         }
                     }
                 }
+                $teams = json_decode($item->emergency_team, true) ?? [];
+
+                usort($teams, function ($a, $b) {
+                    return ($a['seq_no'] ?? 0) <=> ($b['seq_no'] ?? 0);
+                });
+                $teams = array_map(function ($team) {
+                        $team['id'] = $team['team_id'];
+                        unset($team['team_id']);
+                        unset($team['seq_no']);
+                    return $team;
+                }, $teams);
+
+                $item->emergency_team = array_values(array_filter($teams, function ($team) {
+                    return $team['id'] !== null && $team['name'] !== null;
+                }));
+
                 $item->address = $item->address;
                 $item->victim_name = $victimName;
                 $item->emergency_team_name = $item->team?->name ?? $item->emergency_team_name;
@@ -95,7 +123,7 @@ class EmergencyRequestService
                 'emergency_requests.*',
                 'h.name as hospital_name',
                 DB::raw("concat(prefixes.name,' ',a.firstname,' ',a.lastname) as accept_name"),
-                DB::raw('COALESCE(JSON_ARRAYAGG(JSON_OBJECT("team_id", t.id, "name", t.name)), JSON_ARRAY()) as emergency_team')
+                DB::raw('COALESCE(JSON_ARRAYAGG(JSON_OBJECT("team_id", t.id, "name", t.name ,"seq_no", et.seq_no)), JSON_ARRAY()) as emergency_team')
             );
         if (($emc->search)) {
             $search = $emc->search;
@@ -159,8 +187,20 @@ class EmergencyRequestService
                 $item->victim_name = $victimName;
 
                 $teams = json_decode($item->emergency_team, true) ?? [];
+
+                usort($teams, function ($a, $b) {
+                    return ($a['seq_no'] ?? 0) <=> ($b['seq_no'] ?? 0);
+                });
+
+                $teams = array_map(function ($team) {
+                        $team['id'] = $team['team_id'];
+                        unset($team['team_id']);
+                        unset($team['seq_no']);
+                    return $team;
+                }, $teams);
+
                 $item->emergency_team = array_values(array_filter($teams, function ($team) {
-                    return $team['team_id'] !== null && $team['name'] !== null;
+                    return $team['id'] !== null && $team['name'] !== null;
                 }));
 
                 return $item;
