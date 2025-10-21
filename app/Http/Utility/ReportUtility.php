@@ -66,6 +66,7 @@ class ReportUtility
         $formatData = [
             'ไม่พบข้อมูล' => '',
             ...($isShelterExists ? ['ชื่อศูนย์พักพิง' =>  $shelter?->name ?? '-'] : []),
+            ...($isShelterExists ? ['ความจุทั้งหมด' => '0'] : []),
             ...(!$isShelterExists ? ['ศูนย์พักพิง (เปิดทำการ)' => '0'] : []),
             'จำนวนผู้ประสบภัย' => '0',
             'ยอดผู้บาดเจ็บ' => '0',
@@ -78,6 +79,7 @@ class ReportUtility
             $formatData = [
                 $title => '',
                 ...($isShelterExists ? ['ชื่อศูนย์พักพิง' =>  $shelter?->name ?? '-'] : []),
+                ...($isShelterExists ? ['ความจุทั้งหมด' => $group[0]['max_capacity'] ?? '0'] : []),
                 ...(!$isShelterExists ? ['ศูนย์พักพิง (เปิดทำการ)' => $group->sum('total_shelter') ?? '0'] : []),
                 'จำนวนผู้ประสบภัย' => strval($group->sum('total_victims')) ?? '0',
                 'ยอดผู้บาดเจ็บ' => strval($group->sum('total_injuries')) ?? '0',

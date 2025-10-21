@@ -60,7 +60,7 @@ class PopulationResource extends JsonResource
             'gender' => $this->gender,
             'status' => $this->status,
             'death_cause' => $this->death_cause,
-            'death_cause_label' => !is_null($this->death_cause) ? DeathCause::tryFrom($this->death_cause)->label() : null,
+            'death_cause_label' => DeathCause::tryFrom($this->death_cause)?->label(),
             'allergy' => $this->when($this->relationLoaded('allergy'),fn() => $this->allergy),
             'tracking' => $this->tracking,
             'gis_map' => $this->gis_map,

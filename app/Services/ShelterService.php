@@ -152,30 +152,29 @@ class ShelterService
 
     public function getFileName($name = null): string
     {
-        $fileName = Str::of('สรุปรายงานประจำศูนย์พักพิง');
         if (!$name) {
-            return $fileName->append('.xlsx');
+            return 'สรุปรายงานประจำศูนย์พักพิง';
         }
-
-        return $fileName->append($name)->append('.xlsx');
+        return Str::of('รายงานจำนวนผู้ประสบภัยภายในศูนย์')->append($name);
     }
 
     public function export(?Shelter $shelter = null, array $filters)
     {
         $fileName = $this->getFileName($shelter?->name);
         $data = ReportUtility::getSnapshot($shelter, $filters);
+        $rows = $shelter?->exists ? 8 : 7;
         $workSheet = [];
         if (count($data) > 0) {
             foreach ($data as $key => $sheet) {
                 $sheetTitle = Carbon::createFromFormat('Y-m', $key)->thaidate('F Y');
-                $workSheet[] = new ShelterExport($sheet, $sheetTitle);
+                $workSheet[] = new ShelterExport($sheet, $sheetTitle, $rows);
             }
         } else {
             // Get default value
             $sheet = [ReportUtility::formatShelterData($shelter, [])];
-            $workSheet[] = new ShelterExport($sheet, $sheetTitle = 'สรุปรายงานประจำศูนย์พักพิง');
+            $workSheet[] = new ShelterExport($sheet, $sheetTitle = $fileName, $rows);
         }
 
-        return Excel::download(new MultiSheetExport($workSheet), $fileName);
+        return Excel::download(new MultiSheetExport($workSheet), Str::of($fileName)->append('.xlsx'));
     }
 }

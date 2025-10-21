@@ -17,13 +17,14 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class ShelterExport implements FromArray, WithEvents, WithTitle
 {
     private $headingRow = 0;
-    protected $data, $title;
+    protected $data, $title, $rows;
 
     // ✅ Accept the array when creating the export
-    public function __construct(array $data, string $title)
+    public function __construct(array $data, string $title, $rows = 7)
     {
         $this->data = $data;
         $this->title = $title;
+        $this->rows = $rows;
     }
 
     public function array(): array
@@ -63,7 +64,7 @@ class ShelterExport implements FromArray, WithEvents, WithTitle
                 // Loop through all rows to find heading rows
                 for ($i = 1; $i <= $highestRow; $i++) {
 
-                    if ($i == ($this->headingRow * 7) + 1) {
+                    if ($i == ($this->headingRow * $this->rows) + 1) {
                         // Merge heading row
                         $sheet->mergeCells("A{$i}:B{$i}");
 
