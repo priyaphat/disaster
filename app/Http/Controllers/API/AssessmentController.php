@@ -207,6 +207,7 @@ class AssessmentController extends Controller
 
     public function assessment_summary()
     {
+
         // $this->authorize('view', Assessments::class);
         $sub = Assessments::select('population_id', DB::raw('MAX(id) as latest_id'))
             ->where('type', Assessments::Assessment)
@@ -235,13 +236,12 @@ class AssessmentController extends Controller
 
     public function export(ReportRequest $request, Shelter $shelter)
     {
-        // สรุปรายงานเยี่ยมบ้าน
         $column1 = ['a' => 5, 'b' => 10, 'c' => 2, 'd' => 5, 'e' => 3, 'f' => 3];
         $i = 0;
         $selects = collect($column1)->flatMap(function ($count, $path) use (&$i) {
             return collect(range(0, $count - 1))->map(function ($j) use ($path, &$i) {
                 $column = Str::of('$.assessment')->append('[' . $i . ']')->append('.')->append($path)->append($j + 1)->toString();
-                $columnName = Str::of($path)->append($j+1)->toString();
+                $columnName = Str::of($path)->append($j + 1)->toString();
                 $i++;
                 return "SUM(JSON_EXTRACT(detail, '$column') = true) AS " . $columnName;
             });
@@ -249,7 +249,7 @@ class AssessmentController extends Controller
         $report = ReportUtility::getSummary($shelter?->id, $shelter?->name, $selects, 1, $request->all());
 
         // สรุปรายงานแบบประเมิน
-        $column2 = [
+        $illnessColumn = [
             'assessment_bits.illness.a1' => 5,
             'assessment_bits.illness.a2' => 10,
             'assessment_bits.illness.a3' => 2,
@@ -260,7 +260,7 @@ class AssessmentController extends Controller
             'assessment_bits.context.c2' => 4,
         ];
 
-        $selects2 = collect($column2)->flatMap(function ($count, $path) {
+        $illnessSelect = collect($illnessColumn)->flatMap(function ($count, $path) {
             return collect(range(0, $count - 1))->map(function ($i) use ($path) {
                 $column = Str::of('$.')->append($path)->append('[' . $i . ']')->toString();
                 $exp = explode('.', $path);
@@ -270,14 +270,50 @@ class AssessmentController extends Controller
             });
         })->implode(',');
 
+        $infoColumn = [
+            'assessment.breastFeeding' => 3,
+            'assessment.measlesVaccinationHistory' => 3,
+            'assessment.historyOfTetanusVaccination' => 3,
+            'assessment.historyOfAllergies.value' => 3,
+            'assessment.pastHistory.value' => 3,
+            'assessment.drugHistory.value' => 3,
+        ];
+
+        $infoSelect = collect($infoColumn)->flatMap(function ($count, $path) {
+            return collect(range(0, $count - 1))->map(function ($i) use ($path) {
+                $column =  Str::of('$.')->append($path)->toString();
+                $exp = explode('.', $path);
+                $columnName = Str::of(Str::snake($exp[1]))->append('_')->append($i);
+                return "SUM(CASE WHEN JSON_EXTRACT(detail, '$column') = $i THEN 1 ELSE 0 END) AS " . $columnName;
+            });
+        })->implode(',');
+
+        $rangeSelect = "
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.weight')) AS DECIMAL(18,2)) BETWEEN 1 AND 40 THEN 1 ELSE 0 END) as weight_1_40,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.weight')) AS DECIMAL(18,2)) BETWEEN 41 AND 50 THEN 1 ELSE 0 END) as weight_41_50,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.weight')) AS DECIMAL(18,2)) BETWEEN 51 AND 60 THEN 1 ELSE 0 END) as weight_51_60,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.weight')) AS DECIMAL(18,2)) BETWEEN 61 AND 70 THEN 1 ELSE 0 END) as weight_61_70,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.weight')) AS DECIMAL(18,2)) BETWEEN 71 AND 80 THEN 1 ELSE 0 END) as weight_71_80,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.weight')) AS DECIMAL(18,2)) > 80  THEN 1 ELSE 0 END) AS weight_over_80,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.height')) AS DECIMAL(18,2)) BETWEEN 1 AND 100 THEN 1 ELSE 0 END) as height_1_100,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.height')) AS DECIMAL(18,2)) BETWEEN 101 AND 150 THEN 1 ELSE 0 END) as height_101_150,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.height')) AS DECIMAL(18,2)) BETWEEN 151 AND 160 THEN 1 ELSE 0 END) as height_151_160,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.height')) AS DECIMAL(18,2)) BETWEEN 161 AND 170 THEN 1 ELSE 0 END) as height_161_170,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.height')) AS DECIMAL(18,2)) BETWEEN 171 AND 180 THEN 1 ELSE 0 END) as height_171_180,
+            SUM(CASE WHEN CAST(JSON_UNQUOTE(JSON_EXTRACT(detail, '$.assessment.vitalSigns.height')) AS DECIMAL(18,2)) > 180  THEN 1 ELSE 0 END) AS height_over_80
+        ";
+
+        $selects2 = Str::of($illnessSelect)->append(',')->append($infoSelect)->append(',')->append($rangeSelect);
         $report2 = ReportUtility::getSummary($shelter?->id, $shelter?->name, $selects2, 2, $request->all());
 
         // // Send data to the excel
-        
+
         $workSheet[] = new ShelterAssessmentExport(AssessmentData::$ASSESSMENTS, $report, 'รายงานการปฏิบัติการฉุกเฉิน');
         $workSheet[] = new ShelterAssessmentExport(AssessmentData::$VISITS, $report2, 'แบบบันทึกเวชระเบียน');
 
         // return ['report 1' => $report, 'report2' => $report2];
-        return Excel::download(new MultiSheetExport($workSheet), 'สรุปรายงานแบบประเมิน.xlsx');
+
+        $fileName = Str::of('สรุปรายงานแบบประเมิน')->append($shelter?->name)->append('.xlsx');
+        return Excel::download(new MultiSheetExport($workSheet), $fileName);
     }
 }

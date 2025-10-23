@@ -8,8 +8,8 @@ class AssessmentData
         'sheet_topic' => ['type' => 'topic', 'content' => 'รายงานสรุปผล'],
 
         'gender_topic'  => ['type' => 'topic', 'content' => 'แยกตามเพศ'],
-        'females'  => ['type' => 'text', 'content' => 'ผู้หญิง'],
         'males'  => ['type' => 'text', 'content' => 'ผู้ชาย'],
+        'females'  => ['type' => 'text', 'content' => 'ผู้หญิง'],
         'total_genders'  => ['type' => 'total', 'content' => 'รวม'],
 
         'question_topic'  => ['type' => 'topic', 'content' => 'แยกตามคำถาม'],
@@ -53,18 +53,65 @@ class AssessmentData
         'f2'  => ['type' => 'text', 'content' => 'Admit (IPD)'],
         'f3'  => ['type' => 'text', 'content' => 'Refer'],
 
-        'total_questions'  => ['type' => 'total', 'content' => 'รวม',],
+        'total_questions'  => ['type' => 'total', 'content' => 'รวม'],
     ];
 
     public static array $VISITS = [
         'sheet_topic' => ['type' => 'topic', 'content' => 'รายงานสรุปผล'],
 
         'gender_topic'  => ['type' => 'topic', 'content' => 'แยกตามเพศ'],
-        'females'  => ['type' => 'text', 'content' => 'ผู้หญิง'],
         'males'  => ['type' => 'text', 'content' => 'ผู้ชาย'],
+        'females'  => ['type' => 'text', 'content' => 'ผู้หญิง'],
         'total_genders'  => ['type' => 'total', 'content' => 'รวม'],
 
         'question_topic'  => ['type' => 'topic', 'content' => 'แยกตามคำถาม'],
+        'detail_topic' => ['type' => 'topic', 'content' => 'ข้อมูลพิ้นฐาน'],
+        'breast_feeding_topic' => ['type' => 'topic', 'content' => 'การให้นมบุตร'],
+        'breast_feeding_0'  => ['type' => 'text', 'content' => 'ไม่ทราบ'],
+        'breast_feeding_1'  => ['type' => 'text', 'content' => 'ใช่'],
+        'breast_feeding_2'  => ['type' => 'text', 'content' => 'ไม่ใช่'],
+
+        'measles_vaccination_topic' => ['type' => 'topic', 'content' => 'ประวัติการรับวัคซีน โรคหัด'],
+        'measles_vaccination_history_0'  => ['type' => 'text', 'content' => 'ไม่ทราบ'],
+        'measles_vaccination_history_1'  => ['type' => 'text', 'content' => 'ใช่'],
+        'measles_vaccination_history_2'  => ['type' => 'text', 'content' => 'ไม่ใช่'],
+
+        'tetanus_vaccination_topic' => ['type' => 'topic', 'content' => 'ประวัติการรับวัคซีน บาดทะยัก'],
+        'history_of_tetanus_vaccination_0'  => ['type' => 'text', 'content' => 'ไม่ทราบ'],
+        'history_of_tetanus_vaccination_1'  => ['type' => 'text', 'content' => 'ใช่'],
+        'history_of_tetanus_vaccination_2'  => ['type' => 'text', 'content' => 'ไม่ใช่'],
+
+        'allergies_topic' => ['type' => 'topic', 'content' => 'ประวัติการแพ้'],
+        'history_of_allergies_0'  => ['type' => 'text', 'content' => 'ไม่ทราบ'],
+        'history_of_allergies_1'  => ['type' => 'text', 'content' => 'ไม่มี'],
+        'history_of_allergies_2'  => ['type' => 'text', 'content' => 'มี'],
+
+        'past_history_topic' => ['type' => 'topic', 'content' => 'ประวัติอดีต'],
+        'past_history_0'  => ['type' => 'text', 'content' => 'ไม่ทราบ'],
+        'past_history_1'  => ['type' => 'text', 'content' => 'ไม่มี'],
+        'past_history_2'  => ['type' => 'text', 'content' => 'มี'],
+
+        'drug_history_topic' => ['type' => 'topic', 'content' => 'ประวัติการใช้ยา'],
+        'drug_history_0'  => ['type' => 'text', 'content' => 'ไม่ทราบ'],
+        'drug_history_1'  => ['type' => 'text', 'content' => 'ไม่มี'],
+        'drug_history_2'  => ['type' => 'text', 'content' => 'มี'],
+
+        'weight_topic' => ['type' => 'topic', 'content' => 'น้ำหนัก (กิโลกรัม)'],
+        'weight_1_40'  => ['type' => 'text', 'content' => '1-40'],
+        'weight_41_50'  => ['type' => 'text', 'content' => '41-50'],
+        'weight_51_60'  => ['type' => 'text', 'content' => '51-60'],
+        'weight_61_70'  => ['type' => 'text', 'content' => '61-70'],
+        'weight_71_80'  => ['type' => 'text', 'content' => '71-80'],
+        'weight_over_80'  => ['type' => 'text', 'content' => '80+'],
+
+        'height_topic' => ['type' => 'topic', 'content' => 'ส่วนสูง (เซนติเมตร)'],
+        'height_1_100'  => ['type' => 'text', 'content' => '1-100'],
+        'height_101_150'  => ['type' => 'text', 'content' => '101-150'],
+        'height_151_160'  => ['type' => 'text', 'content' => '151-160'],
+        'height_161_170'  => ['type' => 'text', 'content' => '161-170'],
+        'height_171_180'  => ['type' => 'text', 'content' => '171-180'],
+        'height_over_80'  => ['type' => 'text', 'content' => '180+'],
+        
         'illness_a_topic' => ['type' => 'topic', 'content' => 'การเจ็บป่วย'],
         'illness_a1_topic' => ['type' => 'topic', 'content' => 'อุบัติเหตุ (Trauma)'],
         'illness_a1_0'  => ['type' => 'text', 'content' => 'บาดเจ็บบริเวณศีรษะ/กระดูกสันหลังอย่างรุนแรง'],
@@ -72,7 +119,6 @@ class AssessmentData
         'illness_a1_2'  => ['type' => 'text', 'content' => 'บาดเจ็บบริเวณส่วนปลายแขนขา'],
         'illness_a1_3'  => ['type' => 'text', 'content' => 'บาดเจ็บปานกลาง'],
         'illness_a1_4'  => ['type' => 'text', 'content' => 'บาดเจ็บเล็กน้อย'],
-
 
         'illness_a2_topic' => ['type' => 'topic', 'content' => 'โรคติดเชื้อ (Infectious disease)'],
         'illness_a2_0'  => ['type' => 'text', 'content' => 'การติดเชื้อทางเดินหายใจเฉียบพลัน'],
@@ -127,6 +173,6 @@ class AssessmentData
         'context_c2_2' => ['type' => 'text', 'content' => 'ความรุนแรงทางเพศทางเพศ (SGBV) *'],
         'context_c2_3' => ['type' => 'text', 'content' => 'ความรุนแรง (ไม่ใช่ SGBV) *'],
 
-        'total_questions'  => ['type' => 'total', 'content' => 'รวม',],
+        'total_questions'  => ['type' => 'total', 'content' => 'รวม'],
     ];
 }

@@ -155,6 +155,7 @@ class ReportUtility
             $title = $topic . PHP_EOL . $title;
         }
 
+        // return   $report = $baseQuery->where('type', $assessmentType)->get();
         $report = $baseQuery->where('type', $assessmentType)
             ->selectRaw($selects)
             ->first();
@@ -171,9 +172,9 @@ class ReportUtility
         $report->sheet_topic = $title;
         foreach ($genderReport as $gender) {
             if ($gender->gender == 1) {
-                $report->females = $gender->total_assessments;
-            } else {
                 $report->males = $gender->total_assessments;
+            } else {
+                $report->females = $gender->total_assessments;
             }
             $report->total_genders += $gender->total_assessments;
         }
