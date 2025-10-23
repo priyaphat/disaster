@@ -61,7 +61,6 @@ class EmergencyRequestRequest extends FormRequest
             'status' => 'nullable|integer',
             'emergency_team' => 'array|nullable',
             'emergency_team.*.id' => 'required_with:emergency_team|exists:teams,id',
-            // 'emergency_team.*.seq_no' => 'required_with:emergency_team',
             'reason' => 'nullable|max:255',
             'other' => 'required_if:disaster_id,99|nullable|string|max:255',
             'hospital_id' => 'required_if:status,7|nullable|exists:hospitals,id'

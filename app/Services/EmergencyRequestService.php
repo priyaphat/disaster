@@ -34,9 +34,9 @@ class EmergencyRequestService
             throw new AuthenticationException();
         }
 
-        $searchArr = ['phone'];
+        $searchArr = ['emergency_requests.phone'];
         if (Auth::check()) {
-            $searchArr = ['phone', 'id'];
+            $searchArr = ['emergency_requests.phone', 'emergency_requests.id'];
         }
         $prefix = Prefix::all()->keyBy('id');
         $items = EmergencyRequest::query()->when(
