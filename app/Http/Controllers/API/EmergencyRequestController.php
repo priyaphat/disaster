@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Enums\DisasterHelp;
 use App\Enums\PopulationStatus;
 use App\Events\EmcRequestNotification;
 use App\Http\Controllers\Controller;
@@ -25,11 +24,8 @@ use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\PathParameter;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
-use PDO;
-
-use function PHPUnit\Framework\isEmpty;
+use App\Models\CancelationReason;
 
 class EmergencyRequestController extends Controller
 {
@@ -295,11 +291,67 @@ class EmergencyRequestController extends Controller
     /**
      * Emergency request | ดึง เหตุผล.
      */
-    public function reason()
+    public function reasonIndex(Request $req, $id = null)
     {
         $this->authorize('viewAny', EmergencyRequest::class);
-        $data = $this->emergencyRequestService->reason();
+        if ($id) $data = CancelationReason::findOrfail($id);
+        else {
+            $data = CancelationReason::select('id', 'name')
+                ->when(
+                    $req->search,
+                    fn($q) =>
+                    $q->where('name', 'like', '%'.$req->search.'%')
+                )
+                ->orderBy('id', 'desc')
+                ->paginate($req->paginate ?? 10);
+        }
         return ApiResponse::successResponse(__('success.data'), $data);
+    }
+
+    /**
+     * Emergency request | สร้าง เหตุผล.
+     */
+    public function reasonStore(Request $req)
+    {
+        $this->authorize('adminOnly', EmergencyRequest::class);
+        $req = $req->validate([
+            'name' => 'required|string|max:255|unique:cancelation_reasons,name',
+        ], [
+            'name.unique' => __('validation.custom.reason.unique')
+        ]);
+        $data = CancelationReason::create($req);
+        return ApiResponse::successResponse(__('success.reason.success'), $data);
+    }
+
+    /**
+     * Emergency request | อัปเดต เหตุผล.
+     */
+    public function reasonUpdate(Request $req, CancelationReason $id)
+    {
+        $this->authorize('adminOnly', EmergencyRequest::class);
+        $req = $req->validate([
+            'name' => 'required|string|max:255|unique:cancelation_reasons,name,' . $id->id,
+        ], [
+            'name.unique' => __('validation.custom.reason.unique')
+        ]);
+        $data = $id->update($req);
+        return ApiResponse::successResponse(__('success.reason.updated'), $data);
+    }
+
+    /**
+     * Emergency request | ลบ เหตุผล.
+     */
+    public function reasonDestroy(CancelationReason $id)
+    {
+        $this->authorize('adminOnly', EmergencyRequest::class);
+        if ($id->id != 1) {
+            $id->load('reason');
+            if ($id->reason->isEmpty()) {
+                $id->delete();
+                return ApiResponse::successResponse(__('success.reason.delete'));
+            }
+        }
+        return ApiResponse::successResponse(__('validation.custom.reason.delete'));
     }
 
     /**
@@ -422,7 +474,7 @@ class EmergencyRequestController extends Controller
                 ]);
             EmergencyRequestLog::create([
                 'emergency_request_id' => $request->request_id,
-                'reason_id' => 99,
+                'reason_id' => 1,
                 'reason' => 'ย้ายเข้าสู่ศูนย์',
             ]);
         }

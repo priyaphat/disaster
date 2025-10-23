@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\EmergencyRequest;
-use App\Enums\CancellationReason;
 use App\Models\EmergencyRequestLog;
 use App\Models\Prefix;
 use App\Http\Utility\PaginateUtility;
@@ -79,9 +78,9 @@ class EmergencyRequestService
                     return ($a['seq_no'] ?? 0) <=> ($b['seq_no'] ?? 0);
                 });
                 $teams = array_map(function ($team) {
-                        $team['id'] = $team['team_id'];
-                        unset($team['team_id']);
-                        unset($team['seq_no']);
+                    $team['id'] = $team['team_id'];
+                    unset($team['team_id']);
+                    unset($team['seq_no']);
                     return $team;
                 }, $teams);
 
@@ -167,7 +166,7 @@ class EmergencyRequestService
 
                 $items = $items->whereIn('emergency_requests.status', $statusArr);
             } else if ($type == 'history') {
-                $items = $items->whereIn('emergency_requests.status', [EmergencyRequest::complete, EmergencyRequest::disapprove, EmergencyRequest::incomplete]);
+                $items = $items->whereIn('emergency_requests.status', [EmergencyRequest::complete, EmergencyRequest::disapprove, EmergencyRequest::incomplete, EmergencyRequest::hospital]);
             } else {
                 $items = $items->where('emergency_requests.status', EmergencyRequest::waiting);
             }
@@ -193,9 +192,9 @@ class EmergencyRequestService
                 });
 
                 $teams = array_map(function ($team) {
-                        $team['id'] = $team['team_id'];
-                        unset($team['team_id']);
-                        unset($team['seq_no']);
+                    $team['id'] = $team['team_id'];
+                    unset($team['team_id']);
+                    unset($team['seq_no']);
                     return $team;
                 }, $teams);
 
@@ -226,14 +225,6 @@ class EmergencyRequestService
         $emergencyRequest->refresh();
         if (isset($data['reason_id'])) self::created_reason($emergencyRequest->id, $data);
         return $emergencyRequest;
-    }
-
-    public function reason()
-    {
-        return array_map(fn($case) => [
-            'id' => $case->value,
-            'name' => $case->label(),
-        ], CancellationReason::cases());
     }
 
     public function created_reason($id, $data)

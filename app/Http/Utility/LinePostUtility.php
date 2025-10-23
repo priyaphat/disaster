@@ -3,7 +3,6 @@
 namespace App\Http\Utility;
 
 use App\Enums\CancellationReason;
-use App\Enums\DamagedUtility;
 use App\Enums\TeamPosition;
 use App\Http\Controllers\API\LineController;
 use App\Models\EmergencyRequestLog;
@@ -14,7 +13,6 @@ use App\Models\Shelter;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class LinePostUtility
 {
@@ -137,7 +135,11 @@ class LinePostUtility
                 ->where('team_members.team_position', TeamPosition::LEADER)
                 ->leftJoin('users', 'users.id', 'team_members.user_id')
                 ->value('user_name');
-            $note = EmergencyRequestLog::where('emergency_request_id', $data['id'])->orderBy('id', 'desc')->value('reason_id');
+            $note = EmergencyRequestLog::where('emergency_request_id', $data['id'])
+                ->leftJoin('cancelation_reasons as c', 'c.id', 'emergency_request_logs.reason_id')
+                ->orderBy('emergency_request_logs.id', 'desc')
+                ->select('c.name')
+                ->value('c.name');
             $name = $prefix[$data['prefix_id']]['name'] . ' ' . $data['first_name'] . ' ' . $data['last_name'];
             $assigner = User::where('id', $data['assigner'])->first();
             $assigner =  $prefix[$assigner['prefix_id']]['name'] . ' ' . $assigner['firstname'] . ' ' . $assigner['lastname'];
@@ -148,7 +150,7 @@ class LinePostUtility
                 'assigner' => $assigner ?? '-',
                 'receiver' => $receiver ?? '-',
                 'status' => $form == LineController::Emc_success ? 'สำเร็จ' : 'ล้มเหลว',
-                'note' => $form == LineController::Emc_success ? '-' : (CancellationReason::tryFrom($note) ? CancellationReason::tryFrom($note)->label() : '-'),
+                'note' => $form == LineController::Emc_success ? '-' : ($note ?? '-'),
             ];
         } else if ($form == LineController::User_on || $form == LineController::User_off) {
             $recepint = LineUser::whereIn('user_id', $data['user_id'])

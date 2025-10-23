@@ -476,7 +476,10 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display reason of emergency request
     |--------------------------------------------------------------------------
     */
-    Route::get('/reason', [EmergencyRequestController::class, 'reason']);
+    Route::get('/reason/{id?}', [EmergencyRequestController::class, 'reasonIndex']);
+    Route::post('/reason', [EmergencyRequestController::class, 'reasonStore']);
+    Route::post('/reason/{id}', [EmergencyRequestController::class, 'reasonUpdate']);
+    Route::delete('/reason/{id}', [EmergencyRequestController::class, 'reasonDestroy']);
 
     /*
     |--------------------------------------------------------------------------

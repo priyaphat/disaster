@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Log;
 
 class EmergencyRequestPolicy
 {
+
+    public function adminOnly(User $user): bool
+    {
+        return $user->hasRole(Role::ADMIN);
+    }
+
     public function view(User $user): bool
     {
         return $user->hasAnyRole([Role::ADMIN, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
