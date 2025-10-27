@@ -46,15 +46,20 @@ class EmergencyTeamController extends Controller
         EmergencyTeam::where('emc_id', $emc_id)->delete();
     }
 
-    public function hospitalShow()
+    public function hospitalShow(Request $r)
     {
-        $res = DB::table('hospitals')->select('id', 'name')->where('status', 1)->get();
+        $res = DB::table('hospitals')->select('id', 'name')
+            ->when(
+                $r['search'],
+                fn($q) =>
+                $q->where('name', 'like', '%' . $r['search'] . '%')
+            )->where('status', 1)->get();
         return ApiResponse::successResponse(__('success.data'), $res);
     }
 
     public function hospitalStore($r)
     {
-        $ex = DB::table('hospitals')->where('name', $r)->frist();
+        $ex = DB::table('hospitals')->where('name', $r)->first();
         if (!$ex) {
             $id = DB::table('hospitals')->insertGetId([
                 'name' => $r,
