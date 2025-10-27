@@ -148,6 +148,10 @@ class EmergencyRequestController extends Controller
     {
         // $this->authorize('update', $emergencyRequest);
         if ($edit = self::canEdit($emergencyRequest)) return $edit;
+        //hospital create
+        if ($request['hospital_id'] == -1) {
+            $request['hospital_id'] = (new EmergencyTeamController)->hospitalStore($request['hospital_name']);
+        }
         $old = clone $emergencyRequest;
         $skip = false;
         $name = Prefix::where('id', $emergencyRequest['prefix_id'])->value('name') . ' ' . $emergencyRequest['first_name'] . ' ' . $emergencyRequest['last_name'];
@@ -300,7 +304,7 @@ class EmergencyRequestController extends Controller
                 ->when(
                     $req->search,
                     fn($q) =>
-                    $q->where('name', 'like', '%'.$req->search.'%')
+                    $q->where('name', 'like', '%' . $req->search . '%')
                 )
                 ->orderBy('id', 'desc')
                 ->paginate($req->paginate ?? 10);

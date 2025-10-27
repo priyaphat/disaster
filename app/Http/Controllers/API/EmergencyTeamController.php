@@ -51,4 +51,19 @@ class EmergencyTeamController extends Controller
         $res = DB::table('hospitals')->select('id', 'name')->where('status', 1)->get();
         return ApiResponse::successResponse(__('success.data'), $res);
     }
+
+    public function hospitalStore($r)
+    {
+        $ex = DB::table('hospitals')->where('name', $r)->frist();
+        if (!$ex) {
+            $id = DB::table('hospitals')->insertGetId([
+                'name' => $r,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            return $id;
+        }
+        return $ex->id;
+    }
 }
