@@ -9,6 +9,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
 
@@ -137,14 +138,14 @@ class Team extends Model
         }
     }
 
-    public function emergencyRequests(): HasMany
+    public function emergencyRequests(): HasManyThrough
     {
-        return $this->hasMany(EmergencyRequest::class, 'emergency_team_id', 'id');
+        return $this->hasManyThrough(EmergencyRequest::class, EmergencyTeam::class, 'team_id' , 'id', 'id', 'emc_id');
     }
 
-    public function inProgressEmergencyRequests(): HasMany
+    public function inProgressEmergencyRequests(): HasManyThrough
     {
-        return $this->hasMany(EmergencyRequest::class, 'emergency_team_id', 'id')->whereIn('status', [EmergencyRequest::approve, EmergencyRequest::helping]);
+        return $this->hasManyThrough(EmergencyRequest::class, EmergencyTeam::class, 'team_id' , 'id', 'id', 'emc_id')->whereIn('status', [EmergencyRequest::approve, EmergencyRequest::helping]);
     }
 
     public function upcomingAppointments(): HasMany

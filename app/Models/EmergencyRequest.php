@@ -54,6 +54,11 @@ class EmergencyRequest extends Model
     {
         return $this->hasOne(EmergencyRequestLog::class)->latestOfMany();
     }
+
+    public function emergencyTeams()
+    {
+        return $this->hasMany(EmergencyTeam::class, 'emc_id', 'id');
+    }
     // public function emergencyTeam()
     // {
     //     return $this->belongsTo(EmergencyTeam::class);

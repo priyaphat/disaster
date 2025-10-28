@@ -128,7 +128,7 @@ class UserService
     {
         $user->approval?->delete();
         $user->delete();
-        $image = $this->imageService->deleteImage(User::class, $user->id);
+        $this->imageService->deleteImage(User::class, $user->id);
     }
 
     public static function generatePassword(): string

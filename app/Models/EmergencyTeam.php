@@ -11,5 +11,9 @@ class EmergencyTeam extends Model
         'team_id',
         'seq_no',
     ];
-    
+
+    public function emergencyRequest()
+    {
+        return $this->belongsTo(EmergencyRequest::class, 'emc_id', 'id');
+    }
 }

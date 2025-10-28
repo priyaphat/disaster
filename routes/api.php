@@ -119,6 +119,7 @@ Route::get('/reports/damage-utility', [DamageUtilityController::class, 'export']
 Route::get('/reports/assessments/shelter/{shelter?}', [AssessmentController::class, 'export']);
 Route::get('/assessment-summary', [AssessmentController::class, 'assessment_summary']);
 
+Route::get('/address', [AddressController::class, 'search']);
 #region User Manual
 Route::get('/download-user-doc/{type}', function ($type) {
     if ($type == 'user') {
@@ -261,7 +262,6 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display address and geography
     |--------------------------------------------------------------------------
     */
-    Route::get('/address', [AddressController::class, 'search']);
     Route::post('/address', [AddressController::class, 'getAddress']);
     Route::post('/district', [AddressController::class, 'getDistricts']);
     Route::post('/sub-district', [AddressController::class, 'getSubDistricts']);
