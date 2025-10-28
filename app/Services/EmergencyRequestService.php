@@ -245,25 +245,25 @@ class EmergencyRequestService
                 EmergencyRequest::waiting,
             ])->count();
         } else if ($role == Role::TEAM_LEADER) {
-            $team_id = TeamMember::where('user_id', $user->id)
-                ->leftJoin('teams', 'teams.id', '=', 'team_id')
-                ->value('teams.id');
+            $teamId = $user->member?->team_id;
 
-            if ($team_id) {
+            if ($teamId) {
                 return EmergencyRequest::whereIn('status', [
                     EmergencyRequest::approve,
                     EmergencyRequest::helping,
-                ])->where('emergency_team_id', $team_id)->count();
+                ])->whereHas('emergencyTeams', function ($query) use ($teamId) {
+                    $query->where('team_id', $teamId);
+                })->count();
             }
         } else if ($role == Role::TEAM_MEMBER) {
-            $team_id = TeamMember::where('user_id', $user->id)
-                ->leftJoin('teams', 'teams.id', '=', 'team_id')
-                ->value('teams.id');
+            $teamId = $user->member?->team_id;
 
-            if ($team_id) {
+            if ($teamId) {
                 return EmergencyRequest::whereIn('status', [
                     EmergencyRequest::helping,
-                ])->where('emergency_team_id', $team_id)->count();
+                ])->whereHas('emergencyTeams', function ($query) use ($teamId) {
+                    $query->where('team_id', $teamId);
+                })->count();
             }
         }
 
