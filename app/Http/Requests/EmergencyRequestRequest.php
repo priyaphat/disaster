@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Controllers\API\EmergencyTeamController;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 
 class EmergencyRequestRequest extends FormRequest
 {
@@ -40,7 +42,7 @@ class EmergencyRequestRequest extends FormRequest
             'status' => 'nullable|integer',
             'emergency_team' => 'nullable|array',
             'reason' => 'nullable|nullable|max:255',
-            'other' => 'required_if:disaster_id,99|string|max:255'
+            'other' => 'required_if:disaster_id,99|nullable|string|max:255',
         ];
     }
 
@@ -63,7 +65,17 @@ class EmergencyRequestRequest extends FormRequest
             'emergency_team.*.id' => 'required_with:emergency_team|exists:teams,id',
             'reason' => 'nullable|max:255',
             'other' => 'required_if:disaster_id,99|nullable|string|max:255',
-            'hospital_id' => 'required_if:status,7|nullable|exists:hospitals,id'
+            'hospital_id' => [
+                'required_if:status,7',
+                'nullable',
+                'integer',
+                function ($attr, $val, $fail) {
+                    if ($val != -1 && !DB::table('hospitals')->where('id', $val)->exists()) {
+                        $fail('โรงพยาบาลไม่ถูกต้อง');
+                    }
+                },
+            ],
+            'hospital_name' => 'required_if:hospital_id,-1|nullable|string|max:255'
         ];
     }
 
