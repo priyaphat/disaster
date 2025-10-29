@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Config;
 use App\Models\Population;
+use App\Models\Role;
 use App\Models\User;
 
 class LineController extends Controller
@@ -741,6 +742,15 @@ class LineController extends Controller
         } else if ($chanel == self::Disaster_landslide) {
             return redirect('/landslide');
         }
+    }
+
+
+
+    public function getAdminLineIds(): array
+    {
+        return LineUser::whereHas('user.roles', function ($q) {
+            $q->where('name', Role::ADMIN);
+        })->pluck('token_id')->toArray();
     }
 
     public function getStaffLineIds($shelterId): array

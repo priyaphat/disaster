@@ -18,6 +18,15 @@ class LineUser extends Model
         'province'
     ];
 
+    public function user()
+    {
+        return $this->hasOne(
+            User::class,
+            'id',
+            'user_id',
+        );
+    }
+
     public function staff()
     {
         return $this->hasOneThrough(
@@ -29,7 +38,6 @@ class LineUser extends Model
             'id'           // Local key on Intermediate model
         );
     }
-
 
     public function team()
     {
