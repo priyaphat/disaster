@@ -24,9 +24,11 @@ class EmergencyTeamController extends Controller
         } else {
             $team = $team->keyBy('team_id');
             foreach ($r['emergency_team'] as $i => $v) {
-                if (isset($team[$v['team_id']]) && $team[$v['team_id']]->seq_no == $i + 1) {
-                    $team[$v['team_id']]->update(['seq_no' => $i + 1]);
-                    unset($team[$v['team_id']]);
+                if (isset($team[$v['team_id']])) {
+                    if ($team[$v['team_id']]->seq_no != $i + 1) {
+                        $team[$v['team_id']]->update(['seq_no' => $i + 1]);
+                    }
+                    unset($team[$v['team_id']]); 
                 } else {
                     EmergencyTeam::create([
                         'emc_id' => $o['id'],

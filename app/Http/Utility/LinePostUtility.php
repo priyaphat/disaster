@@ -6,6 +6,7 @@ use App\Enums\CancellationReason;
 use App\Enums\TeamPosition;
 use App\Http\Controllers\API\LineController;
 use App\Models\EmergencyRequestLog;
+use App\Models\EmergencyTeam;
 use App\Models\LineUser;
 use App\Models\Prefix;
 use App\Models\Product;
@@ -41,100 +42,88 @@ class LinePostUtility
     {
         if ($form == LineController::Emc_request_post_team || $form == LineController::Emc_request_end) {
             $prefix = Prefix::all()->keyBy('id');
-            $team = Team::select(
-                'teams.*',
-                'team_members.user_id',
-                DB::raw('concat(users.firstname," ",users.lastname) as user_name'),
-                'line_users.token_id'
-            )
-                ->where('teams.id', $data['emergency_team_id'])
+
+            $team = EmergencyTeam::where('emc_id', $data['id'])
+                ->leftJoin('teams', 'emergency_teams.team_id', 'teams.id')
                 ->leftJoin('team_members', 'teams.id', 'team_members.team_id')
                 ->where('team_members.team_position', TeamPosition::LEADER)
                 ->leftJoin('users', 'users.id', 'team_members.user_id')
                 ->leftJoin('line_users', 'line_users.user_id', 'team_members.user_id')
-                ->first();
+                ->where('line_users.role', LineUser::User)
+                ->select(
+                    'teams.*',
+                    'team_members.user_id',
+                    DB::raw('concat(users.firstname," ",users.lastname) as user_name'),
+                    'line_users.token_id'
+                )->get();
 
-            if ($team['token_id'] == null) return;
+            $token = $team->pluck('token_id')->filter()->values();
+            $team_name = $team->pluck('name')->filter()->values();
+            if ($token->isEmpty()) return;
             $name = $prefix[$data['prefix_id']]['name'] . ' ' . $data['first_name'] . ' ' . $data['last_name'];
             $assigner = User::where('id', $data['assigner'])->first();
-            $assigner =  $prefix[$assigner['prefix_id']]['name'] . ' ' . $assigner['firstname'] . ' ' . $assigner['lastname'];
+            $assigner = $prefix[$assigner['prefix_id']]['name'] . ' ' . $assigner['firstname'] . ' ' . $assigner['lastname'];
             $data = [
                 'name' => $name,
-                'team' => $team->name,
+                // 'team' => $team->name,
+                'team' => $team_name,
                 'assigner' => $assigner ?? '-'
             ];
-            return (new LineController)->LineNotification($data, $form, [$team['token_id']]);
+            return (new LineController)->LineNotification($data, $form, $token);
         } else if ($form == LineController::Emc_request_unaccept) { //ส่งให้เจ้าหน้าที่ส่วนกลาง
             $prefix = Prefix::all()->keyBy('id');
-            $team = Team::select(
-                'teams.*',
-                'team_members.user_id',
-                DB::raw('concat(users.firstname," ",users.lastname) as user_name'),
-                'line_users.token_id'
-            )
-                ->where('teams.id', $data['emergency_team_id'])
-                ->leftJoin('team_members', 'teams.id', 'team_members.team_id')
-                ->where('team_members.team_position', TeamPosition::LEADER)
-                ->leftJoin('users', 'users.id', 'team_members.user_id')
-                ->leftJoin('line_users', 'line_users.user_id', 'team_members.user_id')
-                ->first();
-            if ($team->token_id == null) return;
+
+            $team = EmergencyTeam::where('emc_id', $data['id'])
+                ->leftJoin('teams', 'emergency_teams.team_id', 'teams.id')
+                ->select(
+                    'teams.*',
+                )->get();
+
+            $team_name = $team->pluck('name')->filter()->values();
+
+            $token = (new LineController)->getAdminLineIds();
+            if (empty($token)) return;
             $name = $prefix[$data['prefix_id']]['name'] . ' ' . $data['first_name'] . ' ' . $data['last_name'];
             $assigner = User::where('id', $data['assigner'])->first();
             $assigner =  $prefix[$assigner['prefix_id']]['name'] . ' ' . $assigner['firstname'] . ' ' . $assigner['lastname'];
             $data = [
                 'name' => $name,
-                'team' => $team->name,
+                'team' => $team_name,
                 'assigner' => $assigner ?? '-'
             ];
+            return (new LineController)->LineNotification($data, $form, $token);
         } else if ($form == LineController::Emc_assigned) {
             $prefix = Prefix::all()->keyBy('id');
-            $basequery = Team::where('teams.id', $data['emergency_team_id']);
 
-            $line = (clone $basequery)->select(
-                'teams.*',
-                'team_members.user_id',
-                DB::raw('concat(users.firstname," ",users.lastname) as user_name'),
-                'line_users.token_id'
-            )->leftJoin('team_members', 'teams.id', 'team_members.team_id')
+            $basequery = EmergencyTeam::where('emc_id', $data['id'])
+                ->leftJoin('teams', 'emergency_teams.team_id', 'teams.id');
+            $team = $basequery->pluck('teams.name');
+            $token = $basequery
+                ->leftJoin('team_members', 'teams.id', 'team_members.team_id')
                 ->where('team_members.team_position', TeamPosition::MEMBER)
-                ->leftJoin('users', 'users.id', 'team_members.user_id')
                 ->leftJoin('line_users', 'line_users.user_id', 'team_members.user_id')
-                ->pluck('line_users.token_id');
-            $team = $basequery->value('name');
-            $receiver = $basequery->select(
-                'teams.*',
-                'team_members.user_id',
-                DB::raw('concat(users.firstname," ",users.lastname) as user_name')
-            )->leftJoin('team_members', 'teams.id', 'team_members.team_id')
-                ->where('team_members.team_position', TeamPosition::LEADER)
-                ->leftJoin('users', 'users.id', 'team_members.user_id')
-                ->value('user_name');
+                ->where('line_users.role', LineUser::User)
+                ->pluck('token_id');
 
-            if ($line->isEmpty()) return;
+            if ($token->isEmpty()) return;
             $name = $prefix[$data['prefix_id']]['name'] . ' ' . $data['first_name'] . ' ' . $data['last_name'];
             $assigner = User::where('id', $data['assigner'])->first();
             $assigner =  $prefix[$assigner['prefix_id']]['name'] . ' ' . $assigner['firstname'] . ' ' . $assigner['lastname'];
+            $receiver = User::where('id', $data['accept_by'])->first();
+            $receiver =  $prefix[$receiver['prefix_id']]['name'] . ' ' . $receiver['firstname'] . ' ' . $receiver['lastname'];
             $data = [
                 'name' => $name,
                 'team' => $team,
                 'assigner' => $assigner ?? '-',
                 'receiver' => $receiver ?? '-',
             ];
-            return (new LineController)->LineNotification($data, $form, $line);
-        } else if ($form == LineController::Emc_success || $form == LineController::Emc_unsuccess) {
+            return (new LineController)->LineNotification($data, $form, $token);
+        } else if ($form == LineController::Emc_success || $form == LineController::Emc_unsuccess || $form == LineController::Hospital) {
             $prefix = Prefix::all()->keyBy('id');
-            $basequery = Team::where('teams.id', $data['emergency_team_id']);
 
-            $team = (clone $basequery)->value('name');
-            $receiver = (clone $basequery)->select(
-                'teams.*',
-                'team_members.user_id',
-                DB::raw('concat(users.firstname," ",users.lastname) as user_name')
-            )->leftJoin('team_members', 'teams.id', 'team_members.team_id')
-                ->where('team_members.team_position', TeamPosition::LEADER)
-                ->leftJoin('users', 'users.id', 'team_members.user_id')
-                ->value('user_name');
+            $team = EmergencyTeam::where('emc_id', $data['id'])
+                ->leftJoin('teams', 'emergency_teams.team_id', 'teams.id')->pluck('teams.name');
+
             $note = EmergencyRequestLog::where('emergency_request_id', $data['id'])
                 ->leftJoin('cancelation_reasons as c', 'c.id', 'emergency_request_logs.reason_id')
                 ->orderBy('emergency_request_logs.id', 'desc')
@@ -143,15 +132,26 @@ class LinePostUtility
             $name = $prefix[$data['prefix_id']]['name'] . ' ' . $data['first_name'] . ' ' . $data['last_name'];
             $assigner = User::where('id', $data['assigner'])->first();
             $assigner =  $prefix[$assigner['prefix_id']]['name'] . ' ' . $assigner['firstname'] . ' ' . $assigner['lastname'];
+            $receiver = User::where('id', $data['accept_by'])->first();
+            $receiver =  $prefix[$receiver['prefix_id']]['name'] . ' ' . $receiver['firstname'] . ' ' . $receiver['lastname'];
 
-            $data = [
+            $raw = [
                 'name' => $name,
                 'team' => $team,
                 'assigner' => $assigner ?? '-',
                 'receiver' => $receiver ?? '-',
-                'status' => $form == LineController::Emc_success ? 'สำเร็จ' : 'ล้มเหลว',
+                'status' => $form != LineController::Emc_unsuccess ? 'สำเร็จ' : 'ล้มเหลว',
                 'note' => $form == LineController::Emc_success ? '-' : ($note ?? '-'),
             ];
+
+            if ($form == LineController::Hospital) {
+                $name = DB::table('hospitals')
+                    ->where('id', $data['hospital_id'])
+                    ->value('name');
+                $raw['note'] = 'ส่งสถานพยาบาล ' . $name;
+            }
+            $token = (new LineController)->getAdminLineIds();
+            return (new LineController)->LineNotification($raw, $form, $token);
         } else if ($form == LineController::User_on || $form == LineController::User_off) {
             $recepint = LineUser::whereIn('user_id', $data['user_id'])
                 ->where('role', LineUser::User)->pluck('token_id');
