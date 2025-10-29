@@ -55,6 +55,11 @@ class EmergencyRequest extends Model
         return $this->hasOne(EmergencyRequestLog::class)->latestOfMany();
     }
 
+    public function acceptTeam()
+    {
+        return $this->hasOneThrough(Team::class, TeamMember::class, 'user_id', 'id', 'accept_by', 'team_id')->select(['teams.id', 'teams.name']);
+    }
+
     public function emergencyTeams()
     {
         return $this->hasMany(EmergencyTeam::class, 'emc_id', 'id');
