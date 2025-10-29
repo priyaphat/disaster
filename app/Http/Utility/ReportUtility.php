@@ -156,11 +156,11 @@ class ReportUtility
         }
 
         // return   $report = $baseQuery->where('type', $assessmentType)->get();
-        $report = $baseQuery->where('type', $assessmentType)
+        $report = $baseQuery->clone()->where('type', $assessmentType)
             ->selectRaw($selects)
             ->first();
 
-        $genderReport = $baseQuery
+        $genderReport = $baseQuery->clone()
             ->join('populations as p', 'p.id', '=', 'a.population_id')
             ->select('p.gender', DB::raw('COUNT(a.id) as total_assessments'))
             ->where('type', $assessmentType)
