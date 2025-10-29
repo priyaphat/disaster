@@ -45,6 +45,7 @@ use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\TransferHistoryController;
 use App\Http\Controllers\API\UserRoleController;
 use App\Http\Controllers\API\VulnerableGroupController;
+use App\Http\Utility\LinePostUtility;
 use App\Models\Assessments;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -78,6 +79,9 @@ Route::post('/line-login', [LoginController::class, 'line']);
 Route::post('/line-login-population', [LoginController::class, 'line_population_match']);
 Route::post('/line-location', [LineController::class, 'gps']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
+Route::get('/test-line', function () {
+    return  LinePostUtility::LineMakeInformation(13, ['id' => 3]);
+});
 
 Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);

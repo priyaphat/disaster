@@ -49,6 +49,8 @@ class LineTask extends Command
                 ];
                 if ($totalUsage > 35000) {
                     $sum = 1780 + (($totalUsage - 35000) * $rate);
+                } else {
+                    $sum = 1780;
                 }
             } else if ($limit == 15000) {
                 $name = 'เบสิค';
@@ -61,6 +63,8 @@ class LineTask extends Command
                 $rate = 0.1;
                 if ($totalUsage > 15000) {
                     $sum = 1280 + (($totalUsage - 15000) * $rate);
+                } else {
+                    $sum = 1280;
                 }
             } else {
                 $name = 'ฟรี';

@@ -61,6 +61,7 @@ class LineController extends Controller
     public const Disaster_wildfire_m4 = 26.4; //success
     public const Disaster_smog = 27; //success
     public const Disaster_earthquake = 28; //success
+    public const Hospital = 33;
     private const Hotline = [
         self::Disaster_flood,
         self::Disaster_landslide,
@@ -318,14 +319,14 @@ class LineController extends Controller
         } else if ($form == self::Emc_request_unaccept) {
             $text = __('line.emc_request_unaccept', [
                 'name' => $data['name'],
-                'team' => $data['team'],
+                'team' => "• " . implode("\n• ", $data['team']),
                 'assigner' => $data['assigner'],
             ]) . __('line.quick');
             $text = self::flex_box_link($text, self::Emc_request_post_team, __('line.see_request'), $type);
         } else if ($form == self::Emc_request_post_team) {
             $text = __('line.emc_request_post_team', [
                 'name' => $data['name'],
-                'team' => $data['team'],
+                'team' => "• " . implode("\n• ", $data['team']),
                 'assigner' => $data['assigner'],
             ]) . __('line.quick');
             $text = self::flex_box_link($text, self::Emc_request_post_team, __('line.see_request'), $type);
@@ -344,7 +345,7 @@ class LineController extends Controller
                 'receiver' => $data['receiver'],
             ]) . __('line.quick');
             $text = self::flex_box_link($text, self::Emc_assigned, __('line.see_request'), $type);
-        } else if ($form == self::Emc_success) {
+        } else if ($form == self::Emc_success || $form == self::Hospital) {
             $text = __('line.emc_success', [
                 'name' => $data['name'],
                 'team' => $data['team'],
