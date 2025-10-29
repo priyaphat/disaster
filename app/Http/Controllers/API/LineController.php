@@ -298,7 +298,9 @@ class LineController extends Controller
         } else if ($form == self::Resource) {
             $text = __('line.resource', [
                 'shelter' => $data['shelter'],
-                'product' => "• " . implode("\n• ", $data['product'])
+                'product' => !empty($data['product'])
+                    ? "• " . implode("\n • ", $data['product'])
+                    : '',
             ]) . __('line.close_follow');
             $text = self::flex_box_link($text, self::Resource, __('line.see_more'), $type);
         } else if ($form == self::News_post) {
@@ -319,28 +321,36 @@ class LineController extends Controller
         } else if ($form == self::Emc_request_unaccept) {
             $text = __('line.emc_request_unaccept', [
                 'name' => $data['name'],
-                'team' => "• " . implode("\n• ", $data['team']),
+                'team' => !empty($data['team'] ?? [])
+                    ? "• " . implode("\n • ", $data['team'])
+                    : '',
                 'assigner' => $data['assigner'],
             ]) . __('line.quick');
             $text = self::flex_box_link($text, self::Emc_request_post_team, __('line.see_request'), $type);
         } else if ($form == self::Emc_request_post_team) {
             $text = __('line.emc_request_post_team', [
                 'name' => $data['name'],
-                'team' => "• " . implode("\n• ", $data['team']),
+                'team' => !empty($data['team'] ?? [])
+                    ? "• " . implode("\n • ", $data['team'])
+                    : '',
                 'assigner' => $data['assigner'],
             ]) . __('line.quick');
             $text = self::flex_box_link($text, self::Emc_request_post_team, __('line.see_request'), $type);
         } else if ($form == self::Emc_request_end) {
             $text = __('line.emc_request_end', [
                 'name' => $data['name'],
-                'team' => $data['team'],
+                'team' => !empty($data['team'] ?? [])
+                    ? "• " . implode("\n • ", $data['team'])
+                    : '',
                 'assigner' => $data['assigner'],
             ]);
             $text = self::flex_box($text);
         } else if ($form == self::Emc_assigned) {
             $text = __('line.emc_assigned', [
                 'name' => $data['name'],
-                'team' => $data['team'],
+                'team' => !empty($data['team'] ?? [])
+                    ? "• " . implode("\n • ", $data['team'])
+                    : '',
                 'assigner' => $data['assigner'],
                 'receiver' => $data['receiver'],
             ]) . __('line.quick');
@@ -348,7 +358,9 @@ class LineController extends Controller
         } else if ($form == self::Emc_success || $form == self::Hospital) {
             $text = __('line.emc_success', [
                 'name' => $data['name'],
-                'team' => $data['team'],
+                'team' => !empty($data['team'] ?? [])
+                    ? "• " . implode("\n • ", $data['team'])
+                    : '',
                 'assigner' => $data['assigner'],
                 'receiver' => $data['receiver'],
                 'status' => $data['status'],
@@ -358,7 +370,9 @@ class LineController extends Controller
         } else if ($form == self::Emc_unsuccess) {
             $text = __('line.emc_success', [
                 'name' => $data['name'],
-                'team' => $data['team'],
+                'team' => !empty($data['team'] ?? [])
+                    ? "• " . implode("\n • ", $data['team'])
+                    : '',
                 'assigner' => $data['assigner'],
                 'receiver' => $data['receiver'],
                 'status' => $data['status'],

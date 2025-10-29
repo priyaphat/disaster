@@ -61,7 +61,7 @@ class ConfigSeeder extends Seeder
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน รายงานผลการช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ))', 'type' => 1, 'description' => [
-                "line_type" => [LineController::Emc_success, LineController::Emc_unsuccess],
+                "line_type" => [LineController::Emc_success, LineController::Emc_unsuccess, LineController::Hospital],
                 "user" => 0,
             ]],
             ['name' => 'แจ้งเตือน คำร้องขอลงทะเบียนใหม่ (ส่งให้เจ้าหน้าที่ส่วนกลางอนุมัติ)', 'type' => 1, 'description' => [

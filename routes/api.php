@@ -79,9 +79,7 @@ Route::post('/line-login', [LoginController::class, 'line']);
 Route::post('/line-login-population', [LoginController::class, 'line_population_match']);
 Route::post('/line-location', [LineController::class, 'gps']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
-Route::get('/test-line', function () {
-    return  LinePostUtility::LineMakeInformation(13, ['id' => 3]);
-});
+
 
 Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);

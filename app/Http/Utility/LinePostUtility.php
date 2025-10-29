@@ -43,22 +43,16 @@ class LinePostUtility
         if ($form == LineController::Emc_request_post_team || $form == LineController::Emc_request_end) {
             $prefix = Prefix::all()->keyBy('id');
 
-            $team = EmergencyTeam::where('emc_id', $data['id'])
-                ->leftJoin('teams', 'emergency_teams.team_id', 'teams.id')
+            $basequery = EmergencyTeam::where('emc_id', $data['id'])
+                ->leftJoin('teams', 'emergency_teams.team_id', 'teams.id');
+            $team_name = (clone $basequery)->pluck('teams.name');
+            $token = (clone $basequery)
                 ->leftJoin('team_members', 'teams.id', 'team_members.team_id')
                 ->where('team_members.team_position', TeamPosition::LEADER)
-                ->leftJoin('users', 'users.id', 'team_members.user_id')
                 ->leftJoin('line_users', 'line_users.user_id', 'team_members.user_id')
                 ->where('line_users.role', LineUser::User)
-                ->select(
-                    'teams.*',
-                    'team_members.user_id',
-                    DB::raw('concat(users.firstname," ",users.lastname) as user_name'),
-                    'line_users.token_id'
-                )->get();
+                ->pluck('token_id')->filter()->values();
 
-            $token = $team->pluck('token_id')->filter()->values();
-            $team_name = $team->pluck('name')->filter()->values();
             if ($token->isEmpty()) return;
             $name = $prefix[$data['prefix_id']]['name'] . ' ' . $data['first_name'] . ' ' . $data['last_name'];
             $assigner = User::where('id', $data['assigner'])->first();
@@ -66,7 +60,7 @@ class LinePostUtility
             $data = [
                 'name' => $name,
                 // 'team' => $team->name,
-                'team' => $team_name,
+                'team' => $team_name->toArray(),
                 'assigner' => $assigner ?? '-'
             ];
             return (new LineController)->LineNotification($data, $form, $token);
@@ -88,7 +82,7 @@ class LinePostUtility
             $assigner =  $prefix[$assigner['prefix_id']]['name'] . ' ' . $assigner['firstname'] . ' ' . $assigner['lastname'];
             $data = [
                 'name' => $name,
-                'team' => $team_name,
+                'team' => $team_name->toArray(),
                 'assigner' => $assigner ?? '-'
             ];
             return (new LineController)->LineNotification($data, $form, $token);
@@ -97,13 +91,13 @@ class LinePostUtility
 
             $basequery = EmergencyTeam::where('emc_id', $data['id'])
                 ->leftJoin('teams', 'emergency_teams.team_id', 'teams.id');
-            $team = $basequery->pluck('teams.name');
-            $token = $basequery
+            $team = (clone $basequery)->pluck('teams.name');
+            $token = (clone $basequery)
                 ->leftJoin('team_members', 'teams.id', 'team_members.team_id')
                 ->where('team_members.team_position', TeamPosition::MEMBER)
                 ->leftJoin('line_users', 'line_users.user_id', 'team_members.user_id')
                 ->where('line_users.role', LineUser::User)
-                ->pluck('token_id');
+                ->pluck('token_id')->filter()->values();
 
             if ($token->isEmpty()) return;
             $name = $prefix[$data['prefix_id']]['name'] . ' ' . $data['first_name'] . ' ' . $data['last_name'];
@@ -113,7 +107,7 @@ class LinePostUtility
             $receiver =  $prefix[$receiver['prefix_id']]['name'] . ' ' . $receiver['firstname'] . ' ' . $receiver['lastname'];
             $data = [
                 'name' => $name,
-                'team' => $team,
+                'team' => $team->toArray(),
                 'assigner' => $assigner ?? '-',
                 'receiver' => $receiver ?? '-',
             ];
@@ -133,11 +127,13 @@ class LinePostUtility
             $assigner = User::where('id', $data['assigner'])->first();
             $assigner =  $prefix[$assigner['prefix_id']]['name'] . ' ' . $assigner['firstname'] . ' ' . $assigner['lastname'];
             $receiver = User::where('id', $data['accept_by'])->first();
-            $receiver =  $prefix[$receiver['prefix_id']]['name'] . ' ' . $receiver['firstname'] . ' ' . $receiver['lastname'];
+            if ($receiver) {
+                $receiver =  $prefix[$receiver['prefix_id']]['name'] . ' ' . $receiver['firstname'] . ' ' . $receiver['lastname'];
+            }
 
             $raw = [
                 'name' => $name,
-                'team' => $team,
+                'team' => $team->toArray(),
                 'assigner' => $assigner ?? '-',
                 'receiver' => $receiver ?? '-',
                 'status' => $form != LineController::Emc_unsuccess ? 'สำเร็จ' : 'ล้มเหลว',
