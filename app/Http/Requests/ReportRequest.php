@@ -23,7 +23,7 @@ class ReportRequest extends FormRequest
     {
         return [
             //
-            'type' => 'required|exists:shelters,id',
+            'type' => 'required',
             'date' => 'required_if:type,1',
             'month' => 'required_if:type,1,2',
             'year' => 'required_if:type,1,2,3,4',
