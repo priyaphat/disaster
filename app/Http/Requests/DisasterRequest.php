@@ -121,6 +121,7 @@ class DisasterRequest extends FormRequest
             'name' => 'required|string|max:255',
             'line_oa' => 'required|in:0,1',
             'file' => 'required|file|max:10240',
+            'host' => 'max:255',
         ];
     }
 
