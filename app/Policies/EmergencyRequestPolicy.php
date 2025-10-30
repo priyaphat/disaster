@@ -27,13 +27,14 @@ class EmergencyRequestPolicy
 
     public function update(User $user, EmergencyRequest $emergencyRequest): bool
     {
+        $emergencyRequest->load('emergencyTeams');
+        $teamArr = $emergencyRequest->emergencyTeams->pluck('team_id')->toArray();
         if ($emergencyRequest['status'] === EmergencyRequest::waiting) {
             return $user->hasRole(Role::ADMIN);
         } else if ($emergencyRequest['status'] === EmergencyRequest::approve) {
-            return $user->hasRole(Role::ADMIN) || ($user->hasRole(Role::TEAM_LEADER) && $emergencyRequest->emergency_team_id === $user->member?->team_id); // เช็กด้วยว่าทีมตรงกันไหม
-
+            return $user->hasRole(Role::ADMIN) || ($user->hasRole(Role::TEAM_LEADER) && in_array($user->member?->team_id, $teamArr)); // เช็กด้วยว่าทีมตรงกันไหม
         } else if ($emergencyRequest['status'] === EmergencyRequest::helping) {
-            return $user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER]) && $emergencyRequest->emergency_team_id === $user->member?->team_id; // เช้็กด้วยว่าทีมตรงกันไหม
+            return $user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER]) && in_array($user->member?->team_id, $teamArr); // เช้็กด้วยว่าทีมตรงกันไหม
         }
         return false;
     }
@@ -53,13 +54,14 @@ class EmergencyRequestPolicy
      */
     public function viewNoti(User $user, EmergencyRequest $emergencyRequest): bool
     {
+        $emergencyRequest->load('emergencyTeams');
+        $teamArr = $emergencyRequest->emergencyTeams->pluck('team_id')->toArray();
         if ($emergencyRequest['status'] === EmergencyRequest::waiting) {
             return $user->hasRole(Role::ADMIN);
         } else if ($emergencyRequest['status'] === EmergencyRequest::approve) {
-            return $user->hasRole(Role::ADMIN) || ($user->hasRole(Role::TEAM_LEADER) && $emergencyRequest->emergency_team_id === $user->member?->team_id); // เช็กด้วยว่าทีมตรงกันไหม
-
+            return $user->hasRole(Role::ADMIN) || ($user->hasRole(Role::TEAM_LEADER) && in_array($user->member?->team_id, $teamArr)); // เช็กด้วยว่าทีมตรงกันไหม
         } else if ($emergencyRequest['status'] === EmergencyRequest::helping) {
-            return $user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER]) && $emergencyRequest->emergency_team_id === $user->member?->team_id; // เช้็กด้วยว่าทีมตรงกันไหม
+            return $user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER]) && in_array($user->member?->team_id, $teamArr); // เช้็กด้วยว่าทีมตรงกันไหม
         }
         return false;
     }

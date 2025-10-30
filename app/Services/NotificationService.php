@@ -138,7 +138,11 @@ class NotificationService
     public function sendToTeam($notification, $teamId, $chunkSize = 100)
     {
         User::whereHas('member', function ($query) use ($teamId) {
-            $query->where('team_id', $teamId);
+            if (is_array($teamId)) {
+                $query->whereIn('team_id', $teamId);
+            } else {
+                $query->where('team_id', $teamId);
+            }
         })->chunk($chunkSize, function ($users) use ($notification) {
             BroadcastNotification::dispatch($users, $notification);
         });
@@ -147,8 +151,12 @@ class NotificationService
     public function sendToTeamLeader($notification, $teamId, $chunkSize = 100)
     {
         User::whereHas('member', function ($query) use ($teamId) {
-            $query->where('team_id', $teamId)
-                ->where('team_position', TeamPosition::LEADER);
+            if (is_array($teamId)) {
+                $query->whereIn('team_id', $teamId);
+            } else {
+                $query->where('team_id', $teamId);
+            }
+            $query->where('team_position', TeamPosition::LEADER);
         })->chunk($chunkSize, function ($users) use ($notification) {
             BroadcastNotification::dispatch($users, $notification);
         });
@@ -157,8 +165,12 @@ class NotificationService
     public function sendToTeamMember($notification, $teamId, $chunkSize = 100)
     {
         User::whereHas('member', function ($query) use ($teamId) {
-            $query->where('team_id', $teamId)
-                ->where('team_position', TeamPosition::MEMBER);
+            if (is_array($teamId)) {
+                $query->whereIn('team_id', $teamId);
+            } else {
+                $query->where('team_id', $teamId);
+            }
+            $query->where('team_position', TeamPosition::MEMBER);
         })->chunk($chunkSize, function ($users) use ($notification) {
             BroadcastNotification::dispatch($users, $notification);
         });
