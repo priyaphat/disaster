@@ -479,8 +479,8 @@ class AppointmentService
             $newStaffIds = (new LineController)->getStaffLineIds($appointment->shelter_id);
             $newTeamIds = (new LineController)->getTeamLineIds($appointment->team_id);
 
-            if (!empty($newStaffIds)) (new LineController)->LineNotification($lineNotification, LineController::Shelter_appointment, $newStaffIds);
-            if (!empty($newTeamIds)) (new LineController)->LineNotification($lineNotification, LineController::Team_appointment, $newTeamIds);
+            if (!empty($newStaffIds)) (new LineController)->LineNotification($lineNotification, $notifyType === 'created' ? LineController::Shelter_appointment : LineController::Shelter_appointment_canceled, $newStaffIds);
+            if (!empty($newTeamIds)) (new LineController)->LineNotification($lineNotification, $notifyType === 'created' ? LineController::Team_appointment : LineController::Team_appointment_canceled, $newTeamIds);
         } else {
             $shelterChanged = $appointment->shelter_id !== $oldAppointment->shelter_id;
             $teamChanged = $appointment->team_id !== $oldAppointment->team_id;
@@ -736,9 +736,9 @@ class AppointmentService
                     'new_team' => $newTeam,
                 ];
 
-                if (!empty($oldTeamIds))(new LineController)->LineNotification($lineTeamCancled, LineController::Team_appointment_canceled, $oldTeamIds);
-                if (!empty($newTeamIds))(new LineController)->LineNotification($lineTeamCreated, LineController::Team_appointment, $newTeamIds);
-                if (!empty($newStaffIds))(new LineController)->LineNotification($lineShelterUpdated, LineController::Shelter_appointment_update, $newStaffIds);
+                if (!empty($oldTeamIds)) (new LineController)->LineNotification($lineTeamCancled, LineController::Team_appointment_canceled, $oldTeamIds);
+                if (!empty($newTeamIds)) (new LineController)->LineNotification($lineTeamCreated, LineController::Team_appointment, $newTeamIds);
+                if (!empty($newStaffIds)) (new LineController)->LineNotification($lineShelterUpdated, LineController::Shelter_appointment_update, $newStaffIds);
             } else if ($dateChanged) {
                 // $check = $appointment->wasRecentlyCreated || $dateChanged;
                 error_log('เวลาเปลี่ยนอย่างเดียว');
@@ -797,8 +797,8 @@ class AppointmentService
                     'new_team' => $newTeam,
                 ];
 
-                if (!empty($newStaffIds))(new LineController)->LineNotification($lineTeamUpdated, LineController::Team_appointment_update, $newStaffIds);
-                if (!empty($newTeamIds))(new LineController)->LineNotification($lineShelterUpdated, LineController::Shelter_appointment_update, $newTeamIds);
+                if (!empty($newStaffIds)) (new LineController)->LineNotification($lineShelterUpdated, LineController::Shelter_appointment_update, $newStaffIds);
+                if (!empty($newTeamIds)) (new LineController)->LineNotification($lineTeamUpdated, LineController::Team_appointment_update, $newTeamIds);
             } else {
                 error_log('ไม่เปลี่ยนอะไรเลย');
             }
