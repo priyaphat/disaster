@@ -178,6 +178,10 @@ class ProductTransferController extends Controller
                 ->where('product_id', $item['product_id'])->where('shelter_id', $shelter)
                 ->leftJoin('products', 'shelter_products.product_id', 'products.id')
                 ->first();
+            if ($request['spacial']) {
+                $productRequest = ProductRequest::find($request['product_request_id']);
+                if ($productRequest->request < $item['quantity']) return ApiResponse::errorResponse(__('error.product_transfer.morely'));
+            }
             $pdt['quantity'] = $pdt['quantity'] - $item['quantity'];
             $pdt->update();
 
