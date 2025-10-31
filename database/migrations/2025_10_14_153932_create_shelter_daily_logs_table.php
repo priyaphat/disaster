@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unsignedBigInteger('total_victims')->default(0);
             $table->unsignedBigInteger('total_injuries')->default(0);
             $table->unsignedBigInteger('total_healthy')->default(0);
-            $table->inteunsignedBigIntegerger('total_deaths')->default(0);
+            $table->unsignedBigInteger('total_deaths')->default(0);
             $table->text('description')->nullable();
             $table->timestamps();
             $table->unique(['log_date', 'shelter_id']);
