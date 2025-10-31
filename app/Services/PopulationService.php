@@ -72,7 +72,7 @@ class PopulationService
         return $population;
     }
 
-    public function update(Population $population, array $data, $isJson = false): Population
+    public function update(Population $population, array $data, $isJson = true): Population
     {
         // Update population
         $population->update($data);

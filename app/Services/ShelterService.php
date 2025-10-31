@@ -64,7 +64,7 @@ class ShelterService
         return $shelter;
     }
 
-    public function update(Shelter $shelter, array $data, $updateImage = false): Shelter
+    public function update(Shelter $shelter, array $data, $isJson = true): Shelter
     {
         $shelter->update($data);
         $shelter->refresh();
@@ -89,7 +89,7 @@ class ShelterService
         //     }
         // }
 
-        if ($updateImage) {
+        if (!$isJson) {
             $shelter->image = app(ImageService::class)->handleImageUpdate($data, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
         }
 

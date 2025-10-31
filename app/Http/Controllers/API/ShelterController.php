@@ -69,10 +69,10 @@ class ShelterController extends Controller
     public function update(UpdateShelterRequest $request, Shelter $shelter)
     {
         $this->authorize('update', $shelter);
+        $data = $this->shelterService->update($shelter, $request->all(), $request->isJson());
 
         // Update only status
         if ($request->has('status') && count($request->all()) === 1) {
-            $data = $this->shelterService->update($shelter, $request->only('status'));
             return ApiResponse::successResponse($data->status == Shelter::OPEN ? __('success.shelter.active') : __('success.shelter.inactive'), $data);
         }
 
@@ -82,7 +82,6 @@ class ShelterController extends Controller
             ]);
         }
 
-        $data = $this->shelterService->update($shelter, $request->all(), true);
         return ApiResponse::successResponse(__('success.updated'), $data);
     }
 
