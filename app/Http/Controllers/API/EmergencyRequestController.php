@@ -26,6 +26,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Models\CancelationReason;
+use Illuminate\Support\Facades\DB;
 
 class EmergencyRequestController extends Controller
 {
@@ -119,15 +120,10 @@ class EmergencyRequestController extends Controller
 
     private function teamCondition($old, $new, $cond)
     {
-        // $old = EmergencyTeam::where('emc_id', $old['id'])->orderBy('seq_no', 'asc')->get();
         if ($cond == 1) {
-            // $old['emergency_team_id'] && !$request['emergency_team_id']
             if ($old->isNotEmpty() && empty($new)) return true;
         }
         if ($cond == 2) {
-            //  $old['emergency_team_id']
-            // && $request['emergency_team_id']
-            // && $old['emergency_team_id'] != $request['emergency_team_id']  
             if ($old->isNotEmpty() && !empty($new)) {
                 if (count($old) == count($new)) {
                     foreach ($new as $i => $v) {
@@ -146,122 +142,137 @@ class EmergencyRequestController extends Controller
      */
     public function update(EmergencyRequestRequest $request, EmergencyRequest $emergencyRequest)
     {
-        // $this->authorize('update', $emergencyRequest);
-        if ($edit = self::canEdit($emergencyRequest)) return $edit;
-        //hospital create
-        if ($request['hospital_id'] == -1) {
-            $request['hospital_id'] = (new EmergencyTeamController)->hospitalStore($request['hospital_name']);
+        try {
+            $response = DB::transaction(function () use ($request, $emergencyRequest) {
+                EmergencyRequest::where('id', $emergencyRequest->id)
+                    ->lock('FOR UPDATE NOWAIT')
+                    ->first();
+
+                #region code    
+                // $this->authorize('update', $emergencyRequest);
+                if ($edit = self::canEdit($emergencyRequest, $request)) return $edit;
+                //hospital create
+                if ($request['hospital_id'] == -1) {
+                    $request['hospital_id'] = (new EmergencyTeamController)->hospitalStore($request['hospital_name']);
+                }
+                $old = clone $emergencyRequest;
+                $skip = false;
+                $name = Prefix::where('id', $emergencyRequest['prefix_id'])->value('name') . ' ' . $emergencyRequest['first_name'] . ' ' . $emergencyRequest['last_name'];
+                // ต้องดูสถานะด้วยว่าเป็น helping complete incomplete hospital เปลี่ยนไม่ได้แล้ว
+                $oldTeam = EmergencyTeam::where('emc_id', $old['id'])->orderBy('seq_no', 'asc')->get();
+                $oldTeamIds = $oldTeam->pluck('team_id')->toArray();
+                $newTeamIds = collect($request->emergency_team)->pluck('team_id')->toArray();
+                $deletedTeams = array_diff($oldTeamIds, $newTeamIds);
+                $addedTeams = array_diff($newTeamIds, $oldTeamIds);
+
+                if (self::teamCondition($oldTeam, $request['emergency_team'], 1)) { //ส่วนกลาง กดลบทีม 1
+                    //team = null
+                    if ($res = self::canCheck($request)) return $res;
+                    $request['status'] = EmergencyRequest::waiting;
+                    $skip = true;
+                    $request['emergency_team_name'] = null;
+                    // หัวหน้าทีมยังไม่กดอนุมัติ , ส่งให้แค่หัวหน้าทีม
+                    LinePostUtility::LineMakeInformation(LineController::Emc_request_end, $emergencyRequest);
+                    $notification = $this->notificationService->createNotification('emergency_request.canceled', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
+                    $this->notificationService->sendToTeamLeader($notification, $oldTeamIds);
+
+                    (new EmergencyTeamController)->teamDel($emergencyRequest->id);
+                    $textResponse = __('success.emc_request.delTeam2');
+                } else if (self::teamCondition($oldTeam, $request['emergency_team'], 2)) { //ส่วนกลาง กดเปลี่ยนทีม 2 ห้ามเปลี่่ยนตำแหน่งโค้ด
+                    if ($res = self::canCheck($request)) return $res;
+
+                    //ส่งแจ้งเตือน ส่งให้แค่หัวหน้าทีมเก่า
+                    LinePostUtility::LineMakeInformation(LineController::Emc_request_end, $emergencyRequest);
+                    $notification = $this->notificationService->createNotification('emergency_request.canceled', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
+                    $this->notificationService->sendToTeamLeader($notification, $deletedTeams);
+
+                    $request['assigner'] = Auth::user()->id;
+                    (new EmergencyTeamController)->teamCreate($request, $emergencyRequest);
+                    $request['emergency_team_name'] = $request['emergency_team'][0]['name'] ?? null;
+
+                    //ส่งหาหัวหน้าทีมใหม่ ส่งอันใหม่
+                    LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
+                    $notification = $this->notificationService->createNotification('emergency_request.assigned', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                    $this->notificationService->sendToTeamLeader($notification, $addedTeams);
+
+                    if (count($oldTeam) > count($request['emergency_team'])) $textResponse = __('success.emc_request.delTeam2');
+                    else $textResponse = __('success.emc_request.changeTeam');
+                }
+                // if ($emergencyRequest['status'] == EmergencyRequest::approve) $request['assigner'] = Auth::user()->id;
+                $data = $this->emergencyRequestService->update($emergencyRequest, $request->all());
+                if ($request->status != $old['status']) {
+                    if ($emergencyRequest['status'] == EmergencyRequest::waiting && $skip == false) {
+                        // ส่งไปให้ส่วนกลาง หัวหน้าทีม กด ปฏิเสธ ปะ ?
+                        LinePostUtility::LineMakeInformation(LineController::Emc_request_unaccept, $emergencyRequest);
+                        $data->load('acceptTeam');
+                        $acceptTeam = $data->acceptTeam;
+                        $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $acceptTeam?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                        $this->notificationService->sendToAdmin($notification);
+                        $emergencyRequest->update(['emergency_team_name' => null]);
+                        (new EmergencyTeamController)->teamDel($emergencyRequest->id);
+                        $textResponse = __('success.emc_request.delTeam');
+                    } else if ($emergencyRequest['status'] == EmergencyRequest::approve) {
+                        // ดจเาหน้าที่กดอนุมัติเข้าช่วยเหลือ
+                        (new EmergencyTeamController)->teamCreate($request, $emergencyRequest);
+                        $emergencyRequest->update(['emergency_team_name' => $request['emergency_team'][0]['name'] ?? null]);
+
+                        // ส่งหัวหน้า
+                        LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
+                        $notification = $this->notificationService->createNotification('emergency_request.assigned', ['team' => $data->acceptTeam?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                        $this->notificationService->sendToTeamLeader($notification, $newTeamIds);
+                        $textResponse = __('success.emc_request.approve');
+                    } else if ($emergencyRequest['status'] == EmergencyRequest::helping) { //ส่งแจ้งเตือนให้ลูกทีมทราบ
+                        $emergencyRequest->update(['accept_by' => Auth::user()->id]);
+
+                        LinePostUtility::LineMakeInformation(LineController::Emc_assigned, $emergencyRequest);
+                        $data->load('acceptTeam');
+                        $acceptTeam = $data->acceptTeam;
+                        $notification = $this->notificationService->createNotification('emergency_request.approved', ['team' => $acceptTeam?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                        $this->notificationService->sendToAdmin($notification);
+                        $notification = $this->notificationService->createNotification('emergency_request.assigned', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                        // ส่งถึงลูกทีมตัวเอง
+                        $this->notificationService->sendToTeamMember($notification, $acceptTeam?->id);
+                        // ส่งถึงทีมอื่น รวมหัวหน้าทีม
+                        $filteredTeamIds = array_diff($newTeamIds, [$acceptTeam?->id]);
+                        $this->notificationService->sendToTeam($notification, $filteredTeamIds);
+                        $textResponse = __('success.emc_request.heling');
+                    } else if ($emergencyRequest['status'] == EmergencyRequest::complete) { //ส่งแจ้งเตือน ช่วยเหลือสำเร็จ
+                        self::updatedAssigner($emergencyRequest);
+                        LinePostUtility::LineMakeInformation(LineController::Emc_success, $emergencyRequest);
+                        $notification = $this->notificationService->createNotification('emergency_request.success', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                        $this->notificationService->sendToAdmin($notification);
+                        $textResponse = __('success.emc_request.complete');
+                    } else if ($emergencyRequest['status'] == EmergencyRequest::incomplete) { //ส่งแจ้งเตือน ช่วยเหลือไม่สำเร็จ ส่วนกลาง
+                        self::updatedAssigner($emergencyRequest);
+                        LinePostUtility::LineMakeInformation(LineController::Emc_unsuccess, $emergencyRequest);
+                        $notification = $this->notificationService->createNotification('emergency_request.unsuccess', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                        $this->notificationService->sendToAdmin($notification);
+                        $textResponse = __('success.emc_request.incomplete');
+                    } else if ($emergencyRequest['status'] == EmergencyRequest::hospital) { //ส่งไป รพ.
+                        LinePostUtility::LineMakeInformation(LineController::Hospital, $emergencyRequest);
+                        $notification = $this->notificationService->createNotification('emergency_request.success', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                        $this->notificationService->sendToAdmin($notification);
+                        $textResponse = __('success.emc_request.hospital');
+                    }
+                }
+
+                // ถ้าทีมเปลี่ยน
+                if ($data->wasChanged('emergency_team_id')) {
+                    $uniqueTeamIds = $oldTeamIds->union($newTeamIds);
+                    EmcRequestNotification::dispatch([$old['emergency_team_id'], $uniqueTeamIds]);
+                } else if ($data->wasChanged('status')) {
+                    EmcRequestNotification::dispatch($newTeamIds);
+                }
+                if (self::isDifferent($old['victim_name'], $request['victim_name'])) $textResponse = __('success.emc_request.victimName');
+                if ($emergencyRequest['status'] == EmergencyRequest::disapprove) $textResponse = __('success.emc_request.disapprove');
+                return ApiResponse::successResponse($textResponse ?? __('success.updated'), $emergencyRequest);
+                #endregion
+            });
+
+            return  $response;
+        } catch (\Exception $e) {
+            return ApiResponse::errorResponse(__('error.emc_req.working'));
         }
-        $old = clone $emergencyRequest;
-        $skip = false;
-        $name = Prefix::where('id', $emergencyRequest['prefix_id'])->value('name') . ' ' . $emergencyRequest['first_name'] . ' ' . $emergencyRequest['last_name'];
-        // ต้องดูสถานะด้วยว่าเป็น helping complete incomplete hospital เปลี่ยนไม่ได้แล้ว
-        $oldTeam = EmergencyTeam::where('emc_id', $old['id'])->orderBy('seq_no', 'asc')->get();
-        $oldTeamIds = $oldTeam->pluck('team_id')->toArray();
-        $newTeamIds = collect($request->emergency_team)->pluck('team_id')->toArray();
-        $deletedTeams = array_diff($oldTeamIds, $newTeamIds);
-        $addedTeams = array_diff($newTeamIds, $oldTeamIds);
-
-        if (self::teamCondition($oldTeam, $request['emergency_team'], 1)) { //ส่วนกลาง กดลบทีม 1
-            //team = null
-            if ($res = self::canCheck($request)) return $res;
-            $request['status'] = EmergencyRequest::waiting;
-            $skip = true;
-            $request['emergency_team_name'] = null;
-            // หัวหน้าทีมยังไม่กดอนุมัติ , ส่งให้แค่หัวหน้าทีม
-            LinePostUtility::LineMakeInformation(LineController::Emc_request_end, $emergencyRequest);
-            $notification = $this->notificationService->createNotification('emergency_request.canceled', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
-            $this->notificationService->sendToTeamLeader($notification, $oldTeamIds);
-
-            (new EmergencyTeamController)->teamDel($emergencyRequest->id);
-            $textResponse = __('success.emc_request.delTeam2');
-        } else if (self::teamCondition($oldTeam, $request['emergency_team'], 2)) { //ส่วนกลาง กดเปลี่ยนทีม 2 ห้ามเปลี่่ยนตำแหน่งโค้ด
-            if ($res = self::canCheck($request)) return $res;
-
-            //ส่งแจ้งเตือน ส่งให้แค่หัวหน้าทีมเก่า
-            LinePostUtility::LineMakeInformation(LineController::Emc_request_end, $emergencyRequest);
-            $notification = $this->notificationService->createNotification('emergency_request.canceled', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, false);
-            $this->notificationService->sendToTeamLeader($notification, $deletedTeams);
-
-            $request['assigner'] = Auth::user()->id;
-            (new EmergencyTeamController)->teamCreate($request, $emergencyRequest);
-            $request['emergency_team_name'] = $request['emergency_team'][0]['name'] ?? null;
-
-            //ส่งหาหัวหน้าทีมใหม่ ส่งอันใหม่
-            LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
-            $notification = $this->notificationService->createNotification('emergency_request.assigned', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-            $this->notificationService->sendToTeamLeader($notification, $addedTeams);
-
-            if (count($oldTeam) > count($request['emergency_team'])) $textResponse = __('success.emc_request.delTeam2');
-            else $textResponse = __('success.emc_request.changeTeam');
-        }
-        // if ($emergencyRequest['status'] == EmergencyRequest::approve) $request['assigner'] = Auth::user()->id;
-        $data = $this->emergencyRequestService->update($emergencyRequest, $request->all());
-        if ($request->status != $old['status']) {
-            if ($emergencyRequest['status'] == EmergencyRequest::waiting && $skip == false) {
-                // ส่งไปให้ส่วนกลาง หัวหน้าทีม กด ปฏิเสธ ปะ ?
-                LinePostUtility::LineMakeInformation(LineController::Emc_request_unaccept, $emergencyRequest);
-                $user = Auth::user();
-                $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $user?->member?->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-                $this->notificationService->sendToAdmin($notification);
-                $emergencyRequest->update(['emergency_team_name' => null]);
-                (new EmergencyTeamController)->teamDel($emergencyRequest->id);
-                $textResponse = __('success.emc_request.delTeam');
-            } else if ($emergencyRequest['status'] == EmergencyRequest::approve) {
-                // ดจเาหน้าที่กดอนุมัติเข้าช่วยเหลือ
-                (new EmergencyTeamController)->teamCreate($request, $emergencyRequest);
-                $emergencyRequest->update(['emergency_team_name' => $request['emergency_team'][0]['name'] ?? null]);
-
-                // ส่งหัวหน้า
-                LinePostUtility::LineMakeInformation(LineController::Emc_request_post_team, $emergencyRequest);
-                $notification = $this->notificationService->createNotification('emergency_request.assigned', ['team' => $data->acceptTeam?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-                $this->notificationService->sendToTeamLeader($notification, $newTeamIds);
-                $textResponse = __('success.emc_request.approve');
-            } else if ($emergencyRequest['status'] == EmergencyRequest::helping) { //ส่งแจ้งเตือนให้ลูกทีมทราบ
-                $emergencyRequest->update(['accept_by' => Auth::user()->id]);
-
-                LinePostUtility::LineMakeInformation(LineController::Emc_assigned, $emergencyRequest);
-                $data->load('acceptTeam');
-                $acceptTeam = $data->acceptTeam;
-                $notification = $this->notificationService->createNotification('emergency_request.approved', ['team' => $acceptTeam?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-                $this->notificationService->sendToAdmin($notification);
-                $notification = $this->notificationService->createNotification('emergency_request.assigned', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-                // ส่งถึงลูกทีมตัวเอง
-                $this->notificationService->sendToTeamMember($notification, $acceptTeam?->id);
-                // ส่งถึงทีมอื่น รวมหัวหน้าทีม
-                $filteredTeamIds = array_diff($newTeamIds, [$acceptTeam?->id]);
-                $this->notificationService->sendToTeam($notification, $filteredTeamIds);
-                $textResponse = __('success.emc_request.heling');
-            } else if ($emergencyRequest['status'] == EmergencyRequest::complete) { //ส่งแจ้งเตือน ช่วยเหลือสำเร็จ
-                self::updatedAssigner($emergencyRequest);
-                LinePostUtility::LineMakeInformation(LineController::Emc_success, $emergencyRequest);
-                $notification = $this->notificationService->createNotification('emergency_request.success', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-                $this->notificationService->sendToAdmin($notification);
-                $textResponse = __('success.emc_request.complete');
-            } else if ($emergencyRequest['status'] == EmergencyRequest::incomplete) { //ส่งแจ้งเตือน ช่วยเหลือไม่สำเร็จ ส่วนกลาง
-                self::updatedAssigner($emergencyRequest);
-                LinePostUtility::LineMakeInformation(LineController::Emc_unsuccess, $emergencyRequest);
-                $notification = $this->notificationService->createNotification('emergency_request.unsuccess', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-                $this->notificationService->sendToAdmin($notification);
-                $textResponse = __('success.emc_request.incomplete');
-            } else if ($emergencyRequest['status'] == EmergencyRequest::hospital) { //ส่งไป รพ.
-                LinePostUtility::LineMakeInformation(LineController::Hospital, $emergencyRequest);
-                $notification = $this->notificationService->createNotification('emergency_request.success', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-                $this->notificationService->sendToAdmin($notification);
-                $textResponse = __('success.emc_request.hospital');
-            }
-        }
-
-        // ถ้าทีมเปลี่ยน
-        if ($data->wasChanged('emergency_team_id')) {
-            $uniqueTeamIds = $oldTeamIds->union($newTeamIds);
-            EmcRequestNotification::dispatch([$old['emergency_team_id'], $uniqueTeamIds]);
-        } else if ($data->wasChanged('status')) {
-            EmcRequestNotification::dispatch($newTeamIds);
-        }
-        if (self::isDifferent($old['victim_name'], $request['victim_name'])) $textResponse = __('success.emc_request.victimName');
-        if ($emergencyRequest['status'] == EmergencyRequest::disapprove) $textResponse = __('success.emc_request.disapprove');
-        return ApiResponse::successResponse($textResponse ?? __('success.updated'), $emergencyRequest);
     }
 
     function isDifferent($aJson, array $b): bool
@@ -290,10 +301,14 @@ class EmergencyRequestController extends Controller
             return ApiResponse::errorResponse(__('error.emc_req.woking_not_change'));
     }
 
-    private function canEdit($e)
+    private function canEdit($e, $r)
     {
-        if (in_array($e['status'], [EmergencyRequest::disapprove, EmergencyRequest::incomplete, EmergencyRequest::complete, EmergencyRequest::hospital]))
+        if (in_array($e['status'], [EmergencyRequest::disapprove, EmergencyRequest::incomplete, EmergencyRequest::complete, EmergencyRequest::hospital])) {
             return ApiResponse::errorResponse(__('error.emc_req.end_of_job'));
+        }
+        if ($r['status'] == EmergencyRequest::helping && $e['status'] == EmergencyRequest::helping && !self::isDifferent($e['victim_name'], $r['victim_name'])) {
+            return ApiResponse::errorResponse(__('error.emc_req.working'));
+        }
     }
 
     /**

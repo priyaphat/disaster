@@ -199,7 +199,7 @@ class PopulationService
                             'p_geography_id' => null,
                             'c_address' => null,
                             'c_geography_id' => null,
-                            'same_address' => 0,
+                            'same_address' => 1,
                             'status' => PopulationStatus::NORMAL->value,
                             'sequence_id' => $sequenceId,
                             'created_date' => Carbon::now(),
