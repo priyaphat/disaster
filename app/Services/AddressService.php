@@ -54,7 +54,7 @@ class AddressService
     {
         $search = $filters['search'] ?? null;
         $offset = $filters['offset'] ?? 0;
-        $limit = $filters['limit'] ?? 10;
+        $limit = $filters['limit'] ?? 100;
 
         // Search current address in populations
         $cAddress = Population::select('id', 'c_address as address')->where('c_address', 'like', "%{$search}%")

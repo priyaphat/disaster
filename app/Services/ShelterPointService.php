@@ -13,7 +13,7 @@ class ShelterPointService
     {
         $search = $filters['search'] ?? null;
         $offset = $filters['offset'] ?? 0;
-        $limit = $filters['limit'] ?? 10;
+        $limit = $filters['limit'] ?? 100;
 
         $data = ShelterPoint::select('original_name')->where('original_name', 'like', "%{$search}%")
         ->orderByRaw("CASE

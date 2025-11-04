@@ -61,8 +61,8 @@ class UserPolicy
     /**
      * Handle the Shelter Population "updated" event.
      */
-    public function viewNoti(User $user): bool
+    public function viewNoti(User $user, User $userDetail): bool
     {
-        return $user->hasRole(Role::ADMIN);
+        return $user->hasRole(Role::ADMIN) && $userDetail->approval?->is_approved == 0;
     }
 }

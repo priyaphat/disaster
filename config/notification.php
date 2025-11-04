@@ -9,7 +9,7 @@ return [
     ],
     'post' => [
         'created' => [
-            'title' => 'ประกาศภัยพิบัติ',
+            'title' => 'ประกาศเหตุฉุกเฉิน',
             'message' => [
                 ['type' => 'text', 'content' => '#{disaster}'],
                 ['type' => 'text', 'content' => 'ระดับ #{level}'],
@@ -17,7 +17,7 @@ return [
             ]
         ],
         'updated' => [
-            'title' => 'อัปเดตภัยพิบัติ',
+            'title' => 'อัปเดตเหตุฉุกเฉิน',
             'message' => [
                 ['type' => 'text', 'content' => '#{disaster}'],
                 ['type' => 'text', 'content' => 'ระดับ #{level}'],
@@ -25,7 +25,7 @@ return [
             ]
         ],
         'deleted' => [
-            'title' => 'ยุติภัยพิบัติ',
+            'title' => 'ยุติเหตุฉุกเฉิน',
             'message' => [
                 ['type' => 'text', 'content' => '#{disaster}'],
                 ['type' => 'text', 'content' => 'ระดับ #{level}'],
@@ -69,7 +69,7 @@ return [
                 ['type' => 'text', 'content' => 'ขณะนี้'],
                 ['type' => 'text', 'content' => 'ศูนย์กลาง'],
                 ['type' => 'text', 'content' => 'ได้รับ'],
-                ['type' => 'bold', 'content' => '#{product} (#{unit})'],
+                ['type' => 'bold', 'content' => '#{product} #{unit}'],
                 ['type' => 'text', 'content' => 'จำนวน'],
                 ['type' => 'bold', 'content' => '#{amount}'],
                 ['type' => 'text', 'content' => 'จาก'],
@@ -82,7 +82,7 @@ return [
         'updated' => [
             'title' => 'อัปเดต ทรัพยากรภายในศูนย์',
             'message' => [
-                ['type' => 'bold', 'content' => '#{product} (#{unit})'],
+                ['type' => 'bold', 'content' => '#{product} #{unit}'],
                 ['type' => 'text', 'content' => 'คงเหลือ'],
                 ['type' => 'text', 'content' => '#{total}'],
             ]
@@ -93,7 +93,7 @@ return [
                 ['type' => 'text', 'content' => 'ขณะนี้'],
                 ['type' => 'text', 'content' => 'ศูนย์พักพิง#{shelter}'],
                 ['type' => 'text', 'content' => 'ได้รับ'],
-                ['type' => 'bold', 'content' => '#{product} (#{unit})'],
+                ['type' => 'bold', 'content' => '#{product} #{unit}'],
                 ['type' => 'text', 'content' => 'จำนวน'],
                 ['type' => 'bold', 'content' => '#{amount}'],
                 ['type' => 'text', 'content' => 'จาก'],
@@ -148,7 +148,7 @@ return [
         ]
     ],
     'appointment' => [
-        'staff' => [
+        'shelter' => [
             'created' => [
                 'title' => 'นัดหมายตรวจเยี่ยม ใหม่',
                 'message' => [
@@ -207,7 +207,7 @@ return [
             'message' => [
                 ['type' => 'text', 'content' => 'ขณะนี้'],
                 ['type' => 'text', 'content' => 'มีคำร้องขอ'],
-                ['type' => 'bold', 'content' => '#{product} (#{unit})'],
+                ['type' => 'bold', 'content' => '#{product} #{unit}'],
             ]
         ]
     ],

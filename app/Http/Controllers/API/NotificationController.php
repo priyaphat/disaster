@@ -64,7 +64,7 @@ class NotificationController extends Controller
 
     public function notification(Request $request)
     {
-        $user = Auth::user();
+        // $user = Auth::user();
         // $data = NotificationUser::whereHas('notification' , function ($q) {
         //             $q->where('entity_type', News::class);
         //     })->first();
@@ -73,8 +73,8 @@ class NotificationController extends Controller
         // $data->toArray(request());
         // $user->notify(new SendNotification($data));
 
-        $data = Notification::where('entity_type', News::class)->first();
-        $this->notificationService->sendToAdmin($data);
+        // $data = Notification::where('entity_type', News::class)->first();
+        // $this->notificationService->sendToAdmin($data);
         // ศูนย์พักพิงมีนัดหมายใหม่
         // $appointment = Appointment::find(121);
         // $data = [
@@ -442,6 +442,9 @@ class NotificationController extends Controller
         //     false
         // );
 
-        return ApiResponse::successResponse(__('success.data'), $data);
+        $notification = Notification::first();
+        $notification = new NotificationResource($notification);
+        $notification = $notification->toArray(request());
+        return ApiResponse::successResponse(__('success.data'), $notification);
     }
 }

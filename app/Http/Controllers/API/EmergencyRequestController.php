@@ -201,9 +201,8 @@ class EmergencyRequestController extends Controller
             if ($emergencyRequest['status'] == EmergencyRequest::waiting && $skip == false) {
                 // ส่งไปให้ส่วนกลาง หัวหน้าทีม กด ปฏิเสธ ปะ ?
                 LinePostUtility::LineMakeInformation(LineController::Emc_request_unaccept, $emergencyRequest);
-                $data->load('acceptTeam');
-                $acceptTeam = $data->acceptTeam;
-                $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $acceptTeam?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
+                $user = Auth::user();
+                $notification = $this->notificationService->createNotification('emergency_request.rejected', ['team' => $user?->member?->team?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
                 $this->notificationService->sendToAdmin($notification);
                 $emergencyRequest->update(['emergency_team_name' => null]);
                 (new EmergencyTeamController)->teamDel($emergencyRequest->id);

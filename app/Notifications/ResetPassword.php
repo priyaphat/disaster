@@ -78,7 +78,7 @@ class ResetPassword extends Notification
     protected function buildMailMessage($url, $name, $countdown)
     {
         return (new MailMessage)
-            ->subject(Lang::get('เปลี่ยนรหัสผ่านใหม่'))
+            ->subject(Lang::get('NONAME'))
             ->markdown('emails.resetPassword', ['url' => $url, 'name' => $name, 'countdown' =>$countdown]);
     }
 

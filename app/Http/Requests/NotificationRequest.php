@@ -27,7 +27,7 @@ class NotificationRequest extends FormRequest
     {
         return [
             'notification_id' => 'required',
-            'notification_id.*' => ['required', Rule::exists('notification_users', 'id')->where(fn(Builder $query) => $query->where('user_id', Auth::user()->id))]
+            'notification_id.*' => ['required', Rule::exists('notification_users', 'notification_id')->where(fn(Builder $query) => $query->where('user_id', Auth::user()->id))]
         ];
     }
 }

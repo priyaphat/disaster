@@ -47,7 +47,7 @@ class AppointmentPolicy
     public function viewNoti(User $user, Appointment $appointment): bool
     {
         $shelterId = $appointment->shelter_id;
-        $teamId = $appointment->teamId;
+        $teamId = $appointment->team_id;
         if ($user->hasRole(Role::STAFF)) {
             return $user->staff?->shelter_id == $shelterId;
         } else if ($user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER])) {

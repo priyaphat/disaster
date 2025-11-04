@@ -18,7 +18,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\UserApproval as Approval;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
@@ -159,7 +161,11 @@ class UserService
             Mail::to($user->email)->send(new RejectEmail($user));
             return __('success.approval.reject');
         } else {
-            $approval->update($data);
+            $approval->update([
+                'is_approved' => true,
+                'approved_at' => Carbon::now(),
+                'approved_by' => Auth::user()->id
+            ]);
             Mail::to($user->email)->send(new ApproveEmail($user));
             return __('success.approval.approve');
         }

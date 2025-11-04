@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Events\Notification;
 use App\Http\Resources\NotificationResource;
 use App\Models\NotificationUser;
 use App\Notifications\SendNotification;
@@ -37,10 +36,9 @@ class BroadcastNotification implements ShouldQueue
 
         NotificationUser::upsert($rows, ['notification_id', 'user_id'], ['is_read']);
 
-        $notification = new NotificationResource($this->data);
-        $notification = $notification->toArray(request());
-
         foreach ($this->users as $user) {
+            $notification = new NotificationResource($this->data, $user);
+            $notification = $notification->toArray(request());
             $user->notify(new SendNotification($notification));
         }
     }

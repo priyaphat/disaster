@@ -11,13 +11,14 @@ use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class NotificationService
 {
     public function getList(array $filters = [])
     {
         $offset = $filters['offset'] ?? 0;
-        $limit = $filters['limit'] ?? 10;
+        $limit = $filters['limit'] ?? 100;
 
         $query = Notification::with(['notification_users' => function ($q) {
             $q->where('user_id', Auth::user()->id);
@@ -36,7 +37,7 @@ class NotificationService
 
     public function bulkDelte(array $data)
     {
-        $data = NotificationUser::whereIn('id', $data['notification_id'])->delete();
+        $data = NotificationUser::whereIn('notification_id', $data['notification_id'])->where('user_id', Auth::user()->id)->delete();
         return $data;
     }
 
@@ -97,6 +98,11 @@ class NotificationService
     public function replacePlaceholders(string $text, array $replacements)
     {
         foreach ($replacements as $key => $value) {
+            if ($key === 'unit') {
+                $value = $value ? Str::of('(')->append($value)->append(')')->toString() : '';
+            } else if ($key === 'amount' || $key === 'total') {
+                $value = number_format($value);
+            }
             $text = str_replace('#{' . $key . '}', $value, $text);
         }
         return $text;

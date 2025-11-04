@@ -105,7 +105,7 @@ class PopulationService
         $firstName = $filters['first_name'];
         $lastName = $filters['last_name'];
         $offset = $filters['offset'] ?? 0;
-        $limit = $filters['limit'] ?? 10;
+        $limit = $filters['limit'] ?? 100;
 
         $query = Population::select('id', 'first_name', 'last_name');
         if ($type == 1) {
