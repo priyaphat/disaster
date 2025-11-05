@@ -309,6 +309,12 @@ class EmergencyRequestController extends Controller
         if ($r['status'] == EmergencyRequest::helping && $e['status'] == EmergencyRequest::helping && !self::isDifferent($e['victim_name'], $r['victim_name'])) {
             return ApiResponse::errorResponse(__('error.emc_req.working'));
         }
+        if ($r['status'] == EmergencyRequest::waiting && $e['status'] == EmergencyRequest::helping) {
+            return ApiResponse::errorResponse(__('error.emc_req.woking_not_change'));
+        }
+        if ($r['status'] == EmergencyRequest::helping && $e['status'] == EmergencyRequest::waiting) {
+            return ApiResponse::errorResponse(__('error.emc_req.working'));
+        }
     }
 
     /**
