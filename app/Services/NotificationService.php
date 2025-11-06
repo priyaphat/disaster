@@ -52,7 +52,7 @@ class NotificationService
      */
     public function createNotification(string $type, array $detail,  $entityId = null, $entityType = null, $isShow = false)
     {
-        [$eventType, $eventAction] = explode('.', $type);
+        [$eventType, $eventAction] = explode('.', $type, 2);
         $notification = self::formatData($type, $detail);
         $data = [
             'notification' => $notification,

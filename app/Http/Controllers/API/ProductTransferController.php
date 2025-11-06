@@ -235,6 +235,7 @@ class ProductTransferController extends Controller
             ->leftJoin('categories', 'products.category_id', 'categories.id')
             ->leftJoin('units', 'products.unit_id', 'units.id')->first();
         $i['to_shelter_name'] = Shelter::find($r['shelter_id'])->name ?? 'ศูนย์กลาง';
+        $i['from_shelter_name'] = Shelter::find($pdt['shelter_id'])->name ?? 'ศูนย์กลาง';
         $i['product']['user_name'] = User::select(DB::raw('concat(firstname," ",lastname) as name'))->where('id', Auth()->user()->id)->value('name');
         $i['reason'] = $i['reason'] ?? null;
         $data = [
@@ -256,7 +257,8 @@ class ProductTransferController extends Controller
             $notify = $notificationService->createNotification(
                 'shelter_product.received',
                 [
-                    'shelter' => $i['to_shelter_name'],
+                    'to_shelter' => 'ศูนย์พักพิง' . $i['to_shelter_name'],
+                    'from_shelter' => $log->from ? 'ศูนย์พักพิง'. $i['from_shelter_name'] : 'ศูนย์กลาง',
                     'product' => $i['product']['name'],
                     'unit' => $i['product']['unit_name'],
                     'amount' => $log['detail']['quantity'],

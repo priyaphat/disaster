@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('p_geography_id')->nullable();
             $table->string('c_address', 100)->nullable();
             $table->unsignedBigInteger('c_geography_id')->nullable();
-            $table->unsignedTinyInteger('same_address')->default(0);
+            $table->unsignedTinyInteger('same_address')->default(1);
             $table->unsignedTinyInteger('status')->default(2)->comment('0 - เสียชีวิต , 1 - บาดเจ็บ , 2 - ปกติ');
             $table->unsignedTinyInteger('tracking')->default(1)->comment('0 - ไม่ติดตาม , 1 - ติดตาม');
             $table->integer('sequence_id')->nullable()->comment('id ที่อ้างอิงจากการดึงข้อมูลจากภายนอก');

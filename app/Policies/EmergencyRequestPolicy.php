@@ -3,9 +3,9 @@
 namespace App\Policies;
 
 use App\Models\EmergencyRequest;
+use App\Models\Notification;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 class EmergencyRequestPolicy
 {
@@ -52,8 +52,9 @@ class EmergencyRequestPolicy
     /**
      * Determine whether the user can view the notification.
      */
-    public function viewNoti(User $user, EmergencyRequest $emergencyRequest, $eventAction = null): bool
+    public function viewNoti(User $user, EmergencyRequest $emergencyRequest, ?Notification $notification): bool
     {
+        $eventAction = $notification->event_action ?? null;
         $emergencyRequest->load('emergencyTeams');
         $teamArr = $emergencyRequest->emergencyTeams->pluck('team_id')->toArray();
 

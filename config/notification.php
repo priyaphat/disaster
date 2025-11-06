@@ -91,13 +91,13 @@ return [
             'title' => 'ได้รับทรัพยากรระหว่างศูนย์',
             'message' => [
                 ['type' => 'text', 'content' => 'ขณะนี้'],
-                ['type' => 'text', 'content' => 'ศูนย์พักพิง#{shelter}'],
+                ['type' => 'text', 'content' => '#{to_shelter}'],
                 ['type' => 'text', 'content' => 'ได้รับ'],
                 ['type' => 'bold', 'content' => '#{product} #{unit}'],
                 ['type' => 'text', 'content' => 'จำนวน'],
                 ['type' => 'bold', 'content' => '#{amount}'],
                 ['type' => 'text', 'content' => 'จาก'],
-                ['type' => 'bold', 'content' => 'ศูนย์กลาง'],
+                ['type' => 'bold', 'content' => '#{from_shelter}'],
             ]
         ]
     ],
@@ -148,7 +148,7 @@ return [
         ]
     ],
     'appointment' => [
-        'shelter' => [
+        'staff' => [
             'created' => [
                 'title' => 'นัดหมายตรวจเยี่ยม ใหม่',
                 'message' => [
@@ -159,7 +159,7 @@ return [
             'updated' => [
                 'title' => 'นัดหมายตรวจเยี่ยม ถูกอัปเดต',
                 'message' => [
-                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{old_date} เวลา #{old_time} กับ ทีมเจ้าหน้าที่'],
+                    ['type' => 'text', 'content' => 'นัดหมาย ในวันที่ #{old_date} เวลา #{old_time} กับ ทีมเจ้าหน้าที่'],
                     ['type' => 'bold', 'content' => '#{old_team}'],
                     ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น #{new_date} เวลา #{new_time} กับ ทีมเจ้าหน้าที่'],
                     ['type' => 'bold', 'content' => '#{new_team}'],
@@ -168,7 +168,7 @@ return [
             'deleted' => [
                 'title' => 'นัดหมายตรวจเยี่ยม ถูกยกเลิก',
                 'message' => [
-                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{date} เวลา #{time} กับ ทีมเจ้าหน้าที่'],
+                    ['type' => 'text', 'content' => 'นัดหมาย ในวันที่ #{date} เวลา #{time} กับ ทีมเจ้าหน้าที่'],
                     ['type' => 'bold', 'content' => '#{team}'],
                     ['type' => 'text', 'content' => 'ถูกยกเลิก'],
                 ]
@@ -185,7 +185,7 @@ return [
             'updated' => [
                 'title' => 'นัดหมายตรวจเยี่ยม ถูกอัปเดต',
                 'message' => [
-                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{old_date} เวลา #{old_time} ที่ ศูนย์พักพิง'],
+                    ['type' => 'text', 'content' => 'นัดหมาย ในวันที่ #{old_date} เวลา #{old_time} ที่ ศูนย์พักพิง'],
                     ['type' => 'bold', 'content' => '#{old_shelter}'],
                     ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น #{new_date} เวลา #{new_time} ที่ ศูนย์พักพิง'],
                     ['type' => 'bold', 'content' => '#{new_shelter}'],
@@ -194,7 +194,7 @@ return [
             'deleted' => [
                 'title' => 'นัดหมายตรวจเยี่ยม ถูกยกเลิก',
                 'message' => [
-                    ['type' => 'text', 'content' => 'มีนัดหมาย ในวันที่ #{date} เวลา #{time} ที่ ศูนย์พักพิง'],
+                    ['type' => 'text', 'content' => 'นัดหมาย ในวันที่ #{date} เวลา #{time} ที่ ศูนย์พักพิง'],
                     ['type' => 'bold', 'content' => '#{shelter}'],
                     ['type' => 'text', 'content' => 'ถูกยกเลิก'],
                 ]
@@ -240,6 +240,7 @@ return [
                 ['type' => 'bold', 'content' => '#{team}'],
                 ['type' => 'text', 'content' => 'รับคำร้องจาก'],
                 ['type' => 'bold', 'content' => '#{name}'],
+                ['type' => 'text', 'content' => 'แล้ว'],
             ]
         ],
         'rejected' => [

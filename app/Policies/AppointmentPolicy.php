@@ -3,8 +3,10 @@
 namespace App\Policies;
 
 use App\Models\Appointment;
+use App\Models\Notification;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class AppointmentPolicy
 {
@@ -44,14 +46,12 @@ class AppointmentPolicy
     /**
      * Determine whether the user can view the notification.
      */
-    public function viewNoti(User $user, Appointment $appointment): bool
+    public function viewNoti(User $user, Appointment $appointment, ?Notification $notification): bool
     {
-        $shelterId = $appointment->shelter_id;
-        $teamId = $appointment->team_id;
         if ($user->hasRole(Role::STAFF)) {
-            return $user->staff?->shelter_id == $shelterId;
+            return Str::contains($notification->notification_type, 'staff', ignoreCase: true);
         } else if ($user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER])) {
-            return $user->member?->team_id == $teamId;
+            return Str::contains($notification->notification_type, 'team', ignoreCase: true);
         }
 
         return $user->hasRole(Role::ADMIN);

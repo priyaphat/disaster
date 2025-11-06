@@ -40,7 +40,7 @@ class NotificationResource extends JsonResource
         $relatedData = [];
         $isShow = $this->show_details;
         if ($isShow) {
-            $isShow = Gate::forUser($this->user)->allows('viewNoti', [$entity, $this->event_action]);
+            $isShow = Gate::forUser($this->user)->allows('viewNoti', [$entity ?? new $entityClass, $this->resource]);
             if ($entityClass === News::class) {
                 $relatedData['shelter_id'] = $this->entity?->shelter_id;
                 $relatedData['shelter_name'] = $this->entity?->shelter?->name;

@@ -239,7 +239,7 @@ class ProductController extends Controller
                 ],
                 $data->id,
                 ShelterProduct::class,
-                true
+                false
             );
             $notificationService->sendToStaff($notify, $data->shelter_id);
         }
