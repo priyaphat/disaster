@@ -98,6 +98,11 @@ class EmergencyRequestController extends Controller
     #[PathParameter('emc', description: 'Phone or id | เบอร์โทรหรือ id', type: 'string', example: '0987654321')]
     public function emcRequestId(Request $request, $id)
     {
+        // Check permission
+        $emc = EmergencyRequest::find($id);
+        $this->authorize('view', $emc);
+
+        // แปลง data
         $data = $this->emergencyRequestService->emcRequestBy($request, null, $id); //phone & id
         return ApiResponse::successResponse(__('success.data'), $data);
     }
@@ -142,14 +147,13 @@ class EmergencyRequestController extends Controller
      */
     public function update(EmergencyRequestRequest $request, EmergencyRequest $emergencyRequest)
     {
+        $this->authorize('update', $emergencyRequest);
         try {
             $response = DB::transaction(function () use ($request, $emergencyRequest) {
                 EmergencyRequest::where('id', $emergencyRequest->id)
                     ->lock('FOR UPDATE NOWAIT')
                     ->first();
 
-                #region code    
-                // $this->authorize('update', $emergencyRequest);
                 if ($edit = self::canEdit($emergencyRequest, $request)) return $edit;
                 //hospital create
                 if ($request['hospital_id'] == -1) {
@@ -229,11 +233,8 @@ class EmergencyRequestController extends Controller
                         $notification = $this->notificationService->createNotification('emergency_request.approved', ['team' => $acceptTeam?->name, 'name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
                         $this->notificationService->sendToAdmin($notification);
                         $notification = $this->notificationService->createNotification('emergency_request.assigned', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
-                        // ส่งถึงลูกทีมตัวเอง
-                        $this->notificationService->sendToTeamMember($notification, $acceptTeam?->id);
-                        // ส่งถึงทีมอื่น รวมหัวหน้าทีม
-                        $filteredTeamIds = array_diff($newTeamIds, [$acceptTeam?->id]);
-                        $this->notificationService->sendToTeam($notification, $filteredTeamIds);
+                        // ส่งถึงลูกทีมตัวเอง และลูกทีมคนอื่นๆ
+                        $this->notificationService->sendToTeamMember($notification, $newTeamIds);
                         $textResponse = __('success.emc_request.heling');
                     } else if ($emergencyRequest['status'] == EmergencyRequest::complete) { //ส่งแจ้งเตือน ช่วยเหลือสำเร็จ
                         self::updatedAssigner($emergencyRequest);

@@ -15,9 +15,16 @@ class EmergencyRequestPolicy
         return $user->hasRole(Role::ADMIN);
     }
 
-    public function view(User $user): bool
+    public function view(User $user, EmergencyRequest $emergencyRequest): bool
     {
-        return $user->hasAnyRole([Role::ADMIN, Role::TEAM_LEADER, Role::TEAM_MEMBER]);
+        $emergencyRequest->load('emergencyTeams');
+        $teamArr = $emergencyRequest->emergencyTeams->pluck('team_id')->toArray();
+        if ($user->hasRole(Role::TEAM_LEADER)) {
+            return in_array($user->member?->team_id, $teamArr) && in_array($emergencyRequest['status'], [EmergencyRequest::approve, EmergencyRequest::helping, EmergencyRequest::complete, EmergencyRequest::incomplete, EmergencyRequest::hospital]);
+        } else if ($user->hasRole(Role::TEAM_MEMBER)) {
+            return in_array($user->member?->team_id, $teamArr) && in_array($emergencyRequest['status'], [EmergencyRequest::helping, EmergencyRequest::complete, EmergencyRequest::incomplete, EmergencyRequest::hospital]);
+        }
+        return $user->hasRole(Role::ADMIN);
     }
 
     public function viewAny(User $user): bool
@@ -67,7 +74,7 @@ class EmergencyRequestPolicy
         } else if ($eventAction === 'assigned' && $emergencyRequest['status'] === EmergencyRequest::approve) {
             return $user->hasRole(Role::TEAM_LEADER) && in_array($user->member?->team_id, $teamArr);
         } else if ($eventAction === 'assigned' && $emergencyRequest['status'] === EmergencyRequest::helping) {
-            return $user->hasRole(Role::TEAM_MEMBER) && in_array($user->member?->team_id, $teamArr);
+            return ($user->hasRole(Role::TEAM_MEMBER) || $user->hasRole(Role::TEAM_LEADER)) && in_array($user->member?->team_id, $teamArr);
         }
 
         return false;
