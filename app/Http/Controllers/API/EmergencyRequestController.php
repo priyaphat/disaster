@@ -417,7 +417,11 @@ class EmergencyRequestController extends Controller
     {
         // ให้แต่ทีมที่รับผิดชอบย้ายได้
         $this->authorize('requestShelter', EmergencyRequest::class);
+
         $victim_name = []; //เก็บ population_id อันใหม่ เข้า emc request
+        $emc = EmergencyRequest::find($request['id'] ?? $request['request_id']);
+        if ($edit = self::canEdit($emc, $request)) return $edit;
+
         if ($request->check == true) {
             if ($request->victim_name) {
                 $victims = $request->victim_name;
@@ -470,52 +474,61 @@ class EmergencyRequestController extends Controller
                 return ApiResponse::successResponse(__('success.data'), ['data' => $victims, 'has_shelter' => $ar ?? []]);
             }
         } else {
-            $request->validate(
-                [
-                    'shelter_id' => 'required|exists:shelters,id',
-                    'victim_name' => 'array|required',
-                    'victim_name.*.prefix_id' => 'required|integer|exists:prefixes,id',
-                    'victim_name.*.prefix_name' => 'required',
-                    'victim_name.*.first_name' => 'required|string|max:100',
-                    'victim_name.*.last_name' => 'required|string|max:100',
-                    'victim_name.*.birth_date' => 'required|date',
-                    'victim_name.*.gender' => 'required|in:0,1,2',
-                    'victim_name.*.phone' => 'required|string|size:10',
-                    'victim_name.*.p_address' => 'required|string|max:100',
-                    'victim_name.*.p_geography_id' => 'required|exists:geography,id',
-                    'victim_name.*.c_address' => 'required|string|max:100',
-                    'victim_name.*.c_geography_id' => 'required|exists:geography,id',
-                    'victim_name.*.same_address' => 'required',
-                    'victim_name.*.status' => ['required', Rule::enum(PopulationStatus::class)],
-                    'victim_name.*.created_date' => 'required|date',
-                    'request_id' => 'required',
-                ],
-            );
-            foreach ($request['victim_name'] as $i) {
-                $i['shelter_id'] = $request['shelter_id'];
-                $i['birth_date'] = Carbon::parse($i['birth_date'])->format('Y-m-d');
-                $i['created_date'] = Carbon::parse($i['created_date'])->format('Y-m-d');
-                if ($i['trans_status'] == Population::new_population) {
-                    $res = (new PopulationService)->create($i);
-                } else {
-                    $q = Population::find($i['id']);
-                    $res = (new PopulationService)->update($q, $i);
-                }
-                $victim_name[] = [
-                    "fname" => $i['first_name'],
-                    "lname" => $i['last_name'],
-                    "prefix_id" => $i['prefix_id'],
-                    "prefix_name" => $i['prefix_name'],
-                    "population_id" => $res->id,
-                ];
+            try {
+                DB::transaction(function () use ($request) {
+                    EmergencyRequest::where('id', $request->request_id)
+                        ->lock('FOR UPDATE NOWAIT')
+                        ->first();
+
+                    $request->validate(
+                        [
+                            'shelter_id' => 'required|exists:shelters,id',
+                            'victim_name' => 'array|required',
+                            'victim_name.*.prefix_id' => 'required|integer|exists:prefixes,id',
+                            'victim_name.*.prefix_name' => 'required',
+                            'victim_name.*.first_name' => 'required|string|max:100',
+                            'victim_name.*.last_name' => 'required|string|max:100',
+                            'victim_name.*.birth_date' => 'required|date',
+                            'victim_name.*.gender' => 'required|in:0,1,2',
+                            'victim_name.*.phone' => 'required|string|size:10',
+                            'victim_name.*.p_address' => 'required|string|max:100',
+                            'victim_name.*.p_geography_id' => 'required|exists:geography,id',
+                            'victim_name.*.c_address' => 'required|string|max:100',
+                            'victim_name.*.c_geography_id' => 'required|exists:geography,id',
+                            'victim_name.*.same_address' => 'required',
+                            'victim_name.*.status' => ['required', Rule::enum(PopulationStatus::class)],
+                            'victim_name.*.created_date' => 'required|date',
+                            'request_id' => 'required',
+                        ],
+                    );
+                    foreach ($request['victim_name'] as $i) {
+                        $i['shelter_id'] = $request['shelter_id'];
+                        $i['birth_date'] = Carbon::parse($i['birth_date'])->format('Y-m-d');
+                        $i['created_date'] = Carbon::parse($i['created_date'])->format('Y-m-d');
+                        if ($i['trans_status'] == Population::new_population) {
+                            $res = (new PopulationService)->create($i);
+                        } else {
+                            $q = Population::find($i['id']);
+                            $res = (new PopulationService)->update($q, $i);
+                        }
+                        $victim_name[] = [
+                            "fname" => $i['first_name'],
+                            "lname" => $i['last_name'],
+                            "prefix_id" => $i['prefix_id'],
+                            "prefix_name" => $i['prefix_name'],
+                            "population_id" => $res->id,
+                        ];
+                    }
+                });
+            } catch (\Exception $e) {
+                return ApiResponse::errorResponse(__('error.emc_req.working'));
             }
         }
         if ($request->request_id) {
-            EmergencyRequest::where('id', $request->request_id)
-                ->update([
-                    'status' => EmergencyRequest::complete,
-                    'victim_name' => $victim_name
-                ]);
+            $emc->update([
+                'status' => EmergencyRequest::complete,
+                'victim_name' => $victim_name
+            ]);
             EmergencyRequestLog::create([
                 'emergency_request_id' => $request->request_id,
                 'reason_id' => 1,
