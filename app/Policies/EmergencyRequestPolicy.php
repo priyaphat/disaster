@@ -24,6 +24,7 @@ class EmergencyRequestPolicy
         } else if ($user->hasRole(Role::TEAM_MEMBER)) {
             return in_array($user->member?->team_id, $teamArr) && in_array($emergencyRequest['status'], [EmergencyRequest::helping, EmergencyRequest::complete, EmergencyRequest::incomplete, EmergencyRequest::hospital]);
         }
+        
         return $user->hasRole(Role::ADMIN);
     }
 
@@ -36,13 +37,15 @@ class EmergencyRequestPolicy
     {
         $emergencyRequest->load('emergencyTeams');
         $teamArr = $emergencyRequest->emergencyTeams->pluck('team_id')->toArray();
-        if ($emergencyRequest['status'] === EmergencyRequest::waiting) {
-            return $user->hasRole(Role::ADMIN);
-        } else if ($emergencyRequest['status'] === EmergencyRequest::approve) {
-            return $user->hasRole(Role::ADMIN) || ($user->hasRole(Role::TEAM_LEADER) && in_array($user->member?->team_id, $teamArr)); // เช็กด้วยว่าทีมตรงกันไหม
-        } else if ($emergencyRequest['status'] === EmergencyRequest::helping) {
-            return $user->hasAnyRole([Role::TEAM_LEADER, Role::TEAM_MEMBER]) && in_array($user->member?->team_id, $teamArr); // เช้็กด้วยว่าทีมตรงกันไหม
+
+        if ($user->hasRole(Role::ADMIN)) {
+            return in_array($emergencyRequest['status'], [EmergencyRequest::waiting, EmergencyRequest::approve]);
+        } else if ($user->hasRole(Role::TEAM_LEADER)) {
+            return in_array($user->member?->team_id, $teamArr) && in_array($emergencyRequest['status'], [EmergencyRequest::approve, EmergencyRequest::helping]);
+        } else if ($user->hasRole(Role::TEAM_MEMBER)) {
+            return in_array($user->member?->team_id, $teamArr) && in_array($emergencyRequest['status'], [EmergencyRequest::helping]);
         }
+
         return false;
     }
 

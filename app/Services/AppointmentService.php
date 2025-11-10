@@ -574,7 +574,7 @@ class AppointmentService
                 $oldTeamIds = (new LineController)->getTeamLineIds($appointment->team_id);
                 $newTeamIds = (new LineController)->getTeamLineIds($appointment->team_id);
 
-                $lineCancled = [
+                $lineCanceled = [
                     'shelter' => $oldShelter,
                     'date' => $oldDate,
                     'time' => $oldTime,
@@ -588,8 +588,8 @@ class AppointmentService
                     'team' => $newTeam,
                 ];
 
-                if (!empty($oldStaffIds)) (new LineController)->LineNotification($lineCancled, LineController::Shelter_appointment, $oldStaffIds);
-                if (!empty($oldTeamIds)) (new LineController)->LineNotification($lineCancled, LineController::Team_appointment, $oldTeamIds);
+                if (!empty($oldStaffIds)) (new LineController)->LineNotification($lineCanceled, LineController::Shelter_appointment, $oldStaffIds);
+                if (!empty($oldTeamIds)) (new LineController)->LineNotification($lineCanceled, LineController::Team_appointment, $oldTeamIds);
                 if (!empty($newStaffIds)) (new LineController)->LineNotification($lineCreated, LineController::Shelter_appointment, $newStaffIds);
                 if (!empty($newTeamIds)) (new LineController)->LineNotification($lineCreated, LineController::Team_appointment, $newTeamIds);
             }
@@ -650,7 +650,7 @@ class AppointmentService
                 $newStaffIds = (new LineController)->getStaffLineIds($oldAppointment->shelter_id);
                 $newTeamIds = (new LineController)->getTeamLineIds($appointment->team_id);
 
-                $lineCancled = [
+                $lineCanceled = [
                     'shelter' => $oldShelter,
                     'date' => $oldDate,
                     'time' => $oldTime,
@@ -674,7 +674,7 @@ class AppointmentService
                     'new_shelter' => $newShelter,
                 ];
 
-                if (!empty($oldStaffIds)) (new LineController)->LineNotification($lineCancled, LineController::Shelter_appointment_canceled, $oldStaffIds);
+                if (!empty($oldStaffIds)) (new LineController)->LineNotification($lineCanceled, LineController::Shelter_appointment_canceled, $oldStaffIds);
                 if (!empty($newStaffIds)) (new LineController)->LineNotification($lineCreated, LineController::Shelter_appointment, $newStaffIds);
                 if (!empty($newTeamIds)) (new LineController)->LineNotification($lineUpdated, LineController::Team_appointment_update, $newTeamIds);
             } else if ($teamChanged) {

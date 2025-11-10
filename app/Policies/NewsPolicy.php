@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\News;
+use App\Models\Notification;
 use App\Models\Role;
 use App\Models\User;
 
@@ -44,8 +45,13 @@ class NewsPolicy
     public function viewNoti(User $user, News $news): bool
     {
         $shelterId = $news->shelter_id;
-        if ($shelterId && $user->hasRole(Role::STAFF)) {
-            return $user->staff?->shelter_id == $shelterId;
+
+        if (!$news?->id) {
+            return false;
+        }
+
+        if ($shelterId) {
+            return $user->hasRole(Role::STAFF) && $user->staff?->shelter_id == $shelterId;
         }
 
         return true;

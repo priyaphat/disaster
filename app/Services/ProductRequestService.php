@@ -101,7 +101,7 @@ class ProductRequestService
 
         // Send create product request notification
         $notification = app(NotificationService::class)->createNotification('product_request.created', ['product' => $product->name, 'unit' => $product->unit?->name ?? ''], $data->id, ProductRequest::class, true);
-        app(NotificationService::class)->sendToAdmin($notification);
+        app(NotificationService::class)->sendToAllUsers($notification);
 
         self::log($data, $product, ProductLogs::REQUEST);
     }

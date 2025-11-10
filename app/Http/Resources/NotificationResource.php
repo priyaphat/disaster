@@ -53,10 +53,10 @@ class NotificationResource extends JsonResource
                 $relatedData['shelter_id'] = $this->entity?->shelter_id;
                 $relatedData['shelter_name'] = $this->entity?->shelter?->name;
             } else if ($entityClass === Appointment::class) {
-                $relatedData['shelter_id'] = $this->entity?->shelter_id;
-                $relatedData['shelter_name'] = $this->entity?->shelter?->name;
-                $relatedData['team_id'] = $this->entity?->team_id;
-                $relatedData['team_name'] = $this->entity?->team?->name;
+                $relatedData['shelter_id'] = $this->user?->staff?->shelter_id;
+                $relatedData['shelter_name'] = $this->user?->staff?->shelter?->name;
+                $relatedData['team_id'] = $this->user?->member?->team_id;
+                $relatedData['team_name'] = $this->user?->member?->team?->name;
             } else if ($entityClass === ProductLogs::class) {
                 $relatedData['from_shelter_id'] = $this->entity?->fromShelter?->id;
                 $relatedData['from_shelter_name'] = $this->entity?->fromShelter?->name;

@@ -10,6 +10,7 @@ use App\Http\Resources\NewsResource;
 use App\Http\Resources\NotificationResource;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
+use App\Http\Utility\LogUtility;
 use App\Models\Config;
 use App\Models\EmergencyRequest;
 use App\Models\News;
@@ -67,9 +68,6 @@ class NotificationController extends Controller
 
     public function notification(Request $request)
     {
-        $notification = Notification::first();
-        $notification = new NotificationResource($notification);
-        $notification = $notification->toArray(request());
-        return ApiResponse::successResponse(__('success.data'), $notification);
+        return ApiResponse::successResponse(__('success.data'));
     }
 }

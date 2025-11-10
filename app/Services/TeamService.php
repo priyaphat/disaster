@@ -96,7 +96,7 @@ class TeamService
         if ($oldLeader != $newLeader) {
             $notificationService = app(NotificationService::class);
             $notification = $notificationService->createNotification('team.updated_leader', ['name' => $team->leader->fullname ?? null,], $team->id, Team::class, false);
-            $notificationService->sendToTeamMember($notification, $team->id);
+            $notificationService->sendToTeam($notification, $team->id);
         }
         return $team;
     }
