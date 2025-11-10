@@ -418,9 +418,9 @@ class EmergencyRequestController extends Controller
         // ให้แต่ทีมที่รับผิดชอบย้ายได้
         $this->authorize('requestShelter', EmergencyRequest::class);
 
-        $victim_name = []; //เก็บ population_id อันใหม่ เข้า emc request
         $emc = EmergencyRequest::find($request['id'] ?? $request['request_id']);
         if ($edit = self::canEdit($emc, $request)) return $edit;
+        $victim_name = []; //เก็บ population_id อันใหม่ เข้า emc request
 
         if ($request->check == true) {
             if ($request->victim_name) {
@@ -475,7 +475,7 @@ class EmergencyRequestController extends Controller
             }
         } else {
             try {
-                DB::transaction(function () use ($request) {
+                DB::transaction(function () use ($request, &$victim_name) {
                     EmergencyRequest::where('id', $request->request_id)
                         ->lock('FOR UPDATE NOWAIT')
                         ->first();
