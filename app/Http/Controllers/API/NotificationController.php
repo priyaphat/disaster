@@ -16,6 +16,7 @@ use App\Models\EmergencyRequest;
 use App\Models\News;
 use App\Models\Notification;
 use App\Models\NotificationUser;
+use App\Models\Population;
 use App\Models\Product;
 use App\Models\ProductLogs;
 use App\Notifications\SendNotification;

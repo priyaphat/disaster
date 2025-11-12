@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Filters\PopulationFilter;
 use App\Http\Traits\CreatedUpdatedBy;
+use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,7 +37,7 @@ class Population extends Model
     public const old_not_has_shelter = 2;
     public const old_has_shelter = 3;
 
-    protected $appends = ['gis_map'];
+    // protected $appends = ['gis_map'];
 
     protected $fillable = [
         // 'user_id',
@@ -70,10 +71,32 @@ class Population extends Model
         'prefix_id' => 'integer',
         'sequence_id' => 'integer',
         'vulnerable_group_id' => 'integer',
-        'create_date' => 'datetime',
+        'created_date' => 'datetime',
     ];
 
     protected $hidden = ['sequence_id'];
+
+    protected function birthDate(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => Carbon::parse($value)->format('Y-m-d'),
+        );
+    }
+
+    protected function age(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => isset($attributes['birth_date']) ? (int) Carbon::parse($attributes['birth_date'])->diffInYears(now()) : null,
+        );
+    }
+
+
+    protected function createdDate(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes) => Carbon::parse($value)->format('Y-m-d'),
+        );
+    }
 
     protected function gisMap(): Attribute
     {

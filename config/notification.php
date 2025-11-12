@@ -161,7 +161,7 @@ return [
                 'message' => [
                     ['type' => 'text', 'content' => 'นัดหมาย ในวันที่ #{old_date} เวลา #{old_time} กับ ทีมเจ้าหน้าที่'],
                     ['type' => 'bold', 'content' => '#{old_team}'],
-                    ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น #{new_date} เวลา #{new_time} กับ ทีมเจ้าหน้าที่'],
+                    ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น วันที่ #{new_date} เวลา #{new_time} กับ ทีมเจ้าหน้าที่'],
                     ['type' => 'bold', 'content' => '#{new_team}'],
                 ]
             ],
@@ -187,7 +187,7 @@ return [
                 'message' => [
                     ['type' => 'text', 'content' => 'นัดหมาย ในวันที่ #{old_date} เวลา #{old_time} ที่ ศูนย์พักพิง'],
                     ['type' => 'bold', 'content' => '#{old_shelter}'],
-                    ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น #{new_date} เวลา #{new_time} ที่ ศูนย์พักพิง'],
+                    ['type' => 'text', 'content' => 'ถูกแก้ไขเป็น วันที่ #{new_date} เวลา #{new_time} ที่ ศูนย์พักพิง'],
                     ['type' => 'bold', 'content' => '#{new_shelter}'],
                 ]
             ],

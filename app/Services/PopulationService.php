@@ -4,12 +4,9 @@ namespace App\Services;
 
 use App\Enums\GenderId;
 use App\Enums\PopulationStatus;
-use App\Enums\PrefixId;
 use App\Http\Resources\PopulationResource;
-use App\Http\Resources\PopulationShowResource;
 use App\Models\Population;
 use App\Models\Prefix;
-use App\Models\Shelter;
 use App\Models\ShelterPopulation;
 use Carbon\Carbon;
 use Dedoc\Scramble\Attributes\QueryParameter;
