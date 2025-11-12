@@ -49,7 +49,7 @@ class EmergencyRequestRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'other.required_if' => 'กรุณาระบุข้อมูลในช่อง',
+            'other.required_if' => 'กรุณาระบุข้อมูล',
         ];
     }
 
