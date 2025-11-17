@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Models\CancelationReason;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class EmergencyRequestController extends Controller
 {
@@ -276,7 +277,7 @@ class EmergencyRequestController extends Controller
 
             return  $response;
         } catch (\Exception $e) {
-            return ApiResponse::errorResponse(__('error.emc_req.working'));
+            return ApiResponse::errorResponse(__('error.emc_req.working'), Response::HTTP_FORBIDDEN);
         }
     }
 
@@ -303,22 +304,22 @@ class EmergencyRequestController extends Controller
     private function canCheck($e)
     {
         if (!in_array($e['status'], [EmergencyRequest::waiting, EmergencyRequest::approve]))
-            return ApiResponse::errorResponse(__('error.emc_req.woking_not_change'));
+            return ApiResponse::errorResponse(__('error.emc_req.woking_not_change'), Response::HTTP_FORBIDDEN);
     }
 
     private function canEdit($e, $r)
     {
         if (in_array($e['status'], [EmergencyRequest::disapprove, EmergencyRequest::incomplete, EmergencyRequest::complete, EmergencyRequest::hospital])) {
-            return ApiResponse::errorResponse(__('error.emc_req.end_of_job'));
+            return ApiResponse::errorResponse(__('error.emc_req.end_of_job'), Response::HTTP_FORBIDDEN);
         }
         if ($r['status'] == EmergencyRequest::helping && $e['status'] == EmergencyRequest::helping && !self::isDifferent($e['victim_name'], $r['victim_name'])) {
-            return ApiResponse::errorResponse(__('error.emc_req.working'));
+            return ApiResponse::errorResponse(__('error.emc_req.working'), Response::HTTP_FORBIDDEN);
         }
         if ($r['status'] == EmergencyRequest::waiting && $e['status'] == EmergencyRequest::helping) {
-            return ApiResponse::errorResponse(__('error.emc_req.woking_not_change'));
+            return ApiResponse::errorResponse(__('error.emc_req.woking_not_change'), Response::HTTP_FORBIDDEN);
         }
         if ($r['status'] == EmergencyRequest::helping && $e['status'] == EmergencyRequest::waiting) {
-            return ApiResponse::errorResponse(__('error.emc_req.working'));
+            return ApiResponse::errorResponse(__('error.emc_req.working'), Response::HTTP_FORBIDDEN);
         }
     }
 
@@ -521,7 +522,7 @@ class EmergencyRequestController extends Controller
                     }
                 });
             } catch (\Exception $e) {
-                return ApiResponse::errorResponse(__('error.emc_req.working'));
+                return ApiResponse::errorResponse(__('error.emc_req.working'), Response::HTTP_FORBIDDEN);
             }
         }
         if ($request->request_id) {
