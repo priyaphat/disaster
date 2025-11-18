@@ -321,6 +321,9 @@ class EmergencyRequestController extends Controller
         if ($r['status'] == EmergencyRequest::helping && $e['status'] == EmergencyRequest::waiting) {
             return ApiResponse::errorResponse(__('error.emc_req.working'), Response::HTTP_FORBIDDEN);
         }
+        if ($r['status'] == EmergencyRequest::hospital && $r['victim_name'][0]['fname'] == null) {
+            return ApiResponse::errorResponse(__('error.emc_req.victim_name_not_found'));
+        }
     }
 
     /**
@@ -418,7 +421,7 @@ class EmergencyRequestController extends Controller
     {
         // ให้แต่ทีมที่รับผิดชอบย้ายได้
         $this->authorize('requestShelter', EmergencyRequest::class);
-
+        unset($request['status']);
         $emc = EmergencyRequest::find($request['id'] ?? $request['request_id']);
         if ($edit = self::canEdit($emc, $request)) return $edit;
         $victim_name = []; //เก็บ population_id อันใหม่ เข้า emc request

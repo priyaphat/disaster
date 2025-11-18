@@ -50,6 +50,7 @@ class EmergencyRequestRequest extends FormRequest
     {
         return [
             'other.required_if' => 'กรุณาระบุข้อมูล',
+            'phone.digits' => 'โปรดกรอกเบอร์โทรศัพท์ที่ติดต่อ ให้ถูกต้อง',
         ];
     }
 
