@@ -33,7 +33,9 @@ class TransferHistoryController extends Controller
     // #[QueryParameter('end_date', description: 'ค้นหาวัน (ระยะ)', type: 'datetime', example: "2025-6-20 00:00:00")]
     public function getLog(Request $request, $model, $id)
     {
-        $data = $this->transferLogService->getLog($request->all(), LogUtility::getClassName($model), $id);
+        $paginate = $request->has('paginate');
+        $perPage = $request->input('paginate') ?? 10;
+        $data = $this->transferLogService->getLog($request->all(), $paginate, $perPage, LogUtility::getClassName($model), $id);
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 

@@ -32,12 +32,16 @@ class TransferHistoryService
             ->update(['childable_name' => $childName]);
     }
 
-    public function getLog(array $filters = [], $table, $id)
+    public function getLog(array $filters = [], bool $paginate = false, int $perPage = 10, $table, $id)
     {
-        $data = TransferHistory::filter($filters)->where('parentable_type', $table)->where('parentable_id', $id)->with('childable');
-        $data = $data->paginate(10);
-
-        return $data = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
+        $query = TransferHistory::filter($filters)->where('parentable_type', $table)->where('parentable_id', $id)->with('childable');
+        if (!$paginate) {
+            return TransferHistoryResource::collection($query->get());
+        } else {
+            $data = $query->paginate($perPage);
+            $paginate = $data->setCollection(TransferHistoryResource::collection($data->items())->collection);
+            return $paginate;
+        }
     }
 
     public function getShelterlog(array $filters = [], bool $paginate = false, int $perPage = 10)
