@@ -24,16 +24,12 @@ class Notification implements ShouldBroadcast
     public function __construct($notification, $userId)
     {
         //
-
         $this->userId = $userId;
         $this->message = $notification;
-        // dd($this->groupId,  $this->message);
-        Log::info('[NotifyUser] Constructed for user: ');
     }
 
     public function broadcastOn()
     {
-        Log::info('[NotifyUser] broadcastOn called for: ' . $this->userId);
         return new PrivateChannel('Notification.User.' . $this->userId);
     }
 
@@ -44,8 +40,6 @@ class Notification implements ShouldBroadcast
 
     public function broadcastWith()
     {
-        Log::info('[NotifyUser] broadcastWith called for: ' . $this->userId);
-        // return ['count' => 1];
         return [
             'count' => 1,
             'title' => 'ประกาศภัยพิบัติ',

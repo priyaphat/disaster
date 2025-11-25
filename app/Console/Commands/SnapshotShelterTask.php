@@ -63,7 +63,6 @@ class SnapshotShelterTask extends Command
         // $period = CarbonPeriod::create($startDate, $endDate);
 
         // foreach ($period as $now) {
-        //     error_log($now);
         //     Shelter::query()
         //         ->chunk(100, function ($shelters) use ($now) {
 

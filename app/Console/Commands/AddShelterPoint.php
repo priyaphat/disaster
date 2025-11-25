@@ -51,7 +51,7 @@ class AddShelterPoint extends Command
                     ]);
                 }
             });
-            Log::info('Update External Point API');
+            Log::info('Point API pulled data at ' . now());
         } else {
             Log::info('External Point API error: ' . $response->status());
         }

@@ -23,7 +23,6 @@ class ProductNotification implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        Log::info('321');
         return new Channel('Product');
     }
 

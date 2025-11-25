@@ -283,25 +283,21 @@ class AppointmentService
             $newDate = Carbon::parse($data['appointment_date'])->format('Y-m-d');
             if ($startTime->isToday() && $oldDate === $newDate) {
                 if ($startTime->lessThan($now)) {
-                    // error_log('today start time');
                     if ($data['start_time'] !== $old['start_time']) {
                         return true;
                     }
                 }
 
                 if ($endTime->lessThan($now)) {
-                    // error_log('today end time');
                     return true;
                 }
             } else {
                 if ($now->greaterThan($startTime) || $now->greaterThan($endTime)) {
-                    // error_log('today start end time');
                     return true;
                 }
             }
         } else {
             if ($now->greaterThan($startTime) || $now->greaterThan($endTime)) {
-                // error_log('another day');
                 return true;
             }
         }
@@ -437,7 +433,6 @@ class AppointmentService
 
         // สร้างนัดหมาย หรือลบนัดหมาย
         if ($appointment->wasRecentlyCreated || !$oldAppointment) {
-            error_log('สร้างนัดหมาย หรือลบนัดหมาย');
             $date = $appointment->appointment_date->thaidate('j M Y');
             $time =  Carbon::createFromFormat('H:i', $appointment->start_time)->format('G:i') . ' - ' . Carbon::createFromFormat('H:i', $appointment->end_time)->format('G:i');
             $team = $appointment->team->name;
@@ -595,7 +590,6 @@ class AppointmentService
             }
             // ถ้าทีมไม่ถูกเปลี่ยน แต่ shelter ถูกเปลี่ยน
             else if ($shelterChanged) {
-                error_log('ไม่เปลี่ยนทีม แต่เปลี่ยนศูนย์พักพิง');
                 // สร้างยกเลิก notification สำหรับเจ้าหน้าที่ใน shelter
                 $notifyAppointmentCenceled = $notificationService->createNotification(
                     'appointment.staff.deleted',
@@ -678,7 +672,6 @@ class AppointmentService
                 if (!empty($newStaffIds)) (new LineController)->LineNotification($lineCreated, LineController::Shelter_appointment, $newStaffIds);
                 if (!empty($newTeamIds)) (new LineController)->LineNotification($lineUpdated, LineController::Team_appointment_update, $newTeamIds);
             } else if ($teamChanged) {
-                error_log('เปลี่ยนทีม แต่ไม่เปลี่ยนศูนย์พักพิง');
                 // สร้างยกเลิก notification
                 $notifyTeamCanceled = $notificationService->createNotification(
                     'appointment.team.deleted',
@@ -762,7 +755,6 @@ class AppointmentService
                 if (!empty($newStaffIds)) (new LineController)->LineNotification($lineShelterUpdated, LineController::Shelter_appointment_update, $newStaffIds);
             } else if ($dateChanged) {
                 // $check = $appointment->wasRecentlyCreated || $dateChanged;
-                error_log('เวลาเปลี่ยนอย่างเดียว');
                 $notifyTeam = $notificationService->createNotification(
                     'appointment.team.updated',
                     [
@@ -821,7 +813,7 @@ class AppointmentService
                 if (!empty($newStaffIds)) (new LineController)->LineNotification($lineShelterUpdated, LineController::Shelter_appointment_update, $newStaffIds);
                 if (!empty($newTeamIds)) (new LineController)->LineNotification($lineTeamUpdated, LineController::Team_appointment_update, $newTeamIds);
             } else {
-                error_log('ไม่เปลี่ยนอะไรเลย');
+                // error_log('ไม่เปลี่ยนอะไรเลย');
             }
         }
     }

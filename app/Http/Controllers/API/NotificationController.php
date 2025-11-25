@@ -23,6 +23,7 @@ use App\Notifications\SendNotification;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class NotificationController extends Controller
 {
@@ -67,8 +68,4 @@ class NotificationController extends Controller
         return ApiResponse::createdResponse(__('success.data'), $data);
     }
 
-    public function notification(Request $request)
-    {
-        return ApiResponse::successResponse(__('success.data'));
-    }
 }

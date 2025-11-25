@@ -180,11 +180,8 @@ class PopulationService
 
                     $isOnDB = Population::where('sequence_id', $sequenceId)->first();
 
-                    error_log('-----------------------------');
-                    error_log('run population : ' . $data['id']);
                     if (!$isOnDB) {
                         // create population
-                        error_log('create population : ' . $data['id']);
                         $request = [
                             'prefix_id' => $prefixId,
                             'first_name' => $firstName,
@@ -204,10 +201,9 @@ class PopulationService
 
                         self::create($request);
                     }
-
-                    error_log('-----------------------------');
                 }
             });
+            Log::info('Population API pulled data at ' . now());
         } else {
             Log::info('External API error: ' . $response->status());
         }

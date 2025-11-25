@@ -20,7 +20,6 @@ class Language
     {
         // Attempt to get the language from AJAX request or header
         $lang = request()->header('Accept-Language', 'th');
-        Log::info('lang : '.$lang);
         // Validate and set the language
         if (in_array($lang, ['en', 'th'])) {
             App::setLocale($lang);

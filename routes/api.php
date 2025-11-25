@@ -102,7 +102,6 @@ Route::get('/dst-earthquakes/{earthquake?}', [DisasterController::class, 'dst_eq
 Route::get('/dst-landslide-file/{file}', [DisasterController::class, 'dst_ls_download'])->name('download');
 Route::get('/weather', [ConfigController::class, 'weather']);
 Route::get('/chart/{id?}', [ConfigController::class, 'indexChart']);
-Route::get('/notification', [NotificationController::class, 'notification']);
 Route::get('/damaged-utilities/{type?}', [DamageUtilityController::class, 'dmgs']);
 Route::get('/posts', [PostController::class, 'show']);
 Route::get('/category', [CategoryController::class, 'index']);

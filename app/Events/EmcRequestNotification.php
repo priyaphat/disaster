@@ -18,13 +18,11 @@ class EmcRequestNotification implements ShouldBroadcast
 
     public function __construct($teamIds = null)
     {
-        Log::info('TEAM IDS');
         $this->teamIds = $teamIds;
     }
 
     public function broadcastOn()
     {
-        Log::info('EMC REQUEST NOTIFICATION');
         $channels[] = new PrivateChannel('admin');
 
         if ($this->teamIds) {

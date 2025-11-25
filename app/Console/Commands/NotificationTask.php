@@ -17,6 +17,5 @@ class NotificationTask extends Command
     public function handle()
     {
         Notification::doesntHave('notification_users')->delete();
-        Log::info("Delete notifications that doesn't have users.");
     }
 }
