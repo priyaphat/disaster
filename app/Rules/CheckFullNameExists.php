@@ -27,11 +27,11 @@ class CheckFullNameExists implements ValidationRule
         //
         $existsInUser = false;
         if($this->firstname && $this->lastname && !$this->userId){
-            $existsInUser = User::where(['firstname' => $this->firstname, 'lastname' => $this->lastname])->exists();
+            $existsInUser = User::where(['firstname' => $this->firstname, 'lastname' => $this->lastname])->whereNull('deleted_at')->exists();
         }
 
         if($this->firstname && $this->lastname && $this->userId){
-            $existsInUser = User::where(['firstname' => $this->firstname, 'lastname' => $this->lastname])->where('id', '!=', $this->userId)->exists();
+            $existsInUser = User::where(['firstname' => $this->firstname, 'lastname' => $this->lastname])->whereNull('deleted_at')->where('id', '!=', $this->userId)->exists();
         }
 
         if ($existsInUser) {

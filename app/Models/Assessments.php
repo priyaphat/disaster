@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Traits\CreatedUpdatedBy;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -15,6 +14,8 @@ class Assessments extends Model
     public const Assessment = 1;
     public const InspectionVisit = 2;
     public const InspectionChild = 3;
+
+    public const IMAGE_FOLDER = 'assessments';
 
     protected $casts = [
         'detail' => "array"

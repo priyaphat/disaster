@@ -18,9 +18,11 @@ use App\Http\Resources\ShelterDailyLogResource;
 use App\Http\Utility\ReportUtility;
 use App\Http\Utility\ShelterUtility;
 use App\Models\AssessmentLogs;
+use App\Models\Image;
 use App\Models\Population;
 use App\Models\Shelter;
 use App\Models\ShelterDailyLog;
+use App\Services\ImageService;
 use App\Services\ReportService;
 use App\Services\ShelterDailyLogService;
 use App\Services\ShelterServiceDailyLog;
@@ -32,6 +34,12 @@ use Illuminate\Support\Str;
 class AssessmentController extends Controller
 {
     use AuthorizesRequests;
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
 
     public function store(Request $request)
     {
@@ -53,6 +61,12 @@ class AssessmentController extends Controller
         $assessment->shelter_id = $population->shelterPopulation?->shelter_id ?? null;
         $assessment->fill($request->all());
         $assessment->save();
+
+        // Upload an image to server
+        if ($request->hasFile('image')) {
+            $this->imageService->uploadImage($request->image, Assessments::IMAGE_FOLDER, Assessments::class, $assessment->id, Image::PRIVATE);
+        }
+
         $res = self::index(request(), $assessment->id, 'frist');
         $this->logStore($res);
         return ApiResponse::successResponse(__('success.saved'), $res);
@@ -156,6 +170,16 @@ class AssessmentController extends Controller
         $assessment->fill($request->except('count'));
         $assessment->count += 1;
         $assessment->save();
+
+        // Handle remove an image or update an image
+        if (array_key_exists('image', $request->all())) {
+            if ($request->hasFile('image')) {
+                $this->imageService->updateImage($request->input('image'), Assessments::IMAGE_FOLDER, Assessments::class, $assessment->id, Image::PRIVATE);
+            }
+        } else {
+            $this->imageService->deleteImage(Assessments::class, $assessment->id);
+        }
+
         $res = self::index(request(), $assessment->id, 'frist');
         $this->logStore($res);
         return ApiResponse::successResponse(__('success.updated'), $res);

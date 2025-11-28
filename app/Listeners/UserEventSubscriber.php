@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Enums\ApprovalStatus;
+use App\Events\AccountDeleted;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
 use App\Mail\RegisterEmail;
@@ -11,6 +12,7 @@ use App\Models\UserApproval as Approval;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\API\LineController;
+use App\Mail\DeleteAccountEmail;
 
 class UserEventSubscriber
 {
@@ -43,6 +45,12 @@ class UserEventSubscriber
         (new LineController)->LineNotification(null, LineController::User_register);
     }
 
+    // Handle the UserRegistered event
+    public function onAccountDeleted(AccountDeleted $event)
+    {
+        // Send an email to the user whose account was deleted
+        Mail::to($event->user->email)->send(new DeleteAccountEmail($event->user));
+    }
 
     public function createApproval(array $data): void
     {
@@ -54,6 +62,7 @@ class UserEventSubscriber
         return [
             AdminRegistered::class => 'onAdminRegistred',
             UserRegistered::class => 'onUserRegistred',
+            AccountDeleted::class => 'onAccountDeleted'
         ];
     }
 }

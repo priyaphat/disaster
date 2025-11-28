@@ -4,9 +4,19 @@ namespace App\Constants;
 
 class AssessmentData
 {
+    public static array $TOPIC_SECTION = [
+        'sheet_topic' => ['type' => 'topic', 'content' => 'รายงานสรุปผล'],
+    ];
+
+    public static array $GENDER_SECTION = [
+        'gender_topic'  => ['type' => 'topic', 'content' => 'แยกตามเพศ'],
+        'males'  => ['type' => 'text', 'content' => 'ผู้ชาย'],
+        'females'  => ['type' => 'text', 'content' => 'ผู้หญิง'],
+        'total_genders'  => ['type' => 'total', 'content' => 'รวม'],
+    ];
+
     public static array $ASSESSMENTS = [
         'sheet_topic' => ['type' => 'topic', 'content' => 'รายงานสรุปผล'],
-
         'gender_topic'  => ['type' => 'topic', 'content' => 'แยกตามเพศ'],
         'males'  => ['type' => 'text', 'content' => 'ผู้ชาย'],
         'females'  => ['type' => 'text', 'content' => 'ผู้หญิง'],
@@ -58,7 +68,6 @@ class AssessmentData
 
     public static array $VISITS = [
         'sheet_topic' => ['type' => 'topic', 'content' => 'รายงานสรุปผล'],
-
         'gender_topic'  => ['type' => 'topic', 'content' => 'แยกตามเพศ'],
         'males'  => ['type' => 'text', 'content' => 'ผู้ชาย'],
         'females'  => ['type' => 'text', 'content' => 'ผู้หญิง'],
@@ -111,7 +120,7 @@ class AssessmentData
         'height_161_170'  => ['type' => 'text', 'content' => '161-170'],
         'height_171_180'  => ['type' => 'text', 'content' => '171-180'],
         'height_over_80'  => ['type' => 'text', 'content' => '180+'],
-        
+
         'illness_a_topic' => ['type' => 'topic', 'content' => 'การเจ็บป่วย'],
         'illness_a1_topic' => ['type' => 'topic', 'content' => 'อุบัติเหตุ (Trauma)'],
         'illness_a1_0'  => ['type' => 'text', 'content' => 'บาดเจ็บบริเวณศีรษะ/กระดูกสันหลังอย่างรุนแรง'],

@@ -51,7 +51,7 @@ class TransferHistory extends Model
 
     public function created_by_name()
     {
-        return $this->belongsTo(User::class, 'created_by')->select(['id', 'firstname', 'lastname']);
+        return $this->belongsTo(User::class, 'created_by')->withTrashed()->select(['id', 'firstname', 'lastname']);
     }
 
     public function shelter()

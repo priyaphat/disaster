@@ -187,6 +187,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/profile', [UserController::class, 'updateProfile']);
+    Route::delete('/profile', [UserController::class, 'destroyProfile']);
 
     // assign and delete role route
     Route::post('/user/{user}/role', [UserRoleController::class, 'store']);

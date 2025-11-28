@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 class UserRegistered
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $user, $password;
+    public $user;
     /**
      * Create a new event instance.
      */

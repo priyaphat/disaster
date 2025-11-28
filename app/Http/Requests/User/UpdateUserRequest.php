@@ -28,25 +28,14 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $user = $this->user ?? Auth::user();
+        $user = $this->user;
         return [
-            'email' => [
-                'required',
-                'max:255',
-                'regex:/^[a-zA-Z][a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-                Rule::unique('users')->where(fn(Builder $query) => $query->where('email', Str::lower($this->email)))->ignore($user->id)
-            ],
-            'username' => [
-                'required',
-                'regex:/^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/',
-                Rule::unique('users')->where(fn(Builder $query) => $query->where('username', Str::lower($this->username)))->ignore($user->id)
-            ],
             'prefix_id' => 'required|exists:prefixes,id',
-            'firstname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname, $user->id)],
-            'lastname' => ['required', 'max:255', new CheckFullNameExists($this->firstname, $this->lastname, $user->id)],
-            'phone' => 'required|regex:/^\d{10}$/',
+            'firstname' => 'required|max:255',
+            'lastname' => 'required|max:255',
+            'phone' => ['required', 'regex:/^\d{10}$/', Rule::unique('users')->where(fn(Builder $query) => $query->where('phone', $this->phone))->ignore($user->id)],
             'type' => ['required', Rule::enum(UserType::class)],
-            'district_id' => ['required','exists:geography,district_code', new CheckInsideUser($this->type)],
+            'district_id' => ['required', 'exists:geography,district_code', new CheckInsideUser($this->type)],
             'department_id' => [Rule::requiredIf($this->type == UserType::INSIDE_AREA->value), 'nullable', 'exists:departments,id'],
             'position_id' => 'required|exists:positions,id'
         ];
@@ -55,9 +44,22 @@ class UpdateUserRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.regex' => __('validation.custom.email.regex'),
-            'username.regex' => __('validation.custom.username.regex'),
             'phone.regex' => __('validation.custom.phone.regex'),
+            'phone.unique' => __('validation.custom.phone.unique')
+        ];
+    }
+
+    public function normalized(): array
+    {
+        return [
+            'prefix_id' => $this->input('prefix_id'),
+            'firstname' => $this->input('firstname'),
+            'lastname' => $this->input('lastname'),
+            'phone' => $this->input('phone'),
+            'type' => $this->input('type'),
+            'district_id' => $this->input('district_id'),
+            'department_id' => $this->input('department_id'),
+            'position_id' => $this->input('position_id'),
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\User\FilterUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdatedProfileRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Requests\UserApproval\ApprovalRequest;
 use App\Http\Resources\ProfileResource;
@@ -19,6 +20,7 @@ use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -84,9 +86,8 @@ class UserController extends Controller
     {
         //
         $this->authorize('update', $user);
-
-        $data = $this->userService->update($user, $request->all());
-        return ApiResponse::successResponse(__('success.saved'), new UserResource($data->load('image')));
+        $this->userService->update($user, $request->normalized(), $request->isJson());
+        return ApiResponse::successResponse(__('success.updated'));
     }
 
     /**
@@ -116,7 +117,7 @@ class UserController extends Controller
     /*
      * Update user's profile | แก้ไขข้อมูลส่วนตัว
      */
-    public function updateProfile(UpdateUserRequest $request)
+    public function updateProfile(UpdatedProfileRequest $request)
     {
         //
         $user = Auth::user();
@@ -135,6 +136,17 @@ class UserController extends Controller
         return ApiResponse::successResponse(__('success.saved'));
     }
 
+     /**
+     * Delete a user | ลบแอคเคาทน์ตัวเอง
+     */
+    public function destroyProfile(Request $request)
+    {
+        //
+        $user = Auth::user();
+        $this->userService->softDelete($user);
+        return ApiResponse::successResponse(__('success.user.deleted'));
+    }
+    
     /**
      * Delete a user | ลบผู้ใช้งาน
      */
@@ -142,8 +154,7 @@ class UserController extends Controller
     {
         //
         $this->authorize('delete', User::class);
-
-        $this->userService->delete($user);
+        $this->userService->softDelete($user);
         return ApiResponse::successResponse(__('success.user.deleted'));
     }
 

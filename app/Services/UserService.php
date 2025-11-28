@@ -4,16 +4,19 @@ namespace App\Services;
 
 use App\Enums\ApprovalStatus;
 use App\Enums\RegistrationType;
+use App\Events\AccountDeleted;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
 use App\Http\Controllers\API\LineController;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserSelectResource;
+use App\Http\Utility\PermissionUtility;
 use App\Mail\ApproveEmail;
 use App\Mail\RejectEmail;
 use App\Models\AppointmentLog;
 use App\Models\Image;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -23,6 +26,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+
+use function PHPUnit\Framework\isJson;
 
 class UserService
 {
@@ -114,7 +120,7 @@ class UserService
         return $user;
     }
 
-    public function update(User $user, array $data): User
+    public function update(User $user, array $data, $isJson = true): User
     {
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
@@ -122,14 +128,36 @@ class UserService
         $user->update($data);
         $user->refresh();
         // Update an image
-        $user->image = $this->imageService->handleImageUpdate($data, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
+        if(!$isJson){
+            $user->image = $this->imageService->handleImageUpdate($data, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
+        }
         return $user;
     }
 
-    public function delete(User $user): void
+    public function softDelete(User $user): void
     {
-        $user->approval?->delete();
+        // Condition : 
+        $role = PermissionUtility::getRoleName($user);
+        $checkRole = $role == Role::STAFF || $role == Role::TEAM_LEADER || $role == Role::TEAM_MEMBER;
+
+        if ($user->member?->team?->inProgressEmergencyRequests()->exists() || $checkRole) {
+            throw new BadRequestHttpException(__('error.user.deleted'));
+        }
+
+        // Delete function
+        $user->tokens()->delete();
         $user->delete();
+        $this->imageService->deleteImage(User::class, $user->id);
+
+        // Send a password via email
+        AccountDeleted::dispatch($user);
+    }
+
+    public function forceDelete(User $user): void
+    {
+        $user->tokens()->delete();
+        $user->approval?->delete();
+        $user->forceDelete();
         $this->imageService->deleteImage(User::class, $user->id);
     }
 
@@ -156,8 +184,7 @@ class UserService
 
         // If reject : Delete user
         if ($data['is_approved'] == ApprovalStatus::REJECT->value) {
-            $user->image->delete();
-            $this->delete($user);
+            $this->forceDelete($user);
             Mail::to($user->email)->send(new RejectEmail($user));
             return __('success.approval.reject');
         } else {
