@@ -91,6 +91,19 @@ class EmergencyRequestService
                 $item->address = $item->address;
                 $item->victim_name = $victimName;
                 $item->emergency_team_name = $item->team?->name ?? $item->emergency_team_name;
+
+                if ($item->source == 1) {
+
+                    $pattern = '/ต\.(?<subdistrict>[^\s]+)\s+อ\.(?<district>[^\s]+)\s+จ\.(?<province>[^\s]+)/u';
+                    $matches = [];
+                    if (preg_match($pattern, $item->address, $matches)) {
+                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/disasterarea/index.php?pr=' . $matches['province'] . '?amp=' . $matches['district'] . '?tb=' . $matches['subdistrict'];
+                    } else {
+                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
+                    }
+                } else {
+                    $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
+                }
                 return $item;
             });
 
@@ -202,6 +215,19 @@ class EmergencyRequestService
                     return $team['id'] !== null && $team['name'] !== null;
                 }));
 
+                if ($item->source == 1) {
+
+                    $pattern = '/ต\.(?<subdistrict>[^\s]+)\s+อ\.(?<district>[^\s]+)\s+จ\.(?<province>[^\s]+)/u';
+                    $matches = [];
+                    if (preg_match($pattern, $item->address, $matches)) {
+                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/disasterarea/index.php?pr=' . $matches['province'] . '?amp=' . $matches['district'] . '?tb=' . $matches['subdistrict'];
+                    } else {
+                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
+                    }
+                } else {
+                    $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
+                }
+
                 return $item;
             });
         return PaginateUtility::Paginate($items, $request->paginate ?? 10);
@@ -211,6 +237,7 @@ class EmergencyRequestService
     {
         $data['range_age'] = json_encode($data['range_age']);
         $data['victim_name'] = json_encode($data['victim_name']);
+        $data['source'] = $data['source'] ?? 1;
         $emc = EmergencyRequest::create($data);
         if (isset($data['reason_id'])) self::created_reason($emc->id, $data);
         return $emc;

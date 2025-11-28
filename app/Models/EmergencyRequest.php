@@ -37,7 +37,10 @@ class EmergencyRequest extends Model
         'assigner',
         'accept_by',
         'other',
-        'hospital_id'
+        'hospital_id',
+        'source',
+        'latitude',
+        'longitude'
     ];
 
     public function prefix()
