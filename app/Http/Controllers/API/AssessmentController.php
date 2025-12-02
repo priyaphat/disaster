@@ -12,20 +12,14 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\AssessmentSummaryExport;
 use App\Exports\MultiSheetExport;
 use App\Exports\ShelterAssessmentExport;
-use App\Exports\VisitAssessmentExport;
 use App\Http\Requests\ReportRequest;
-use App\Http\Resources\ShelterDailyLogResource;
+use App\Http\Resources\AssessmentsResource;
 use App\Http\Utility\ReportUtility;
-use App\Http\Utility\ShelterUtility;
 use App\Models\AssessmentLogs;
 use App\Models\Image;
 use App\Models\Population;
 use App\Models\Shelter;
-use App\Models\ShelterDailyLog;
 use App\Services\ImageService;
-use App\Services\ReportService;
-use App\Services\ShelterDailyLogService;
-use App\Services\ShelterServiceDailyLog;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Maatwebsite\Excel\Facades\Excel;
@@ -49,7 +43,8 @@ class AssessmentController extends Controller
             'detail' => 'nullable|array',
             'team_id' => 'required_if:type,1|exists:teams,id',
             'district_id' => 'required_if:type,1',
-            'type' => 'required|in:1,2,3'
+            'type' => 'required|in:1,2',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
         ]);
 
         // Permission Part
@@ -79,7 +74,7 @@ class AssessmentController extends Controller
             $this->authorize('viewAny', [Assessments::class, $population]);
         }
 
-        $q = Assessments::query()
+        $q = Assessments::with('image')
             ->select(
                 'assessments.*',
                 DB::raw('concat(up.name, " ",users.firstname, " ", users.lastname) as created_name'),
@@ -105,6 +100,7 @@ class AssessmentController extends Controller
 
         if ($id) {
             $q = $q->where('assessments.id', $id)->first();
+            $q = new AssessmentsResource($q);
             if ($methed) return $q;
         } else {
             $q = $q->where('assessments.population_id', $r->population_id)
@@ -126,6 +122,7 @@ class AssessmentController extends Controller
                     });
                 });
             $q = $q->paginate($r->paginate ?? 10);
+            $q->setCollection(AssessmentsResource::collection($q->items())->collection);
         }
         return ApiResponse::successResponse(__('success.data'), $q);
     }
@@ -162,7 +159,8 @@ class AssessmentController extends Controller
             'detail' => 'nullable|array',
             'team_id' => 'required_if:type,1|exists:teams,id',
             'district_id' => 'required_if:type,1',
-            'type' => 'required|in:1,2,3'
+            'type' => 'required|in:1,2',
+            'image' => 'nullable|mimes:jpg,jpeg,png|max:102400'
         ]);
 
         $request['name'] = AssessmentType::tryFrom($request->type)->label();
@@ -174,7 +172,7 @@ class AssessmentController extends Controller
         // Handle remove an image or update an image
         if (array_key_exists('image', $request->all())) {
             if ($request->hasFile('image')) {
-                $this->imageService->updateImage($request->input('image'), Assessments::IMAGE_FOLDER, Assessments::class, $assessment->id, Image::PRIVATE);
+                $this->imageService->updateImage($request->image, Assessments::IMAGE_FOLDER, Assessments::class, $assessment->id, Image::PRIVATE);
             }
         } else {
             $this->imageService->deleteImage(Assessments::class, $assessment->id);

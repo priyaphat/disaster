@@ -4,10 +4,13 @@ namespace App\Services;
 
 use App\Enums\ApprovalStatus;
 use App\Enums\RegistrationType;
+use App\Enums\TeamPosition;
 use App\Events\AccountDeleted;
 use App\Events\AdminRegistered;
 use App\Events\UserRegistered;
+use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\LineController;
+use App\Http\Controllers\API\ShelterStaffController;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UserSelectResource;
@@ -15,7 +18,9 @@ use App\Http\Utility\PermissionUtility;
 use App\Mail\ApproveEmail;
 use App\Mail\RejectEmail;
 use App\Models\AppointmentLog;
+use App\Models\Config;
 use App\Models\Image;
+use App\Models\NotificationUser;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +28,7 @@ use Illuminate\Support\Str;
 use App\Models\UserApproval as Approval;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -128,7 +134,7 @@ class UserService
         $user->update($data);
         $user->refresh();
         // Update an image
-        if(!$isJson){
+        if (!$isJson) {
             $user->image = $this->imageService->handleImageUpdate($data, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
         }
         return $user;
@@ -138,16 +144,31 @@ class UserService
     {
         // Condition : 
         $role = PermissionUtility::getRoleName($user);
-        $checkRole = $role == Role::STAFF || $role == Role::TEAM_LEADER || $role == Role::TEAM_MEMBER;
+        $isTeam = ($role == Role::TEAM_LEADER || $role == Role::TEAM_MEMBER) || $user->member()->exists();
+        $isStaff = $role == Role::STAFF;
 
-        if ($user->member?->team?->inProgressEmergencyRequests()->exists() || $checkRole) {
+        if ($isTeam) {
+            // If user has team, Show an error message
             throw new BadRequestHttpException(__('error.user.deleted'));
+        } else if ($isStaff) {
+            // The staff exits from shelter
+            app(ShelterStaffController::class)->exit($user->id);
+        }
+
+        // If user exists in chart, set position in description chart to null
+        $chart = Config::where('type', Config::chart)->first();
+        $isUserInChart = $chart->description[0] == $user->id;
+        if ($isUserInChart) {
+            $description = $chart->description;
+            $description[0] = null;
+            app(ConfigController::class)->updateChart($chart, $description);
         }
 
         // Delete function
+        NotificationUser::where('user_id', $user->id)->delete();
         $user->tokens()->delete();
         $user->delete();
-        $this->imageService->deleteImage(User::class, $user->id);
+        $this->imageService->updateToDefault(User::IMAGE_FOLDER, User::class, $user->id);
 
         // Send a password via email
         AccountDeleted::dispatch($user);
@@ -155,7 +176,6 @@ class UserService
 
     public function forceDelete(User $user): void
     {
-        $user->tokens()->delete();
         $user->approval?->delete();
         $user->forceDelete();
         $this->imageService->deleteImage(User::class, $user->id);

@@ -54,7 +54,7 @@ class TeamMemberController extends Controller
         $this->authorize('delete', TeamMember::class);
 
         $discontinue = $request->has('discontinued') ? $request->input('discontinued') : false;
-        $message = $this->memberService->delete($request->all(), $discontinue);
+        $message = $this->memberService->detach($request->all(), $discontinue);
         return ApiResponse::successResponse($message);
     }
 }

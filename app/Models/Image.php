@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
-use phpDocumentor\Reflection\Types\Self_;
+use File;
 
 class Image extends Model
 {
@@ -28,6 +28,18 @@ class Image extends Model
     public function parent()
     {
         return $this->morphTo();
+    }
+
+    protected function imageSize(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                $path = $this->image_url;
+                $disk = $this->image_type === self::PUBLIC ? self::PUBLIC : self::PRIVATE;
+                $fileSize = Storage::disk($disk)->exists($path) ? Storage::disk($disk)->size($path) : 0;
+                $fileSize = number_format($fileSize / (1024 * 1024), 0);
+            },
+        );
     }
 
     protected function imagePath(): Attribute

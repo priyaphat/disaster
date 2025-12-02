@@ -35,7 +35,7 @@ class Assessments extends Model
         'status',
     ];
 
-    
+
     public function logs()
     {
         return $this->hasMany(AssessmentLogs::class, 'assessment_id', 'id');
@@ -43,9 +43,14 @@ class Assessments extends Model
 
     public function population()
     {
-         return $this->belongsTo(Population::class, 'population_id', 'id');
+        return $this->belongsTo(Population::class, 'population_id', 'id');
     }
 
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'parentable');
+    }
+    
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

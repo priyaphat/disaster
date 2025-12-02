@@ -2,15 +2,18 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\API\ConfigController;
 use App\Http\Resources\TeamResource;
 use App\Http\Utility\LogUtility;
 use App\Models\AppointmentLog;
+use App\Models\Config;
 use App\Models\EmergencyRequest;
 use App\Models\Team;
 use App\Models\TeamMember;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TeamService
@@ -112,9 +115,23 @@ class TeamService
         }
 
         // Update the team name on each emergency request
-        // EmergencyRequest::where('emergency_team_id', $team->id)->update(['emergency_team_name' => $team->name]);
         app(AppointmentService::class)->deleteUpcomingAppointment(['team_id' => $team->id]);
         $team->team_members->each->delete();
+
+        // Update chart in dashboard
+        $chart = Config::where('type', Config::chart)->first();
+        $collect = collect($chart->description);
+        $isUserInChart = $collect->slice(1)->search($team->id);
+        if ($isUserInChart) {
+            $description = $collect->transform(function ($value, $key) use ($team) {
+                if ($key > 0) {
+                    return $value == $team->id ? null : $value;
+                }
+                return $value;
+            });
+            app(ConfigController::class)->updateChart($chart, $description);
+        }
+
         return $team->delete();
     }
 

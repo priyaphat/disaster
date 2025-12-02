@@ -195,6 +195,20 @@ class ConfigController extends Controller
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
+    public function updateChart(Config $q, $des)
+    {
+        $q->description = $des;
+        $q->save();
+        // Send chart notification to all users
+        $notification = app(NotificationService::class)->createNotification(
+            'position.updated',
+            [],
+            $q->id,
+            Config::class,
+            true
+        );
+        app(NotificationService::class)->sendToAllUsers($notification);
+    }
     /**
      * Config disaster ส่ง ตัวแปร disaster = smog/flood/earthquake/wildfire
      */

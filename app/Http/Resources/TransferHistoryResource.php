@@ -23,7 +23,7 @@ class TransferHistoryResource extends JsonResource
             'action_type' => ActionType::from($this->action_type)->label($this->parentable_type),
             'object' => $object,
             'description' => ActionType::from($this->action_type)->label($this->parentable_type).' '. $object,
-            'created_by' => $this->created_by_name->firstname . ' ' . $this->created_by_name->lastname
+            'created_by' => $this->created_by_name ? $this->created_by_name?->firstname . ' ' . $this->created_by_name?->lastname : __('error.model_not_found')
         ];
     }
 }

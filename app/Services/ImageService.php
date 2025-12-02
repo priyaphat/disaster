@@ -181,15 +181,40 @@ class ImageService
      * @param int|null $width
      * @param int|null $height
      */
-    private static function resizeImage($file, $width = null, $height = 400)
+    private static function resizeImage($file)
     {
-        // create image manager with desired driver
+        // Create image manager with desired driver
         $manager = new ImageManager(new Driver());
-        // read image from file system
         $image = $manager->read($file);
-        // resize image proportionally to 300px width
-        $image->scale(height: $height);
 
+        $minSize = 750;
+
+        // Initialize $newWidth$ and $newHeight$ to the original dimensions
+        $newWidth = $originalWidth = $image->width();
+        $newHeight = $originalHeight = $image->height();
+
+        // Check for medium or large size
+        if ($originalWidth >= $minSize) {
+            $width = $originalWidth * 0.6;
+            $height = $originalHeight * 0.6;
+            // Medium: Set to $minSize
+            if ($originalWidth <= 2048) {
+                $newWidth = max($width, $minSize);
+                $newHeight = max($height, $minSize);
+            } else {
+                // Large: Scale by 0.6
+                $newWidth = $width;
+                $newHeight = $height;
+            }
+        }
+
+        // Resize with aspect ratio and scale down to 60%
+        $image->resize($newWidth, $newHeight, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+
+        $image->save($file, quality: 60);
         return $image;
     }
 
@@ -241,9 +266,11 @@ class ImageService
     public function handleImageUpdate($data, $folder, $table, $id, $diskName = Image::PUBLIC)
     {
         if (array_key_exists('image', $data)) {
-            return $this->updateImage($data['image'], $folder, $table, $id, $diskName);
+            if ($data['image']) {
+                return $this->updateImage($data['image'], $folder, $table, $id, $diskName);
+            } else {
+                return $this->updateToDefault($folder, $table, $id);
+            }
         }
-
-        return $this->updateToDefault($folder, $table, $id);
     }
 }
