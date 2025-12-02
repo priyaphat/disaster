@@ -107,7 +107,7 @@ class PopulationController extends Controller
         $this->authorize('update', Population::class);
 
         $prevShelter = $population->shelterPopulation?->shelter_id;
-        $data = $this->populationService->update($population, $request->all(), $request->isJson());
+        $data = $this->populationService->update($population, $request->all());
         // $data->image = $this->imageService->updateImage($request->image, Population::IMAGE_FOLDER, Population::class, $data->id);
 
         // Return message when update only tracking

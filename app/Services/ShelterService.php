@@ -64,7 +64,7 @@ class ShelterService
         return $shelter;
     }
 
-    public function update(Shelter $shelter, array $data, $isJson = true): Shelter
+    public function update(Shelter $shelter, array $data): Shelter
     {
         $shelter->update($data);
         $shelter->refresh();
@@ -88,11 +88,7 @@ class ShelterService
         //         (new LineController)->LineNotification($shelter->toArray(), LineController::Shelter_post);
         //     }
         // }
-
-        if (!$isJson) {
-            $shelter->image = app(ImageService::class)->handleImageUpdate($data, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
-        }
-
+        $shelter->image = app(ImageService::class)->handleImageUpdate($data, Shelter::IMAGE_FOLDER, Shelter::class, $shelter->id);
         return $shelter;
     }
 

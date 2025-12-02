@@ -69,7 +69,7 @@ class ShelterController extends Controller
     public function update(UpdateShelterRequest $request, Shelter $shelter)
     {
         $this->authorize('update', $shelter);
-        $data = $this->shelterService->update($shelter, $request->all(), $request->isJson());
+        $data = $this->shelterService->update($shelter, $request->all());
 
         // Update only status
         if ($request->has('status') && count($request->all()) === 1) {

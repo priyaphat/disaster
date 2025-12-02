@@ -69,15 +69,13 @@ class PopulationService
         return $population;
     }
 
-    public function update(Population $population, array $data, $isJson = true): Population
+    public function update(Population $population, array $data): Population
     {
         // Update population
         $population->update($data);
         // If request is form data, handle update image
-        if (!$isJson) {
-            app(ImageService::class)->handleImageUpdate($data, Population::IMAGE_FOLDER, Population::class, $population->id);
-        }
-
+        app(ImageService::class)->handleImageUpdate($data, Population::IMAGE_FOLDER, Population::class, $population->id);
+        
         // Update shelter population by population
         if (isset($data['shelter_id']) && $data['shelter_id']) {
             app(ShelterPopulationService::class)->update($population, Arr::only($data, ['shelter_id']));

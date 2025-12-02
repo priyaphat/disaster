@@ -126,7 +126,7 @@ class UserService
         return $user;
     }
 
-    public function update(User $user, array $data, $isJson = true): User
+    public function update(User $user, array $data): User
     {
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
@@ -134,9 +134,7 @@ class UserService
         $user->update($data);
         $user->refresh();
         // Update an image
-        if (!$isJson) {
-            $user->image = $this->imageService->handleImageUpdate($data, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
-        }
+        $user->image = $this->imageService->handleImageUpdate($data, User::IMAGE_FOLDER, User::class, $user->id, Image::PRIVATE);
         return $user;
     }
 

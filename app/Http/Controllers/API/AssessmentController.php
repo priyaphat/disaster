@@ -173,9 +173,9 @@ class AssessmentController extends Controller
         if (array_key_exists('image', $request->all())) {
             if ($request->hasFile('image')) {
                 $this->imageService->updateImage($request->image, Assessments::IMAGE_FOLDER, Assessments::class, $assessment->id, Image::PRIVATE);
+            } else {
+                $this->imageService->deleteImage(Assessments::class, $assessment->id);
             }
-        } else {
-            $this->imageService->deleteImage(Assessments::class, $assessment->id);
         }
 
         $res = self::index(request(), $assessment->id, 'frist');

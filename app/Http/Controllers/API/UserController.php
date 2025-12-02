@@ -86,7 +86,7 @@ class UserController extends Controller
     {
         //
         $this->authorize('update', $user);
-        $this->userService->update($user, $request->normalized(), $request->isJson());
+        $this->userService->update($user, $request->normalized());
         return ApiResponse::successResponse(__('success.updated'));
     }
 
