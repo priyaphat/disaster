@@ -37,7 +37,7 @@ class Image extends Model
                 $path = $this->image_url;
                 $disk = $this->image_type === self::PUBLIC ? self::PUBLIC : self::PRIVATE;
                 $fileSize = Storage::disk($disk)->exists($path) ? Storage::disk($disk)->size($path) : 0;
-                $fileSize = number_format($fileSize / (1024 * 1024), 0);
+                return number_format($fileSize / (1024 * 1024), 2);
             },
         );
     }

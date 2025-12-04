@@ -7,6 +7,7 @@ use App\Enums\RegistrationType;
 use App\Enums\UserStatus;
 use App\Http\Utility\ConvertUtility;
 use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class UserFilter extends QueryFilter
@@ -28,7 +29,7 @@ class UserFilter extends QueryFilter
                     ->orWhereHas('approval', function ($query) {
                         $query->where('is_approved', ApprovalStatus::APPROVED->value);
                     });
-            });
+            })->where('id', '!=', Auth::user()->id);
         } else {
             return $this->builder->whereHas('approval', function ($query) {
                 $query->where('is_approved', ApprovalStatus::PENDING->value);

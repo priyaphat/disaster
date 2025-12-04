@@ -87,7 +87,7 @@ class UserController extends Controller
         //
         $this->authorize('update', $user);
         $this->userService->update($user, $request->normalized());
-        return ApiResponse::successResponse(__('success.updated'));
+        return ApiResponse::successResponse(__('success.user.updated'));
     }
 
     /**
@@ -100,12 +100,12 @@ class UserController extends Controller
         $user = Auth::user();
         $role = PermissionUtility::getRoleName($user);
 
-        if($role === Role::STAFF){
-            $loadQuery[] = 'staff' ;
+        if ($role === Role::STAFF) {
+            $loadQuery[] = 'staff';
         }
 
-        if($role === Role::TEAM_LEADER || $role === Role::TEAM_MEMBER){
-            $loadQuery[] = 'member' ;
+        if ($role === Role::TEAM_LEADER || $role === Role::TEAM_MEMBER) {
+            $loadQuery[] = 'member';
         }
 
         $data = $user->load($loadQuery);
@@ -122,7 +122,7 @@ class UserController extends Controller
         //
         $user = Auth::user();
         $data = $this->userService->update($user, $request->all());
-        return ApiResponse::successResponse(__('success.saved'), new ProfileResource($data));
+        return ApiResponse::successResponse(__('success.saved'), $data);
     }
 
     /**
@@ -136,17 +136,17 @@ class UserController extends Controller
         return ApiResponse::successResponse(__('success.saved'));
     }
 
-     /**
+    /**
      * Delete a user | ลบแอคเคาทน์ตัวเอง
      */
     public function destroyProfile(Request $request)
     {
         //
         $user = Auth::user();
-        $this->userService->softDelete($user);
+        $this->userService->deleteMyAccount($user);
         return ApiResponse::successResponse(__('success.user.deleted'));
     }
-    
+
     /**
      * Delete a user | ลบผู้ใช้งาน
      */
@@ -154,7 +154,7 @@ class UserController extends Controller
     {
         //
         $this->authorize('delete', User::class);
-        $this->userService->softDelete($user);
+        $this->userService->delteteUserByAdmin($user);
         return ApiResponse::successResponse(__('success.user.deleted'));
     }
 

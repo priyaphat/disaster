@@ -138,6 +138,19 @@ class UserService
         return $user;
     }
 
+
+    public function deleteMyAccount(User $user): void
+    {
+        $this->softDelete($user);
+    }
+
+    public function delteteUserByAdmin(User $user): void
+    {
+        $this->softDelete($user);
+        // Send a password via email
+        AccountDeleted::dispatch($user);
+    }
+
     public function softDelete(User $user): void
     {
         // Condition : 
@@ -167,9 +180,6 @@ class UserService
         $user->tokens()->delete();
         $user->delete();
         $this->imageService->updateToDefault(User::IMAGE_FOLDER, User::class, $user->id);
-
-        // Send a password via email
-        AccountDeleted::dispatch($user);
     }
 
     public function forceDelete(User $user): void

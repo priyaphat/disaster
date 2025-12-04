@@ -181,41 +181,30 @@ class ImageService
      * @param int|null $width
      * @param int|null $height
      */
-    private static function resizeImage($file)
+    private static function resizeImage($location)
     {
         // Create image manager with desired driver
         $manager = new ImageManager(new Driver());
-        $image = $manager->read($file);
-
-        $minSize = 750;
-
+        $image = $manager->read($location);
+        $minWidth = 900;
         // Initialize $newWidth$ and $newHeight$ to the original dimensions
         $newWidth = $originalWidth = $image->width();
-        $newHeight = $originalHeight = $image->height();
 
-        // Check for medium or large size
-        if ($originalWidth >= $minSize) {
+        // // Check for medium or large size
+        if ($originalWidth >= $minWidth) {
             $width = $originalWidth * 0.6;
-            $height = $originalHeight * 0.6;
             // Medium: Set to $minSize
             if ($originalWidth <= 2048) {
-                $newWidth = max($width, $minSize);
-                $newHeight = max($height, $minSize);
+                $newWidth = $minWidth;
             } else {
                 // Large: Scale by 0.6
                 $newWidth = $width;
-                $newHeight = $height;
             }
+            $image = $image->scaleDown(width: $newWidth);
         }
 
-        // Resize with aspect ratio and scale down to 60%
-        $image->resize($newWidth, $newHeight, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
-
-        $image->save($file, quality: 60);
-        return $image;
+        // Resize with scale and export
+        $image->toJpeg(85)->save($location);
     }
 
     /**
