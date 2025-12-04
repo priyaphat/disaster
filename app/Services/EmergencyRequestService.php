@@ -97,7 +97,7 @@ class EmergencyRequestService
                     $pattern = '/ต\.(?<subdistrict>[^\s]+)\s+อ\.(?<district>[^\s]+)\s+จ\.(?<province>[^\s]+)/u';
                     $matches = [];
                     if (preg_match($pattern, $item->address, $matches)) {
-                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/disasterarea/index.php?pr=' . $matches['province'] . '?amp=' . $matches['district'] . '?tb=' . $matches['subdistrict'];
+                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/disasterarea/index.php?pr=' . $matches['province'] . '&amp=' . $matches['district'] . '&tb=' . $matches['subdistrict'];
                     } else {
                         $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
                     }
@@ -215,17 +215,26 @@ class EmergencyRequestService
                     return $team['id'] !== null && $team['name'] !== null;
                 }));
 
-                if ($item->source == 1) {
-
+                if ($item->source == 2) {
+                    if ($item->latitude != null) {
+                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
+                    } else {
+                        $pattern = '/ต\.(?<subdistrict>[^\s]+)\s+อ\.(?<district>[^\s]+)\s+จ\.(?<province>[^\s]+)/u';
+                        $matches = [];
+                        if (preg_match($pattern, $item->address, $matches)) {
+                            $item->link = 'https://shingeometics.com/webgis/WebMapCRI/disasterarea/index.php?pr=' . $matches['province'] . '&amp=' . $matches['district'] . '&tb=' . $matches['subdistrict'];
+                        } else {
+                            $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
+                        }
+                    }
+                } else {
                     $pattern = '/ต\.(?<subdistrict>[^\s]+)\s+อ\.(?<district>[^\s]+)\s+จ\.(?<province>[^\s]+)/u';
                     $matches = [];
                     if (preg_match($pattern, $item->address, $matches)) {
-                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/disasterarea/index.php?pr=' . $matches['province'] . '?amp=' . $matches['district'] . '?tb=' . $matches['subdistrict'];
+                        $item->link = 'https://shingeometics.com/webgis/WebMapCRI/disasterarea/index.php?pr=' . $matches['province'] . '&amp=' . $matches['district'] . '&tb=' . $matches['subdistrict'];
                     } else {
                         $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
                     }
-                } else {
-                    $item->link = 'https://shingeometics.com/webgis/WebMapCRI/poi/index.php?name=' . $item->address . '&lat=' . $item->latitude . '&lon=' . $item->longitude;
                 }
 
                 return $item;

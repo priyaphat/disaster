@@ -55,6 +55,7 @@ class AssessmentController extends Controller
         $assessment->name = AssessmentType::tryFrom($request->type)->label();
         $assessment->shelter_id = $population->shelterPopulation?->shelter_id ?? null;
         $assessment->fill($request->all());
+        $assessment->count = $this->latest($request);
         $assessment->save();
 
         // Upload an image to server
@@ -65,6 +66,15 @@ class AssessmentController extends Controller
         $res = self::index(request(), $assessment->id, 'frist');
         $this->logStore($res);
         return ApiResponse::successResponse(__('success.saved'), $res);
+    }
+
+    private function latest($req)
+    {
+        $latest = Assessments::where('population_id', $req['population_id'])
+            ->where('type', $req['type'])
+            ->latest('id')
+            ->first();
+        return $latest ? ($latest->count + 1) : 1;
     }
 
     public function index(Request $r, $id = null, $methed = null)
@@ -164,9 +174,9 @@ class AssessmentController extends Controller
         ]);
 
         $request['name'] = AssessmentType::tryFrom($request->type)->label();
-        // $assessment->fill($request->all());
-        $assessment->fill($request->except('count'));
-        $assessment->count += 1;
+        $assessment->fill($request->all());
+        // $assessment->fill($request->except('count'));
+        // $assessment->count += 1;
         $assessment->save();
 
         // Handle remove an image or update an image
@@ -337,5 +347,10 @@ class AssessmentController extends Controller
 
         $fileName = Str::of('สรุปรายงานแบบประเมิน')->append($shelter?->name)->append('.xlsx');
         return Excel::download(new MultiSheetExport($workSheet), $fileName);
+    }
+
+    public function sync(Request $req)
+    {
+        return ApiResponse::successResponse(__('success.data'), $req->all());
     }
 }
