@@ -168,11 +168,13 @@ class UserService
 
         // If user exists in chart, set position in description chart to null
         $chart = Config::where('type', Config::chart)->first();
-        $isUserInChart = $chart->description[0] == $user->id;
-        if ($isUserInChart) {
-            $description = $chart->description;
-            $description[0] = null;
-            app(ConfigController::class)->updateChart($chart, $description);
+        if ($chart) {
+            $isUserInChart = $chart?->description[0] == $user->id;
+            if ($isUserInChart) {
+                $description = $chart->description;
+                $description[0] = null;
+                app(ConfigController::class)->updateChart($chart, $description);
+            }
         }
 
         // Delete function

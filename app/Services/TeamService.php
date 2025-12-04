@@ -120,16 +120,18 @@ class TeamService
 
         // Update chart in dashboard
         $chart = Config::where('type', Config::chart)->first();
-        $collect = collect($chart->description);
-        $isUserInChart = $collect->slice(1)->search($team->id);
-        if ($isUserInChart) {
-            $description = $collect->transform(function ($value, $key) use ($team) {
-                if ($key > 0) {
-                    return $value == $team->id ? null : $value;
-                }
-                return $value;
-            });
-            app(ConfigController::class)->updateChart($chart, $description);
+        if ($chart) {
+            $collect = collect($chart->description);
+            $isUserInChart = $collect->slice(1)->search($team->id);
+            if ($isUserInChart) {
+                $description = $collect->transform(function ($value, $key) use ($team) {
+                    if ($key > 0) {
+                        return $value == $team->id ? null : $value;
+                    }
+                    return $value;
+                });
+                app(ConfigController::class)->updateChart($chart, $description);
+            }
         }
 
         return $team->delete();
