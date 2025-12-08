@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Constants\AssessmentData;
 use App\Enums\AssessmentType;
+use App\Enums\PopulationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\Assessments;
@@ -20,10 +21,13 @@ use App\Models\Image;
 use App\Models\Population;
 use App\Models\Shelter;
 use App\Services\ImageService;
+use App\Services\PopulationService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
 
 class AssessmentController extends Controller
 {
@@ -35,14 +39,14 @@ class AssessmentController extends Controller
         $this->imageService = $imageService;
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $sync = null)
     {
         $request->validate([
             'datetime' => 'required',
             'population_id' => 'required|exists:populations,id',
             'detail' => 'nullable|array',
-            'team_id' => 'required_if:type,1|exists:teams,id',
-            'district_id' => 'required_if:type,1',
+            // 'team_id' => 'required_if:type,1|exists:teams,id', //ติด sync
+            // 'district_id' => 'required_if:type,1', //ติด sync
             'type' => 'required|in:1,2',
             'image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
         ]);
@@ -65,6 +69,7 @@ class AssessmentController extends Controller
 
         $res = self::index(request(), $assessment->id, 'frist');
         $this->logStore($res);
+        if ($sync) return $res;
         return ApiResponse::successResponse(__('success.saved'), $res);
     }
 
@@ -351,6 +356,63 @@ class AssessmentController extends Controller
 
     public function sync(Request $req)
     {
-        return ApiResponse::successResponse(__('success.data'), $req->all());
+        $req->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'phone' => 'required|digits:10',
+            'datetime' => 'required',
+            'detail' => 'nullable|array',
+            'type' => 'required|in:1,2',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
+        ]);
+
+        $res = Population::where('first_name', $req['first_name'])
+            ->where('last_name', $req['last_name'])
+            ->where('phone', $req['phone'])->first();
+
+        if ($res) {
+            $req['population_id'] = $res->id;
+            $assessment = $this->store($req, 'sync');
+            return ApiResponse::successResponse(__('success.data'), $assessment);
+        }
+        return ApiResponse::errorResponse(__('error.sync.unique'));
+    }
+
+    public function syncStore($r)
+    {
+        $r->validate(
+            [
+                'shelter_id' => 'nullable|exists:shelters,id', // ตัวกำหนด ปชช | ผปสภ
+                'prefix_id' => 'required|integer|exists:prefixes,id',
+                'prefix_name' => 'required',
+                'first_name' => 'required|string|max:100',
+                'last_name' => 'required|string|max:100',
+                'birth_date' => 'required|date',
+                'gender' => 'required|in:0,1,2',
+                'phone' => 'required|string|size:10',
+                'p_address' => 'required|string|max:100',
+                'p_geography_id' => 'required|exists:geography,id',
+                'c_address' => 'required|string|max:100',
+                'c_geography_id' => 'required|exists:geography,id',
+                'same_address' => 'required',
+                'status' => ['required', Rule::enum(PopulationStatus::class)],
+                'created_date' => 'required|date',
+                'assessmennt.*.datetime' => 'required',
+                'assessmennt.*.detail' => 'nullable|array',
+                'assessmennt.*.type' => 'required|in:1,2',
+                'assessmennt.*.image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
+            ]
+        );
+
+        $r['birth_date'] = Carbon::parse($r['birth_date'])->format('Y-m-d');
+        $r['created_date'] = Carbon::parse($r['created_date'])->format('Y-m-d');
+        $res = (new PopulationService)->create($r);
+
+        if ($res) {
+            $assessment = $r['assessment'];
+            $assessment['population_id'] = $res->id;
+            $assessment = $this->store($assessment, 'sync');
+            return ApiResponse::successResponse(__('success.sync.addAndsuccess'), $assessment);
+        }
     }
 }
