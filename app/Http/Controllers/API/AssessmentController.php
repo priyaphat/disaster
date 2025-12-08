@@ -17,6 +17,7 @@ use App\Http\Requests\ReportRequest;
 use App\Http\Resources\AssessmentsResource;
 use App\Http\Utility\ReportUtility;
 use App\Models\AssessmentLogs;
+use App\Models\Geography;
 use App\Models\Image;
 use App\Models\Population;
 use App\Models\Shelter;
@@ -46,7 +47,7 @@ class AssessmentController extends Controller
             'population_id' => 'required|exists:populations,id',
             'detail' => 'nullable|array',
             // 'team_id' => 'required_if:type,1|exists:teams,id', //ติด sync
-            // 'district_id' => 'required_if:type,1', //ติด sync
+            'district_id' => 'required_if:type,1',
             'type' => 'required|in:1,2',
             'image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
         ]);
@@ -371,6 +372,9 @@ class AssessmentController extends Controller
             ->where('phone', $req['phone'])->first();
 
         if ($res) {
+            if ($req['type'] == 1) {
+                $req['district_id'] = $req['district_id'] ?? (Geography::whereId($res->p_geography_id)->value('district_code') ?? null);
+            }
             $req['population_id'] = $res->id;
             $assessment = $this->store($req, 'sync');
             return ApiResponse::successResponse(__('success.data'), $assessment);
@@ -378,13 +382,12 @@ class AssessmentController extends Controller
         return ApiResponse::errorResponse(__('error.sync.unique'));
     }
 
-    public function syncStore($r)
+    public function syncStore(Request $r)
     {
         $r->validate(
             [
                 'shelter_id' => 'nullable|exists:shelters,id', // ตัวกำหนด ปชช | ผปสภ
                 'prefix_id' => 'required|integer|exists:prefixes,id',
-                'prefix_name' => 'required',
                 'first_name' => 'required|string|max:100',
                 'last_name' => 'required|string|max:100',
                 'birth_date' => 'required|date',
@@ -397,22 +400,25 @@ class AssessmentController extends Controller
                 'same_address' => 'required',
                 'status' => ['required', Rule::enum(PopulationStatus::class)],
                 'created_date' => 'required|date',
-                'assessmennt.*.datetime' => 'required',
-                'assessmennt.*.detail' => 'nullable|array',
-                'assessmennt.*.type' => 'required|in:1,2',
-                'assessmennt.*.image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
+                'assessment.datetime' => 'required',
+                'assessment.detail' => 'nullable|array',
+                'assessment.type' => 'required|in:1,2',
+                'assessment.image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
             ]
         );
 
         $r['birth_date'] = Carbon::parse($r['birth_date'])->format('Y-m-d');
         $r['created_date'] = Carbon::parse($r['created_date'])->format('Y-m-d');
-        $res = (new PopulationService)->create($r);
+        $res = (new PopulationService)->create($r->toArray());
 
         if ($res) {
             $assessment = $r['assessment'];
+            if ($assessment['type'] == 1) {
+                $assessment['district_id'] = $assessment['district_id'] ?? (Geography::whereId($res->p_geography_id)->value('district_code') ?? null);
+            }
             $assessment['population_id'] = $res->id;
-            $assessment = $this->store($assessment, 'sync');
-            return ApiResponse::successResponse(__('success.sync.addAndsuccess'), $assessment);
+            $data = $this->store(new Request($assessment), 'sync');
+            return ApiResponse::successResponse(__('success.sync.addAndsuccess'), $data);
         }
     }
 }
