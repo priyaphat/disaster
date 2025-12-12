@@ -162,4 +162,10 @@ class UpdatePopulationRequest extends FormRequest
             ]);
         }
     }
+    public function messages(): array
+    {
+        return [
+            'phone.size' => 'โปรดกรอกเบอร์โทรศัพท์ที่ติดต่อ ให้ถูกต้อง',
+        ];
+    }
 }
