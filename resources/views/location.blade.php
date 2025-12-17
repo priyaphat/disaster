@@ -79,11 +79,12 @@
         let isLiffInitialized = false;
         let userId = null;
         let userProfile = null;
+        const liff_id = "{{ env('LIFF_LOCATIOIN') }}";
 
         async function initializeLiff() {
             try {
                 await liff.init({
-                    liffId: "2007553661-7o6lnaAj",
+                    liffId: liff_id,
                 });
 
                 isLiffInitialized = true;

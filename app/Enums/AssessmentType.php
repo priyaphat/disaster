@@ -12,7 +12,8 @@ enum AssessmentType: int
     public function label(): string
     {
         return match ($this) {
-            self::ASSESSMENT => 'บันทึกการตรวจเยี่ยม',
+            // self::ASSESSMENT => 'บันทึกการตรวจเยี่ยม',
+            self::ASSESSMENT => 'รายงานการปฏิบัติการฉุกเฉิน',
             self::INSPECTION_VISIT => 'แบบบันทึกเวชระเบียนของทีมปฏิบัติการฉุกเฉิน',
             self::INSPECTION_CHILD => 'แบบบันทึกเวชระเบียนของทีมปฏิบัติการฉุกเฉิน (อายุน้อยกว่า 5 ปี)',
         };

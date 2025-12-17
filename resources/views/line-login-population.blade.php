@@ -150,10 +150,11 @@
 <script>
     let userId = null;
     const alertBox = document.getElementById("alertBox");
+    const liff_id = "{{ env('LIFF_POPULATION') }}";
     alertBox.style.display = "none";
 
     liff.init({
-            liffId: "2007553661-9a0VMwxr",
+            liffId: liff_id,
         })
         .then(() => {
             if (!liff.isLoggedIn()) {

@@ -127,7 +127,6 @@ class StockLogController extends Controller
             if ($r['search']) $req['search'] = $r['search'];
             if ($r['sort']) $req['sort'] = $r['sort'];
             $q = self::index($req);
-
             $q = $q->map(function ($row) {
                 return [
                     // 'date' => 

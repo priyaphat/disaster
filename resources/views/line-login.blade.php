@@ -37,7 +37,7 @@
         align-items: center;
         padding-left: 14px;
         pointer-events: none;
-        z-index:9;
+        z-index: 9;
     }
 
     .wrapper {
@@ -66,8 +66,8 @@
         display: flex;
         align-items: center;
         padding-right: 14px;
-        z-index:9;
-        cursor:pointer;
+        z-index: 9;
+        cursor: pointer;
     }
 
     .button {
@@ -164,7 +164,8 @@
                             fill="#B7B2B5" />
                     </svg>
                 </div>
-                <input class="input password-mask" id="password" type="text" placeholder="รหัสผ่าน" autocomplete="on" />
+                <input class="input password-mask" id="password" type="text" placeholder="รหัสผ่าน"
+                    autocomplete="on" />
                 <div class="icon-right icon-eye-toggle" id="icon_eye">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 20 18"
                         fill="none" style="display: inline;">
@@ -206,11 +207,13 @@
 <script>
     let userId = null;
     const alertBox = document.getElementById("alertBox");
+    const liff_id = "{{ env('LIFF_USER') }}";
+
     alertBox.style.display = "none";
 
     liff.init({
             // liffId: "2007547242-Rmgq4X9x",
-            liffId: "2007553661-G93edr6l",
+            liffId: liff_id,
         })
         .then(() => {
             if (!liff.isLoggedIn()) {
@@ -228,7 +231,7 @@
                     });
             }
         });
-    
+
 
     document.addEventListener("DOMContentLoaded", function() {
         const passwordInput = document.getElementById("password");
