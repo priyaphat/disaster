@@ -25,15 +25,15 @@ class CheckInsideUser implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         //
-        $geo = Geography::where('district_code', $value)->first();
-        if ($this->userType && $this->userType == UserType::INSIDE_AREA->value) {
-            if ($geo->province_code != 57) {
-                $fail(__('validation.in'));
-            }
-        } else {
-            if ($geo->province_code == 57) {
-                $fail(__('validation.in'));
-            }
-        }
+        // $geo = Geography::where('district_code', $value)->first();
+        // if ($this->userType && $this->userType == UserType::INSIDE_AREA->value) {
+        //     if ($geo->province_code != 57) {
+        //         $fail(__('validation.in'));
+        //     }
+        // } else {
+        //     if ($geo->province_code == 57) {
+        //         $fail(__('validation.in'));
+        //     }
+        // }
     }
 }
