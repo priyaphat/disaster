@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\AssessmentSummaryExport;
 use App\Exports\MultiSheetExport;
 use App\Exports\ShelterAssessmentExport;
+use App\Http\Requests\Population\CreatePopulationRequest;
 use App\Http\Requests\ReportRequest;
 use App\Http\Resources\AssessmentsResource;
 use App\Http\Utility\ReportUtility;
@@ -382,24 +383,10 @@ class AssessmentController extends Controller
         return ApiResponse::errorResponse(__('error.sync.unique'));
     }
 
-    public function syncStore(Request $r)
+    public function syncStore(CreatePopulationRequest $r)
     {
         $r->validate(
             [
-                'shelter_id' => 'nullable|exists:shelters,id', // ตัวกำหนด ปชช | ผปสภ
-                'prefix_id' => 'required|integer|exists:prefixes,id',
-                'first_name' => 'required|string|max:100',
-                'last_name' => 'required|string|max:100',
-                'birth_date' => 'required|date',
-                'gender' => 'required|in:0,1,2',
-                'phone' => 'required|string|size:10',
-                'p_address' => 'required|string|max:100',
-                'p_geography_id' => 'required|exists:geography,id',
-                'c_address' => 'required|string|max:100',
-                'c_geography_id' => 'required|exists:geography,id',
-                'same_address' => 'required',
-                'status' => ['required', Rule::enum(PopulationStatus::class)],
-                'created_date' => 'required|date',
                 'assessment.datetime' => 'required',
                 'assessment.detail' => 'nullable|array',
                 'assessment.type' => 'required|in:1,2',
