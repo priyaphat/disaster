@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             DisasterSeeder::class,
             ConfigSeeder::class,
             UserSeeder::class,
+            CancelationSeeder::class,
         ]);
     }
 }

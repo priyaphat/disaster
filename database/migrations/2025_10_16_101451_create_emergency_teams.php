@@ -14,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('emergency_teams', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('emc_id')->constrained('emergency_requests');
-            $table->foreignId('team_id')->constrained('teams');
+            $table->unsignedBigInteger('emc_id');
+            $table->unsignedBigInteger('team_id');
             $table->integer('seq_no')->comment('sequent NO.');
             $table->timestamps();
         });
