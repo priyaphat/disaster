@@ -363,22 +363,25 @@ class AssessmentController extends Controller
             'last_name' => 'required',
             'phone' => 'required|digits:10',
             'datetime' => 'required',
-            'detail' => 'nullable|array',
+            // 'detail' => 'nullable|array',
             'type' => 'required|in:1,2',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
+            'data.image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
         ]);
 
         $res = Population::where('first_name', $req['first_name'])
-            ->where('last_name', $req['last_name'])
-            ->where('phone', $req['phone'])->first();
+            ->where('last_name', $req['last_name'])->first();
+        // ->where('phone', $req['phone'])->first();
 
         if ($res) {
-            if ($req['type'] == 1) {
-                $req['district_id'] = $req['district_id'] ?? (Geography::whereId($res->p_geography_id)->value('district_code') ?? null);
+            $data = array_merge($req->all(), $req['data'] ?? []);
+            unset($data['data']);
+            
+            if ($data['type'] == 1) {
+                $data['district_id'] = $data['district_id'] ?? (Geography::whereId($res->p_geography_id)->value('district_code') ?? null);
             }
-            $req['population_id'] = $res->id;
-            $assessment = $this->store($req, 'sync');
-            return ApiResponse::successResponse(__('success.data'), $assessment);
+            $data['population_id'] = $res->id;
+            $assessment = $this->store(new Request($data), 'sync');
+            return ApiResponse::successResponse(__('success.sync.success'), $assessment);
         }
         return ApiResponse::errorResponse(__('error.sync.unique'));
     }
