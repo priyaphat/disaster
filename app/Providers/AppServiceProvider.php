@@ -194,8 +194,5 @@ class AppServiceProvider extends ServiceProvider
                 );
             });
 
-        if (env('DEV_MAIL')) {
-            Mail::alwaysTo(env('DEV_MAIL_TO', 'gensoft.dev.tech@gmail.com'));
-        }
     }
 }
