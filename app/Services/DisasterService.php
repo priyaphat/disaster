@@ -75,13 +75,13 @@ class DisasterService
 
         $query = DisasterEarthquake::query()
             ->when($req->start_date && $req->end_date, fn($q) =>
-            $q->whereBetween('disaster_earthquakes.created_at', [
+            $q->whereBetween('disaster_earthquakes.occurrence_time', [
                 Carbon::parse($req->start_date)->startOfDay(),
                 Carbon::parse($req->end_date)->endOfDay()
             ]))
-            ->when($req->start_date, fn($q) =>
+            ->when($req->start_date && !$req->end_date, fn($q) =>
             $q->whereDate(
-                'disaster_earthquakes.created_at',
+                'disaster_earthquakes.occurrence_time',
                 Carbon::parse($req->start_date),
             ))
             ->when(
@@ -106,7 +106,6 @@ class DisasterService
                 $req->externalDataSource == 2,
                 fn($q) => $q->whereNotNull('disaster_earthquakes.created_by')
             )
-
             ->when(
                 $req->groupBy,
                 fn($q) =>
@@ -132,7 +131,7 @@ class DisasterService
         if ($method) {
             return $query->get();
         }
-        if ($id) $query->with('area')->first();
+        // if ($id) $query->with('area')->first(); dd('1');
         return $query->paginate($req->paginate ?? 10);
     }
 
