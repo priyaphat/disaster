@@ -147,7 +147,7 @@ class EmergencyRequestService
             });
         }
 
-        if ($emc->district_id) $items = $items->where('district_id', $emc->district_id);
+        if ($emc->district_id) $items = $items->where('emergency_requests.district_id', $emc->district_id);
         if ($emc->start_date && $emc->end_date) {
             $items = $items->whereBetween('emergency_requests.created_at', [
                 Carbon::parse($emc->start_date)->startOfDay(),
