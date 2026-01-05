@@ -185,10 +185,6 @@ class DisasterService
                 fn($q) => $q->whereNotNull('disaster_floods.created_by')
             )
             ->when(
-                $req->name_sort,
-                fn($q) => $q->orderBy('disaster_floods.water_source', $req->name_sort === 'desc' ? 'desc' : 'asc')
-            )
-            ->when(
                 $req->groupBy,
                 fn($q) =>
                 $q->whereIn('disaster_floods.id', $gb)
@@ -205,8 +201,15 @@ class DisasterService
                 )
             );
 
-        $q = $q->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
-            ->leftJoin('users', 'users.id', 'disaster_floods.created_by');
+        if($req->priority === 'name_sort'){
+            $q = $q->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc')
+            ->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        }else{
+            $q = $q->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
+            ->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc');
+        }
+
+        $q->leftJoin('users', 'users.id', 'disaster_floods.created_by');
         if ($method) return $q->get();
         if ($id) return  $q->with('area')->first();
         return $q->paginate($req->paginate ?? 10);
@@ -255,8 +258,16 @@ class DisasterService
                     DB::raw('concat(users.firstname," ",users.lastname) as created_name')
                 )
             );
-        $q->orderBy('disaster_landslides.updated_at', $req->sort === 'asc' ? 'asc' : 'desc')
-            ->leftJoin('users', 'users.id', 'disaster_landslides.created_by');
+
+        if($req->priority === 'name_sort'){
+            $q = $q->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc')
+            ->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        }else{
+            $q = $q->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
+            ->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc');
+        }
+
+        $q->leftJoin('users', 'users.id', 'disaster_landslides.created_by');
         if ($method) $q->get();
         if ($id) $q->first();
         return $q->paginate($req->paginate ?? 10);
