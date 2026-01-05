@@ -75,13 +75,13 @@ class DisasterService
 
         $query = DisasterEarthquake::query()
             ->when($req->start_date && $req->end_date, fn($q) =>
-            $q->whereBetween('disaster_earthquakes.created_at', [
+            $q->whereBetween('disaster_earthquakes.occurrence_time', [
                 Carbon::parse($req->start_date)->startOfDay(),
                 Carbon::parse($req->end_date)->endOfDay()
             ]))
-            ->when($req->start_date, fn($q) =>
+            ->when($req->start_date && !$req->end_date, fn($q) =>
             $q->whereDate(
-                'disaster_earthquakes.created_at',
+                'disaster_earthquakes.occurrence_time',
                 Carbon::parse($req->start_date),
             ))
             ->when(
@@ -106,7 +106,6 @@ class DisasterService
                 $req->externalDataSource == 2,
                 fn($q) => $q->whereNotNull('disaster_earthquakes.created_by')
             )
-
             ->when(
                 $req->groupBy,
                 fn($q) =>
@@ -132,7 +131,7 @@ class DisasterService
         if ($method) {
             return $query->get();
         }
-        if ($id) $query->with('area')->first();
+        // if ($id) $query->with('area')->first(); dd('1');
         return $query->paginate($req->paginate ?? 10);
     }
 
@@ -186,10 +185,6 @@ class DisasterService
                 fn($q) => $q->whereNotNull('disaster_floods.created_by')
             )
             ->when(
-                $req->name_sort,
-                fn($q) => $q->orderBy('disaster_floods.water_source', $req->name_sort === 'desc' ? 'desc' : 'asc')
-            )
-            ->when(
                 $req->groupBy,
                 fn($q) =>
                 $q->whereIn('disaster_floods.id', $gb)
@@ -206,8 +201,15 @@ class DisasterService
                 )
             );
 
-        $q = $q->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
-            ->leftJoin('users', 'users.id', 'disaster_floods.created_by');
+        if($req->priority === 'name_sort'){
+            $q = $q->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc')
+            ->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        }else{
+            $q = $q->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
+            ->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc');
+        }
+
+        $q->leftJoin('users', 'users.id', 'disaster_floods.created_by');
         if ($method) return $q->get();
         if ($id) return  $q->with('area')->first();
         return $q->paginate($req->paginate ?? 10);
@@ -256,8 +258,16 @@ class DisasterService
                     DB::raw('concat(users.firstname," ",users.lastname) as created_name')
                 )
             );
-        $q->orderBy('disaster_landslides.updated_at', $req->sort === 'asc' ? 'asc' : 'desc')
-            ->leftJoin('users', 'users.id', 'disaster_landslides.created_by');
+
+        if($req->priority === 'name_sort'){
+            $q = $q->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc')
+            ->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        }else{
+            $q = $q->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
+            ->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc');
+        }
+
+        $q->leftJoin('users', 'users.id', 'disaster_landslides.created_by');
         if ($method) $q->get();
         if ($id) $q->first();
         return $q->paginate($req->paginate ?? 10);

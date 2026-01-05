@@ -28,7 +28,7 @@ class ApproveEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'NONAME',
+            subject: 'G-EOC - ลงทะเบียนเข้าสู่ระบบ',
         );
     }
 

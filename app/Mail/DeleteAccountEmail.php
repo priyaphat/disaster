@@ -28,7 +28,7 @@ class DeleteAccountEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'NONAME',
+            subject: 'G-EOC - แจ้งเตือนถูกยกเลิกการเชื่อมต่อกับระบบ',
         );
     }
 

@@ -150,7 +150,7 @@ class LineController extends Controller
     {
         //line limitCount
         $limitCount = Config::where('type', Config::lineCount)->first();
-        $limit = $limitCount->description;
+        $limit = $limitCount?->description;
         if ($limit['type'] == Config::limited && ($limit['limited'] <= $limit['totalUsage'])) return;
 
         if (in_array($form, self::Hotline)) {

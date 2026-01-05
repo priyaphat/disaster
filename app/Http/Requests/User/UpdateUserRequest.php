@@ -33,7 +33,14 @@ class UpdateUserRequest extends FormRequest
             'prefix_id' => 'required|exists:prefixes,id',
             'firstname' => 'required|max:255',
             'lastname' => 'required|max:255',
-            'phone' => ['required', 'regex:/^\d{10}$/', Rule::unique('users')->where(fn(Builder $query) => $query->where('phone', $this->phone))->ignore($user->id)],
+            'phone' => [
+                'required',
+                'regex:/^\d{10}$/',
+                Rule::unique('users')->where(fn(Builder $query) =>
+                $query->where('phone', $this->phone)
+                    ->whereNull('deleted_at'))
+                    ->ignore($user->id)
+            ],
             'type' => ['required', Rule::enum(UserType::class)],
             'district_id' => ['required', 'exists:geography,district_code', new CheckInsideUser($this->type)],
             'department_id' => [Rule::requiredIf($this->type == UserType::INSIDE_AREA->value), 'nullable', 'exists:departments,id'],

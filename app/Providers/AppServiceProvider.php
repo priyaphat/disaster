@@ -87,8 +87,11 @@ use Laravel\Passport\Passport;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -114,7 +117,12 @@ class AppServiceProvider extends ServiceProvider
         // Passport::personalAccessTokensExpireIn(CarbonInterval::minutes(15));
 
         date_default_timezone_set('Asia/Bangkok');
-        
+
+        // Set Rate Limit
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(240)->by($request->user()?->id ?: $request->ip());
+        });
+
         // Event for a user registers to the system
         Event::subscribe(UserEventSubscriber::class);
         JsonResource::withoutWrapping();
@@ -186,8 +194,5 @@ class AppServiceProvider extends ServiceProvider
                 );
             });
 
-        if (env('DEV_MAIL')) {
-            Mail::alwaysTo(env('DEV_MAIL_TO', 'gensoft.dev.tech@gmail.com'));
-        }
     }
 }
