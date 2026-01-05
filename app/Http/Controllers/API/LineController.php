@@ -26,41 +26,41 @@ class LineController extends Controller
     public const Population = 1;
     public const User = 7;
 
-    public const Disaster_post = 1; // hotline success
-    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ success
-    public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง success
-    public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง success
-    public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย ok
-    public const Damaged_utility_end = 6; // ok 
-    public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร ok
-    public const News_post = 8; // hotline ok
-    public const News_update = 9; // hotline ok
-    public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ req id  ok
-    public const Emc_request_unaccept = 29; //แจ้งเตือน ปฏิเสธรายการรอช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ)) req id ok
-    public const Emc_request_post_team = 11; //แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ) req id ok
-    public const Emc_request_end = 12; // แจ้งเตือน รายการรอช่วยเหลือถูกยกเลิก (ส่งให้หัวหน้าทีมที่เกี่ยวข้อง) req id
-    public const Emc_assigned = 13; // แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้สมาชิกในทีมที่เกี่ยวข้องเมื่ออนุมัติสำเร็จ) req id ok
-    public const Emc_success = 14; //แจ้งเตือน รายงานผลการช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ)) req id ok
-    public const Emc_unsuccess = 23; // ok
-    public const User_register = 15; //แจ้งเตือน คำร้องขอลงทะเบียนใหม่ req id ok
-    public const User_on = 16; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ศูนย์พักพิง req id success
-    public const User_off = 17; // success
-    public const User_join = 18; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่ req id success
-    public const User_leave = 19; //success
-    public const Shelter_appointment = 30; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id 
-    public const Shelter_appointment_update = 31; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
-    public const Shelter_appointment_canceled = 32; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
-    public const Team_appointment = 20; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ req id 
-    public const Team_appointment_update = 21; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง req id
-    public const Team_appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก req id
-    public const Disaster_flood = 24; //success
-    public const Disaster_landslide = 25; //success
-    public const Disaster_wildfire_m1 = 26.1; //success
-    public const Disaster_wildfire_m2 = 26.2; //success
-    public const Disaster_wildfire_m3 = 26.3; //success
-    public const Disaster_wildfire_m4 = 26.4; //success
-    public const Disaster_smog = 27; //success
-    public const Disaster_earthquake = 28; //success
+    public const Disaster_post = 1; // hotline
+    public const Disaster_end = 2; // แจ้งเตือน ยุติเหตุภัยพิบัติ
+    public const Shelter_post = 3; //แจ้งเตือน เปิดทำการศูนย์พักพิง
+    public const Shelter_end = 4; // แจ้งเตือน ปิดทำการศูนย์พักพิง
+    public const Damaged_utility_post = 5; //แจ้งเตือน อัปเดตสาธารณประโยชน์ที่ได้รับความเสียหาย
+    public const Damaged_utility_end = 6;
+    public const Resource = 7;  //แจ้งเตือน คำร้องขอทรัพยากร
+    public const News_post = 8; // hotline
+    public const News_update = 9; // hotline
+    public const Emc_request_post = 10; //แจ้งเตือน คำร้องขอใหม่ 
+    public const Emc_request_unaccept = 29; //แจ้งเตือน ปฏิเสธรายการรอช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ))
+    public const Emc_request_post_team = 11; //แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้หัวหน้าทีมที่เกี่ยวข้องอนุมัติ)
+    public const Emc_request_end = 12; // แจ้งเตือน รายการรอช่วยเหลือถูกยกเลิก (ส่งให้หัวหน้าทีมที่เกี่ยวข้อง)
+    public const Emc_assigned = 13; // แจ้งเตือน รายการรอช่วยเหลือใหม่ (ส่งให้สมาชิกในทีมที่เกี่ยวข้องเมื่ออนุมัติสำเร็จ)
+    public const Emc_success = 14; //แจ้งเตือน รายงานผลการช่วยเหลือ (ส่งให้เจ้าหน้าที่ส่วนกลาง (ทุกสถานะ))
+    public const Emc_unsuccess = 23;
+    public const User_register = 15; //แจ้งเตือน คำร้องขอลงทะเบียนใหม่
+    public const User_on = 16; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ศูนย์พักพิง
+    public const User_off = 17;
+    public const User_join = 18; //แจ้งเตือน เจ้าหน้าที่ถูก ย้าย / นำเข้า / นำออก ทีมเจ้าหน้าที่
+    public const User_leave = 19;
+    public const Shelter_appointment = 30; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ 
+    public const Shelter_appointment_update = 31; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง
+    public const Shelter_appointment_canceled = 32; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก
+    public const Team_appointment = 20; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงใหม่ 
+    public const Team_appointment_update = 21; //แจ้งเตือน แก้ไขนัดหมายตรวจเยี่ยมศูนย์พักพิง
+    public const Team_appointment_canceled = 22; //แจ้งเตือน นัดหมายตรวจเยี่ยมศูนย์พักพิงถูกยกเลิก
+    public const Disaster_flood = 24;
+    public const Disaster_landslide = 25;
+    public const Disaster_wildfire_m1 = 26.1;
+    public const Disaster_wildfire_m2 = 26.2;
+    public const Disaster_wildfire_m3 = 26.3;
+    public const Disaster_wildfire_m4 = 26.4;
+    public const Disaster_smog = 27;
+    public const Disaster_earthquake = 28;
     public const Hospital = 33;
     private const Hotline = [
         self::Disaster_flood,
@@ -71,9 +71,19 @@ class LineController extends Controller
         self::Disaster_wildfire_m4,
         self::Disaster_smog,
         self::Disaster_earthquake,
-        self::Disaster_post,
+        self::Disaster_post, //district_code
+        self::News_post, //all
+        self::News_update, //all
+    ];
+    private const DistrictId = [
+        self::Disaster_flood,  //district_name_th
+        self::Disaster_smog, //district_name_th
+        self::Disaster_earthquake, //district_name_th
+        self::Disaster_post, //district_code -> district_name_th
+    ];
+    private const DistrictAll = [
         self::News_post,
-        self::News_update,
+        self::News_update
     ];
     #endregion
 
@@ -155,7 +165,9 @@ class LineController extends Controller
 
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
-            $recipint = self::areaFind('เชียงราย');
+            if (in_array($form, self::DistrictId)) $recipint = self::areaFind($data['district_name_th']);
+            if (in_array($form, self::DistrictAll)) $recipint = self::areaFind(null);
+
             $message = self::form_box($form, $data, self::Population);
             self::broadcast_multi($recipint, $message);
             //เก็บ จำนวนส่ง
@@ -210,7 +222,7 @@ class LineController extends Controller
         return response()->json(["success" => true, "message" => 'Send Line OK.']);
     }
 
-    private function areaFind($province, $select = 'all') //select : 1 : user , 2 : pop , null : all
+    private function areaFind($province = null, $select = 'all') //select : 1 : user , 2 : pop , null : all
     {
         $recipint = collect();
 
@@ -219,7 +231,11 @@ class LineController extends Controller
                 ->leftJoin('geography', 'users.district_id', 'geography.district_code')
                 ->leftJoin('line_users', 'users.id', 'line_users.user_id')
                 ->where('line_users.role', LineUser::User)
-                ->where('geography.province_name_th', $province)
+                ->when(
+                    $province,
+                    fn($q) => $q->where('geography.province_name_th', $province)
+                )
+                // ->where('geography.province_name_th', $province)
                 ->whereNotNull('line_users.token_id')
                 ->distinct()
                 ->pluck('token'); // เอาแค่ค่า ไม่ต้อง get()->keyBy()->keys()
@@ -228,28 +244,38 @@ class LineController extends Controller
         }
 
         if ($select == 2 || $select == 'all') {
-            // $populationTokens = Population::select('line_users.token_id as token')
+            // $populationTokens = LineUser::select('line_users.token_id as token')
+            //     ->leftJoin('populations', 'line_users.user_id', 'populations.id')
             //     ->leftJoin('geography', 'populations.p_geography_id', 'geography.id')
-            //     ->leftJoin('line_users', 'populations.id', 'line_users.user_id')
             //     ->where('line_users.role', LineUser::Population)
-            //     ->where('geography.province_name_th', $province)
             //     ->whereNotNull('line_users.token_id')
+            //     ->where(function ($q) use ($province) {
+            //         $q->where('line_users.province', $province)
+            //             ->orWhere(function ($q2) use ($province) {
+            //                 $q2->whereNull('line_users.province')
+            //                     ->where('geography.province_name_th', $province);
+            //             });
+            //     })
             //     ->distinct()
             //     ->pluck('token');
+
             $populationTokens = LineUser::select('line_users.token_id as token')
                 ->leftJoin('populations', 'line_users.user_id', 'populations.id')
                 ->leftJoin('geography', 'populations.p_geography_id', 'geography.id')
                 ->where('line_users.role', LineUser::Population)
                 ->whereNotNull('line_users.token_id')
-                ->where(function ($q) use ($province) {
-                    $q->where('line_users.province', $province)
-                        ->orWhere(function ($q2) use ($province) {
-                            $q2->whereNull('line_users.province')
-                                ->where('geography.province_name_th', $province);
-                        });
+                ->when($province, function ($q) use ($province) {
+                    $q->where(function ($q2) use ($province) {
+                        $q2->where('line_users.province', $province)
+                            ->orWhere(function ($q3) use ($province) {
+                                $q3->whereNull('line_users.province')
+                                    ->where('geography.province_name_th', $province);
+                            });
+                    });
                 })
                 ->distinct()
                 ->pluck('token');
+
 
             $recipint = $recipint->merge($populationTokens);
         }
