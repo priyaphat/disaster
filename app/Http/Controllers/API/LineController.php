@@ -71,15 +71,15 @@ class LineController extends Controller
         self::Disaster_wildfire_m4,
         self::Disaster_smog,
         self::Disaster_earthquake,
-        self::Disaster_post, //district_code
-        self::News_post, //all
-        self::News_update, //all
+        self::Disaster_post,
+        self::News_post,
+        self::News_update,
     ];
     private const DistrictId = [
-        self::Disaster_flood,  //district_name_th
-        self::Disaster_smog, //district_name_th
-        self::Disaster_earthquake, //district_name_th
-        self::Disaster_post, //district_code -> district_name_th
+        self::Disaster_flood,
+        self::Disaster_smog,
+        self::Disaster_earthquake,
+        self::Disaster_post,
     ];
     private const DistrictAll = [
         self::News_post,
@@ -165,7 +165,8 @@ class LineController extends Controller
 
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
-            if (in_array($form, self::DistrictId)) $recipint = self::areaFind($data['district_name_th']);
+
+            if (in_array($form, self::DistrictId)) $recipint = self::areaFind($data['province_name_th'] ?? $data['areas']);
             if (in_array($form, self::DistrictAll)) $recipint = self::areaFind(null);
 
             $message = self::form_box($form, $data, self::Population);

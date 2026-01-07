@@ -94,7 +94,9 @@ class DisasterController extends Controller
     {
         $this->authorize('create', DisasterEarthquake::class);
         $earthquake = DisasterEarthquake::create($r->all());
-        LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
+        $e = $earthquake->toArray();
+        $e['province_name_th'] = $r->province_name_th;
+        LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $e);
         return ApiResponse::successResponse(__('success.created'), $earthquake);
     }
 
@@ -114,7 +116,9 @@ class DisasterController extends Controller
     {
         $this->authorize('update', DisasterEarthquake::class);
         $earthquake->update($request->all());
-        LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $earthquake->toArray());
+        $e = $earthquake->toArray();
+        $e['province_name_th'] = $request->province_name_th;
+        LinePostUtility::line_oa_call(LineController::Disaster_earthquake, $e);
         return ApiResponse::successResponse(__('success.sys_updated'), $earthquake);
     }
 
@@ -139,7 +143,9 @@ class DisasterController extends Controller
         else if ($request['water_value'] > 10) $request['status'] = FloodStatus::LOW->value;
         else  $request['status'] = FloodStatus::CRITICAL_LOW->value;
         $flood = DisasterFlood::create($request->all());
-        LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
+        $e = $flood->toArray();
+        $e['province_name_th'] = $request->province_name_th;
+        LinePostUtility::line_oa_call(LineController::Disaster_flood, $e);
         return ApiResponse::successResponse(__('success.created'), $flood);
     }
 
@@ -183,7 +189,9 @@ class DisasterController extends Controller
     {
         $this->authorize('update', DisasterFlood::class);
         $flood->update($request->all());
-        LinePostUtility::line_oa_call(LineController::Disaster_flood, $flood->toArray());
+        $e = $flood->toArray();
+        $e['province_name_th'] = $request->province_name_th;
+        LinePostUtility::line_oa_call(LineController::Disaster_flood, $e);
         return ApiResponse::successResponse(__('success.sys_updated'), $flood);
     }
 
@@ -269,7 +277,9 @@ class DisasterController extends Controller
     {
         $this->authorize('create', DisasterSmog::class);
         $smog = DisasterSmog::create($request->all());
-        LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog->toArray());
+        $e = $smog->toArray();
+        $e['province_name_th'] = $request->province_name_th;
+        LinePostUtility::line_oa_call(LineController::Disaster_smog, $e);
         return ApiResponse::successResponse(__('success.created'), $smog);
     }
 
@@ -302,7 +312,9 @@ class DisasterController extends Controller
     {
         $this->authorize('update', DisasterSmog::class);
         $smog->update($request->all());
-        LinePostUtility::line_oa_call(LineController::Disaster_smog, $smog->toArray());
+        $e = $smog->toArray();
+        $e['province_name_th'] = $request->province_name_th;
+        LinePostUtility::line_oa_call(LineController::Disaster_smog, $e);
         return  ApiResponse::successResponse(__('success.data'), $smog);
     }
 

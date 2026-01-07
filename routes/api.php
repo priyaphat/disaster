@@ -62,7 +62,7 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 | Routes for line
 |--------------------------------------------------------------------------
 */
-// Route::get('/weatherTask', [WeatherTask::class, 'handle']);
+Route::get('/weatherTask', [WeatherTask::class, 'handle']);
 Route::get('/line-quota', [LineTask::class, 'handle']);
 Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
