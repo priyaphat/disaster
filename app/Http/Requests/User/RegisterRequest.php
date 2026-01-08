@@ -65,7 +65,7 @@ class RegisterRequest extends FormRequest
                     ->whereNull('deleted_at'))
             ],
             'type' => ['required', Rule::enum(UserType::class)],
-            'district_id' => ['required', 'exists:geography,district_code', new CheckInsideUser($this->type)],
+            'district_id' => ['required', 'exists:geography,district_code'],
             'department_id' => [Rule::requiredIf($this->type == UserType::INSIDE_AREA->value), 'nullable', 'exists:departments,id'],
             'position_id' => 'required|exists:positions,id'
         ];
@@ -78,5 +78,12 @@ class RegisterRequest extends FormRequest
             'username.regex' => __('validation.custom.username.regex'),
             'phone.regex' => __('validation.custom.phone.regex'),
         ];
+    }
+
+    protected function passedValidation()
+    {
+        if ($this->has('type') && $this->input('type') == UserType::OUTSIDE_AREA->value) {
+            $this->merge(['department_id' => null]);
+        }
     }
 }

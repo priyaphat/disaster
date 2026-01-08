@@ -42,7 +42,7 @@ class UpdateUserRequest extends FormRequest
                     ->ignore($user->id)
             ],
             'type' => ['required', Rule::enum(UserType::class)],
-            'district_id' => ['required', 'exists:geography,district_code', new CheckInsideUser($this->type)],
+            'district_id' => ['required', 'exists:geography,district_code'],
             'department_id' => [Rule::requiredIf($this->type == UserType::INSIDE_AREA->value), 'nullable', 'exists:departments,id'],
             'position_id' => 'required|exists:positions,id'
         ];
