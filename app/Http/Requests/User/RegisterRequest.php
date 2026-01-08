@@ -79,4 +79,11 @@ class RegisterRequest extends FormRequest
             'phone.regex' => __('validation.custom.phone.regex'),
         ];
     }
+
+    protected function passedValidation()
+    {
+        if ($this->has('type') && $this->input('type') == UserType::OUTSIDE_AREA->value) {
+            $this->merge(['department_id' => null]);
+        }
+    }
 }
