@@ -56,6 +56,13 @@ class UpdateUserRequest extends FormRequest
         ];
     }
 
+    protected function passedValidation()
+    {
+        if ($this->has('type') && $this->input('type') == UserType::OUTSIDE_AREA->value) {
+            $this->merge(['department_id' => null]);
+        }
+    }
+
     public function normalized(): array
     {
         return [
