@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             ConfigSeeder::class,
             UserSeeder::class,
             CancelationSeeder::class,
+            CategorySeeder::class
         ]);
     }
 }

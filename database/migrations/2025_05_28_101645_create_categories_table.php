@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     *  php artisan migrate --path=/database/migrations/2025_05_28_101645_create_categories_table.php
      */
     public function up(): void
     {
