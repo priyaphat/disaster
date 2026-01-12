@@ -49,8 +49,6 @@ use App\Http\Utility\LinePostUtility;
 use App\Models\Assessments;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Spatie\LaravelPdf\Facades\Pdf;
-use Spatie\LaravelPdf\Enums\Format;
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
@@ -59,14 +57,12 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Routes for line
 |--------------------------------------------------------------------------
 */
-// Route::get('/weatherTask', [WeatherTask::class, 'handle']);
+Route::get('/weatherTask', [WeatherTask::class, 'handle']);
 Route::get('/line-quota', [LineTask::class, 'handle']);
 Route::post('/line', [LineController::class, 'handle']);
 Route::get('/line-login', function () {
@@ -84,6 +80,8 @@ Route::post('/line-login-population', [LoginController::class, 'line_population_
 Route::post('/line-location', [LineController::class, 'gps']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 
+
+Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
 Route::get('/prefixes', [PrefixController::class, 'index']);
@@ -369,6 +367,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/product-request', [ProductRequestController::class, 'index']);
+    Route::get('/shelter-requests-db/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
     Route::get('/product-request-log', [ProductRequestController::class, 'requestLog']);
     Route::post('/product-request', [ProductRequestController::class, 'store']);
     Route::post('/product-request/{productReq}', [ProductRequestController::class, 'update']);

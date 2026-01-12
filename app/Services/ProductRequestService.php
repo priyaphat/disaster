@@ -34,13 +34,18 @@ class ProductRequestService
             'products.category_id',
             'products.group_id',
             'units.name as unit_name',
-            'categories.name as category_name'
+            'categories.name as category_name',
+            DB::raw('COALESCE(shelter_products.quantity, 0) as shelter_has')
         )
             ->where('product_requests.status', ProductRequest::ACTIVE)
             ->where('product_requests.shelter_id', $f['shelter_id'] ?? ProductUtility::getShelter())
             ->leftJoin('products', 'products.id', 'product_requests.product_id')
             ->leftJoin('units', 'units.id', 'products.unit_id')
             ->leftJoin('categories', 'categories.id', 'products.category_id')
+            ->leftJoin('shelter_products', function ($j) {
+                $j->on('products.id', 'shelter_products.product_id')
+                    ->where('shelter_products.shelter_id', ProductUtility::getShelter());
+            })
             ->with('product.image')
             ->when(
                 isset($f['search']),
@@ -71,7 +76,7 @@ class ProductRequestService
             return $q->where('product_requests.id', $f['id'])->first();
         }
 
-        return (new SearchService)->search($q, $f, 'get', [1, 2, 3, 4, 5, 6]);
+        return (new SearchService)->search($q, $f, null, [1, 2, 3, 4, 5, 6]);
     }
 
 

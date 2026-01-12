@@ -162,14 +162,23 @@ class ProductRequestController extends Controller
             '),
         )
             ->where('product_requests.status', ProductRequest::ACTIVE)
-            ->where('product_id', $RequsetId)
+            ->where('product_requests.product_id', $RequsetId)
             ->when(
                 $f['search'],
                 fn($q) =>
                 $q->where('shelters.name', 'like', '%' . $f['search'] . '%')
             )
-            ->leftJoin('shelters', 'shelters.id', 'product_requests.shelter_id')
-            ->paginate($f['paginate'] ?? 10);
+            ->leftJoin('shelters', 'shelters.id', 'product_requests.shelter_id');
+
+        if (auth()->check()) {
+            $q->addSelect(DB::raw('COALESCE(shelter_products.quantity, 0) as shelter_has'))
+                ->leftJoin('shelter_products', function ($j) {
+                    $j->on('product_requests.product_id', '=', 'shelter_products.product_id')
+                        ->where('shelter_products.shelter_id', ProductUtility::getShelter());
+                });
+        }
+
+        $q = $q->paginate($f['paginate'] ?? 10);
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
