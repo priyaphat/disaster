@@ -14,8 +14,11 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $datas = [
-            'อาหาร',
-            'เครื่องดื่ม'
+            'อาหาร น้ำดื่ม ของใช้ทั่วไป',
+            'ของใช้ทั่วไป',
+            'เครื่องจักรกล เครื่องมือเครื่องใช้',
+            'อุปกรณ์การแพทย์',
+            'ยารักษาโรค'
         ];
 
         foreach ($datas as $data) {

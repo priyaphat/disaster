@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('assessment_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assessmemt_id')->nullable()->constrained('assessments');
+            $table->foreignId('assessmen_id')->nullable()->constrained('assessments');
             $table->string('name_of_assessment');
             $table->dateTime('datetime');
             $table->foreignId('created_by')->nullable()->constrained('users');
@@ -22,7 +22,7 @@ return new class extends Migration
         });
     }
 
-    /** 
+    /**
      * Reverse the migrations.
      */
     public function down(): void
