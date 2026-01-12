@@ -12,7 +12,7 @@ class ApiResponse implements Responsable
     public function __construct(
         private bool $success = true,
         private mixed $message = null,
-        private mixed $data,
+        public mixed $data,
         private array $customResponse = [],
         private ?Throwable $exception = null,
         private int $httpCode = Response::HTTP_CREATED,

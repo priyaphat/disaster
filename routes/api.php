@@ -49,6 +49,8 @@ use App\Http\Utility\LinePostUtility;
 use App\Models\Assessments;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\LaravelPdf\Enums\Format;
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
@@ -56,6 +58,8 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'checkExpiredToken'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -80,8 +84,6 @@ Route::post('/line-login-population', [LoginController::class, 'line_population_
 Route::post('/line-location', [LineController::class, 'gps']);
 Route::get('/line-param/{chanel}', [LineController::class, 'chanel']);
 
-
-Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
 Route::get('/prefixes', [PrefixController::class, 'index']);
@@ -135,7 +137,13 @@ Route::get('/download-user-doc/{type}', function ($type) {
 });
 #endregion
 
+Route::get('/download-pdf/{id}', [AssessmentController::class, 'pdf']);
+
 Route::middleware('auth:api')->group(function () {
+
+    Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
+    Route::get('/download/image/{fileName}', [FileController::class, 'download'])->where(['fileName' => '.*'])->name('download.storage.private.file');
+    Route::get('/download-assessment/{id}', [AssessmentController::class, 'pdf']);
 
     Route::post('/change-password', [UserController::class, 'changePassword']);
     Route::post('/logout', [LoginController::class, 'logout']);
@@ -521,8 +529,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
     Route::get('/assessment-logs/{log}', [AssessmentController::class, 'logs']);
-    Route::post('/sync-assessment',[AssessmentController::class,'sync']);
-    Route::post('/sync-create',[AssessmentController::class,'syncStore']);
+    Route::post('/sync-assessment', [AssessmentController::class, 'sync']);
+    Route::post('/sync-create', [AssessmentController::class, 'syncStore']);
 
     /*
     |--------------------------------------------------------------------------

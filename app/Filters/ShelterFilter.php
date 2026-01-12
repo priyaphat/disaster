@@ -26,7 +26,14 @@ class ShelterFilter extends QueryFilter
             : $this->builder->orderBy('created_at', $value === 'asc' ? 'asc' : 'desc');
     }
 
-    public function district_code($value)
+    public function province_id($value)
+    {
+        if ($value) {
+            return $this->builder->where('province_code', $value);
+        }
+    }
+
+    public function district_id($value)
     {
         if ($value) {
             return $this->builder->where('district_code', $value);

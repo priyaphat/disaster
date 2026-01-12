@@ -36,7 +36,11 @@ class AssessmentsResource extends JsonResource
             // 'image_name' => $this->when($this->image, $this->image?->original_name ?? $this->image?->image_name),
             // 'image_url' => $this->when($this->image, $this->image?->image_url),
             'image_size' => $this->when($this->image, $this->image?->image_size),
-            'image' => $this->when($this->image, $this->image?->image_path)
+            'image' => $this->when($this->image, $this->image?->image_path),
+            'download' => [
+                'pdf_download' => url('api/download-assessment/' . $this->id),
+                'image_download' => $this->when($this->image, url('api/' . $this->image?->image_url))
+            ]
         ];
     }
 }
