@@ -136,12 +136,10 @@ Route::get('/download-user-doc/{type}', function ($type) {
     return Storage::download($path, $file_name);
 });
 #endregion
-
-Route::get('/download-pdf/{id}', [AssessmentController::class, 'pdf']);
+Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 
 Route::middleware('auth:api')->group(function () {
 
-    Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
     Route::get('/download/image/{fileName}', [FileController::class, 'download'])->where(['fileName' => '.*'])->name('download.storage.private.file');
     Route::get('/download-assessment/{id}', [AssessmentController::class, 'pdf']);
 

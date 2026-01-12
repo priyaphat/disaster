@@ -33,6 +33,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
+use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelPdf\Facades\Pdf;
 
 class AssessmentController extends Controller
@@ -365,7 +366,8 @@ class AssessmentController extends Controller
         $assessment = $this->index($request, $id);
         $assessment = collect($assessment?->data);
         $population = Population::with('permanentAddress')->find($assessment['population_id']);
-
+        $milliseconds = Carbon::now()->getPreciseTimestamp(3);
+        $reportName = 'report-'.$milliseconds;
         if ($assessment['type'] == 1) {
             $formKeys = ['a' => 'อุบัติเหตุ', 'b' => 'โรคติดเชื้อ (Infectious disease)', 'c' => 'โรคฉุกเฉิน', 'd' => 'โรคสำคัญอื่นๆ', 'e' => 'หัตถการ', 'f' => 'ผลการรักษา'];
             if (isset($assessment['detail']['assessment_bits'])) {
@@ -413,7 +415,24 @@ class AssessmentController extends Controller
             // ->save('form1.pdf');
             return Pdf::view('pdf.form1', ['data' => $data, 'information' => $information])
                 ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
-                ->name('form1.pdf')
+                ->withBrowsershot(function (Browsershot $browsershot) {
+                    $browsershot
+                        ->setChromePath('/var/www/.puppeteer-cache/chrome/linux-143.0.7499.169/chrome-linux64/chrome')
+                        ->addChromiumArguments([
+                            'headless=new',
+                            'disable-gpu',
+                            'disable-dev-shm-usage',
+                            'disable-crash-reporter', // ปิดตัวต้นเหตุของ Error นี้
+                            'user-data-dir=/tmp/chrome-profile' // ระบุที่เก็บข้อมูลส่วนตัวชั่วคราว
+                        ])
+                        ->noSandbox()
+                        ->waitUntilNetworkIdle()
+                        ->ignoreHttpsErrors()
+                        ->setEnvironmentOptions([
+                            'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config')
+                        ]);
+                })
+                ->name($reportName)
                 ->download();
         } else {
             $assessmentBits = $assessment['detail']['assessment_bits'] ?? []; // ดึงก้อน test ออกมา
@@ -539,7 +558,24 @@ class AssessmentController extends Controller
             //     ->save('form.pdf');
             return Pdf::view('pdf.form2', ['data' => $summary, 'notes' => $extraNote, 'information' => $information])
                 ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
-                ->name('form2.pdf')
+                ->withBrowsershot(function (Browsershot $browsershot) {
+                    $browsershot
+                        ->setChromePath('/var/www/.puppeteer-cache/chrome/linux-143.0.7499.169/chrome-linux64/chrome')
+                        ->addChromiumArguments([
+                            'headless=new',
+                            'disable-gpu',
+                            'disable-dev-shm-usage',
+                            'disable-crash-reporter', // ปิดตัวต้นเหตุของ Error นี้
+                            'user-data-dir=/tmp/chrome-profile' // ระบุที่เก็บข้อมูลส่วนตัวชั่วคราว
+                        ])
+                        ->noSandbox()
+                        ->waitUntilNetworkIdle()
+                        ->ignoreHttpsErrors()
+                        ->setEnvironmentOptions([
+                            'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config')
+                        ]);
+                })
+                ->name($reportName)
                 ->download();
         }
     }
