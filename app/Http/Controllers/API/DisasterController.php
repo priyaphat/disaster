@@ -335,7 +335,6 @@ class DisasterController extends Controller
                     $i['water_value'].' %',
                     $i['Resources'],
                 ];
-                return $row;
             })->toArray();
             $columns = ['อัปเดตเมื่อ', 'ชื่อแหล่งน้ำ', 'ตำแหน่งเครื่องวัด', 'ประเภทแหล่งน้ำ', 'สถานะ', 'ปริมาณน้ำในแหล่งน้ำ', 'แหล่งข้อมูล'];
         } else if ($case == 'landslide') {
