@@ -332,9 +332,10 @@ class DisasterController extends Controller
                     $i['address'],
                     FloodSourceType::tryFrom($i['water_source_type'])?->label() ?? '',
                     FloodStatus::tryFrom($i['status'])->label() ?? '',
-                    $i['water_value'],
+                    $i['water_value'].' %',
                     $i['Resources'],
                 ];
+                return $row;
             })->toArray();
             $columns = ['อัปเดตเมื่อ', 'ชื่อแหล่งน้ำ', 'ตำแหน่งเครื่องวัด', 'ประเภทแหล่งน้ำ', 'สถานะ', 'ปริมาณน้ำในแหล่งน้ำ', 'แหล่งข้อมูล'];
         } else if ($case == 'landslide') {
@@ -367,7 +368,7 @@ class DisasterController extends Controller
                     $i['created_at'],
                     $i['source'],
                     $i['address'],
-                    $i['smog_value'],
+                    $i['smog_value'].' ',
                     $i['Resources'],
                 ];
             })->toArray();
@@ -379,8 +380,8 @@ class DisasterController extends Controller
                     $i['created_at'],
                     $i['address'],
                     $i['latitude'] . ',' . $i['longitude'],
-                    $i['depth'],
-                    $i['magnitude'],
+                    $i['depth'].' ',
+                    $i['magnitude'].' ',
                     $i['occurrence_time'],
                     $i['Resources'],
                 ];
