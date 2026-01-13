@@ -35,7 +35,7 @@ class CreateShelterRequest extends FormRequest
              * @var string
              * @example 081234567
              */
-            'phone' => 'required|string|max:10',
+            'phone' => 'required|regex:/^\d{10}$/',
             /**
              * วันที่สร้างศูนย์พักพิง
              * @var datetime
@@ -105,6 +105,13 @@ class CreateShelterRequest extends FormRequest
             //  * @example 99.863721
             //  */
             // 'longitude' => ['required', 'regex:/^-?[0-9]+(\.[0-9]+)?$/']
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'phone.regex' => __('validation.custom.phone.regex'),
         ];
     }
 
