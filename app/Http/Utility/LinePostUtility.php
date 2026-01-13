@@ -25,7 +25,8 @@ class LinePostUtility
                 $data = [
                     'type' => $data['disaster_name'],
                     'level' => $data['level'],
-                    'areas' => $data['gis_map']
+                    'areas' => $data['gis_map'],
+                    'province_name' => $data['province_name']
                 ];
             }
             if (in_array($form, [

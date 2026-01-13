@@ -165,10 +165,8 @@ class LineController extends Controller
 
         if (in_array($form, self::Hotline)) {
             //หา จังหวัด user pop ในระบบ
-
-            if (in_array($form, self::DistrictId)) $recipint = self::areaFind($data['province_name_th'] ?? $data['areas']);
+            if (in_array($form, self::DistrictId)) $recipint = self::areaFind($data['province_name_th'] ?? $data['province_name']);
             if (in_array($form, self::DistrictAll)) $recipint = self::areaFind(null);
-
             $message = self::form_box($form, $data, self::Population);
             self::broadcast_multi($recipint, $message);
             //เก็บ จำนวนส่ง

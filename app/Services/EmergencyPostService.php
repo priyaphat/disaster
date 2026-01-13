@@ -38,7 +38,8 @@ class EmergencyPostService
             'disasters.name as disaster_name',
             'disasters.image as image',
             'provinces.province_name_th as province_name',
-            DB::raw("concat('" . EmergencyPost::gis . "', emergency_posts.gis_map) as gis_maps")
+            // DB::raw("concat('" . EmergencyPost::gis . "', emergency_posts.gis_map) as gis_maps")
+            DB::raw("concat('" . EmergencyPost::gis . "', emergency_posts.gis_map,'&pr=',provinces.province_name_th) AS gis_maps")
         )
             // ->with('area')
             ->leftJoin('disasters', 'emergency_posts.disaster_id', '=', 'disasters.id')
@@ -62,7 +63,6 @@ class EmergencyPostService
 
     public function update($post, $data)
     {
-
         $district  =  $data['gis_map'] = Geography::where('district_code', $data['district_code'])->pluck('district_name_th')->first();
         $district_id = $data['district_code'];
         $post->update($data);
