@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\ApprovalStatus;
+use App\Enums\RegistrationType;
 use App\Enums\TeamPosition;
 use App\Http\Resources\NotificationResource;
 use App\Jobs\BroadcastNotification;
@@ -116,8 +118,10 @@ class NotificationService
 
     public function sendToAllUsers($notification, $chunkSize = 100)
     {
-        $data['approve'] = 'approved';
-        User::filter($data)
+        User::where('registration_type', RegistrationType::ADMIN->value)
+            ->orWhereHas('approval', function ($query) {
+                $query->where('is_approved', ApprovalStatus::APPROVED->value);
+            })
             ->chunk($chunkSize, function ($users) use ($notification) {
                 BroadcastNotification::dispatch($users, $notification);
             });

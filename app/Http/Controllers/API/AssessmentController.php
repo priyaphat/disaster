@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Constants\AssessmentData;
 use App\Enums\AssessmentType;
+use App\Enums\GenderId;
 use App\Enums\PopulationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
@@ -16,6 +17,7 @@ use App\Exports\ShelterAssessmentExport;
 use App\Http\Requests\Population\CreatePopulationRequest;
 use App\Http\Requests\ReportRequest;
 use App\Http\Resources\AssessmentsResource;
+use App\Http\Utility\AddressUtility;
 use App\Http\Utility\ReportUtility;
 use App\Models\AssessmentLogs;
 use App\Models\Geography;
@@ -26,10 +28,13 @@ use App\Services\ImageService;
 use App\Services\PopulationService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use ParagonIE\Sodium\Core\Curve25519\Ge\P2;
+use Spatie\Browsershot\Browsershot;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class AssessmentController extends Controller
 {
@@ -98,10 +103,10 @@ class AssessmentController extends Controller
                 DB::raw('concat(upd.name, " ",ud.firstname, " ", ud.lastname) as updated_name'),
                 DB::raw("
                         IF(
-                            assessments.type = 3, 
+                            assessments.type = 3,
                                 CONCAT(
-                                    JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.assessment.c_prefix_name')), ' ', 
-                                    JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.assessment.c_first_name')), ' ', 
+                                    JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.assessment.c_prefix_name')), ' ',
+                                    JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.assessment.c_first_name')), ' ',
                                     JSON_UNQUOTE(JSON_EXTRACT(assessments.detail, '$.assessment.c_last_name'))
                                 ),
                             CONCAT(prefixes.name,' ',populations.first_name, ' ', populations.last_name)
@@ -356,6 +361,257 @@ class AssessmentController extends Controller
         return Excel::download(new MultiSheetExport($workSheet), $fileName);
     }
 
+    public function pdf(Request $request, $id)
+    {
+        $assessment = $this->index($request, $id);
+        $assessment = collect($assessment?->data);
+        $population = Population::with('permanentAddress')->find($assessment['population_id']);
+        $milliseconds = Carbon::now()->getPreciseTimestamp(3);
+        $reportName = 'report-'.$milliseconds;
+        if ($assessment['type'] == 1) {
+            $formKeys = ['a' => 'อุบัติเหตุ', 'b' => 'โรคติดเชื้อ (Infectious disease)', 'c' => 'โรคฉุกเฉิน', 'd' => 'โรคสำคัญอื่นๆ', 'e' => 'หัตถการ', 'f' => 'ผลการรักษา'];
+            if (isset($assessment['detail']['assessment_bits'])) {
+                $assessmentBits = collect($assessment['detail']['assessment_bits']);
+            } else if ($assessment['detail']['assessment']) {
+                $assessmentBits = collect($assessment['detail']['assessment']);
+            } else {
+                $assessmentBits = collect([]);
+            }
+
+            $collapsed = $assessmentBits->collapse();
+
+            $data = [];
+            foreach ($formKeys as $formKey => $topic) {
+                $newKeys = $collapsed->filter(function ($value, $key) use ($formKey) {
+                    return str_starts_with($key, $formKey) && ($value === "true" || $value === true);
+                });
+
+                if (count($newKeys) > 0) {
+                    $keys = $newKeys->keys();
+
+                    $label = collect(AssessmentData::$ASSESSMENTS);
+                    $subset = $label->only($keys)->pluck('content');
+                    $data[] = [
+                        'topic' => $topic,
+                        'data' => $subset
+                    ];
+                }
+            }
+
+            $information = [];
+            $information['created_name'] = $assessment['created_name'];
+            $information['count'] = $assessment['count'];
+            $information['created_at'] = Carbon::parse($assessment['created_at'])->thaidate();
+            $information['team_name'] = $assessment['team_name'];
+            $information['name_of_assessment'] = $assessment['name_of_assessment'];
+            $information['age'] = Carbon::parse($population?->birth_date)->age;
+            $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
+            $information['gender'] = GenderId::tryFrom($population?->gender)->text();
+            $information['population_image'] = $population?->image?->image_path;
+            $information['address'] = AddressUtility::getFullAddressTH($population['p_address'], $population['permanentAddress']) ?? '-';
+
+            //         return Pdf::view('pdf.form1', ['data' => $data, 'information' => $information])
+            // ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
+            // ->save('form1.pdf');
+            return Pdf::view('pdf.form1', ['data' => $data, 'information' => $information])
+                ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
+                ->withBrowsershot(function (Browsershot $browsershot) {
+                    $browsershot
+                        ->setChromePath('/var/www/.puppeteer-cache/chrome/linux-143.0.7499.169/chrome-linux64/chrome')
+                        ->addChromiumArguments([
+                            'headless=new',
+                            'disable-gpu',
+                            'disable-dev-shm-usage',
+                            'disable-crash-reporter', // ปิดตัวต้นเหตุของ Error นี้
+                            'user-data-dir=/tmp/chrome-profile' // ระบุที่เก็บข้อมูลส่วนตัวชั่วคราว
+                        ])
+                        ->noSandbox()
+                        ->waitUntilNetworkIdle()
+                        ->ignoreHttpsErrors()
+                        ->setEnvironmentOptions([
+                            'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config')
+                        ]);
+                })
+                ->name($reportName)
+                ->download();
+        } else {
+            $assessmentBits = $assessment['detail']['assessment_bits'] ?? []; // ดึงก้อน test ออกมา
+            $assessment = collect($assessment)
+                ->put('pregnancy', (int) $assessment['detail']['pregnancy']) // เอาข้อมูลใน data มาวางที่ระดับนอก
+                ->merge($assessment['detail']['assessment']) // เอาข้อมูลใน data มาวางที่ระดับนอก
+                ->forget('detail');
+
+            // $assessmentDetail = $assessment?->detail;
+            $information = [];
+            $formKeys = ['illness' => 'การเจ็บป้วย', 'care' => 'หัตถการและผลการรักษา', 'context' => 'บริบท'];
+            $summary = [];
+
+
+            // การเจ็บป่วย
+            $i = 0;
+            foreach ($formKeys as $formKey => $topic) {
+                $data = [];
+                foreach ($assessmentBits[$formKey] as $subKey => $values) {
+                    $arr = [];
+                    // $subKey คือ a, b, c...
+                    if (is_array($values)) {
+
+                        $total = array_sum($values);
+                        if ($total > 0) {
+
+                            foreach ($values as $index => $value) {
+                                if ($value > 0) {
+                                    $arr[] = $formKey . '_' . $subKey . '_' . $index;
+                                }
+                            }
+
+                            $label = collect(AssessmentData::$VISITS);
+                            $subset = $label->only($arr)->pluck('content');
+                            $titleKeys = $formKey . '_' . $subKey . '_topic';
+                            $data[] = [
+                                'title' => $label->only($titleKeys)->pluck('content')->first(),
+                                'questions' => $subset
+                            ];
+                        }
+                    } else {
+                        if ($values && $formKey !== 'context') {
+                            $data[] = [
+                                'title' => 'เพิ่มเติม',
+                                'questions' => [$values]
+                            ];
+                        }
+                    }
+                }
+
+                $summary[] = [
+                    'topic' => $topic,
+                    'data' => $data
+                ];
+            }
+
+            $extraNote = null;
+            if (isset($assessmentBits['context']['n2']) && $assessmentBits['context']['n2']) {
+                $extraNote = $assessmentBits['context']['n2'];
+            }
+
+            $information['created_name'] = $assessment['created_name'];
+            $information['count'] = $assessment['count'];
+            $information['created_at'] = Carbon::parse($assessment['created_at'])->thaidate();
+            $information['team_name'] = $assessment['team_name'];
+            $information['name_of_assessment'] = $assessment['name_of_assessment'];
+            $information['age'] = Carbon::parse($population?->birth_date)->age;
+            $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
+            $information['gender'] = GenderId::tryFrom($population?->gender)->text();
+            $information['address'] = $assessment['full_p_address_th'];
+            $information['pregnancy'] = (int) $assessment['pregnancy'] ? 'ตั้งครรภ์' : 'ไม่ตั้งครรภ์';
+
+            // ให้นมบุตร
+            $information['breastFeeding'] = [
+                'value' =>  (int) $assessment['breastFeeding'],
+                'text' => $this->previewForm('breastFeeding', (int) $assessment['breastFeeding'])
+            ];
+
+            // รอบวง
+            $information['headCircumference'] = $assessment['headCircumference'];
+
+            // วัคซีนโรคหัด
+            $information['measlesVaccinationHistory'] = [
+                'value' =>  (int) $assessment['measlesVaccinationHistory'],
+                'text' => $this->previewForm('measlesVaccinationHistory', (int) $assessment['measlesVaccinationHistory'])
+            ];
+
+            // วัคซีนบาดทะยัก
+            $information['historyOfTetanusVaccination'] = [
+                'value' =>  (int) $assessment['historyOfTetanusVaccination'],
+                'text' => $this->previewForm('historyOfTetanusVaccination', (int) $assessment['historyOfTetanusVaccination'])
+            ];
+
+            // ประวัติการแพ้
+            $information['historyOfAllergies'] = $assessment['historyOfAllergies'];
+            $information['historyOfAllergies']['value'] =  (int) $assessment['historyOfAllergies']['value'];
+            $information['historyOfAllergies']['text'] =  $this->previewForm('historyOfAllergies', (int) $assessment['historyOfAllergies']['value']);
+
+            // วัคซีนบาดทะยัก
+            $information['pastHistory'] = $assessment['pastHistory'];
+            $information['pastHistory']['value'] =  (int) $assessment['pastHistory']['value'];
+            $information['pastHistory']['text'] =  $this->previewForm('pastHistory', (int) $assessment['pastHistory']['value']);
+
+            $information['drugHistory'] = $assessment['drugHistory'];
+            $information['drugHistory']['value'] =  (int) $assessment['drugHistory']['value'];
+            $information['drugHistory']['text'] =  $this->previewForm('drugHistory', (int) $assessment['drugHistory']['value']);
+
+            // อาการสำคัญ
+            $information['importantSymptoms'] = $assessment['importantSymptoms'];
+            // สัญญาณชีพ
+            $information['vitalSigns'] = $assessment['vitalSigns'];
+            $information['vitalSigns']['value'] = count(collect($assessment['vitalSigns'])->whereNotNull()) > 0 ? 1 : 0;
+
+            // เจ็บป่วยปัจจุบัน
+            $information['historyOfCurrentIllness'] = $assessment['historyOfCurrentIllness'];
+            // วินิจฉัย
+            $information['diagnosis'] = $assessment['diagnosis'];
+            // ยา
+            $information['drugNameDrugSizeHowToUse'] = $assessment['drugNameDrugSizeHowToUse'];
+
+            // return Pdf::view('pdf.form2', ['data' => $summary, 'notes' => $extraNote, 'information' => $information])
+            //     ->margins(1.27, 1.27, 1.27, 1.27, 'cm')
+            //     ->save('form.pdf');
+            return Pdf::view('pdf.form2', ['data' => $summary, 'notes' => $extraNote, 'information' => $information])
+                ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
+                ->withBrowsershot(function (Browsershot $browsershot) {
+                    $browsershot
+                        ->setChromePath('/var/www/.puppeteer-cache/chrome/linux-143.0.7499.169/chrome-linux64/chrome')
+                        ->addChromiumArguments([
+                            'headless=new',
+                            'disable-gpu',
+                            'disable-dev-shm-usage',
+                            'disable-crash-reporter', // ปิดตัวต้นเหตุของ Error นี้
+                            'user-data-dir=/tmp/chrome-profile' // ระบุที่เก็บข้อมูลส่วนตัวชั่วคราว
+                        ])
+                        ->noSandbox()
+                        ->waitUntilNetworkIdle()
+                        ->ignoreHttpsErrors()
+                        ->setEnvironmentOptions([
+                            'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config')
+                        ]);
+                })
+                ->name($reportName)
+                ->download();
+        }
+    }
+
+    public function previewForm($name, $value)
+    {
+        switch ($name) {
+            case "breastFeeding":
+            case "measlesVaccinationHistory":
+            case "historyOfTetanusVaccination": {
+                    return match ($value) {
+                        0 => 'ใช่',
+                        1 => 'ไม่ใช่',
+                        2 => 'ไม่ทราบ',
+                        default => '',
+                    };
+                }
+            case "historyOfAllergies":
+            case "pastHistory":
+            case "drugHistory": {
+                    return match ($value) {
+                        0 => 'ไม่ทราบ',
+                        1 => 'ไม่มี',
+                        2 => 'มี',
+                        default => '',
+                    };
+                }
+        };
+    }
+
+    public function downloadImage()
+    {
+        // Downloads file from storage/app/public/images/photo.jpg
+        return Storage::download('public/images/photo.jpg', 'downloaded.jpg');
+    }
+
     public function sync(Request $req)
     {
         $req->validate([
@@ -375,7 +631,7 @@ class AssessmentController extends Controller
         if ($res) {
             $data = array_merge($req->all(), $req['data'] ?? []);
             unset($data['data']);
-            
+
             if ($data['type'] == 1) {
                 $data['district_id'] = $data['district_id'] ?? (Geography::whereId($res->p_geography_id)->value('district_code') ?? null);
             }

@@ -16,4 +16,13 @@ enum GenderId: int
             default => self::UNKNOWN,
         };
     }
+
+    public function text(): string
+    {
+        return match ($this) {
+            self::UNKNOWN => 'ไม่ทราบ',
+            self::MALE => 'ชาย',
+            self::FEMALE => 'หญิง'
+        };
+    }
 }

@@ -31,6 +31,24 @@ class PopulationFilter extends QueryFilter
         }
     }
 
+    public function province_id($value)
+    {
+        if ($value) {
+            return $this->builder->whereHas('currentAddress', function ($query) use ($value) {
+                $query->where('province_code', $value);
+            });
+        }
+    }
+
+    public function district_id($value)
+    {
+        if ($value) {
+            return $this->builder->whereHas('currentAddress', function ($query) use ($value) {
+                $query->where('district_code', $value);
+            });
+        }
+    }
+
     public function district($value)
     {
         if ($value) {

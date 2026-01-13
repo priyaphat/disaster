@@ -134,8 +134,12 @@ Route::get('/download-user-doc/{type}', function ($type) {
     return Storage::download($path, $file_name);
 });
 #endregion
+Route::get('/image/{fileName}', [FileController::class, 'servePrivate'])->where(['fileName' => '.*'])->name('storage.private.file');
 
 Route::middleware('auth:api')->group(function () {
+
+    Route::get('/download/image/{fileName}', [FileController::class, 'download'])->where(['fileName' => '.*'])->name('download.storage.private.file');
+    Route::get('/download-assessment/{id}', [AssessmentController::class, 'pdf']);
 
     Route::post('/change-password', [UserController::class, 'changePassword']);
     Route::post('/logout', [LoginController::class, 'logout']);
@@ -363,6 +367,7 @@ Route::middleware('auth:api')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/product-request', [ProductRequestController::class, 'index']);
+    Route::get('/shelter-requests-db/{RequsetId}', [ProductRequestController::class, 'indexPublicDetail']);
     Route::get('/product-request-log', [ProductRequestController::class, 'requestLog']);
     Route::post('/product-request', [ProductRequestController::class, 'store']);
     Route::post('/product-request/{productReq}', [ProductRequestController::class, 'update']);
@@ -521,8 +526,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
     Route::get('/assessment-logs/{log}', [AssessmentController::class, 'logs']);
-    Route::post('/sync-assessment',[AssessmentController::class,'sync']);
-    Route::post('/sync-create',[AssessmentController::class,'syncStore']);
+    Route::post('/sync-assessment', [AssessmentController::class, 'sync']);
+    Route::post('/sync-create', [AssessmentController::class, 'syncStore']);
 
     /*
     |--------------------------------------------------------------------------
