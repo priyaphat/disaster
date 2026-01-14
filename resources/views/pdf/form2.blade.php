@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tailwind in One File</title>
+    <title>แบบบันทึกเวชระเบียนของทีมปฏิบัติการฉุกเฉิน</title>
     <!-- Include Tailwind via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +14,23 @@
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap');
 
         body {
-            /* เรียกใช้งาน Font */
             font-family: 'Kanit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box !important;
+        }
+
+        .flex {
+            display: flex !important;
+        }
+
+        .w-full {
+            width: 100% !important;
+        }
+
+        .sm\:flex-row {
+            flex-direction: row !important;
         }
 
         .title {
@@ -181,7 +196,7 @@
 
 
                 <!-- //บันทึกเพิ่มเติม  -->
-                 @if($notes)
+                @if($notes)
                 <div class="mt-[26px] w-full flex flex-col items-start gap-[20px]" style="page-break-inside: avoid;">
                     <div class="page-keep w-full p-[10px] bg-[#FBEFF8]">
                         <label class="PC_Body1-SB text-[#1F1D1F]"> บันทึกเพิ่มเติม</label>
@@ -216,7 +231,7 @@
                     </div>
                     <div class="w-full max-[500px]:flex-col flex items-start max-[500px]:items-center gap-[20px]">
                         <div class="min-w-[100px] min-h-[100px] w-[100px] h-[100px] border-[1px] border-solid border-[#F2E7F9]">
-                            <img src='https://placehold.co/100x100/png' alt="" />
+                            <img src="{{ $information['population_image'] ?? 'https://placehold.co/100x100/png' }}">
                         </div>
                         <div class="w-full flex flex-col items-start gap-[24px]">
                             <div class="w-full flex flex-col gap-[24px]">
@@ -279,7 +294,7 @@
                     @endif
 
                     <!-- ประวัติการรับวัคซีน โรคหัด -->
-                     @if($information['measlesVaccinationHistory'])
+                    @if($information['measlesVaccinationHistory'])
                     <div class="page-keep w-full flex items-center gap-[10px]">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">ประวัติการรับวัคซีน โรคหัด</span>
@@ -313,7 +328,7 @@
                             <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
                             {{ $information['historyOfAllergies']['text'] }}
                         </div>
-                         @if($information['historyOfAllergies']['value'] == 2)
+                        @if($information['historyOfAllergies']['value'] == 2)
                         <div class="w-full flex flex-col gap-2 pl-[28px]">
                             <div class="">
                                 ยา : {{ $information['historyOfAllergies']['drug'] }}
@@ -338,21 +353,21 @@
                     <div class="page-keep flex flex-col gap-2">
                         <div class="page-keep flex items-center">
                             <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
-                             {{ $information['pastHistory']['text'] }}
+                            {{ $information['pastHistory']['text'] }}
                         </div>
                         @if($information['historyOfAllergies']['value'] == 2)
                         <div class="w-full flex flex-col gap-2 pl-[28px]">
                             <div class="">
-                                HT :  {{ $information['pastHistory']['ht'] }}
+                                HT : {{ $information['pastHistory']['ht'] }}
                             </div>
                             <div class="">
-                                DM :  {{ $information['pastHistory']['dm'] }}
+                                DM : {{ $information['pastHistory']['dm'] }}
                             </div>
                             <div class="">
-                                BA :  {{ $information['pastHistory']['ba'] }}
+                                BA : {{ $information['pastHistory']['ba'] }}
                             </div>
                             <div class="">
-                                อื่นๆ :  {{ $information['pastHistory']['other'] }}
+                                อื่นๆ : {{ $information['pastHistory']['other'] }}
                             </div>
                         </div>
                         @endif
@@ -498,7 +513,7 @@
                     @endif
 
                     <!-- ยา ชื่อยา/ขนาดวิธีการใช้ -->
-                     @if($information['drugNameDrugSizeHowToUse'])
+                    @if($information['drugNameDrugSizeHowToUse'])
                     <div class="page-keep w-full flex items-center gap-[10px]">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">ยา ชื่อยา/ขนาดวิธีการใช้</span>
