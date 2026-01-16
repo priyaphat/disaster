@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('source')->comment('แหล่งที่มาของหมอกควัน');
             $table->string('address')->comment('ที่อยู่');
             $table->integer('status')->default(0)->comment('รอข้อมูลอยู่');
-            $table->decimal('smog_value', 6, 2)->comment('ค่าหมอกควัน');
+            $table->decimal('smog_value', 20, 2)->comment('ค่าหมอกควัน');
             $table->unsignedBigInteger('geography_id')->nullable();
             $table->string('host')->nullable();
             $table->tinyInteger('line_oa')->default(0)->comment('0 - inactive, 1 - active');

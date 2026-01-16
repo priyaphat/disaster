@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tailwind in One File</title>
+    <title>รายงานการปฏิบัติการฉุกเฉิน</title>
     <!-- Include Tailwind via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -156,7 +156,11 @@
             </div>
             <div class="w-full flex max-[500px]:flex-col items-start max-[500px]:items-center gap-[20px]">
                 <div class="min-w-[100px] min-h-[100px] w-[100px] h-[100px] border-[1px] border-solid border-[#F2E7F9]">
-                    <img src="{{ $information['population_image'] ?? 'https://placehold.co/100x100/png' }}">
+                    @if(!empty($information['population_image']))
+                    <img src="{{ $information['population_image'] }}">
+                    @else
+                    <img src="https://placehold.co/100x100.png">
+                    @endif
                 </div>
                 <div class="w-full flex flex-col items-start gap-[24px]">
                     <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
@@ -169,7 +173,7 @@
                     <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
                         <div class="PC_Body2-R text-[#7C7379]">วันเกิด</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
-                           {{ $information['birth_date'] ?? "-"}} ( {{$information['age'] ?? "-" }} ปี)
+                            {{ $information['birth_date'] ?? "-"}} ( {{$information['age'] ?? "-" }} ปี)
                         </div>
                     </div>
 
@@ -192,7 +196,7 @@
         <!-- info -->
 
         <!-- 2. การเจ็บป่วย -->
-         @if(count($data) > 0)
+        @if(count($data) > 0)
         <div class="w-full flex flex-col items-start gap-[20px]">
             <div class="w-full p-[10px] bg-[#FBEFF8]">
                 <label class="PC_Body1-SB text-[#1F1D1F]"> 2. Health events</label>
