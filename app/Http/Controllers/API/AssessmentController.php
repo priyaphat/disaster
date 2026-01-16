@@ -388,10 +388,10 @@ class AssessmentController extends Controller
             case "measlesVaccinationHistory":
             case "historyOfTetanusVaccination": {
                     return match ($value) {
-                        0 => 'ใช่',
-                        1 => 'ไม่ใช่',
-                        2 => 'ไม่ทราบ',
-                        default => '',
+                        0 => 'ไม่ทราบ',
+                        1 => 'ใช่',
+                        2 => 'ไม่ใช่',
+                        default => 'ไม่ทราบ',
                     };
                 }
             case "historyOfAllergies":
@@ -401,7 +401,7 @@ class AssessmentController extends Controller
                         0 => 'ไม่ทราบ',
                         1 => 'ไม่มี',
                         2 => 'มี',
-                        default => '',
+                        default => 'ไม่ทราบ',
                     };
                 }
         };
@@ -450,7 +450,6 @@ class AssessmentController extends Controller
         $information['gender'] = GenderId::tryFrom($population?->gender)->text();
         $information['address'] = AddressUtility::getFullAddressTH($population['p_address'], $population['permanentAddress']) ?? '-';
 
-        dd($information);
         if (env('APP_ENV') == 'local') {
             return Pdf::view('pdf.form1', ['data' => $data, 'information' => $information])
                 ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
@@ -548,9 +547,10 @@ class AssessmentController extends Controller
         $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
         $information['gender'] = GenderId::tryFrom($population?->gender)->text();
         $information['address'] = $assessment['full_p_address_th'];
-        $information['pregnancy'] = (int) $assessment['pregnancy'] ? 'ตั้งครรภ์' : 'ไม่ตั้งครรภ์';
+        if($population?->gender === GenderId::FEMALE->value){
+                $information['pregnancy'] = (int) $assessment['pregnancy'] ? 'ตั้งครรภ์' : 'ไม่ตั้งครรภ์';
+        }
 
-        dd($information);
         // ให้นมบุตร
         $information['breastFeeding'] = [
             'value' =>  (int) $assessment['breastFeeding'],
@@ -599,6 +599,7 @@ class AssessmentController extends Controller
         // ยา
         $information['drugNameDrugSizeHowToUse'] = $assessment['drugNameDrugSizeHowToUse'];
 
+        // dd($summary, $information);
         if (env('APP_ENV') == 'local') {
             return Pdf::view('pdf.form2', ['data' => $summary, 'notes' => $extraNote, 'information' => $information])
                 ->margins(2.54, 2.54, 2.54, 2.54, 'cm')

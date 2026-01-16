@@ -111,6 +111,11 @@
         div {
             break-inside: auto;
         }
+
+        .keep-together {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
     </style>
 
 </head>
@@ -118,7 +123,7 @@
 <html>
 
 <body>
-    <div class="w-full flex flex-col items-start gap-[26px]" ref="pdfRef">
+    <div class="w-full flex flex-col items-start gap-[26px]">
         <div class="w-full flex flex-col items-start gap-[20px]">
             <div class="w-full flex flex-col items-start gap-[6px]">
                 <div class="PC_H2-SB text-[#1F1D1F]">รายงานการปฏิบัติการฉุกเฉิน</div>
@@ -156,35 +161,31 @@
             </div>
             <div class="w-full flex max-[500px]:flex-col items-start max-[500px]:items-center gap-[20px]">
                 <div class="min-w-[100px] min-h-[100px] w-[100px] h-[100px] border-[1px] border-solid border-[#F2E7F9]">
-                    @if(!empty($information['population_image']))
-                    <img src="{{ $information['population_image'] }}">
-                    @else
-                    <img src="https://placehold.co/100x100.png">
-                    @endif
+                    <img src="{{ $information['population_image'] ?? 'https://placehold.co/100x100/png' }}">
                 </div>
                 <div class="w-full flex flex-col items-start gap-[24px]">
-                    <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
+                    <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                         <div class="PC_Body2-R text-[#7C7379]">ชื่อผู้ประสบภัย</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
                             {{ $information['name_of_assessment'] ?? "-" }}
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
+                    <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                         <div class="PC_Body2-R text-[#7C7379]">วันเกิด</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
                             {{ $information['birth_date'] ?? "-"}} ( {{$information['age'] ?? "-" }} ปี)
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
+                    <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                         <div class="PC_Body2-R text-[#7C7379]">เพศ</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
                             {{ $information['gender'] ?? "-" }}
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
+                    <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                         <div class="PC_Body2-R text-[#7C7379]">ที่อยู่ตามภูมิลำเนา</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
                             {{ $information['address'] ?? "-" }}
@@ -202,14 +203,14 @@
                 <label class="PC_Body1-SB text-[#1F1D1F]"> 2. Health events</label>
             </div>
             @foreach($data as $item)
-            <div class="page-keep h-[30px] w-full flex items-center gap-[10px]" style="page-break-inside: avoid;">
+            <div class="page-keep h-[30px] w-full flex items-center gap-[10px] keep-together">
                 <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                 <span class="PC_Body1-SB text-[#1F1D1F] block h-[30px]">
                     {{$item['topic']}}
                 </span>
             </div>
             @foreach($item['data'] as $data)
-            <div class="flex flex-col items-start gap-[20px]" style="page-break-inside: avoid;">
+            <div class="flex flex-col items-start gap-[20px] keep-together">
                 <div class="page-keep flex items-center">
                     <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
                     {{$data}}
@@ -220,15 +221,15 @@
         </div>
         @endif
 
-        <div class="mb-[26px] w-full border border-[#DFDCDD] border-dashed" style="page-break-inside: avoid;">
+        <div class="mb-[26px] w-full border border-[#DFDCDD] border-dashed keep-together">
         </div>
 
-        <div class="page-keep w-full flex items-center gap-[10px]" style="page-break-inside: avoid;">
+        <div class="page-keep w-full flex items-center gap-[10px] keep-together">
             <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
             <span class="PC_Body1-SB text-[#1F1D1F]">ผู้ลงข้อมูล</span>
         </div>
 
-        <div class="flex flex-col items-start gap-[20px]" style="page-break-inside: avoid;">
+        <div class="flex flex-col items-start gap-[20px] keep-together">
             {{ $information['created_name'] ?? "-" }}
         </div>
     </div>
