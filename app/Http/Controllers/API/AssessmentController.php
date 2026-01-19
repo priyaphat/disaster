@@ -374,7 +374,8 @@ class AssessmentController extends Controller
             $chromePath = $paths[0];
         }
 
-        if ($assessment['type'] == 1) {
+        $type = $assessment['type'];
+        if ($type == 1) {
             return $this->generateForm1($assessment, $population, $reportName, $chromePath);
         } else {
             return $this->generateForm2($assessment, $population, $reportName, $chromePath);
@@ -409,7 +410,7 @@ class AssessmentController extends Controller
 
     public function generateForm1($assessment, $population, $reportName, $chromePath)
     {
-        $formKeys = ['a' => 'อุบัติเหตุ', 'b' => 'โรคติดเชื้อ (Infectious disease)', 'c' => 'โรคฉุกเฉิน', 'd' => 'โรคสำคัญอื่นๆ', 'e' => 'หัตถการ', 'f' => 'ผลการรักษา'];
+        $information = [];
         if (isset($assessment['detail']['assessment_bits'])) {
             $assessmentBits = collect($assessment['detail']['assessment_bits']);
         } else if ($assessment['detail']['assessment']) {
@@ -418,27 +419,30 @@ class AssessmentController extends Controller
             $assessmentBits = collect([]);
         }
 
-        $collapsed = $assessmentBits->collapse();
+        $image = $assessment['image'] ?? null;
 
-        $data = [];
-        foreach ($formKeys as $formKey => $topic) {
-            $newKeys = $collapsed->filter(function ($value, $key) use ($formKey) {
-                return str_starts_with($key, $formKey) && ($value === "true" || $value === true);
+        $data = $assessmentBits->collapse()->groupBy(function ($item, $key) use ($image) {
+            return strtolower(substr($key, 0, 1));
+        }, true)->map(function ($answers, $subKey) use ($image) {
+            $returnData = [];
+
+            $trueData = collect($answers)->filter(function ($value) {
+                return $value !== false && $value !== 'false';
             });
+            $totalCount = $trueData->count();
+            $arrKeys = $trueData->keys();
 
-            if (count($newKeys) > 0) {
-                $keys = $newKeys->keys();
-
-                $label = collect(AssessmentData::$ASSESSMENTS);
-                $subset = $label->only($keys)->pluck('content');
-                $data[] = [
-                    'topic' => $topic,
-                    'data' => $subset
-                ];
+            if ($subKey === 'e' && $image) {
+                $totalCount = 1;
+                $returnData['image'] = $image;
             }
-        }
 
-        $information = [];
+            $returnData['topic'] = ReportUtility::getForm1Title($subKey);
+            $returnData['total'] = $totalCount;
+            $returnData['answers'] = ReportUtility::getForm1Answers($arrKeys);
+            return $returnData;
+        })->filter(fn($item) => $item['total'] > 0);
+
         $information['created_name'] = $assessment['created_name'];
         $information['count'] = $assessment['count'];
         $information['created_at'] = Carbon::parse($assessment['created_at'])->thaidate();
@@ -482,60 +486,52 @@ class AssessmentController extends Controller
 
     public function generateForm2($assessment, $population, $reportName, $chromePath)
     {
-        $assessmentBits = $assessment['detail']['assessment_bits'] ?? []; // ดึงก้อน test ออกมา
+        // ดึงข้อมูลแบบประเมิน
+        $assessmentBits = $assessment['detail']['assessment_bits'] ?? [];
         $assessment = collect($assessment)
-            ->put('pregnancy', (int) $assessment['detail']['pregnancy']) // เอาข้อมูลใน data มาวางที่ระดับนอก
-            ->merge($assessment['detail']['assessment']) // เอาข้อมูลใน data มาวางที่ระดับนอก
+            ->put('pregnancy', (int) $assessment['detail']['pregnancy'])
+            ->merge($assessment['detail']['assessment'])
             ->forget('detail');
 
-        $information = [];
-        $formKeys = ['illness' => 'การเจ็บป้วย', 'care' => 'หัตถการและผลการรักษา', 'context' => 'บริบท'];
-        $summary = [];
+        $image = $assessment['image'] ?? null;
 
-        foreach ($formKeys as $formKey => $topic) {
-            $data = [];
-            foreach ($assessmentBits[$formKey] as $subKey => $values) {
-                $arr = [];
-                // $subKey คือ a, b, c...
-                if (is_array($values)) {
+        $sortedData = collect($assessmentBits)
+            ->sortBy(function ($questions) use ($image) {
+                $firstKey = collect($questions)->sortKeys()->keys()->first();
+                return substr($firstKey, 0, 1);
+            })->map(function ($questions, $categoryName) use ($image) {
+                return collect($questions)
+                    ->sortKeys()
+                    ->map(function ($answers, $key) use ($categoryName, $image) {
 
-                    $total = array_sum($values);
-                    if ($total > 0) {
+                        $returnData = [];
+                        $topic = $key === 'n1' ? 'เพิ่มเติม' : null;
+                        $totalCount = is_array($answers)
+                            ? collect($answers)->filter(function ($value) {
+                                return $value != 0;
+                            })->count()
+                            : (!is_null($answers) && $answers !== '' ? 1 : 0);
 
-                        foreach ($values as $index => $value) {
-                            if ($value > 0) {
-                                $arr[] = $formKey . '_' . $subKey . '_' . $index;
-                            }
+                        if ($key === 'b1' && $image) {
+                            $totalCount = 1;
+                            $returnData['image'] = $image;
                         }
 
-                        $label = collect(AssessmentData::$VISITS);
-                        $subset = $label->only($arr)->pluck('content');
-                        $titleKeys = $formKey . '_' . $subKey . '_topic';
-                        $data[] = [
-                            'title' => $label->only($titleKeys)->pluck('content')->first(),
-                            'questions' => $subset
-                        ];
-                    }
-                } else {
-                    if ($values && $formKey !== 'context') {
-                        $data[] = [
-                            'title' => 'เพิ่มเติม',
-                            'questions' => [$values]
-                        ];
-                    }
-                }
-            }
+                        $returnData['topic'] = $topic ? $topic : ReportUtility::getForm2Title($categoryName, $key);
+                        $returnData['total'] = $totalCount;
+                        $returnData['answers'] = is_array($answers) ? ReportUtility::getForm2Answers($categoryName, $key, $answers) : [$answers];
+                        return  $returnData;
+                    })->filter(fn($item) => $item['total'] > 0);
+            })->filter(fn($category) => $category->isNotEmpty());;
 
-            $summary[] = [
-                'topic' => $topic,
-                'data' => $data
-            ];
-        }
 
         $extraNote = null;
-        if (isset($assessmentBits['context']['n2']) && $assessmentBits['context']['n2']) {
-            $extraNote = $assessmentBits['context']['n2'];
+        if ($sortedData->has('context')) {
+            $extraNote  = $sortedData['context']['n2'] ?? null;
+            $sortedData['context'] = $sortedData['context']->forget('n2');
         }
+
+        $resultData = $sortedData;
 
         $information['created_name'] = $assessment['created_name'];
         $information['count'] = $assessment['count'];
@@ -547,8 +543,8 @@ class AssessmentController extends Controller
         $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
         $information['gender'] = GenderId::tryFrom($population?->gender)->text();
         $information['address'] = $assessment['full_p_address_th'];
-        if($population?->gender === GenderId::FEMALE->value){
-                $information['pregnancy'] = (int) $assessment['pregnancy'] ? 'ตั้งครรภ์' : 'ไม่ตั้งครรภ์';
+        if ($population?->gender === GenderId::FEMALE->value) {
+            $information['pregnancy'] = (int) $assessment['pregnancy'] ? 'ตั้งครรภ์' : 'ไม่ตั้งครรภ์';
         }
 
         // ให้นมบุตร
@@ -599,13 +595,12 @@ class AssessmentController extends Controller
         // ยา
         $information['drugNameDrugSizeHowToUse'] = $assessment['drugNameDrugSizeHowToUse'];
 
-        // dd($summary, $information);
         if (env('APP_ENV') == 'local') {
-            return Pdf::view('pdf.form2', ['data' => $summary, 'notes' => $extraNote, 'information' => $information])
+            return Pdf::view('pdf.form2', ['data' => $resultData, 'notes' => $extraNote['answers'][0] ?? null, 'information' => $information])
                 ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
                 ->save('form.pdf');
         } else {
-            return Pdf::view('pdf.form2', ['data' => $summary, 'notes' => $extraNote, 'information' => $information])
+            return Pdf::view('pdf.form2', ['data' => $resultData, 'notes' => $extraNote['answers'][0] ?? null, 'information' => $information])
                 ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
                 ->withBrowsershot(function (Browsershot $browsershot) use ($chromePath) {
                     $browsershot

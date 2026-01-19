@@ -34,7 +34,7 @@
         }
 
         .title {
-            color: var(--text-color-text-grey-darkest, #1f1d1f);
+            color: #1f1d1f;
             /* fields/title */
             font-family: Kanit;
             font-size: 16px;
@@ -131,10 +131,36 @@
             page-break-inside: avoid;
             break-inside: avoid;
         }
+
+        /* คลาสหลัก */
+        .btn_shadow {
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            border-radius: 6px;
+            border: 1px solid;
+        }
+
+        /* คลาสย่อยสำหรับ Cancel และ OnlyCancel */
+        .btn_shadow--cancel {
+            width: 100%;
+            max-width: 150px;
+            border-color: #b7b2b5;
+            background: #fff;
+            color: #1f1d1f;
+        }
     </style>
 </head>
 
 <html>
+
+@php
+$formKeys = ['illness' => 'การเจ็บป้วย', 'care' => 'หัตถการและผลการรักษา', 'context' => 'บริบท'];
+@endphp
+
 
 <body>
     <div class="w-full flex flex-col items-start gap-[26px]">
@@ -168,31 +194,38 @@
             <div class="w-full flex flex-col" style="flex: 1; width: 50%;">
                 <!-- 2. การเจ็บป่วย -->
 
-                @foreach($data as $item)
+                @foreach($data as $key => $item)
 
                 <div class="w-full {{ $loop->first ? '' : 'mt-[26px]' }} flex flex-col items-start gap-[20px]">
                     <div class="w-full p-[10px] bg-[#FBEFF8] keep-together">
                         <label class="PC_Body1-SB text-[#1F1D1F]">
-                            {{$item['topic']}}
+                            {{$formKeys[$key]}}
                         </label>
                     </div>
 
                     <!-- //อุบัติเหตุ (Trauma) -->
 
-                    @foreach($item['data'] as $subData)
+                    @foreach($item as $subItem)
                     <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
-                        <span class="PC_Body1-SB text-[#1F1D1F]"> {{$subData['title']}} </span>
+                        <span class="PC_Body1-SB text-[#1F1D1F]"> {{$subItem['topic']}} </span>
                     </div>
 
-                    @foreach($subData['questions'] as $question)
+                    @foreach($subItem['answers'] as $answer)
                     <div class="flex flex-col items-start gap-[20px] keep-together">
                         <div class="page-keep flex items-center">
                             <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
-                            {{$question}}
+                            {{$answer}}
                         </div>
                     </div>
                     @endforeach
+                    @if(isset($subItem['image']))
+                    <button class="btn_shadow btn_shadow--cancel !flex !justify-center !items-center !h-[50px] !max-w-[90px] !p-0 keep-together">
+                        <span class="PC_Body2-R whitespace-nowrap leading-none block !text-[13px] text-center">
+                            รูปประกอบ
+                        </span>
+                    </button>
+                    @endif
                     @endforeach
                 </div>
                 @endforeach
@@ -200,7 +233,7 @@
 
 
                 <!-- //บันทึกเพิ่มเติม  -->
-                @if($notes)
+                @if(filled($notes ?? null))
                 <div class="mt-[26px] w-full flex flex-col items-start gap-[20px] keep-together">
                     <div class="page-keep w-full p-[10px] bg-[#FBEFF8]">
                         <label class="PC_Body1-SB text-[#1F1D1F]"> บันทึกเพิ่มเติม</label>
@@ -216,7 +249,7 @@
                 <div class="mb-[26px] w-full border border-[#DFDCDD] border-dashed keep-together">
                 </div>
 
-                <div class="page-keep w-full flex items-center gap-[10px] keep-together" >
+                <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                     <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                     <span class="PC_Body1-SB text-[#1F1D1F]">ผู้ลงข้อมูล</span>
                 </div>
@@ -239,21 +272,21 @@
                         </div>
                         <div class="w-full flex flex-col items-start gap-[24px]">
                             <div class="w-full flex flex-col gap-[24px]">
-                                <div class="w-full flex flex-col items-start gap-[2px] keep-together" >
+                                <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                                     <div class="PC_Body2-R text-[#7C7379]">ชื่อผู้ประสบภัย</div>
                                     <div class="PC_Body1-R text-[#1F1D1F]">
                                         {{ $information['name_of_assessment'] ?? "-" }}
                                     </div>
                                 </div>
 
-                                <div class="w-full flex flex-col items-start gap-[2px] keep-together" >
+                                <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                                     <div class="PC_Body2-R text-[#7C7379]">วันเกิด</div>
                                     <div class="PC_Body1-R text-[#1F1D1F]">
                                         {{ $information['birth_date']}} ( {{$information['age'] }} ปี)
                                     </div>
                                 </div>
 
-                                <div class="w-full flex flex-col items-start gap-[2px] keep-together" >
+                                <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                                     <div class="PC_Body2-R text-[#7C7379]">เพศ</div>
                                     <div class="PC_Body1-R text-[#1F1D1F]">
                                         {{ $information['gender'] ?? "-" }}
@@ -261,7 +294,7 @@
                                 </div>
                             </div>
 
-                            <div class="w-full flex flex-col items-start gap-[2px] keep-together" >
+                            <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                                 <div class="PC_Body2-R text-[#7C7379]">ที่อยู่ตามภูมิลำเนา</div>
                                 <div class="PC_Body1-R text-[#1F1D1F]">
                                     {{ $information['address'] ?? "-" }}
@@ -278,40 +311,42 @@
                         </div>
                     </div>
 
+                    @if(filled($information['breastFeeding'] ?? null))
                     <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">การให้นมบุตร</span>
                     </div>
-                    <div class="page-keep flex items-center" >
+                    <div class="page-keep flex items-center">
                         <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
                         {{ $information['breastFeeding']['text'] }}
                     </div>
+                    @endif
 
-                    @if($information['headCircumference'])
+                    @if(filled($information['headCircumference'] ?? null))
                     <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">รอบวงศีรษะ (ซม.)</span>
                     </div>
-                    <div class="page-keep flex items-center" >
+                    <div class="page-keep flex items-center">
                         <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
                         {{$information['headCircumference']}}
                     </div>
                     @endif
 
                     <!-- ประวัติการรับวัคซีน โรคหัด -->
-                    @if($information['measlesVaccinationHistory'])
+                    @if(filled($information['measlesVaccinationHistory'] ?? null))
                     <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">ประวัติการรับวัคซีน โรคหัด</span>
                     </div>
-                    <div class="page-keep flex items-center keep-together" >
+                    <div class="page-keep flex items-center keep-together">
                         <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
                         {{ $information['measlesVaccinationHistory']['text'] }}
                     </div>
                     @endif
 
                     <!-- ประวัติการรับวัคซีน บาดทะยัก -->
-                    @if($information['historyOfTetanusVaccination'])
+                    @if(filled($information['historyOfTetanusVaccination'] ?? null))
                     <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">ประวัติการรับวัคซีน บาดทะยัก</span>
@@ -366,7 +401,7 @@
                             <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
                             {{ $information['pastHistory']['text'] }}
                         </div>
-                        @if($information['historyOfAllergies']['value'] == 2)
+                        @if($information['pastHistory']['value'] == 2)
                         <div class="w-full flex flex-col gap-2 pl-[28px]">
                             @if(filled($information['pastHistory']['ht'] ?? null))
                             <div class="keep-together">
@@ -404,7 +439,7 @@
                             <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
                             {{ $information['drugHistory']['text'] }}
                         </div>
-                        @if($information['historyOfAllergies']['value'] == 2)
+                        @if($information['drugHistory']['value'] == 2)
                         <div class="w-full flex flex-col gap-2 pl-[28px]">
                             @if(filled($information['drugHistory']['ht'] ?? null))
                             <div class="keep-together">
@@ -452,7 +487,7 @@
                     @endif
 
                     <div class="flex flex-col items-start gap-[20px]">
-                        @if($information['vitalSigns']['temperature'])
+                        @if(filled($information['vitalSigns']['temperature'] ?? null))
                         <div class="page-keep flex flex-col gap-2 keep-together">
                             <div class="PC_Body1-SB text-[#1F1D1F]">อุณหภูมิ (องศาเซลเซียส)</div>
                             <div class="PC_Body2-R text-[#1F1D1F] flex items-center">
@@ -462,7 +497,7 @@
                         </div>
                         @endif
 
-                        @if($information['vitalSigns']['bloodPressure'])
+                       @if(filled($information['vitalSigns']['bloodPressure'] ?? null))
                         <div class="page-keep flex flex-col gap-2 keep-together">
                             <div class="PC_Body1-SB text-[#1F1D1F]">
                                 ความดันโลหิต / มิลลิเมตรปรอท
@@ -474,7 +509,7 @@
                         </div>
                         @endif
 
-                        @if($information['vitalSigns']['pulse'])
+                       @if(filled($information['vitalSigns']['pulse'] ?? null))
                         <div class="page-keep flex flex-col gap-2 keep-together">
                             <div class="PC_Body1-SB text-[#1F1D1F]">ชีพจร (ครั้งต่อนาที)</div>
                             <div class="PC_Body2-R text-[#1F1D1F] flex items-center">
@@ -484,7 +519,7 @@
                         </div>
                         @endif
 
-                        @if($information['vitalSigns']['respiratoryRate'])
+                       @if(filled($information['vitalSigns']['respiratoryRate'] ?? null))
                         <div class="page-keep flex flex-col gap-2 keep-together">
                             <div class="PC_Body1-SB text-[#1F1D1F]">อัตราหายใจ (ครั้งต่อนาที)</div>
                             <div class="PC_Body2-R text-[#1F1D1F] flex items-center">
@@ -494,7 +529,7 @@
                         </div>
                         @endif
 
-                        @if($information['vitalSigns']['weight'])
+                        @if(filled($information['vitalSigns']['weight'] ?? null))
                         <div class="page-keep flex flex-col gap-2 keep-together">
                             <div class="PC_Body1-SB text-[#1F1D1F]">น้ำหนัก (กิโลกรัม)</div>
                             <div class="PC_Body2-R text-[#1F1D1F] flex items-center">
@@ -504,7 +539,7 @@
                         </div>
                         @endif
 
-                        @if($information['vitalSigns']['height'])
+                        @if(filled($information['vitalSigns']['height'] ?? null))
                         <div class="page-keep flex flex-col gap-2 keep-together">
                             <div class="PC_Body1-SB text-[#1F1D1F]">ส่วนสูง (เซนติเมตร)</div>
                             <div class="PC_Body2-R text-[#1F1D1F] flex items-center">
@@ -516,7 +551,7 @@
                     </div>
 
                     <!-- ประวัติการเจ็บป่วยปัจจุบัน -->
-                    @if($information['historyOfCurrentIllness'])
+                    @if(filled($information['historyOfCurrentIllness'] ?? null))
                     <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">ประวัติการเจ็บป่วยปัจจุบัน</span>
@@ -528,7 +563,7 @@
                     @endif
 
                     <!-- การวินิจฉัย -->
-                    @if($information['diagnosis'])
+                    @if(filled($information['diagnosis'] ?? null))
                     <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">การวินิจฉัย</span>
@@ -540,7 +575,7 @@
                     @endif
 
                     <!-- ยา ชื่อยา/ขนาดวิธีการใช้ -->
-                    @if($information['drugNameDrugSizeHowToUse'])
+                    @if(filled($information['drugNameDrugSizeHowToUse'] ?? null))
                     <div class="page-keep w-full flex items-center gap-[10px] keep-together">
                         <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                         <span class="PC_Body1-SB text-[#1F1D1F]">ยา ชื่อยา/ขนาดวิธีการใช้</span>

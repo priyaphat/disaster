@@ -19,7 +19,7 @@
         }
 
         .title {
-            color: var(--text-color-text-grey-darkest, #1f1d1f);
+            color: #1f1d1f;
             /* fields/title */
             font-family: Kanit;
             font-size: 16px;
@@ -116,6 +116,25 @@
             page-break-inside: avoid;
             break-inside: avoid;
         }
+
+        .btn_shadow {
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            border-radius: 6px;
+            border: 1px solid;
+        }
+
+        .btn_shadow--cancel {
+            width: 100%;
+            max-width: 150px;
+            border-color: #b7b2b5;
+            background: #fff;
+            color: #1f1d1f;
+        }
     </style>
 
 </head>
@@ -209,14 +228,21 @@
                     {{$item['topic']}}
                 </span>
             </div>
-            @foreach($item['data'] as $data)
+            @foreach($item['answers'] as $answer)
             <div class="flex flex-col items-start gap-[20px] keep-together">
                 <div class="page-keep flex items-center">
                     <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
-                    {{$data}}
+                    {{$answer}}
                 </div>
             </div>
             @endforeach
+            @if(isset($item['image']))
+            <button class="btn_shadow btn_shadow--cancel !flex !justify-center !items-center !h-[50px] !max-w-[90px] !p-0 keep-together">
+                <span class="PC_Body2-R whitespace-nowrap leading-none block !text-[13px] text-center">
+                    รูปประกอบ
+                </span>
+            </button>
+            @endif
             @endforeach
         </div>
         @endif
