@@ -182,7 +182,7 @@ $formKeys = ['illness' => 'การเจ็บป้วย', 'care' => 'หั
                         <div class="flex flex-col">
                             <div class="PC_Body2-R text-[#7C7379]">วันที่ประเมิน</div>
                             <div class="PC_Body1-R text-[#1F1D1F]">
-                                {{$information['created_at']}}
+                                {{$information['datetime'] ?? "-"}}
                             </div>
                         </div>
                     </div>

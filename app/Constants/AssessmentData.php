@@ -28,7 +28,7 @@ class AssessmentData
         'a2'  => ['type' => 'text', 'content' => 'บาดเจ็บบริเวณลำตัวอย่างรุนแรง'],
         'a3'  => ['type' => 'text', 'content' => 'บาดเจ็บบริเวณส่วนปลายแขนขา'],
         'a4'  => ['type' => 'text', 'content' => 'บาดเจ็บปานกลาง'],
-        'a5'  => ['type' => 'text', 'content' => 'บาดเจ็บเล็กน้อย/'],
+        'a5'  => ['type' => 'text', 'content' => 'บาดเจ็บเล็กน้อย'],
 
         'b_topic' => ['type' => 'topic', 'content' => 'โรคติดเชื้อ (Infectious disease)'],
         'b1'  => ['type' => 'text', 'content' => 'การติดเชื้อทางเดินหายใจเฉียบพลัน'],
@@ -56,7 +56,7 @@ class AssessmentData
         'e_topic' => ['type' => 'topic', 'content' => 'หัตถการ'],
         'e1'  => ['type' => 'text', 'content' => 'ฉีดยา'],
         'e2'  => ['type' => 'text', 'content' => 'ทำแผล'],
-        'e3'  => ['type' => 'text', 'content' => 'ทำแผล'],
+        'e3'  => ['type' => 'text', 'content' => 'ผ่าตัดเล็กรวมเย็บแผล'],
 
         'f_topic' => ['type' => 'topic', 'content' => 'ผลการรักษา'],
         'f1'  => ['type' => 'text', 'content' => 'Discharge (OPD)'],

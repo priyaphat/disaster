@@ -419,6 +419,10 @@ class AssessmentController extends Controller
             $assessmentBits = collect([]);
         }
 
+        $assessment = collect($assessment)
+            ->put('full_p_address_th', $assessment['detail']['assessment']['full_p_address_th'] ?? null)
+            ->forget('detail');
+
         $image = $assessment['image'] ?? null;
 
         $data = $assessmentBits->collapse()->groupBy(function ($item, $key) use ($image) {
@@ -445,14 +449,14 @@ class AssessmentController extends Controller
 
         $information['created_name'] = $assessment['created_name'];
         $information['count'] = $assessment['count'];
-        $information['created_at'] = Carbon::parse($assessment['created_at'])->thaidate();
+        $information['datetime'] = Carbon::parse($assessment['datetime'])->thaidate();
         $information['team_name'] = $assessment['team_name'];
         $information['name_of_assessment'] = $assessment['name_of_assessment'];
         $information['population_image'] = $population?->image?->image_path;
         $information['age'] = Carbon::parse($population?->birth_date)->age;
         $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
         $information['gender'] = GenderId::tryFrom($population?->gender)->text();
-        $information['address'] = AddressUtility::getFullAddressTH($population['p_address'], $population['permanentAddress']) ?? '-';
+        $information['address'] = $assessment['full_p_address_th'] ?? '-';
 
         if (env('APP_ENV') == 'local') {
             return Pdf::view('pdf.form1', ['data' => $data, 'information' => $information])
@@ -535,14 +539,16 @@ class AssessmentController extends Controller
 
         $information['created_name'] = $assessment['created_name'];
         $information['count'] = $assessment['count'];
-        $information['created_at'] = Carbon::parse($assessment['created_at'])->thaidate();
+        $information['datetime'] = Carbon::parse($assessment['datetime'])->thaidate();
         $information['team_name'] = $assessment['team_name'];
         $information['name_of_assessment'] = $assessment['name_of_assessment'];
         $information['population_image'] = $population?->image?->image_path;
         $information['age'] = Carbon::parse($population?->birth_date)->age;
         $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
         $information['gender'] = GenderId::tryFrom($population?->gender)->text();
-        $information['address'] = $assessment['full_p_address_th'];
+        $information['address'] = $assessment['full_p_address_th'] ?? '-';
+        // $information['address'] = boolval($assessment['c_address_population']) === true ? AddressUtility::getFullAddressTH($population['p_address'], $population['permanentAddress']) : $assessment['full_p_address_th'];
+
         if ($population?->gender === GenderId::FEMALE->value) {
             $information['pregnancy'] = (int) $assessment['pregnancy'] ? 'ตั้งครรภ์' : 'ไม่ตั้งครรภ์';
         }
