@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tailwind in One File</title>
+    <title>รายงานการปฏิบัติการฉุกเฉิน</title>
     <!-- Include Tailwind via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@
         }
 
         .title {
-            color: var(--text-color-text-grey-darkest, #1f1d1f);
+            color: #1f1d1f;
             /* fields/title */
             font-family: Kanit;
             font-size: 16px;
@@ -111,6 +111,30 @@
         div {
             break-inside: auto;
         }
+
+        .keep-together {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .btn_shadow {
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            border-radius: 6px;
+            border: 1px solid;
+        }
+
+        .btn_shadow--cancel {
+            width: 100%;
+            max-width: 150px;
+            border-color: #b7b2b5;
+            background: #fff;
+            color: #1f1d1f;
+        }
     </style>
 
 </head>
@@ -118,7 +142,7 @@
 <html>
 
 <body>
-    <div class="w-full flex flex-col items-start gap-[26px]" ref="pdfRef">
+    <div class="w-full flex flex-col items-start gap-[26px]">
         <div class="w-full flex flex-col items-start gap-[20px]">
             <div class="w-full flex flex-col items-start gap-[6px]">
                 <div class="PC_H2-SB text-[#1F1D1F]">รายงานการปฏิบัติการฉุกเฉิน</div>
@@ -134,7 +158,7 @@
                         <div class="flex flex-col">
                             <div class="PC_Body2-R text-[#7C7379]">วันที่ประเมิน</div>
                             <div class="PC_Body1-R text-[#1F1D1F]">
-                                {{ $information['created_at'] ?? "-" }}
+                                {{ $information['datetime'] ?? "-" }}
                             </div>
                         </div>
                     </div>
@@ -159,28 +183,28 @@
                     <img src="{{ $information['population_image'] ?? 'https://placehold.co/100x100/png' }}">
                 </div>
                 <div class="w-full flex flex-col items-start gap-[24px]">
-                    <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
+                    <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                         <div class="PC_Body2-R text-[#7C7379]">ชื่อผู้ประสบภัย</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
                             {{ $information['name_of_assessment'] ?? "-" }}
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
+                    <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                         <div class="PC_Body2-R text-[#7C7379]">วันเกิด</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
-                           {{ $information['birth_date'] ?? "-"}} ( {{$information['age'] ?? "-" }} ปี)
+                            {{ $information['birth_date'] ?? "-"}} ( {{$information['age'] ?? "-" }} ปี)
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
+                    <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                         <div class="PC_Body2-R text-[#7C7379]">เพศ</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
                             {{ $information['gender'] ?? "-" }}
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col items-start gap-[2px]" style="page-break-inside: avoid;">
+                    <div class="w-full flex flex-col items-start gap-[2px] keep-together">
                         <div class="PC_Body2-R text-[#7C7379]">ที่อยู่ตามภูมิลำเนา</div>
                         <div class="PC_Body1-R text-[#1F1D1F]">
                             {{ $information['address'] ?? "-" }}
@@ -192,39 +216,46 @@
         <!-- info -->
 
         <!-- 2. การเจ็บป่วย -->
-         @if(count($data) > 0)
+        @if(count($data) > 0)
         <div class="w-full flex flex-col items-start gap-[20px]">
             <div class="w-full p-[10px] bg-[#FBEFF8]">
                 <label class="PC_Body1-SB text-[#1F1D1F]"> 2. Health events</label>
             </div>
             @foreach($data as $item)
-            <div class="page-keep h-[30px] w-full flex items-center gap-[10px]" style="page-break-inside: avoid;">
+            <div class="page-keep h-[30px] w-full flex items-center gap-[10px] keep-together">
                 <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
                 <span class="PC_Body1-SB text-[#1F1D1F] block h-[30px]">
                     {{$item['topic']}}
                 </span>
             </div>
-            @foreach($item['data'] as $data)
-            <div class="flex flex-col items-start gap-[20px]" style="page-break-inside: avoid;">
+            @foreach($item['answers'] as $answer)
+            <div class="flex flex-col items-start gap-[20px] keep-together">
                 <div class="page-keep flex items-center">
                     <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
-                    {{$data}}
+                    {{$answer}}
                 </div>
             </div>
             @endforeach
+            @if(isset($item['image']))
+            <button class="btn_shadow btn_shadow--cancel !flex !justify-center !items-center !h-[50px] !max-w-[90px] !p-0 keep-together">
+                <span class="PC_Body2-R whitespace-nowrap leading-none block !text-[13px] text-center">
+                    รูปประกอบ
+                </span>
+            </button>
+            @endif
             @endforeach
         </div>
         @endif
 
-        <div class="mb-[26px] w-full border border-[#DFDCDD] border-dashed" style="page-break-inside: avoid;">
+        <div class="mb-[26px] w-full border border-[#DFDCDD] border-dashed keep-together">
         </div>
 
-        <div class="page-keep w-full flex items-center gap-[10px]" style="page-break-inside: avoid;">
+        <div class="page-keep w-full flex items-center gap-[10px] keep-together">
             <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
             <span class="PC_Body1-SB text-[#1F1D1F]">ผู้ลงข้อมูล</span>
         </div>
 
-        <div class="flex flex-col items-start gap-[20px]" style="page-break-inside: avoid;">
+        <div class="flex flex-col items-start gap-[20px] keep-together">
             {{ $information['created_name'] ?? "-" }}
         </div>
     </div>

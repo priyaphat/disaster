@@ -367,200 +367,107 @@ class AssessmentController extends Controller
         $assessment = collect($assessment?->data);
         $population = Population::with('permanentAddress')->find($assessment['population_id']);
         $milliseconds = Carbon::now()->getPreciseTimestamp(3);
-        $reportName = 'report-'.$milliseconds;
-        if ($assessment['type'] == 1) {
-            $formKeys = ['a' => 'อุบัติเหตุ', 'b' => 'โรคติดเชื้อ (Infectious disease)', 'c' => 'โรคฉุกเฉิน', 'd' => 'โรคสำคัญอื่นๆ', 'e' => 'หัตถการ', 'f' => 'ผลการรักษา'];
-            if (isset($assessment['detail']['assessment_bits'])) {
-                $assessmentBits = collect($assessment['detail']['assessment_bits']);
-            } else if ($assessment['detail']['assessment']) {
-                $assessmentBits = collect($assessment['detail']['assessment']);
-            } else {
-                $assessmentBits = collect([]);
-            }
+        $reportName = 'report-' . $milliseconds;
+        $paths = glob('/var/www/.puppeteer-cache/chrome/linux-*/chrome-linux64/chrome');
+        $chromePath = null;
+        if (!empty($paths)) {
+            $chromePath = $paths[0];
+        }
 
-            $collapsed = $assessmentBits->collapse();
+        $type = $assessment['type'];
+        if ($type == 1) {
+            return $this->generateForm1($assessment, $population, $reportName, $chromePath);
+        } else {
+            return $this->generateForm2($assessment, $population, $reportName, $chromePath);
+        }
+    }
 
-            $data = [];
-            foreach ($formKeys as $formKey => $topic) {
-                $newKeys = $collapsed->filter(function ($value, $key) use ($formKey) {
-                    return str_starts_with($key, $formKey) && ($value === "true" || $value === true);
-                });
-
-                if (count($newKeys) > 0) {
-                    $keys = $newKeys->keys();
-
-                    $label = collect(AssessmentData::$ASSESSMENTS);
-                    $subset = $label->only($keys)->pluck('content');
-                    $data[] = [
-                        'topic' => $topic,
-                        'data' => $subset
-                    ];
+    public function previewForm($name, $value)
+    {
+        switch ($name) {
+            case "breastFeeding":
+            case "measlesVaccinationHistory":
+            case "historyOfTetanusVaccination": {
+                    return match ($value) {
+                        0 => 'ไม่ทราบ',
+                        1 => 'ใช่',
+                        2 => 'ไม่ใช่',
+                        default => 'ไม่ทราบ',
+                    };
                 }
+            case "historyOfAllergies":
+            case "pastHistory":
+            case "drugHistory": {
+                    return match ($value) {
+                        0 => 'ไม่ทราบ',
+                        1 => 'ไม่มี',
+                        2 => 'มี',
+                        default => 'ไม่ทราบ',
+                    };
+                }
+        };
+    }
+
+    public function generateForm1($assessment, $population, $reportName, $chromePath)
+    {
+        $information = [];
+        if (isset($assessment['detail']['assessment_bits'])) {
+            $assessmentBits = collect($assessment['detail']['assessment_bits']);
+        } else if ($assessment['detail']['assessment']) {
+            $assessmentBits = collect($assessment['detail']['assessment']);
+        } else {
+            $assessmentBits = collect([]);
+        }
+
+        $assessment = collect($assessment)
+            ->put('full_p_address_th', $assessment['detail']['assessment']['full_p_address_th'] ?? null)
+            ->forget('detail');
+
+        $image = $assessment['image'] ?? null;
+
+        $data = $assessmentBits->collapse()->groupBy(function ($item, $key) use ($image) {
+            return strtolower(substr($key, 0, 1));
+        }, true)->map(function ($answers, $subKey) use ($image) {
+            $returnData = [];
+
+            $trueData = collect($answers)->filter(function ($value) {
+                return $value !== false && $value !== 'false';
+            });
+            $totalCount = $trueData->count();
+            $arrKeys = $trueData->keys();
+
+            if ($subKey === 'e' && $image) {
+                $totalCount = 1;
+                $returnData['image'] = $image;
             }
 
-            $information = [];
-            $information['created_name'] = $assessment['created_name'];
-            $information['count'] = $assessment['count'];
-            $information['created_at'] = Carbon::parse($assessment['created_at'])->thaidate();
-            $information['team_name'] = $assessment['team_name'];
-            $information['name_of_assessment'] = $assessment['name_of_assessment'];
-            $information['age'] = Carbon::parse($population?->birth_date)->age;
-            $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
-            $information['gender'] = GenderId::tryFrom($population?->gender)->text();
-            $information['population_image'] = $population?->image?->image_path;
-            $information['address'] = AddressUtility::getFullAddressTH($population['p_address'], $population['permanentAddress']) ?? '-';
+            $returnData['topic'] = ReportUtility::getForm1Title($subKey);
+            $returnData['total'] = $totalCount;
+            $returnData['answers'] = ReportUtility::getForm1Answers($arrKeys);
+            return $returnData;
+        })->filter(fn($item) => $item['total'] > 0);
 
-            //         return Pdf::view('pdf.form1', ['data' => $data, 'information' => $information])
-            // ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
-            // ->save('form1.pdf');
+        $information['created_name'] = $assessment['created_name'];
+        $information['count'] = $assessment['count'];
+        $information['datetime'] = Carbon::parse($assessment['datetime'])->thaidate();
+        $information['team_name'] = $assessment['team_name'];
+        $information['name_of_assessment'] = $assessment['name_of_assessment'];
+        $information['population_image'] = $population?->image?->image_path;
+        $information['age'] = Carbon::parse($population?->birth_date)->age;
+        $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
+        $information['gender'] = GenderId::tryFrom($population?->gender)->text();
+        $information['address'] = $assessment['full_p_address_th'] ?? '-';
+
+        if (env('APP_ENV') == 'local') {
             return Pdf::view('pdf.form1', ['data' => $data, 'information' => $information])
                 ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
-                ->withBrowsershot(function (Browsershot $browsershot) {
-                    $browsershot
-                        ->setChromePath('/var/www/.puppeteer-cache/chrome/linux-143.0.7499.169/chrome-linux64/chrome')
-                        ->addChromiumArguments([
-                            'headless=new',
-                            'disable-gpu',
-                            'disable-dev-shm-usage',
-                            'disable-crash-reporter', // ปิดตัวต้นเหตุของ Error นี้
-                            'user-data-dir=/tmp/chrome-profile' // ระบุที่เก็บข้อมูลส่วนตัวชั่วคราว
-                        ])
-                        ->noSandbox()
-                        ->waitUntilNetworkIdle()
-                        ->ignoreHttpsErrors()
-                        ->setEnvironmentOptions([
-                            'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config')
-                        ]);
-                })
-                ->name($reportName)
-                ->download();
+                ->save('form1.pdf');
         } else {
-            $assessmentBits = $assessment['detail']['assessment_bits'] ?? []; // ดึงก้อน test ออกมา
-            $assessment = collect($assessment)
-                ->put('pregnancy', (int) $assessment['detail']['pregnancy']) // เอาข้อมูลใน data มาวางที่ระดับนอก
-                ->merge($assessment['detail']['assessment']) // เอาข้อมูลใน data มาวางที่ระดับนอก
-                ->forget('detail');
-
-            // $assessmentDetail = $assessment?->detail;
-            $information = [];
-            $formKeys = ['illness' => 'การเจ็บป้วย', 'care' => 'หัตถการและผลการรักษา', 'context' => 'บริบท'];
-            $summary = [];
-
-
-            // การเจ็บป่วย
-            $i = 0;
-            foreach ($formKeys as $formKey => $topic) {
-                $data = [];
-                foreach ($assessmentBits[$formKey] as $subKey => $values) {
-                    $arr = [];
-                    // $subKey คือ a, b, c...
-                    if (is_array($values)) {
-
-                        $total = array_sum($values);
-                        if ($total > 0) {
-
-                            foreach ($values as $index => $value) {
-                                if ($value > 0) {
-                                    $arr[] = $formKey . '_' . $subKey . '_' . $index;
-                                }
-                            }
-
-                            $label = collect(AssessmentData::$VISITS);
-                            $subset = $label->only($arr)->pluck('content');
-                            $titleKeys = $formKey . '_' . $subKey . '_topic';
-                            $data[] = [
-                                'title' => $label->only($titleKeys)->pluck('content')->first(),
-                                'questions' => $subset
-                            ];
-                        }
-                    } else {
-                        if ($values && $formKey !== 'context') {
-                            $data[] = [
-                                'title' => 'เพิ่มเติม',
-                                'questions' => [$values]
-                            ];
-                        }
-                    }
-                }
-
-                $summary[] = [
-                    'topic' => $topic,
-                    'data' => $data
-                ];
-            }
-
-            $extraNote = null;
-            if (isset($assessmentBits['context']['n2']) && $assessmentBits['context']['n2']) {
-                $extraNote = $assessmentBits['context']['n2'];
-            }
-
-            $information['created_name'] = $assessment['created_name'];
-            $information['count'] = $assessment['count'];
-            $information['created_at'] = Carbon::parse($assessment['created_at'])->thaidate();
-            $information['team_name'] = $assessment['team_name'];
-            $information['name_of_assessment'] = $assessment['name_of_assessment'];
-            $information['age'] = Carbon::parse($population?->birth_date)->age;
-            $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
-            $information['gender'] = GenderId::tryFrom($population?->gender)->text();
-            $information['address'] = $assessment['full_p_address_th'];
-            $information['pregnancy'] = (int) $assessment['pregnancy'] ? 'ตั้งครรภ์' : 'ไม่ตั้งครรภ์';
-
-            // ให้นมบุตร
-            $information['breastFeeding'] = [
-                'value' =>  (int) $assessment['breastFeeding'],
-                'text' => $this->previewForm('breastFeeding', (int) $assessment['breastFeeding'])
-            ];
-
-            // รอบวง
-            $information['headCircumference'] = $assessment['headCircumference'];
-
-            // วัคซีนโรคหัด
-            $information['measlesVaccinationHistory'] = [
-                'value' =>  (int) $assessment['measlesVaccinationHistory'],
-                'text' => $this->previewForm('measlesVaccinationHistory', (int) $assessment['measlesVaccinationHistory'])
-            ];
-
-            // วัคซีนบาดทะยัก
-            $information['historyOfTetanusVaccination'] = [
-                'value' =>  (int) $assessment['historyOfTetanusVaccination'],
-                'text' => $this->previewForm('historyOfTetanusVaccination', (int) $assessment['historyOfTetanusVaccination'])
-            ];
-
-            // ประวัติการแพ้
-            $information['historyOfAllergies'] = $assessment['historyOfAllergies'];
-            $information['historyOfAllergies']['value'] =  (int) $assessment['historyOfAllergies']['value'];
-            $information['historyOfAllergies']['text'] =  $this->previewForm('historyOfAllergies', (int) $assessment['historyOfAllergies']['value']);
-
-            // วัคซีนบาดทะยัก
-            $information['pastHistory'] = $assessment['pastHistory'];
-            $information['pastHistory']['value'] =  (int) $assessment['pastHistory']['value'];
-            $information['pastHistory']['text'] =  $this->previewForm('pastHistory', (int) $assessment['pastHistory']['value']);
-
-            $information['drugHistory'] = $assessment['drugHistory'];
-            $information['drugHistory']['value'] =  (int) $assessment['drugHistory']['value'];
-            $information['drugHistory']['text'] =  $this->previewForm('drugHistory', (int) $assessment['drugHistory']['value']);
-
-            // อาการสำคัญ
-            $information['importantSymptoms'] = $assessment['importantSymptoms'];
-            // สัญญาณชีพ
-            $information['vitalSigns'] = $assessment['vitalSigns'];
-            $information['vitalSigns']['value'] = count(collect($assessment['vitalSigns'])->whereNotNull()) > 0 ? 1 : 0;
-
-            // เจ็บป่วยปัจจุบัน
-            $information['historyOfCurrentIllness'] = $assessment['historyOfCurrentIllness'];
-            // วินิจฉัย
-            $information['diagnosis'] = $assessment['diagnosis'];
-            // ยา
-            $information['drugNameDrugSizeHowToUse'] = $assessment['drugNameDrugSizeHowToUse'];
-
-            // return Pdf::view('pdf.form2', ['data' => $summary, 'notes' => $extraNote, 'information' => $information])
-            //     ->margins(1.27, 1.27, 1.27, 1.27, 'cm')
-            //     ->save('form.pdf');
-            return Pdf::view('pdf.form2', ['data' => $summary, 'notes' => $extraNote, 'information' => $information])
+            return Pdf::view('pdf.form1', ['data' => $data, 'information' => $information])
                 ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
-                ->withBrowsershot(function (Browsershot $browsershot) {
+                ->withBrowsershot(function (Browsershot $browsershot) use ($chromePath) {
                     $browsershot
-                        ->setChromePath('/var/www/.puppeteer-cache/chrome/linux-143.0.7499.169/chrome-linux64/chrome')
+                        ->setChromePath($chromePath)
                         ->addChromiumArguments([
                             'headless=new',
                             'disable-gpu',
@@ -580,38 +487,148 @@ class AssessmentController extends Controller
         }
     }
 
-    public function previewForm($name, $value)
-    {
-        switch ($name) {
-            case "breastFeeding":
-            case "measlesVaccinationHistory":
-            case "historyOfTetanusVaccination": {
-                    return match ($value) {
-                        0 => 'ใช่',
-                        1 => 'ไม่ใช่',
-                        2 => 'ไม่ทราบ',
-                        default => '',
-                    };
-                }
-            case "historyOfAllergies":
-            case "pastHistory":
-            case "drugHistory": {
-                    return match ($value) {
-                        0 => 'ไม่ทราบ',
-                        1 => 'ไม่มี',
-                        2 => 'มี',
-                        default => '',
-                    };
-                }
-        };
-    }
 
-    public function downloadImage()
+    public function generateForm2($assessment, $population, $reportName, $chromePath)
     {
-        // Downloads file from storage/app/public/images/photo.jpg
-        return Storage::download('public/images/photo.jpg', 'downloaded.jpg');
-    }
+        // ดึงข้อมูลแบบประเมิน
+        $assessmentBits = $assessment['detail']['assessment_bits'] ?? [];
+        $assessment = collect($assessment)
+            ->put('pregnancy', (int) $assessment['detail']['pregnancy'])
+            ->merge($assessment['detail']['assessment'])
+            ->forget('detail');
 
+        $image = $assessment['image'] ?? null;
+
+        $sortedData = collect($assessmentBits)
+            ->sortBy(function ($questions) use ($image) {
+                $firstKey = collect($questions)->sortKeys()->keys()->first();
+                return substr($firstKey, 0, 1);
+            })->map(function ($questions, $categoryName) use ($image) {
+                return collect($questions)
+                    ->sortKeys()
+                    ->map(function ($answers, $key) use ($categoryName, $image) {
+
+                        $returnData = [];
+                        $topic = $key === 'n1' ? 'เพิ่มเติม' : null;
+                        $totalCount = is_array($answers)
+                            ? collect($answers)->filter(function ($value) {
+                                return $value != 0;
+                            })->count()
+                            : (!is_null($answers) && $answers !== '' ? 1 : 0);
+
+                        if ($key === 'b1' && $image) {
+                            $totalCount = 1;
+                            $returnData['image'] = $image;
+                        }
+
+                        $returnData['topic'] = $topic ? $topic : ReportUtility::getForm2Title($categoryName, $key);
+                        $returnData['total'] = $totalCount;
+                        $returnData['answers'] = is_array($answers) ? ReportUtility::getForm2Answers($categoryName, $key, $answers) : [$answers];
+                        return  $returnData;
+                    })->filter(fn($item) => $item['total'] > 0);
+            })->filter(fn($category) => $category->isNotEmpty());;
+
+
+        $extraNote = null;
+        if ($sortedData->has('context')) {
+            $extraNote  = $sortedData['context']['n2'] ?? null;
+            $sortedData['context'] = $sortedData['context']->forget('n2');
+        }
+
+        $resultData = $sortedData;
+
+        $information['created_name'] = $assessment['created_name'];
+        $information['count'] = $assessment['count'];
+        $information['datetime'] = Carbon::parse($assessment['datetime'])->thaidate();
+        $information['team_name'] = $assessment['team_name'];
+        $information['name_of_assessment'] = $assessment['name_of_assessment'];
+        $information['population_image'] = $population?->image?->image_path;
+        $information['age'] = Carbon::parse($population?->birth_date)->age;
+        $information['birth_date'] = Carbon::parse($population?->birth_date)->thaidate();
+        $information['gender'] = GenderId::tryFrom($population?->gender)->text();
+        $information['address'] = $assessment['full_p_address_th'] ?? '-';
+        // $information['address'] = boolval($assessment['c_address_population']) === true ? AddressUtility::getFullAddressTH($population['p_address'], $population['permanentAddress']) : $assessment['full_p_address_th'];
+
+        if ($population?->gender === GenderId::FEMALE->value) {
+            $information['pregnancy'] = (int) $assessment['pregnancy'] ? 'ตั้งครรภ์' : 'ไม่ตั้งครรภ์';
+        }
+
+        // ให้นมบุตร
+        $information['breastFeeding'] = [
+            'value' =>  (int) $assessment['breastFeeding'],
+            'text' => $this->previewForm('breastFeeding', (int) $assessment['breastFeeding'])
+        ];
+
+        // รอบวง
+        $information['headCircumference'] = $assessment['headCircumference'];
+
+        // วัคซีนโรคหัด
+        $information['measlesVaccinationHistory'] = [
+            'value' =>  (int) $assessment['measlesVaccinationHistory'],
+            'text' => $this->previewForm('measlesVaccinationHistory', (int) $assessment['measlesVaccinationHistory'])
+        ];
+
+        // วัคซีนบาดทะยัก
+        $information['historyOfTetanusVaccination'] = [
+            'value' =>  (int) $assessment['historyOfTetanusVaccination'],
+            'text' => $this->previewForm('historyOfTetanusVaccination', (int) $assessment['historyOfTetanusVaccination'])
+        ];
+
+        // ประวัติการแพ้
+        $information['historyOfAllergies'] = $assessment['historyOfAllergies'];
+        $information['historyOfAllergies']['value'] =  (int) $assessment['historyOfAllergies']['value'];
+        $information['historyOfAllergies']['text'] =  $this->previewForm('historyOfAllergies', (int) $assessment['historyOfAllergies']['value']);
+
+        // วัคซีนบาดทะยัก
+        $information['pastHistory'] = $assessment['pastHistory'];
+        $information['pastHistory']['value'] =  (int) $assessment['pastHistory']['value'];
+        $information['pastHistory']['text'] =  $this->previewForm('pastHistory', (int) $assessment['pastHistory']['value']);
+
+        $information['drugHistory'] = $assessment['drugHistory'];
+        $information['drugHistory']['value'] =  (int) $assessment['drugHistory']['value'];
+        $information['drugHistory']['text'] =  $this->previewForm('drugHistory', (int) $assessment['drugHistory']['value']);
+
+        // อาการสำคัญ
+        $information['importantSymptoms'] = $assessment['importantSymptoms'];
+        // สัญญาณชีพ
+        $information['vitalSigns'] = $assessment['vitalSigns'];
+        $information['vitalSigns']['value'] = count(collect($assessment['vitalSigns'])->whereNotNull()) > 0 ? 1 : 0;
+
+        // เจ็บป่วยปัจจุบัน
+        $information['historyOfCurrentIllness'] = $assessment['historyOfCurrentIllness'];
+        // วินิจฉัย
+        $information['diagnosis'] = $assessment['diagnosis'];
+        // ยา
+        $information['drugNameDrugSizeHowToUse'] = $assessment['drugNameDrugSizeHowToUse'];
+
+        if (env('APP_ENV') == 'local') {
+            return Pdf::view('pdf.form2', ['data' => $resultData, 'notes' => $extraNote['answers'][0] ?? null, 'information' => $information])
+                ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
+                ->save('form.pdf');
+        } else {
+            return Pdf::view('pdf.form2', ['data' => $resultData, 'notes' => $extraNote['answers'][0] ?? null, 'information' => $information])
+                ->margins(2.54, 2.54, 2.54, 2.54, 'cm')
+                ->withBrowsershot(function (Browsershot $browsershot) use ($chromePath) {
+                    $browsershot
+                        ->setChromePath($chromePath)
+                        ->addChromiumArguments([
+                            'headless=new',
+                            'disable-gpu',
+                            'disable-dev-shm-usage',
+                            'disable-crash-reporter',
+                            'user-data-dir=/tmp/chrome-profile'
+                        ])
+                        ->noSandbox()
+                        ->waitUntilNetworkIdle()
+                        ->ignoreHttpsErrors()
+                        ->setEnvironmentOptions([
+                            'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config')
+                        ]);
+                })
+                ->name($reportName)
+                ->download();
+        }
+    }
     public function sync(Request $req)
     {
         $req->validate([

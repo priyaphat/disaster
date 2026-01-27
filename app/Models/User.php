@@ -26,17 +26,13 @@ class User extends Authenticatable
     public const IMAGE_FOLDER = 'users';
     public const SUCCESS = 'success';
 
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+
     protected $appends = [
         'fullname'
     ];
 
+    protected $guard_name = 'api';
     protected $fillable = [
         'prefix_id',
         'firstname',
@@ -55,21 +51,11 @@ class User extends Authenticatable
         // 'registration_type'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [

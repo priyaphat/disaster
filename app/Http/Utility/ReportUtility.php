@@ -2,6 +2,7 @@
 
 namespace App\Http\Utility;
 
+use App\Constants\AssessmentData;
 use App\Constants\ShelterType;
 use App\Http\Resources\ShelterDailyLogResource;
 use App\Models\Shelter;
@@ -83,7 +84,7 @@ class ReportUtility
                 ...(!$isShelterExists ? ['ศูนย์พักพิง (เปิดทำการ)' => $group->sum('total_shelter') ?? '0'] : []),
                 'จำนวนผู้ประสบภัย' => strval($group->sum('total_victims')) ?? '0',
                 'ยอดผู้บาดเจ็บ' => strval($group->sum('total_injuries')) ?? '0',
-                'ยอดผู้เป็นปกติ' => strval( $group->sum('total_healthy')) ?? '0',
+                'ยอดผู้เป็นปกติ' => strval($group->sum('total_healthy')) ?? '0',
                 'ยอดผู้เสียชีวิต' => strval($group->sum('total_deaths')) ?? '0',
             ];
         }
@@ -180,5 +181,39 @@ class ReportUtility
         }
 
         return $report;
+    }
+
+    public static function getForm2Title($categoryName, $key)
+    {
+        $titleKeys = $categoryName . '_' . $key . '_topic';
+        $label = collect(AssessmentData::$VISITS);
+
+        return $label->only($titleKeys)->pluck('content')->first();
+    }
+
+    public static function getForm2Answers($categoryName, $key, $answers)
+    {
+        $label = collect(AssessmentData::$VISITS);
+        $arrKeys = [];
+        foreach ($answers as $index => $value) {
+            if ($value > 0) {
+                $arrKeys[] = $categoryName . '_' . $key . '_' . $index;
+            }
+        }
+        return $label->only($arrKeys)->pluck('content');
+    }
+
+
+    public static function getForm1Title($key)
+    {
+        $titleKeys = $key . '_topic';
+        $label = collect(AssessmentData::$ASSESSMENTS);
+        return $label->only($titleKeys)->pluck('content')->first();
+    }
+
+    public static function getForm1Answers($arrKeys)
+    {
+        $label = collect(AssessmentData::$ASSESSMENTS);
+        return $label->only($arrKeys)->pluck('content');
     }
 }
