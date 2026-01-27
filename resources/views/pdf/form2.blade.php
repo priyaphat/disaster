@@ -178,7 +178,7 @@ $formKeys = ['illness' => 'การเจ็บป้วย', 'care' => 'หั
                             <div class="PC_Body2-R text-[#7C7379]">ครั้งที่</div>
                             <div class="PC_Body1-R text-[#1F1D1F]">{{$information['count']}}</div>
                         </div>
-                        <div class="h-[47px] border-r-1 border-[#DFDCDD]"></div>
+                        <div class="h-[47px] border-r-[1px] border-[#DFDCDD]"></div>
                         <div class="flex flex-col">
                             <div class="PC_Body2-R text-[#7C7379]">วันที่ประเมิน</div>
                             <div class="PC_Body1-R text-[#1F1D1F]">
