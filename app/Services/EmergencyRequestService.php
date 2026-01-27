@@ -106,7 +106,6 @@ class EmergencyRequestService
                 }
                 return $item;
             });
-
         if ($request->paginate) return PaginateUtility::Paginate($items, $request->paginate ?? 10);
 
         if (!Auth::check() && $id) {
@@ -239,7 +238,7 @@ class EmergencyRequestService
 
                 return $item;
             });
-        return PaginateUtility::Paginate($items, $request->paginate ?? 10);
+        return PaginateUtility::Paginate($items, $emc->paginate ?? 10);
     }
 
     public function create(array $data): EmergencyRequest
