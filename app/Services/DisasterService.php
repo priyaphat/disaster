@@ -85,6 +85,11 @@ class DisasterService
                 Carbon::parse($req->start_date),
             ))
             ->when(
+                $req->province,
+                fn($q) =>
+                $q->where('disaster_earthquakes.address', 'like', "%$req->province%")
+            )
+            ->when(
                 $req->district,
                 fn($q) =>
                 $q->where('disaster_earthquakes.address', 'like', "%$req->district%")
@@ -148,6 +153,11 @@ class DisasterService
 
         $q = DisasterFlood::query()
             ->when(
+                $req->province,
+                fn($q) =>
+                $q->where('disaster_floods.address', 'like', "%$req->province%")
+            )
+            ->when(
                 $req->district,
                 fn($q) =>
                 $q->where('disaster_floods.address', 'like', "%$req->district%")
@@ -201,12 +211,12 @@ class DisasterService
                 )
             );
 
-        if($req->priority === 'name_sort'){
+        if ($req->priority === 'name_sort') {
             $q = $q->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc')
-            ->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
-        }else{
+                ->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        } else {
             $q = $q->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
-            ->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc');
+                ->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc');
         }
 
         $q->leftJoin('users', 'users.id', 'disaster_floods.created_by');
@@ -259,12 +269,12 @@ class DisasterService
                 )
             );
 
-        if($req->priority === 'name_sort'){
+        if ($req->priority === 'name_sort') {
             $q = $q->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc')
-            ->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
-        }else{
+                ->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        } else {
             $q = $q->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
-            ->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc');
+                ->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc');
         }
 
         $q->leftJoin('users', 'users.id', 'disaster_landslides.created_by');
@@ -363,6 +373,11 @@ class DisasterService
         }
 
         $q = DisasterSmog::query()
+            ->when(
+                $req->province,
+                fn($q) =>
+                $q->where('disaster_smogs.address', 'like', "%$req->province%")
+            )
             ->when(
                 $req->district,
                 fn($q) =>
