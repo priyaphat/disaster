@@ -63,9 +63,9 @@ class AssessmentController extends Controller
         $this->authorize('create', [Assessments::class, $population]);
 
         $assessment = new Assessments();
+        $assessment->fill($request->all());
         $assessment->name = AssessmentType::tryFrom($request->type)->label();
         $assessment->shelter_id = $population->shelterPopulation?->shelter_id ?? null;
-        $assessment->fill($request->all());
         $assessment->count = $this->latest($request);
         $assessment->save();
 

@@ -121,7 +121,8 @@ class DisasterService
                         fn($q) => $q->whereNotNull('disaster_earthquakes.created_by')->select(
                             'disaster_earthquakes.*',
                             DB::raw("IF(disaster_earthquakes.created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"),
-                            DB::raw('concat(users.firstname," ",users.lastname) as created_name')
+                            DB::raw('concat(users.firstname," ",users.lastname) as created_name'),
+                            DB::raw("CONCAT('อำเภอ',TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(address, 'อ.', -1),'\n', 1))) as district")
                         )
                     ),
                 fn($q) =>
