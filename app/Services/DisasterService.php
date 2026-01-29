@@ -116,7 +116,8 @@ class DisasterService
                         fn($q) => $q->whereNotNull('disaster_earthquakes.created_by')->select(
                             'disaster_earthquakes.*',
                             DB::raw("IF(disaster_earthquakes.created_by IS NOT NULL, 'เจ้าหน้าที่', 'ภายนอก') as Resources"),
-                            DB::raw('concat(users.firstname," ",users.lastname) as created_name')
+                            DB::raw('concat(users.firstname," ",users.lastname) as created_name'),
+                            DB::raw("CONCAT('อำเภอ',TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(address, 'อ.', -1),'\n', 1))) as district")
                         )
                     ),
                 fn($q) =>
@@ -201,12 +202,12 @@ class DisasterService
                 )
             );
 
-        if($req->priority === 'name_sort'){
+        if ($req->priority === 'name_sort') {
             $q = $q->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc')
-            ->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
-        }else{
+                ->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        } else {
             $q = $q->orderBy('disaster_floods.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
-            ->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc');
+                ->orderBy('disaster_floods.water_source', $req->name_sort === 'asc' ? 'asc' : 'desc');
         }
 
         $q->leftJoin('users', 'users.id', 'disaster_floods.created_by');
@@ -259,12 +260,12 @@ class DisasterService
                 )
             );
 
-        if($req->priority === 'name_sort'){
+        if ($req->priority === 'name_sort') {
             $q = $q->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc')
-            ->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
-        }else{
+                ->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc');
+        } else {
             $q = $q->orderBy('disaster_landslides.created_at', $req->sort === 'asc' ? 'asc' : 'desc')
-            ->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc');
+                ->orderBy('disaster_landslides.name', $req->name_sort === 'asc' ? 'asc' : 'desc');
         }
 
         $q->leftJoin('users', 'users.id', 'disaster_landslides.created_by');
