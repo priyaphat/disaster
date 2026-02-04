@@ -526,7 +526,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/assessment', [AssessmentController::class, 'store']);
     Route::post('/assessment/{assessment}', [AssessmentController::class, 'update']);
     Route::get('/assessment-logs/{log}', [AssessmentController::class, 'logs']);
-    Route::post('/sync-assessment', [AssessmentController::class, 'sync']);
+    Route::post('/sync-assessment/{id?}', [AssessmentController::class, 'sync']);
     Route::post('/sync-create', [AssessmentController::class, 'syncStore']);
 
     /*

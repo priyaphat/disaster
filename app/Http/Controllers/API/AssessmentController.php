@@ -171,7 +171,7 @@ class AssessmentController extends Controller
         return ApiResponse::successResponse(__('success.deleted'));
     }
 
-    public function update(Request $request, Assessments $assessment)
+    public function update(Request $request, Assessments $assessment, $sync = null)
     {
         $this->authorize('update', $assessment);
 
@@ -179,14 +179,14 @@ class AssessmentController extends Controller
             'datetime' => 'required',
             'population_id' => 'required|exists:populations,id',
             'detail' => 'nullable|array',
-            'team_id' => 'required_if:type,1|exists:teams,id',
+            // 'team_id' => 'required_if:type,1|exists:teams,id', //ติด sync
             'district_id' => 'required_if:type,1',
             'type' => 'required|in:1,2',
             'image' => 'nullable|mimes:jpg,jpeg,png|max:102400'
         ]);
 
-        $request['name'] = AssessmentType::tryFrom($request->type)->label();
         $assessment->fill($request->all());
+        $request['name'] = AssessmentType::tryFrom($request->type)->label();
         // $assessment->fill($request->except('count'));
         // $assessment->count += 1;
         $assessment->save();
@@ -202,6 +202,7 @@ class AssessmentController extends Controller
 
         $res = self::index(request(), $assessment->id, 'frist');
         $this->logStore($res);
+        if ($sync) return $res;
         return ApiResponse::successResponse(__('success.updated'), $res);
     }
 
@@ -629,7 +630,7 @@ class AssessmentController extends Controller
                 ->download();
         }
     }
-    public function sync(Request $req)
+    public function sync(Request $req, $id = null)
     {
         $req->validate([
             'first_name' => 'required',
@@ -644,7 +645,11 @@ class AssessmentController extends Controller
         $res = Population::where('first_name', $req['first_name'])
             ->where('last_name', $req['last_name'])->first();
         // ->where('phone', $req['phone'])->first();
-
+        if ($id) {
+            $assessment = Assessments::findOrFail($id);
+            $assessment = $this->update($req, $assessment, 'sync');
+            return ApiResponse::successResponse(__('success.sync.updated'), $assessment);
+        }
         if ($res) {
             $data = array_merge($req->all(), $req['data'] ?? []);
             unset($data['data']);
@@ -656,6 +661,7 @@ class AssessmentController extends Controller
             $assessment = $this->store(new Request($data), 'sync');
             return ApiResponse::successResponse(__('success.sync.success'), $assessment);
         }
+
         return ApiResponse::errorResponse(__('error.sync.unique'));
     }
 
@@ -664,7 +670,7 @@ class AssessmentController extends Controller
         $r->validate(
             [
                 'assessment.datetime' => 'required',
-                'assessment.detail' => 'nullable|array',
+                'assessment.assessment' => 'nullable|array',
                 'assessment.type' => 'required|in:1,2',
                 'assessment.image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
             ]
