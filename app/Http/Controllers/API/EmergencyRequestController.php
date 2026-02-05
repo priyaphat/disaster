@@ -156,12 +156,12 @@ class EmergencyRequestController extends Controller
                 EmergencyRequest::where('id', $emergencyRequest->id)
                     ->lock('FOR UPDATE NOWAIT')
                     ->first();
-
                 if ($edit = self::canEdit($emergencyRequest, $request)) return $edit;
                 //hospital create
                 if ($request['hospital_id'] == -1) {
                     $request['hospital_id'] = (new EmergencyTeamController)->hospitalStore($request['hospital_name']);
                 }
+                
                 $old = clone $emergencyRequest;
                 $skip = false;
                 $name = Prefix::where('id', $emergencyRequest['prefix_id'])->value('name') . ' ' . $emergencyRequest['first_name'] . ' ' . $emergencyRequest['last_name'];
@@ -255,6 +255,7 @@ class EmergencyRequestController extends Controller
                         $this->notificationService->sendToAdmin($notification);
                         $textResponse = __('success.emc_request.incomplete');
                     } else if ($emergencyRequest['status'] == EmergencyRequest::hospital) { //ส่งไป รพ.
+                        self::updatedAssigner($emergencyRequest);
                         LinePostUtility::LineMakeInformation(LineController::Hospital, $emergencyRequest);
                         $notification = $this->notificationService->createNotification('emergency_request.success', ['name' => $name], $emergencyRequest->id, EmergencyRequest::class, true);
                         $this->notificationService->sendToAdmin($notification);
@@ -274,8 +275,8 @@ class EmergencyRequestController extends Controller
                 return ApiResponse::successResponse($textResponse ?? __('success.updated'), $emergencyRequest);
                 #endregion
             });
-
             return  $response;
+
         } catch (\Exception $e) {
             return ApiResponse::errorResponse(__('error.emc_req.working'), Response::HTTP_FORBIDDEN);
         }
@@ -321,9 +322,11 @@ class EmergencyRequestController extends Controller
         if ($r['status'] == EmergencyRequest::helping && $e['status'] == EmergencyRequest::waiting) {
             return ApiResponse::errorResponse(__('error.emc_req.working'), Response::HTTP_FORBIDDEN);
         }
+
         if ($r['status'] == EmergencyRequest::hospital && $r['victim_name'][0]['fname'] == null) {
             return ApiResponse::errorResponse(__('error.emc_req.victim_name_not_found'));
         }
+
     }
 
     /**
