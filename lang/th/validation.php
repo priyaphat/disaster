@@ -193,6 +193,7 @@ return [
         'position_id' => 'ตำแหน่งงาน',
         'user_id' => 'ผู้ใช้งาน',
         'team_id' => 'ทีมที่สังกัด',
+        'population_id' => 'ประชากร',
         'created_date' => 'วันที่สร้าง',
         'leader_id' => 'หัวหน้า',
         'geography_id' => 'ID ของที่อยู่',

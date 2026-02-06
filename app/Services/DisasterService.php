@@ -279,8 +279,8 @@ class DisasterService
         }
 
         $q->leftJoin('users', 'users.id', 'disaster_landslides.created_by');
-        if ($method) $q->get();
-        if ($id) $q->first();
+        if ($method) return $q->get();
+        if ($id) return $q->first();
         return $q->paginate($req->paginate ?? 10);
     }
 
