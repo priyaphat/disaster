@@ -28,6 +28,7 @@ use App\Services\ImageService;
 use App\Services\PopulationService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
@@ -48,18 +49,24 @@ class AssessmentController extends Controller
 
     public function store(Request $request, $sync = null)
     {
+        // First, Validate population id
+        $request->validate(['population_id' => 'required|exists:populations,id']);
+
+        // Find a population
+        $population = Population::with('permanentAddress')->findOrFail($request?->population_id);
+
         $request->validate([
             'datetime' => 'required',
-            'population_id' => 'required|exists:populations,id',
             'detail' => 'nullable|array',
             // 'team_id' => 'required_if:type,1|exists:teams,id', //ติด sync
-            'district_id' => 'required_if:type,1',
+            'district_id' => Rule::requiredIf(function () use ($request, $population) {
+                return $population?->permanentAddress && $request->type == 1;
+            }),
             'type' => 'required|in:1,2',
             'image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
         ]);
 
         // Permission Part
-        $population = Population::findOrFail($request->population_id);
         $this->authorize('create', [Assessments::class, $population]);
 
         $assessment = new Assessments();
@@ -70,7 +77,8 @@ class AssessmentController extends Controller
         $assessment->save();
 
         // Upload an image to server
-        if ($request->hasFile('image')) {
+        $image = $request->input('image');
+        if ($request->hasFile('image') || $image instanceof \Illuminate\Http\UploadedFile) {
             $this->imageService->uploadImage($request->image, Assessments::IMAGE_FOLDER, Assessments::class, $assessment->id, Image::PRIVATE);
         }
 
@@ -682,11 +690,29 @@ class AssessmentController extends Controller
 
         if ($res) {
             $assessment = $r['assessment'];
+
+            $detail = collect($assessment)
+                ->forget('datetime')
+                ->forget('type')
+                ->toArray();
+
+            // Assessment request
+            $assessReq = [
+                'population_id' => $res?->id,
+                'shelter_id' => $r->shelter_id ?? null,
+                'detail' => $detail,
+                'datetime' => $assessment['datetime'],
+                'team_id' => $detail['assessment']['team_id'] ?? null,
+                'team_name' => $detail['assessment']['team_name'] ?? null,
+                'type' => $assessment['type'],
+                'image' => $assessment['image'] ?? null,
+            ];
+
             if ($assessment['type'] == 1) {
-                $assessment['district_id'] = $assessment['district_id'] ?? (Geography::whereId($res->p_geography_id)->value('district_code') ?? null);
+                $assessReq['district_id'] = $assessment['district_id'] ?? (Geography::whereId($res->p_geography_id)->value('district_code') ?? null);
             }
-            $assessment['population_id'] = $res->id;
-            $data = $this->store(new Request($assessment), 'sync');
+
+            $data = $this->store(new Request($assessReq), 'sync');
             return ApiResponse::successResponse(__('success.sync.addAndsuccess'), $data);
         }
     }
