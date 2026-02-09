@@ -680,13 +680,14 @@ class AssessmentController extends Controller
                 'assessment.datetime' => 'required',
                 'assessment.assessment' => 'nullable|array',
                 'assessment.type' => 'required|in:1,2',
-                'assessment.image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
+                // 'assessment.image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
+                'image' => 'nullable|file|mimes:jpg,jpeg,png|max:102400'
             ]
         );
-
         $r['birth_date'] = Carbon::parse($r['birth_date'])->format('Y-m-d');
         $r['created_date'] = Carbon::parse($r['created_date'])->format('Y-m-d');
-        $res = (new PopulationService)->create($r->toArray());
+        $people = $r->except('image');
+        $res = (new PopulationService)->create($people);
 
         if ($res) {
             $assessment = $r['assessment'];
@@ -705,7 +706,7 @@ class AssessmentController extends Controller
                 'team_id' => $detail['assessment']['team_id'] ?? null,
                 'team_name' => $detail['assessment']['team_name'] ?? null,
                 'type' => $assessment['type'],
-                'image' => $assessment['image'] ?? null,
+                'image' => $r->image ?? null,
             ];
 
             if ($assessment['type'] == 1) {
