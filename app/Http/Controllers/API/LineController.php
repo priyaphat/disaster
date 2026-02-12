@@ -151,7 +151,7 @@ class LineController extends Controller
 
     private function limitUpdate($data, $limit)
     {
-        $limit['totalUsage'] = $limit['totalUsage'] + count($data);
+        $limit['totalUsage'] = ($limit['totalUsage'] ?? 0) + count((array) $data);
         Config::where('type', Config::lineCount)
             ->update(['description' => $limit]);
     }
