@@ -18,6 +18,7 @@ use App\Http\Utility\LinePostUtility;
 use App\Models\DisasterEarthquake;
 use App\Models\DisasterLandslide;
 use App\Models\DisasterSmog;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -44,7 +45,7 @@ class DisasterController extends Controller
     }
 
     /**
-     * Disaster | ดึง Disaster by id 
+     * Disaster | ดึง Disaster by id
      */
     public function show(Disaster $disaster)
     {
@@ -216,7 +217,7 @@ class DisasterController extends Controller
         return ApiResponse::successResponse(__('success.data'), $data);
     }
 
-    /** 
+    /**
      * Disaster | สร้าง landslide
      */
     public function dst_ls_create(DisasterRequest $request)
@@ -339,7 +340,7 @@ class DisasterController extends Controller
             $q = $this->disasterService->fl_show(request(), null, 'get');
             $rows = $q->map(function ($i) {
                 return [
-                    $i['created_at'],
+                    $i['created_at']->thaidate('d/m/Y H:i'),
                     $i['water_source'],
                     $i['address'],
                     FloodSourceType::tryFrom($i['water_source_type'])?->label() ?? '',
@@ -353,7 +354,7 @@ class DisasterController extends Controller
             $q = $this->disasterService->ls_show(request(), null, 'get');
             $rows = $q->map(function ($i) {
                 return [
-                    $i['created_at'],
+                    $i['created_at']->thaidate('d/m/Y H:i'),
                     $i['name'],
                     $i['link'],
                 ];
@@ -376,7 +377,7 @@ class DisasterController extends Controller
             $q = $this->disasterService->dst_sm_show(request(), null, 'get');
             $rows = $q->map(function ($i) {
                 return [
-                    $i['created_at'],
+                    $i['created_at']->thaidate('d/m/Y H:i'),
                     $i['source'],
                     $i['address'],
                     $i['smog_value'].' ',
@@ -388,12 +389,12 @@ class DisasterController extends Controller
             $q = $this->disasterService->eq_show(request(), null, 'get');
             $rows = $q->map(function ($i) {
                 return [
-                    $i['created_at'],
+                    $i['created_at']->thaidate('d/m/Y H:i'),
                     $i['address'],
                     $i['latitude'] . ',' . $i['longitude'],
                     $i['depth'].' ',
                     $i['magnitude'].' ',
-                    $i['occurrence_time'],
+                    Carbon::parse($i['occurrence_time'])->thaidate('d/m/Y H:i'),
                     $i['Resources'],
                 ];
             })->toArray();
