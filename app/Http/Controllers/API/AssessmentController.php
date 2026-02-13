@@ -655,7 +655,9 @@ class AssessmentController extends Controller
         // ->where('phone', $req['phone'])->first();
         if ($id) {
             $assessment = Assessments::findOrFail($id);
-            $assessment = $this->update($req, $assessment, 'sync');
+            $data = array_merge($req->all(), $req['data'] ?? []);
+            $data['population_id'] = $assessment->population_id;
+            $assessment = $this->update(new Request($data), $assessment, 'sync');
             return ApiResponse::successResponse(__('success.sync.updated'), $assessment);
         }
         if ($res) {
