@@ -41,7 +41,6 @@ class AppointmentService
         $filters['selected_date'] = isset($filters['selected_date']) ? Carbon::parse($filters['selected_date'])->format('Y-m-d') : Carbon::now()->format('Y-m-d');
 
         $shiftData = Appointment::filter($filters)->with('team', 'shelter', 'teamLog', 'shelterLog')->oldest('start_time')->get();
-
         $data = $shiftData->sortBy('start_time')->groupBy('shift')->mapWithKeys(function ($recordsByShift, $shift) use ($filters) {
             $shiftData = [
                 'shift' => $shift,
@@ -406,7 +405,7 @@ class AppointmentService
                 $shiftGroup->put($name, (object) ['shift' => $index, 'shift_name' => $shift->label(), 'total_team' => 0, 'total_shelter' => 0, 'appointments' => []]);
             }
         }
-        return $shiftGroup;
+        return $shiftGroup->sortBy('shift');
     }
 
     public function deleteUpcomingAppointment(array $data)
