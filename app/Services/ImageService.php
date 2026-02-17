@@ -40,6 +40,7 @@ class ImageService
         // Upload the file to storage
         $imageData = self::uploadFile($file, $folder, $diskName);
         // Create an image to database
+
         $data = $tableData + $imageData;
         $image = Image::create($data);
         return $image;
