@@ -134,7 +134,7 @@ class AssessmentController extends Controller
             if ($methed) return $q;
         } else {
             $q = $q->where('assessments.population_id', $r->population_id)
-                ->orderBy('assessments.datetime', $r->sort ?? 'desc')
+                ->orderBy('assessments.count', $r->sort ?? 'asc')
                 ->when(
                     $r->type,
                     fn($q) =>
@@ -194,14 +194,17 @@ class AssessmentController extends Controller
         ]);
 
         $assessment->fill($request->all());
-        $request['name'] = AssessmentType::tryFrom($request->type)->label();
+        $request['name'] = $assessment->name = AssessmentType::tryFrom($request->type)->label();
+
         // $assessment->fill($request->except('count'));
         // $assessment->count += 1;
         $assessment->save();
 
         // Handle remove an image or update an image
         if (array_key_exists('image', $request->all())) {
-            if ($request->hasFile('image')) {
+            // if ($request->hasFile('image')) {
+            $image = $request->input('image');
+            if ($request->hasFile('image') || $image instanceof \Illuminate\Http\UploadedFile) {
                 $this->imageService->updateImage($request->image, Assessments::IMAGE_FOLDER, Assessments::class, $assessment->id, Image::PRIVATE);
             } else {
                 $this->imageService->deleteImage(Assessments::class, $assessment->id);
@@ -655,7 +658,12 @@ class AssessmentController extends Controller
         // ->where('phone', $req['phone'])->first();
         if ($id) {
             $assessment = Assessments::findOrFail($id);
-            $assessment = $this->update($req, $assessment, 'sync');
+            $data = array_merge($req->all(), $req['data'] ?? []);
+            $data['population_id'] = $assessment->population_id;
+            if ($data['type'] == 1) {
+                $data['district_id'] = $data['district_id'] ?? (Geography::whereId($res->p_geography_id)->value('district_code') ?? null);
+            }
+            $assessment = $this->update(new Request($data), $assessment, 'sync');
             return ApiResponse::successResponse(__('success.sync.updated'), $assessment);
         }
         if ($res) {
