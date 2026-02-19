@@ -134,7 +134,7 @@ class AssessmentController extends Controller
             if ($methed) return $q;
         } else {
             $q = $q->where('assessments.population_id', $r->population_id)
-                ->orderBy('assessments.datetime', $r->sort ?? 'desc')
+                ->orderBy('assessments.count', $r->sort ?? 'asc')
                 ->when(
                     $r->type,
                     fn($q) =>
