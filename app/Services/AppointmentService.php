@@ -117,6 +117,8 @@ class AppointmentService
         $tranformedData = AppointmentResource::collection($monthAppointment)->toArray(request());
 
         $search = isset($filters['search']) ? $filters['search'] : null;
+        $page = isset($filters['paginate']) ? $filters['paginate'] : 10;
+
         if ($search) {
             $tranformedData = collect($tranformedData)->filter(function ($item) use ($search) {
                 return Str::contains($item['team_name'], $search) || Str::contains($item['shelter_name'], $search);
@@ -144,7 +146,7 @@ class AppointmentService
             })->values();
 
 
-        $tranformedData = GvarFunc::paginate($tranformedData, 10);
+        $tranformedData = GvarFunc::paginate($tranformedData, $page);
 
         return $tranformedData;
     }
