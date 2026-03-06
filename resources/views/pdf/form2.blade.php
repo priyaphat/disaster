@@ -235,15 +235,13 @@
                         </div>
                     @endforeach
 
-
-
                     <!-- //บันทึกเพิ่มเติม  -->
                     @if (filled($notes ?? null))
                         <div class="mt-[26px] w-full flex flex-col items-start gap-[20px] keep-together">
-                            <div class="page-keep w-full p-[10px] bg-[#FBEFF8]">
-                                <label class="PC_Body1-SB text-[#1F1D1F]"> บันทึกเพิ่มเติม</label>
+                            <div class="page-keep w-full flex items-center gap-[10px]">
+                                <div class="w-[4px] h-[30px] bg-[#EECCE7]"></div>
+                                <label class="PC_Body1-SB text-[#1F1D1F]">บันทึกเพิ่มเติม</label>
                             </div>
-
                             <div class="page-keep flex items-center">
                                 <div class="w-[4px] h-[4px] bg-[#A8A3A6] rounded-full ml-2.5 mr-3.5 mt-20-pdf"></div>
                                 {{ $notes }}
@@ -304,7 +302,7 @@
                                     </div>
 
                                     <div class="w-full flex flex-col items-start gap-[2px] keep-together">
-                                        <div class="PC_Body2-R text-[#7C7379]">ที่อยู่ตามภูมิลำเนา</div>
+                                        <div class="PC_Body2-R text-[#7C7379]">ที่อยู่ปัจจุบัน</div>
                                         <div class="PC_Body1-R text-[#1F1D1F]">
                                             {{ $information['address'] ?? '-' }}
                                         </div>
