@@ -180,6 +180,14 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(VulnerableGroup::class, VulnerableGroupPolicy::class);
 
+        // API document permission
+        Gate::define('viewApiDocs', function (?User $user) {
+            if (app()->environment(['local', 'dev', 'development', 'staging', 'testing'])) {
+                return true;
+            }
+            return false;
+        });
+
         // API Document
         Scramble::configure()
             ->expose(
@@ -193,6 +201,5 @@ class AppServiceProvider extends ServiceProvider
                     SecurityScheme::http('bearer')
                 );
             });
-
     }
 }
