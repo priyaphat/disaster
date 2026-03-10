@@ -178,9 +178,9 @@ class ProductTransferController extends Controller
                 ->where('product_id', $item['product_id'])->where('shelter_id', $shelter)
                 ->leftJoin('products', 'shelter_products.product_id', 'products.id')
                 ->first();
-            if ($request['spacial']) {
+            if ($request['spacial']) { //มีไว้ตรวจสอบ ว่าที่ร้องขอ แบบ มี จำนวน จะเกินกว่าที่ร้องขอไหม และ สร้าง log
                 $productRequest = ProductRequest::find($request['product_request_id']);
-                if ($productRequest->request < $item['quantity']) return ApiResponse::errorResponse(__('error.product_transfer.morely'));
+                if (($productRequest->request < $item['quantity']) && $productRequest->request != -1) return ApiResponse::errorResponse(__('error.product_transfer.morely'));
             }
             $pdt['quantity'] = $pdt['quantity'] - $item['quantity'];
             $pdt->update();
@@ -258,7 +258,7 @@ class ProductTransferController extends Controller
                 'shelter_product.received',
                 [
                     'to_shelter' => 'ศูนย์พักพิง' . $i['to_shelter_name'],
-                    'from_shelter' => $log->from ? 'ศูนย์พักพิง'. $i['from_shelter_name'] : 'ศูนย์กลาง',
+                    'from_shelter' => $log->from ? 'ศูนย์พักพิง' . $i['from_shelter_name'] : 'ศูนย์กลาง',
                     'product' => $i['product']['name'],
                     'unit' => $i['product']['unit_name'],
                     'amount' => $log['detail']['quantity'],
