@@ -54,6 +54,28 @@ class ProductTransferController extends Controller
     }
 
     /**
+     * Get All shelter , exception your self. and get has requset product
+     */
+    public function shelterList_req(Request $filter, $product_id)
+    {
+        $shelter = ProductUtility::getShelter();
+        $q = Shelter::select('shelters.id', 'shelters.name')
+            ->where('shelters.id', '!=', $shelter)
+            ->where('shelters.status', Shelter::OPEN)
+            ->leftJoin('product_requests', 'product_requests.shelter_id', '=', 'shelters.id')
+            ->where('product_requests.product_id', $product_id)
+            ->distinct();
+        $q = $this->search->search($q, $filter, 'get');
+        if ($shelter) {
+            $q = $q->prepend([
+                'id' => '',
+                'name' => 'ศูนย์กลาง',
+            ]);
+        }
+        return ApiResponse::successResponse(__('success.data'), $q);
+    }
+
+    /**
      * Get product for tranfer , your shelter
      */
     public function productList(Request $filter, $unit_type = true, $shelter = null) //shelter from (all delete)

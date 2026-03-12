@@ -355,7 +355,8 @@ Route::middleware('auth:api')->group(function () {
     | Routes for display products transfer
     |--------------------------------------------------------------------------
     */
-    Route::get('/transfer-shelter-list', [ProductTransferController::class, 'shelterList']);
+    Route::get('/transfer-shelter-list', [ProductTransferController::class, 'shelterList']); // select all
+    Route::get('/transfer-shelter-list-req/{product_id}', [ProductTransferController::class, 'shelterList_req']); // select req product by id only
     Route::get('/transfer-product-list', [ProductTransferController::class, 'productList']);
     Route::get('/transfer-product-logs', [ProductTransferController::class, 'productLog']);
     Route::post('/transfer-product', [ProductTransferController::class, 'store']);
