@@ -66,12 +66,6 @@ class ProductTransferController extends Controller
             ->where('product_requests.product_id', $product_id)
             ->distinct();
         $q = $this->search->search($q, $filter, 'get');
-        if ($shelter) {
-            $q = $q->prepend([
-                'id' => '',
-                'name' => 'ศูนย์กลาง',
-            ]);
-        }
         return ApiResponse::successResponse(__('success.data'), $q);
     }
 
