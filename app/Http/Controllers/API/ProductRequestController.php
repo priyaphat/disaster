@@ -153,13 +153,24 @@ class ProductRequestController extends Controller
             //         END as needed
             //     ')
             // DB::raw('(product_requests.request - product_requests.quantity) as needed'),
-            DB::raw('
-                IF(
-                    (CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - product_requests.quantity != 0,
-                    ABS((CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - product_requests.quantity),
-                    -1
-                ) as needed
-            '),
+            // DB::raw(' 
+            //     IF(
+            //         (CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - product_requests.quantity != 0,
+            //         ABS((CASE WHEN product_requests.request != -1 THEN product_requests.request ELSE 0 END) - product_requests.quantity),
+            //         -1
+            //     ) as needed
+            // '),
+            DB::raw(' 
+                    IF(
+                        product_requests.request = -1,
+                        -1,
+                        IF(
+                            (product_requests.request - product_requests.quantity) != 0,
+                            ABS(product_requests.request - product_requests.quantity),
+                            -1
+                        )
+                    ) as needed
+                '), //แก้ปัญหา request ออกมาเป็น "ไม่จำกัด"
         )
             ->where('product_requests.status', ProductRequest::ACTIVE)
             ->where('product_requests.product_id', $RequsetId)
